@@ -42,12 +42,11 @@ The SDK is in a guided rollout. **Not every public symbol below is ready for cus
 | Devices endpoints (locked devices, update info, upload sync time) | 🚧 WIP | |
 | Services endpoints (register push, refresh global state, refresh user settings) | 🚧 WIP | |
 | Daily stats endpoint | 🚧 WIP | |
-| Biometric upload endpoint | 🚧 WIP | |
 | White-label settings | 🚧 WIP | |
 | `SleepDetectionDelegate` | 🚧 WIP | |
 | Diagnostics publishers | ✅ Supported | `haveUnuploadedPackets`, `developmentLogStats`, `isRawLoggingEnabled` |
 | DI `Container` / `@Injectable` | 🚧 WIP | Internal plumbing; no customer use case yet |
-| `SDKConstants` / `SDKGlobals` / `sdkDefaults` / `SB_DefaultsMigrator` | 🚧 WIP | Internal-only knobs today |
+| `SDKConstants` / `SDKGlobals` | 🚧 WIP | Internal-only knobs today |
 
 ---
 
@@ -600,12 +599,6 @@ public func refreshUserAppSettings() async throws -> SB_UserAppSettings
 public func fetchDailyStats(startDate: Int32, days: Int32, metrics: [String]) async throws -> [SB_DailyStats]
 ```
 
-### 6.13 Uploads — 🚧 WIP
-
-```swift
-public func uploadBiometrics(_ upload: SB_BiometricsUpload) async throws
-```
-
 ---
 
 ## 7. Top-Level Symbols & Namespaces
@@ -686,21 +679,7 @@ public final class Container: @unchecked Sendable {
 }
 ```
 
-### 7.6 Defaults storage — 🚧 WIP
-
-```swift
-public struct sdkDefaults {
-    public static let suiteName: String
-    public static let keychainService: String
-    // + key-name constants for the SDK's isolated preferences store
-}
-
-public struct SB_DefaultsMigrator {
-    public static func runIfNeeded()
-}
-```
-
-### 7.7 Diagnostic logger — 🚧 WIP
+### 7.6 Diagnostic logger — 🚧 WIP
 
 ```swift
 public class SB_FXCLogging: NSObject {
@@ -728,14 +707,14 @@ The SDK ships ~170 public structs and ~65 public enums under `Sources/SensorBioS
 
 These domain types are returned by, or accepted by, the ✅ Supported methods above and are stable for customer integration today.
 
-- **Auth & session** — `SB_Session`, `SB_LoginPersistedUser`, `SB_CreateAccountRequest`, `SB_SignInOutcome`, `SB_CreateAccountOutcome`, `SB_AuthError`, `SB_Gender`, `SB_EmailAvailabilityOutcome`, `SB_ChangePasswordOutcome`, `SB_RequestPasswordResetOutcome`, `SB_AgreementCheck`, `SB_AgreementType`.
+- **Auth & session** — `SB_Session`, `SB_CreateAccountRequest`, `SB_SignInOutcome`, `SB_CreateAccountOutcome`, `SB_AuthError`, `SB_Gender`, `SB_EmailAvailabilityOutcome`, `SB_ChangePasswordOutcome`, `SB_RequestPasswordResetOutcome`, `SB_AgreementCheck`, `SB_AgreementType`.
 - **User profile & goals** — `SB_UserProfile`, `SB_UserProfileUpdate`, `SB_PhysicalStats`, `SB_CardioStats`, `SB_UnitType`, `SB_UpdateUserProfileOutcome`, `SB_Goals`, `SB_UpdateGoalsOutcome`.
-- **Pairing & device** — `SB_DiscoveredDevice`, `SB_PairedDeviceState`, `SB_BluetoothDeviceType`, `SB_DeviceConnectionState`, `SB_NetworkStatus`, `SB_FirmwareVersion`.
+- **Pairing & device** — `SB_DiscoveredDevice`, `SB_PairedDeviceState`, `SB_BluetoothDeviceType`, `SB_DeviceConnectionState`, `SB_NetworkStatus`.
 - **Dashboard** — `SB_DashboardData`, `SB_DashboardItemActivity`, `SB_DashboardItemSleep`, `SB_DashboardItemRecovery`, `SB_DashboardCircularItem`, `SB_DashboardMetric`, `SB_DashboardMetricType`, `SB_DashboardMetricFooter`, `SB_DashboardItemRecoveryStage`, `SB_DashboardInsight`, `SB_DashboardSleepRecommendationCard`.
-- **Reads — granularity & shared primitives** — `SB_ViewGranularity`, `SB_TimeValuePoint`, `SB_DateValuePoint`, `SB_BarGraph`, `SB_BarGraphDataPoint`, `SB_ValueUnitWrapper`, `SB_ValuesUnitBlock`, `SB_RGBAColor`, `SB_Color`, `SB_LineColor`, `SB_HighLightZone`, `SB_Zone`.
+- **Reads — granularity & shared primitives** — `SB_ViewGranularity`, `SB_TimeValuePoint`, `SB_DateValuePoint`, `SB_BarGraph`, `SB_BarGraphDataPoint`, `SB_ValueUnitWrapper`, `SB_ValueUnitBlock`, `SB_RGBAColor`, `SB_Color`, `SB_LineColor`, `SB_HighLightZone`, `SB_Zone`.
 - **Activity reads** — `SB_StepsTrending`, `SB_StepsGraph`, `SB_StepMetric`, `SB_StepMetricType`, `SB_CaloriesTrending`, `SB_CaloriesGraph`, `SB_CalorieMetric`, `SB_DailyRecoveryTrending`, `SB_DailyRecoveryGraph`, `SB_RecoveryRangeTrending`, `SB_RecoveryRangeGraph`, `SB_RecoveryScoreSection`, `SB_RecoveryScoreFactor`.
 - **Biometric reads (HR/HRV/RR)** — `SB_HRDailyTrending`, `SB_HRRangeTrending`, `SB_HRDailyGraph`, `SB_HRRangeGraph`, `SB_HRVDailyTrending`, `SB_HRVRangeTrending`, `SB_HRVDailyGraph`, `SB_HRVRangeGraph`, `SB_RRDailyTrending`, `SB_RRRangeTrending`, `SB_RRDailyGraph`, `SB_RRRangeGraph`, `SB_HeartRateTimeValuePoint`, `SB_HRVTimeValuePoint`, `SB_HeartRateValueType`, `SB_HRVValueType`.
-- **Sleep reads & writes** — `SB_SleepDetailDay`, `SB_SleepDetailAggregated`, `SB_SleepSession`, `SB_SleepItem`, `SB_SleepStages`, `SB_SleepStagesAggregated`, `SB_SleepStageInterval`, `SB_SleepSessionStage`, `SB_SleepBiometrics`, `SB_SleepBiometricGraph`, `SB_SleepDisturbances`, `SB_DisturbanceStage`, `SB_DisturbanceGraph`, `SB_SleepScore`, `SB_SleepScoreSection`, `SB_SleepScoreFactor`, `SB_SleepScorePenalty`, `SB_SleepTag`, `SB_SleepStage`, `SB_SleepStatus`, `SB_SleepMetricValue`, `SB_SleepApneaInfo`, `SB_ApneaEvent`, `SB_SleepPosition`, `SB_SleepPositionInfo`, `SB_SleepPositionInterval`, `SB_SleepPositionState`, `SB_SleepDebtAggregatedGraph`, `SB_SleepDebtDateValuePointWrapper`, `SB_SleepBedtimeRecommendation`, `SB_SleepTrend`, `SB_SleepTrendChart`, `SB_SleepScoreProcessState`, `SB_SleepAccounting`, `SB_SleepAccountingItem`.
+- **Sleep reads & writes** — `SB_SleepDetailDay`, `SB_SleepDetailAggregated`, `SB_SleepSession`, `SB_SleepItem`, `SB_SleepStages`, `SB_SleepStagesAggregated`, `SB_SleepStageInterval`, `SB_SleepSessionStage`, `SB_SleepBiometrics`, `SB_SleepBiometricGraph`, `SB_SleepDisturbances`, `SB_DisturbanceStage`, `SB_DisturbanceGraph`, `SB_SleepScore`, `SB_SleepScoreSection`, `SB_SleepScoreFactor`, `SB_SleepScorePenalty`, `SB_SleepStage`, `SB_SleepStatus`, `SB_SleepMetricValue`, `SB_SleepApneaInfo`, `SB_ApneaEvent`, `SB_SleepPosition`, `SB_SleepPositionInfo`, `SB_SleepPositionInterval`, `SB_SleepPositionState`, `SB_SleepDebtAggregatedGraph`, `SB_SleepDebtDateValuePointWrapper`, `SB_SleepBedtimeRecommendation`, `SB_SleepTrend`, `SB_SleepTrendChart`, `SB_SleepScoreProcessState`, `SB_SleepAccounting`, `SB_SleepAccountingItem`.
 - **Insights** — `SB_NewInsights`, `SB_InsightItem`, `SB_InsightItemGroup`, `SB_InsightInfluencer`, `SB_InsightError`, `SB_PopulationInsightsFilterList`, `SB_PopulationInsightMetric`, `SB_PopulationInsightsHistogram`, `SB_PopulationInsightsRadarChart`, `SB_PopulationAgeGroup`, `SB_PopulationMetricType`, `SB_PopulationGender`, `SB_RadarChartPoint`, `SB_RadarPair`.
 
 ### 8.2 🚧 WIP clusters
@@ -743,7 +722,7 @@ These domain types are returned by, or accepted by, the ✅ Supported methods ab
 - **Org / settings** — `SB_UserAppSettings`, `SB_OrgMembership`, `SB_OrganizationMemberStatus`, `SB_ExerciseZoneAttributes`.
 - **SpO2 reads** — `SB_SpO2DailyTrending`, `SB_SpO2RangeTrending`, `SB_SpO2DailyGraph`, `SB_SpO2RangeGraph`.
 - **Workouts / activities** — `SB_ActivityRecordingList`, `SB_ActivityTimeline`, `SB_ActivitySummary`, `SB_ActivitySummarySet`, `SB_ActiveWorkoutSegment`, `SB_WorkoutItem`, `SB_WorkoutDetail`, `SB_WorkoutSummaryMetric`, `SB_WorkoutTimelineResult`, `SB_WorkoutEntry`, `SB_WorkoutRecordingInfo`, `SB_WorkoutType`, `SB_WorkoutEntryType`, `SB_WorkoutMetricType`, `SB_WorkoutDetailValueType`, `SB_ModifyAction`, `SB_ModifyOutcome`, `SB_MeditationGraph`, `SB_OngoingWorkoutProgram`, `SB_ARDADetails`, `SB_ARDARunningTimeline`, `SB_ARDATrainingTypeMetrics`, `SB_HRMValues`, `SB_HRMExerciseZone`, `SB_HRMData`, `SB_HRMCategory`, `SB_HREffortZone`.
-- **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_BiometricsUpload`, `SB_BiometricFeaturesUpload`, `SB_OnDeviceSleepUploadOutcome`, `SB_DeviceDataPacketUploadOutcome`, `SB_DailyStats`, `SB_DailyStatsResponse`.
+- **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_DailyStats`, `SB_DailyStatsResponse`.
 - **Spot-check & live telemetry** — `SB_SpotCheckDetails`, `SB_SpotCheckMeasurements`, `SB_SpotCheckResult`, `SB_LiveMetric`.
 - **Insights extras** — `SB_InsightFeedback`, `SB_ExperimentRecommendation`, `SB_RoutineMetadata`, `SB_RoutineGoal`.
 - **Surveys / questionnaires / white-label** — `SB_WhiteLabelSettings`, `SB_WhiteLabelScheduledSurveyTime`, `SB_WhiteLabelRecordingSurveyInfo`, `SB_WhiteLabelDefaultSimpleCard`, `SB_WhiteLabelLinkButton`, `SB_WhiteLabelRecordingType`, `SB_LinkButtonAuthTokenType`, `SB_CustomQuestionnaire`, `SB_CustomQuestionnaireButton`, `SB_CustomQuestionnaireButtonStyle`, `SB_CustomQuestionnaireButtonAction`, `SB_BriefSurvey`, `SB_BriefSurveyQuestion`, `SB_BriefSurveyType`, `SB_BriefSurveyAnswer`.
