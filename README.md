@@ -2,6 +2,9 @@
 
 Binary (XCFramework) distribution of [`mobile_sensorbio_sdk_ios`](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios) — the Sensor Bio iOS SDK. Each tagged release wraps a specific source version as a set of precompiled `.xcframework`s, fronted by a single `.binaryTarget`-based `Package.swift` product.
 
+- **[SDK_INTERFACE.md](SDK_INTERFACE.md)** — customer-facing API reference. Every public symbol available to your app today, tier-marked (✅ Supported / 🚧 WIP) so you know what's ready to build production code against.
+- **[`Examples/SDKExample/`](Examples/SDKExample/)** — reference consumer that exercises the customer-facing surface end-to-end (account creation → sign in → pair device → BLE connect → sync packets → dashboard / activity / sleep reads). Open `SDKExample.xcodeproj` in Xcode and run on a device; SPM resolves this same repo at the version you check out.
+
 ## Consumption
 
 ```swift
@@ -61,11 +64,4 @@ Customers only `import SensorBioSDK`; the other four modules are linked but cons
 
 ## Building a new release
 
-See [`scripts/build-xcframework.sh`](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios/blob/main/scripts/build-xcframework.sh) in the source repo. End-to-end, a new release is:
-
-1. Tag the source repo (`mobile_sensorbio_sdk_ios`) at the new version, e.g. `v0.1.1`.
-2. Run `scripts/build-xcframework.sh` from the source repo. The script produces five `.xcframework`s in `build/output/`.
-3. Zip each `.xcframework`, compute its SHA-256, upload all five zips to a new GitHub Release here.
-4. Update [`Package.swift`](Package.swift) with the new tag's `releaseTag` constant + the five new checksums; commit + push; tag this repo at the matching version.
-
-A driver `scripts/release.sh` on the source repo that automates steps 2–4 is planned for Phase 6.15d of the library extraction roadmap.
+One command from the source repo: `./scripts/release.sh vX.Y.Z`. Validates the version arg against `Resources/SDKVersion.plist`, validates both repos clean + on `main` + in sync with `origin`, builds the five xcframeworks (`scripts/build-xcframework.sh`), zips + checksums them, rewrites this repo's `Package.swift` with the new `releaseTag` constant + checksums, commits + pushes the binary repo, tags both repos, and creates the GitHub Release with the five zips attached. Idempotent / resumable — re-running after a partial failure picks up where it left off.
