@@ -1,7 +1,7 @@
 // swift-tools-version: 6.1
 import PackageDescription
 
-let releaseTag = "v0.1.1"
+let releaseTag = "v0.1.2"
 let releaseURL = "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary/releases/download/\(releaseTag)"
 
 let package = Package(
@@ -30,27 +30,27 @@ let package = Package(
         .binaryTarget(
             name: "SensorBioSDK",
             url: "\(releaseURL)/SensorBioSDK.xcframework.zip",
-            checksum: "ecc64b520613a46d6a77c064299c0a244eee7ad1a614e055355964f078460de6"
+            checksum: "721eb28c18129e028a2469614a793618d38824ff968837464379bbc99d77df11"
         ),
         .binaryTarget(
             name: "SensrProtos",
             url: "\(releaseURL)/SensrProtos.xcframework.zip",
-            checksum: "08ac2defd934cdc24551c5dc3a9dac634fe1d1b925bbb0ea63ba366abfaf237b"
+            checksum: "5834b82fffac36e993c60c3aee83e57a961037c9d73fb974cecf6168129ef50d"
         ),
         .binaryTarget(
             name: "BioedgeAPI",
             url: "\(releaseURL)/BioedgeAPI.xcframework.zip",
-            checksum: "3af4bd5fea7eb9ec9a7829b125ce27f26784945106e6e35a9a87a44da424c5a8"
+            checksum: "d59690b5a835779f96b02e0a30c2cb2a695ec383f8f1f284f1d763c9b9da5350"
         ),
         .binaryTarget(
             name: "FXCBridge",
             url: "\(releaseURL)/FXCBridge.xcframework.zip",
-            checksum: "20a321795608cff3e842c15e0966d0f72a7d4ac155170a60562e0fd593276ff8"
+            checksum: "688571b090e5f608e4615d7ed8cead3b2dcd26e9977131e6090ec61bda6cfb30"
         ),
         .binaryTarget(
             name: "LibFXC",
             url: "\(releaseURL)/LibFXC.xcframework.zip",
-            checksum: "5e5e8e2a54fa0c3d15748465278155a4369a104ec9b7084401263dd4a25a925e"
+            checksum: "7958c3f0db0730d705e810dcf4b72610e00642bc83920bcf2a4320cb6de54ad2"
         ),
         .target(
             name: "_SensorBioSDKLink",
