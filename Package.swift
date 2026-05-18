@@ -22,7 +22,7 @@ let package = Package(
         .package(url: "https://github.com/grpc/grpc-swift-nio-transport.git", from: "2.7.0"),
         .package(url: "https://github.com/GetSensr-io/mobile_bluetooth_sdk_ios_binary.git", from: "7.0.109"),
         .package(url: "https://github.com/jrendel/SwiftKeychainWrapper", from: "4.0.1"),
-        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", branch: "master"),
+        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
         .package(url: "https://github.com/lucas34/SwiftQueue.git", from: "6.0.2"),
         .package(url: "https://github.com/emqx/CocoaMQTT", from: "2.2.4")
     ],
