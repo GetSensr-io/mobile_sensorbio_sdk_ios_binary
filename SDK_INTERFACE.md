@@ -1,6 +1,6 @@
 # SensorBioSDK — iOS Integration Guide
 
-This document describes the **public** customer-facing surface of `SensorBioSDK` as it exists today. The package will ship as a binary SPM (`.binaryTarget` / `.xcframework`) at customer-facing release; the import shape below is forward-looking — `import SensorBioSDK` is the only line a customer app needs regardless of whether the package is currently source or binary.
+This document describes the **public** customer-facing surface of `SensorBioSDK` as it exists today. The SDK ships as a set of `.xcframework`s consumed via CocoaPods (see [README.md](./README.md) for integration); `import SensorBioSDK` is the only line a customer app needs.
 
 > **Visibility note.** This document covers the customer-facing API surface only. SDK-internal symbols are filtered out of the binary framework's Swift interface and are not documented here.
 
@@ -8,16 +8,16 @@ This document describes the **public** customer-facing surface of `SensorBioSDK`
 
 ## Stability & support tier
 
-The SDK is in a guided rollout. **Not every public symbol below is ready for customer use yet.** A feature lands in the public surface as soon as the underlying machinery works, but it is only marked ✅ Supported once it has been wired into the bundled `SDKExample` reference app and validated end-to-end.
+The SDK is in a guided rollout. **Not every public symbol below is ready for customer use yet.** A feature lands in the public surface as soon as the underlying machinery works, but it is only marked ✅ Supported once it has been wired into the bundled `ExampleApp` reference app and validated end-to-end.
 
-- ✅ **Supported** — exercised by `SDKExample`, safe to build production code against today.
+- ✅ **Supported** — exercised by `ExampleApp`, safe to build production code against today.
 - 🚧 **WIP** — present in the public surface (and listed in this doc for forward visibility) but not yet validated for customer use. Treat as preview; do not depend on the shape staying stable. Many of these symbols are not guaranteed to remain public — they currently exist on the public surface because they are consumed by internal applications, and may be tightened or removed before they are formally offered to customers.
 
 ### Quick map
 
 | Area | Status | Notes |
 |---|---|---|
-| SPM install, Info.plist, app launch | ✅ Supported | `SB_SDK.environment`, `SB_SDK.log` |
+| CocoaPods install, Info.plist, app launch | ✅ Supported | `SB_SDK.environment`, `SB_SDK.log` |
 | Auth — sign in / sign up / sign out | ✅ Supported | `signIn`, `createAccount`, `signOut`, `hydrateSession` |
 | Auth — agreements, password reset, password change, email check, temp tokens | ✅ Supported | |
 | User profile updates / photo | ✅ Supported | |
@@ -52,42 +52,41 @@ The SDK is in a guided rollout. **Not every public symbol below is ready for cus
 
 ## 1. Adding the SDK
 
-### 1.1 Swift Package Manager (binary distribution — target shape)
+### 1.1 CocoaPods (binary distribution)
 
-Add the SDK to your app's `Package.swift` or via Xcode → File → Add Package Dependencies:
+The SDK ships as three `.xcframework`s plus an umbrella binary podspec, all under `SensorBio/` in [this repo](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary). Copy that directory into your project root and add one pod line to your `Podfile`:
 
-```swift
-// Package.swift
-import PackageDescription
+```ruby
+platform :ios, '18.0'
 
-let package = Package(
-    name: "MyApp",
-    platforms: [
-        .iOS(.v18)            // SDK platform floor
-    ],
-    dependencies: [
-        .package(
-            url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios.git",
-            from: "1.0.0"     // pin to a release tag
-        )
-    ],
-    targets: [
-        .executableTarget(
-            name: "MyApp",
-            dependencies: [
-                .product(name: "SensorBioSDK", package: "mobile_sensorbio_sdk_ios")
-            ]
-        )
-    ]
-)
+target 'MyApp' do
+  use_frameworks!
+
+  pod 'SensorBioSDK', :podspec => './SensorBio/SensorBioSDK.podspec'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']   = '18.0'
+      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      config.build_settings['CLANG_CXX_LIBRARY']           = 'libc++'
+    end
+  end
+end
 ```
 
-The `SensorBioSDK` product is the single import surface for customer apps. If you see additional library products listed under the package, they are internal build-graph dependencies — **customers only import `SensorBioSDK`**.
+Then `pod install`, open `MyApp.xcworkspace`, and `import SensorBioSDK`. The `post_install` block bumps the deployment target to iOS 18 (SDK requires) and forces C++17 (gRPC-Core's transitive abseil dependency requires).
+
+The single `pod 'SensorBioSDK'` line vendors the three xcframeworks and transitively brings the third-party pods the SDK links against (gRPC-ProtoRPC → gRPC-Core + abseil + BoringSSL-GRPC + Protobuf; SwiftProtobuf; SwiftKeychainWrapper; KeychainAccess; SwiftQueue; CocoaMQTT). **Customers only import `SensorBioSDK`** — the BT SDK and LibFXC are linked transitively and have no user-callable surface.
+
+Full integration walkthrough (with copy-this-directory mechanics): see [README.md](./README.md).
 
 ### 1.2 Platform requirements
 
 - **iOS 18+** — required minimum deployment target
-- **Swift 6.1 / Xcode 16.3+** — when consuming the source SPM during pre-release
+- **Xcode 16.3+** (Swift 6.1 toolchain)
+- **CocoaPods 1.16+**
 - **Bluetooth + Background Modes capabilities** — required so the SDK can stay connected to the wearable and finish syncs while the app is backgrounded
 
 ### 1.3 Importing
@@ -102,7 +101,7 @@ The library exports a single top-level accessor for the SDK singleton — use it
 public let sensorBio = SB_SDK.shared
 ```
 
-> **Module vs class.** The SwiftPM module is `SensorBioSDK`; the singleton class inside it is `SB_SDK`. The `SB_` prefix on the class is part of the SDK's binary-distribution naming convention.
+> **Module vs class.** The framework module is `SensorBioSDK`; the singleton class inside it is `SB_SDK`. The `SB_` prefix on the class is part of the SDK's binary-distribution naming convention.
 
 ### 1.4 Required `Info.plist` keys & background capabilities
 

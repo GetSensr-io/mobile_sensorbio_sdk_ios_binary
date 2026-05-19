@@ -1,7 +1,12 @@
 .DS_Store
-.build/
+
+# Xcode per-user state
 .swiftpm/xcode/xcuserdata/
 .swiftpm/xcode/package.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
-Package.resolved
+
+# CocoaPods — ExampleApp regenerates Pods/ on `pod install`; don't commit it.
+# Podfile.lock IS committed so customers run against the same resolution.
+ExampleApp/Pods/
+ExampleApp/*.xcworkspace/

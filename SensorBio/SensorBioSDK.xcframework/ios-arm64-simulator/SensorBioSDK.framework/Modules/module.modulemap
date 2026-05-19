@@ -1,0 +1,10 @@
+framework module SensorBioSDK {
+  umbrella header "SensorBioSDK-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module SensorBioSDK.Swift {
+  header "SensorBioSDK-Swift.h"
+}
