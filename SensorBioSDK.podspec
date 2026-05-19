@@ -4,18 +4,22 @@ Pod::Spec.new do |s|
   s.summary          = 'Sensr-Bio SDK for iOS — binary distribution.'
   s.description      = <<~DESC
     Customer-facing iOS SDK for the Sensr-Bio biometric platform. This is
-    the binary podspec — it vendors the SensorBioSDK.xcframework (plus
-    SensorBioBTSDK.xcframework and LibFXC.xcframework as siblings) and
-    declares the third-party CocoaPods that have to be pulled fresh
-    from CocoaPods trunk (gRPC-Core/ProtoRPC, SwiftProtobuf, the keychain
-    helpers, SwiftQueue, CocoaMQTT).
+    the binary podspec — it vendors the three xcframeworks under SensorBio/
+    (SensorBioSDK + SensorBioBTSDK + LibFXC) and declares the third-party
+    CocoaPods that have to be pulled fresh from CocoaPods trunk
+    (gRPC-Core/ProtoRPC, SwiftProtobuf, the keychain helpers, SwiftQueue,
+    CocoaMQTT).
 
     Customer Podfile:
 
-        pod 'SensorBioSDK', :podspec => './SensorBio/SensorBioSDK.podspec'
+        pod 'SensorBioSDK',
+          :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
+          :tag => 'v0.2.0'
 
-    No source code is shipped; integration is "drop the SensorBio/
-    directory into your project + add the line above + pod install."
+    No source code is shipped; no manual file copy. CocoaPods clones the
+    repo at the tag, finds this podspec at the root, links the three
+    xcframeworks from SensorBio/, and resolves the transitive pods from
+    trunk.
   DESC
   s.homepage         = 'https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary'
   s.license          = { :type => 'Proprietary', :text => 'Copyright Sensr-Bio.' }
@@ -33,9 +37,9 @@ Pod::Spec.new do |s|
   # BLE and FXC-sleep paths call into them) — declaring them as vendored
   # frameworks here means the customer's app links all three automatically.
   s.vendored_frameworks = [
-    'SensorBioSDK.xcframework',
-    'SensorBioBTSDK.xcframework',
-    'LibFXC.xcframework'
+    'SensorBio/SensorBioSDK.xcframework',
+    'SensorBio/SensorBioBTSDK.xcframework',
+    'SensorBio/LibFXC.xcframework'
   ]
 
   # Third-party transitive deps. SensorBioSDK.xcframework was built with
