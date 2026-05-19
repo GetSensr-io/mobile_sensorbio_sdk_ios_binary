@@ -13,7 +13,7 @@ Customer-facing binary distribution of the Sensr-Bio iOS SDK. This repository co
 | `SensorBio/SensorBioSDK.xcframework` | 215 MB | The customer-facing Swift API — auth, dashboard / sleep / activity / biometric reads, recording orchestration, upload pipeline. Bundles the on-device DSP (HRV / sleep / activity computation) and SwiftProtobuf-compiled wire types. |
 | `SensorBio/SensorBioBTSDK.xcframework` | 20 MB | The Sensr-Bio BLE pairing + sync pipeline. Talks to Sensr-Bio wearables over CoreBluetooth. Linked transitively — you don't call into it directly. |
 | `SensorBio/LibFXC.xcframework` | 704 KB | Philips proprietary FXC sleep-staging engine. Linked transitively from `SensorBioBTSDK`. |
-| `SensorBio/SensorBioSDK.podspec` | — | Umbrella binary podspec — vendors the three xcframeworks above and declares the third-party CocoaPods that have to come from CocoaPods trunk. |
+| `SensorBioSDK.podspec` (repo root) | — | Umbrella binary podspec — vendors the three xcframeworks above and declares the third-party CocoaPods that have to come from CocoaPods trunk. |
 
 All three xcframeworks are iOS-only (device + arm64 simulator). They cannot run on macOS or Intel Mac simulators.
 
@@ -25,23 +25,7 @@ All three xcframeworks are iOS-only (device + arm64 simulator). They cannot run 
 
 ## Integrating into your app
 
-### 1. Copy the `SensorBio/` directory into your project root
-
-Place it at the same level as your `.xcodeproj` / `.xcworkspace`. Don't drag the xcframeworks into Xcode manually — CocoaPods will wire them up.
-
-```
-your-app/
-├── YourApp.xcodeproj
-├── YourApp.xcworkspace      ← if you already use CocoaPods
-├── Podfile                  ← may already exist
-└── SensorBio/               ← <-- drop here, contents as-shipped
-    ├── SensorBioSDK.xcframework/
-    ├── SensorBioBTSDK.xcframework/
-    ├── LibFXC.xcframework/
-    └── SensorBioSDK.podspec
-```
-
-### 2. Add SensorBioSDK to your `Podfile`
+### 1. Add SensorBioSDK to your `Podfile`
 
 If your `Podfile` doesn't exist yet, create one. The minimum looks like:
 
@@ -51,32 +35,41 @@ platform :ios, '18.0'
 target 'YourApp' do
   use_frameworks!
 
-  pod 'SensorBioSDK', :podspec => './SensorBio/SensorBioSDK.podspec'
+  pod 'SensorBioSDK',
+    :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
+    :tag => 'v0.2.0'
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       # Required: SensorBioSDK is iOS 18+; transitive pods default lower
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']   = '18.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']     = '18.0'
       # Required: abseil (pulled in transitively by gRPC-Core) needs C++17
-      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
-      config.build_settings['CLANG_CXX_LIBRARY']           = 'libc++'
+      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD']    = 'c++17'
+      config.build_settings['CLANG_CXX_LIBRARY']              = 'libc++'
+      # Required: SensorBioSDK.xcframework was built with library-evolution
+      # mode, so its Job subclasses reference SwiftQueue's `Job.onRetry` via
+      # Swift method descriptors. The transitive pods (SwiftQueue, etc.) must
+      # also be built with library-evolution for those descriptors to exist.
+      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
     end
   end
 end
 ```
 
+CocoaPods clones the binary repo at the pinned tag, finds the umbrella `SensorBioSDK.podspec` at the root, and links the three xcframeworks from `SensorBio/`. No source code is shipped; no manual file copy.
+
 The single `pod 'SensorBioSDK'` line transitively brings:
 
-- The 3 SensorBio xcframeworks (via `vendored_frameworks`)
+- The 3 SensorBio xcframeworks (via `vendored_frameworks` inside the podspec)
 - `gRPC-ProtoRPC` (which transitively brings gRPC-Core + abseil + BoringSSL-GRPC + the ObjC Protobuf runtime)
 - `SwiftProtobuf` (Swift wire-type runtime)
 - `SwiftKeychainWrapper` + `KeychainAccess` (keychain helpers)
 - `SwiftQueue` (persistent job-queue runtime)
 - `CocoaMQTT` (MQTT client for the license-key broker)
 
-### 3. Run `pod install`
+### 2. Run `pod install`
 
 ```bash
 pod install
@@ -84,9 +77,9 @@ pod install
 
 Open `YourApp.xcworkspace` (not `.xcodeproj`) in Xcode going forward.
 
-### 4. Use the SDK
+### 3. Use the SDK
 
-The customer-facing entry point is a top-level `sensorBio` accessor (the singleton `SensorBioSDK.shared`).
+The customer-facing entry point is a top-level `sensorBio` accessor (the singleton `SB_SDK.shared`). The framework module is `SensorBioSDK`; the singleton class inside it is `SB_SDK`.
 
 ```swift
 import SensorBioSDK
@@ -94,10 +87,9 @@ import SensorBioSDK
 @main
 struct YourApp: App {
     init() {
-        SensorBioSDK.environment = .production
-        SensorBioSDK.bootstrapKeychain()
-        SensorBioSDK.runDefaultsMigratorIfNeeded()
-        SensorBioSDK.registerBGTasks()
+        SB_SDK.environment = .production
+        SB_SDK.bootstrapKeychain()
+        SB_SDK.runDefaultsMigratorIfNeeded()
     }
     var body: some Scene {
         WindowGroup { ContentView() }

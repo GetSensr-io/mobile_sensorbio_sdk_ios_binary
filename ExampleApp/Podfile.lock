@@ -1278,7 +1278,7 @@ PODS:
   - SwiftQueue (6.0.0)
 
 DEPENDENCIES:
-  - SensorBioSDK (from `../SensorBio`)
+  - SensorBioSDK (from `..`)
 
 SPEC REPOS:
   trunk:
@@ -1298,7 +1298,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   SensorBioSDK:
-    :path: "../SensorBio"
+    :path: ".."
 
 SPEC CHECKSUMS:
   abseil: 7fa81b779e36e3f761304c08dbad00b93bccf99c
@@ -1311,11 +1311,11 @@ SPEC CHECKSUMS:
   KeychainAccess: c0c4f7f38f6fc7bbe58f5702e25f7bd2f65abf51
   MqttCocoaAsyncSocket: 77d3b74f76228dd5a05d1f9526eab101d415b30c
   Protobuf: 19ac8864550efbdbc2269473d57ed73d545d0f8f
-  SensorBioSDK: f4d28b58a298605799193257abe869334e824af6
+  SensorBioSDK: 597994dde79237abafdd9b63b9ac793b473b7c0f
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
   SwiftProtobuf: d724b5145bfc609d9a49c1e3e3a3dabb07273ffb
   SwiftQueue: ce8ff8194f3318bedea023b14277091e8a6887a3
 
-PODFILE CHECKSUM: 7032002a153899313d276f3c7dcfed33c7911f66
+PODFILE CHECKSUM: dc2fb80e14469b60c6a008ad16749a503bd0da86
 
 COCOAPODS: 1.16.2

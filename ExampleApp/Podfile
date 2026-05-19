@@ -1,19 +1,15 @@
 platform :ios, '18.0'
 inhibit_all_warnings!
 
-# SensorBioSDK consumed from the binary podspec one level up. This
-# directory's project.yml + the podspec at ../SensorBio/SensorBioSDK.podspec
-# are everything the customer needs to compile against the xcframeworks
-# committed in this repo's SensorBio/.
+# SensorBioSDK consumed from the umbrella binary podspec at the repo root
+# (one level up). `:path` resolves the in-tree podspec + xcframeworks under
+# ../SensorBio/ so changes from a fresh build-xcframeworks.sh run in the
+# SDK source repo flow straight through. Customer-style integration is
+# `:git`/`:tag` against the same podspec — see ../README.md.
 target 'ExampleApp' do
   use_frameworks!
 
-  # `:path` consumes the local SensorBio/ directory directly (xcframeworks +
-  # vendored-frameworks-relative paths inside the podspec resolve against
-  # SensorBio/). `:podspec` would try to git-clone the podspec's `s.source`
-  # tag, which is what customers using a published release should do — but
-  # for this in-repo ExampleApp we want the working-tree content.
-  pod 'SensorBioSDK', :path => '../SensorBio'
+  pod 'SensorBioSDK', :path => '..'
 end
 
 post_install do |installer|

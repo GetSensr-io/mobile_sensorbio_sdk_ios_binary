@@ -54,7 +54,7 @@ The SDK is in a guided rollout. **Not every public symbol below is ready for cus
 
 ### 1.1 CocoaPods (binary distribution)
 
-The SDK ships as three `.xcframework`s plus an umbrella binary podspec, all under `SensorBio/` in [this repo](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary). Copy that directory into your project root and add one pod line to your `Podfile`:
+The SDK ships as three `.xcframework`s plus an umbrella binary podspec at the root of [the binary repo](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary). Pin a tagged release in your `Podfile`:
 
 ```ruby
 platform :ios, '18.0'
@@ -62,25 +62,28 @@ platform :ios, '18.0'
 target 'MyApp' do
   use_frameworks!
 
-  pod 'SensorBioSDK', :podspec => './SensorBio/SensorBioSDK.podspec'
+  pod 'SensorBioSDK',
+    :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
+    :tag => 'v0.2.0'
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']   = '18.0'
-      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
-      config.build_settings['CLANG_CXX_LIBRARY']           = 'libc++'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']     = '18.0'
+      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD']    = 'c++17'
+      config.build_settings['CLANG_CXX_LIBRARY']              = 'libc++'
+      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
     end
   end
 end
 ```
 
-Then `pod install`, open `MyApp.xcworkspace`, and `import SensorBioSDK`. The `post_install` block bumps the deployment target to iOS 18 (SDK requires) and forces C++17 (gRPC-Core's transitive abseil dependency requires).
+Then `pod install`, open `MyApp.xcworkspace`, and `import SensorBioSDK`. The `post_install` block bumps the deployment target to iOS 18 (SDK requires), forces C++17 (gRPC-Core's transitive abseil dependency requires), and turns on library-evolution mode (the SDK's SwiftQueue `Job` subclasses reference method descriptors that only exist when all transitive pods are also built BLFD).
 
 The single `pod 'SensorBioSDK'` line vendors the three xcframeworks and transitively brings the third-party pods the SDK links against (gRPC-ProtoRPC → gRPC-Core + abseil + BoringSSL-GRPC + Protobuf; SwiftProtobuf; SwiftKeychainWrapper; KeychainAccess; SwiftQueue; CocoaMQTT). **Customers only import `SensorBioSDK`** — the BT SDK and LibFXC are linked transitively and have no user-callable surface.
 
-Full integration walkthrough (with copy-this-directory mechanics): see [README.md](./README.md).
+Full integration walkthrough: see [README.md](./README.md).
 
 ### 1.2 Platform requirements
 
