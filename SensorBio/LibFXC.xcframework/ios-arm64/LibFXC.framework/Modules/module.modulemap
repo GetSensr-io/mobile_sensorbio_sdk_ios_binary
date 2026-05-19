@@ -1,0 +1,6 @@
+framework module LibFXC {
+  umbrella header "LibFXC.h"
+
+  export *
+  module * { export * }
+}

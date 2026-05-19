@@ -1,0 +1,62 @@
+name: ExampleApp
+options:
+  bundleIdPrefix: ai.sensr.example
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "18.0"
+  generateEmptyDirectories: true
+
+# Reference SwiftUI integration of SensorBioSDK consumed as a binary
+# CocoaPod from ../SensorBio/SensorBioSDK.podspec. Demonstrates the
+# init pattern + sign-in flow on a real device.
+#
+# After cloning, run:
+#   xcodegen generate
+#   pod install
+#   open ExampleApp.xcworkspace
+
+settings:
+  base:
+    # Use Swift 5 language mode for the example app. Swift 6 region-based
+    # concurrency flags `sending` warnings against the SDKExample's watchdog
+    # closures even at minimal strict-concurrency. Treating the example as a
+    # customer-style integration target rather than a strict-Swift-6 showcase
+    # — the SDK itself is Swift 6, customers can pick their own mode.
+    SWIFT_VERSION: "5"
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    # Required for transitive abseil (pulled in by gRPC-Core) — static-asserts
+    # __cplusplus >= 201703L on every translation unit.
+    CLANG_CXX_LANGUAGE_STANDARD: "c++17"
+    CLANG_CXX_LIBRARY: "libc++"
+    # FXCBridge's fx_datatypes.h (inside SensorBioSDK.xcframework's Headers/)
+    # `#error`s without one of FX_PLATFORM_{WIN32, UNIX, ARM_M3, ARM_M4,
+    # MSP430}. The SensorBio podspec sets this via user_target_xcconfig too;
+    # we also set it here so xcodegen-generated configs match before pod install.
+    GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) FX_PLATFORM_UNIX=1"
+
+targets:
+  ExampleApp:
+    type: application
+    platform: iOS
+    sources:
+      - ExampleApp
+    info:
+      path: ExampleApp/Info.plist
+      properties:
+        # BLE permission strings — the SDK pairs over CoreBluetooth.
+        NSBluetoothAlwaysUsageDescription: ExampleApp uses Bluetooth to connect to your Sensr-Bio wearable.
+        NSBluetoothPeripheralUsageDescription: ExampleApp uses Bluetooth to connect to your Sensr-Bio wearable.
+        # Background mode required for the SDK to finish syncs after the app is backgrounded.
+        UIBackgroundModes:
+          - bluetooth-central
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ai.sensr.example.ExampleApp
+        INFOPLIST_FILE: ExampleApp/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        # Real device build needs signing — your team ID. The committed value
+        # is the Sensr-Bio dev team; override locally if you're building this
+        # under a different Apple Developer account.
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 2V6RCD4SM4

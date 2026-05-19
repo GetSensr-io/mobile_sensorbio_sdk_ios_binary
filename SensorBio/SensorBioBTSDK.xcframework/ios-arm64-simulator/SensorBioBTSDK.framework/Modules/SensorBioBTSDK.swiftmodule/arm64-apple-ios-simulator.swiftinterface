@@ -1,0 +1,2860 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.3.1 effective-5.10 (swiftlang-6.3.1.1.2 clang-2100.0.123.102)
+// swift-module-flags: -target arm64-apple-ios18.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name SensorBioBTSDK
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.3.1
+import Combine
+import CommonCrypto
+import CoreBluetooth
+import Foundation
+@_exported import SensorBioBTSDK
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+import zlib
+@objc public enum algorithmPacketType : Swift.UInt8, Swift.Codable {
+  case philipsSleep = 0x2f
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public enum FirmwareStatus : Swift.UInt8 {
+  case SUCCESS
+  case CRC_ERROR
+  case INVALID_HEADER_INFO
+  case INVALID_PACKET_LENGTH
+  case INSUFFICIENT_BUFFER
+  case UNKNOWN_ERROR
+  case STATUS_MAX
+  case APP_CANCEL
+  case APP_NOT_ENOUGH_DATA
+  case APP_MISSING_OBJECTS
+  case APP_MISSING_FILE
+  case APP_MISSING_DEVICE
+  case APP_EXISTING_OTA
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public enum BodySensorLocation : Swift.UInt8 {
+  case chest
+  case wrist
+  case ankle
+  case wristWrist
+  case wristAnkle
+  case ankleAnkle
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum bookendType : Swift.UInt8, Swift.Codable {
+  case activity = 0x00
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum buttonCommandType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
+  case none = 0x00
+  case showBattery = 0x01
+  case advertiseShowConnection = 0x02
+  case hrmAdvertiseToggleActivity = 0x03
+  case shutDown = 0x04
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias AllCases = [SensorBioBTSDK.buttonCommandType]
+  public typealias RawValue = Swift.UInt8
+  nonisolated public static var allCases: [SensorBioBTSDK.buttonCommandType] {
+    get
+  }
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum buttonTapType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
+  case single = 0x00
+  case double = 0x01
+  case triple = 0x02
+  case long = 0x03
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias AllCases = [SensorBioBTSDK.buttonTapType]
+  public typealias RawValue = Swift.UInt8
+  nonisolated public static var allCases: [SensorBioBTSDK.buttonTapType] {
+    get
+  }
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+extension SensorBioBTSDK.SB_BTSDK : CoreBluetooth.CBCentralManagerDelegate {
+  @objc dynamic public func centralManagerDidUpdateState(_ central: CoreBluetooth.CBCentralManager)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didDiscover peripheral: CoreBluetooth.CBPeripheral, advertisementData: [Swift.String : Any], rssi RSSI: Foundation.NSNumber)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didConnect peripheral: CoreBluetooth.CBPeripheral)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didDisconnectPeripheral peripheral: CoreBluetooth.CBPeripheral, error: (any Swift.Error)?)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, didFailToConnect peripheral: CoreBluetooth.CBPeripheral, error: (any Swift.Error)?)
+  @objc dynamic public func centralManager(_ central: CoreBluetooth.CBCentralManager, willRestoreState dict: [Swift.String : Any])
+}
+public class DeviceAccelCapabilitiesType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($raw) public var raw: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $raw: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($raw_during_ppg) public var raw_during_ppg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $raw_during_ppg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_25) public var hz_25: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_25: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_50) public var hz_50: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_50: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_100) public var hz_100: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_100: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(raw: Swift.Bool, raw_during_ppg: Swift.Bool, hz_25: Swift.Bool, hz_50: Swift.Bool, hz_100: Swift.Bool)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceActiveCaptureConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($ble_enable) public var ble_enable: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $ble_enable: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($button_enable) public var button_enable: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $button_enable: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($wired_enable) public var wired_enable: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $wired_enable: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($auto_enable) public var auto_enable: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $auto_enable: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($stream_green_ppg) public var stream_green_ppg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $stream_green_ppg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($stream_red_ppg) public var stream_red_ppg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $stream_red_ppg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($stream_ir_ppg) public var stream_ir_ppg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $stream_ir_ppg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($stream_ecg_ppg) public var stream_ecg_ppg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $stream_ecg_ppg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(ble_enable: Swift.Bool = false, button_enable: Swift.Bool = false, wired_enable: Swift.Bool = false, auto_enable: Swift.Bool = false, stream_green_ppg: Swift.Bool = true, stream_red_ppg: Swift.Bool = false, stream_ir_ppg: Swift.Bool = false, stream_ecg_ppg: Swift.Bool = false)
+  public var data: Foundation.Data {
+    get
+  }
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceActiveConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<SensorBioBTSDK.DeviceSensorConfigurationType> @_projectedValueProperty($sensor) public var sensor: SensorBioBTSDK.DeviceSensorConfigurationType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $sensor: Combine.Published<SensorBioBTSDK.DeviceSensorConfigurationType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceActiveCaptureConfigurationType> @_projectedValueProperty($capture) public var capture: SensorBioBTSDK.DeviceActiveCaptureConfigurationType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $capture: Combine.Published<SensorBioBTSDK.DeviceActiveCaptureConfigurationType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(sensor: SensorBioBTSDK.DeviceSensorConfigurationType, capture: SensorBioBTSDK.DeviceActiveCaptureConfigurationType)
+  convenience public init(ble_enable: Swift.Bool = false, button_enable: Swift.Bool = false, wired_enable: Swift.Bool = false, stream_green_ppg: Swift.Bool = true, stream_red_ppg: Swift.Bool = false, stream_ir_ppg: Swift.Bool = false, stream_ecg_ppg: Swift.Bool = false, spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType = DeviceSpectralCapabilitiesType(), accel: SensorBioBTSDK.DeviceAccelCapabilitiesType = DeviceAccelCapabilitiesType(), temp: SensorBioBTSDK.DeviceTempCapabilitiesType = DeviceTempCapabilitiesType(), gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType = DeviceGyroCapabilitiesType(), ecg: SensorBioBTSDK.DeviceECGCapabilitiesType = DeviceECGCapabilitiesType())
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceButtonConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<SensorBioBTSDK.buttonCommandType> @_projectedValueProperty($single_press) public var single_press: SensorBioBTSDK.buttonCommandType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $single_press: Combine.Published<SensorBioBTSDK.buttonCommandType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.buttonCommandType> @_projectedValueProperty($double_press) public var double_press: SensorBioBTSDK.buttonCommandType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $double_press: Combine.Published<SensorBioBTSDK.buttonCommandType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.buttonCommandType> @_projectedValueProperty($triple_press) public var triple_press: SensorBioBTSDK.buttonCommandType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $triple_press: Combine.Published<SensorBioBTSDK.buttonCommandType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.buttonCommandType> @_projectedValueProperty($long_press) public var long_press: SensorBioBTSDK.buttonCommandType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $long_press: Combine.Published<SensorBioBTSDK.buttonCommandType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(single_press: SensorBioBTSDK.buttonCommandType? = nil, double_press: SensorBioBTSDK.buttonCommandType? = nil, triple_press: SensorBioBTSDK.buttonCommandType? = nil, long_press: SensorBioBTSDK.buttonCommandType? = nil)
+  public var data: Foundation.Data {
+    get
+  }
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceCapabilitiesType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<SensorBioBTSDK.DeviceSensorCapabilitiesType?> @_projectedValueProperty($sensor) public var sensor: SensorBioBTSDK.DeviceSensorCapabilitiesType? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $sensor: Combine.Published<SensorBioBTSDK.DeviceSensorCapabilitiesType?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceSpectralCapabilitiesType?> @_projectedValueProperty($spectral) public var spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $spectral: Combine.Published<SensorBioBTSDK.DeviceSpectralCapabilitiesType?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceAccelCapabilitiesType?> @_projectedValueProperty($accel) public var accel: SensorBioBTSDK.DeviceAccelCapabilitiesType? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $accel: Combine.Published<SensorBioBTSDK.DeviceAccelCapabilitiesType?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceTempCapabilitiesType?> @_projectedValueProperty($temp) public var temp: SensorBioBTSDK.DeviceTempCapabilitiesType? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $temp: Combine.Published<SensorBioBTSDK.DeviceTempCapabilitiesType?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceGyroCapabilitiesType?> @_projectedValueProperty($gyro) public var gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $gyro: Combine.Published<SensorBioBTSDK.DeviceGyroCapabilitiesType?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceECGCapabilitiesType?> @_projectedValueProperty($ecg) public var ecg: SensorBioBTSDK.DeviceECGCapabilitiesType? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $ecg: Combine.Published<SensorBioBTSDK.DeviceECGCapabilitiesType?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(sensor: SensorBioBTSDK.DeviceSensorCapabilitiesType? = nil, spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType? = nil, accel: SensorBioBTSDK.DeviceAccelCapabilitiesType? = nil, temp: SensorBioBTSDK.DeviceTempCapabilitiesType? = nil, gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType? = nil, ecg: SensorBioBTSDK.DeviceECGCapabilitiesType? = nil)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public enum DeviceCommandCompletionStatus : Swift.CaseIterable {
+  case successful
+  case not_configured
+  case device_error
+  public var title: Swift.String {
+    get
+  }
+  public var successful: Swift.Bool {
+    get
+  }
+  public static func == (a: SensorBioBTSDK.DeviceCommandCompletionStatus, b: SensorBioBTSDK.DeviceCommandCompletionStatus) -> Swift.Bool
+  public typealias AllCases = [SensorBioBTSDK.DeviceCommandCompletionStatus]
+  nonisolated public static var allCases: [SensorBioBTSDK.DeviceCommandCompletionStatus] {
+    get
+  }
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+public enum DeviceCommandError : Swift.Error {
+  case notConfigured
+  case deviceError
+  case readResultError
+  case firmwareError(SensorBioBTSDK.FirmwareStatus)
+}
+extension SensorBioBTSDK.DeviceCommandError : Foundation.LocalizedError {
+  public var errorDescription: Swift.String? {
+    get
+  }
+}
+@objc public enum DeviceConfigurationPPGModeEnableType : Swift.UInt8, Swift.Codable {
+  case passive = 0x00
+  case BLE = 0x01
+  case timed = 0x02
+  case sleep = 0x03
+  case button = 0x04
+  case wired = 0x05
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum DeviceConfigurationStateType : Swift.UInt8, Swift.Codable {
+  case passive = 0x00
+  case triggered = 0x01
+  case active = 0x02
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public class DeviceECGCapabilitiesType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($raw) public var raw: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $raw: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_125) public var hz_125: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_125: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_250) public var hz_250: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_250: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_500) public var hz_500: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_500: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(raw: Swift.Bool, hz_125: Swift.Bool, hz_250: Swift.Bool, hz_500: Swift.Bool)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceGyroCapabilitiesType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($raw) public var raw: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $raw: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($raw_during_ppg) public var raw_during_ppg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $raw_during_ppg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_25) public var hz_25: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_25: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_50) public var hz_50: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_50: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_100) public var hz_100: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_100: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(raw: Swift.Bool, raw_during_ppg: Swift.Bool, hz_25: Swift.Bool, hz_50: Swift.Bool, hz_100: Swift.Bool)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public enum DeviceParameterDataStorageType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
+  case rollingFlash
+  case fileSystem
+  case unknown
+  public var title: Swift.String {
+    get
+  }
+  public var description: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias AllCases = [SensorBioBTSDK.DeviceParameterDataStorageType]
+  public typealias RawValue = Swift.UInt8
+  nonisolated public static var allCases: [SensorBioBTSDK.DeviceParameterDataStorageType] {
+    get
+  }
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum DeviceParameterType : Swift.UInt8, Swift.Codable {
+  case serialNumber = 0x01
+  case chargeCycle = 0x02
+  case advertisingInterval = 0x03
+  case canLogDiagnostics = 0x04
+  case ledBrightness = 0x09
+  case heartBeatTime = 0x0A
+  case dataStorage = 0x0B
+  case chipID = 0x0C
+  case pspKey = 0x0D
+  case buttonConfig = 0x15
+  case passiveSensorConfig = 0x16
+  case triggerSensorConfig = 0x17
+  case activeSensorConfig = 0x18
+  case passiveCaptureConfig = 0x19
+  case triggerCaptureConfig = 0x1A
+  case activeCaptureConfig = 0x1B
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public class DeviceParamsHashType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($button_cfg) public var button_cfg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $button_cfg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($passive_sensor_cfg) public var passive_sensor_cfg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $passive_sensor_cfg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($trigger_sensor_cfg) public var trigger_sensor_cfg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $trigger_sensor_cfg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($active_sensor_cfg) public var active_sensor_cfg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $active_sensor_cfg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($passive_capture_cfg) public var passive_capture_cfg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $passive_capture_cfg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($trigger_capture_cfg) public var trigger_capture_cfg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $trigger_capture_cfg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($active_capture_cfg) public var active_capture_cfg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $active_capture_cfg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($params) public var params: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $params: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($hash) public var hash: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hash: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(button_cfg: Swift.Bool = false, passive_sensor_cfg: Swift.Bool = false, trigger_sensor_cfg: Swift.Bool = false, active_sensor_cfg: Swift.Bool = false, passive_capture_cfg: Swift.Bool = false, trigger_capture_cfg: Swift.Bool = false, active_capture_cfg: Swift.Bool = false, hash: Swift.Int = 0)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DevicePassiveCaptureConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($enable) public var enable: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $enable: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($period) public var period: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $period: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($duration) public var duration: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $duration: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(enable: Swift.Bool = false, period: Swift.Int = 0, duration: Swift.Int = 0)
+  public var data: Foundation.Data {
+    get
+  }
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DevicePassiveConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<SensorBioBTSDK.DeviceSensorConfigurationType> @_projectedValueProperty($sensor) public var sensor: SensorBioBTSDK.DeviceSensorConfigurationType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $sensor: Combine.Published<SensorBioBTSDK.DeviceSensorConfigurationType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DevicePassiveCaptureConfigurationType> @_projectedValueProperty($capture) public var capture: SensorBioBTSDK.DevicePassiveCaptureConfigurationType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $capture: Combine.Published<SensorBioBTSDK.DevicePassiveCaptureConfigurationType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(sensor: SensorBioBTSDK.DeviceSensorConfigurationType, capture: SensorBioBTSDK.DevicePassiveCaptureConfigurationType)
+  convenience public init(enable: Swift.Bool = false, spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType = DeviceSpectralCapabilitiesType(), accel: SensorBioBTSDK.DeviceAccelCapabilitiesType = DeviceAccelCapabilitiesType(), temp: SensorBioBTSDK.DeviceTempCapabilitiesType = DeviceTempCapabilitiesType(), gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType = DeviceGyroCapabilitiesType(), ecg: SensorBioBTSDK.DeviceECGCapabilitiesType = DeviceECGCapabilitiesType(), period: Swift.Int = 0, duration: Swift.Int = 0)
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+extension SensorBioBTSDK.SB_Device : CoreBluetooth.CBPeripheralDelegate {
+  @objc dynamic public func peripheralDidUpdateName(_ peripheral: CoreBluetooth.CBPeripheral)
+  @objc dynamic public func peripheralIsReady(toSendWriteWithoutResponse peripheral: CoreBluetooth.CBPeripheral)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didDiscoverServices error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didModifyServices invalidatedServices: [CoreBluetooth.CBService])
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didReadRSSI RSSI: Foundation.NSNumber, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didOpen channel: CoreBluetooth.CBL2CAPChannel?, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didWriteValueFor descriptor: CoreBluetooth.CBDescriptor, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didUpdateValueFor descriptor: CoreBluetooth.CBDescriptor, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didDiscoverCharacteristicsFor service: CoreBluetooth.CBService, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didWriteValueFor characteristic: CoreBluetooth.CBCharacteristic, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didUpdateValueFor characteristic: CoreBluetooth.CBCharacteristic, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didDiscoverDescriptorsFor characteristic: CoreBluetooth.CBCharacteristic, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didDiscoverIncludedServicesFor service: CoreBluetooth.CBService, error: (any Swift.Error)?)
+  @objc dynamic public func peripheral(_ peripheral: CoreBluetooth.CBPeripheral, didUpdateNotificationStateFor characteristic: CoreBluetooth.CBCharacteristic, error: (any Swift.Error)?)
+}
+public class DeviceSensorCapabilitiesType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($spectral) public var spectral: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $spectral: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($accel) public var accel: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $accel: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($temp) public var temp: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $temp: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($ecg) public var ecg: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $ecg: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($gyro) public var gyro: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $gyro: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(spectral: Swift.Bool, accel: Swift.Bool, temp: Swift.Bool, ecg: Swift.Bool, gyro: Swift.Bool)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceSensorConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<SensorBioBTSDK.DeviceSpectralCapabilitiesType> @_projectedValueProperty($spectral) public var spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $spectral: Combine.Published<SensorBioBTSDK.DeviceSpectralCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceAccelCapabilitiesType> @_projectedValueProperty($accel) public var accel: SensorBioBTSDK.DeviceAccelCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $accel: Combine.Published<SensorBioBTSDK.DeviceAccelCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceTempCapabilitiesType> @_projectedValueProperty($temp) public var temp: SensorBioBTSDK.DeviceTempCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $temp: Combine.Published<SensorBioBTSDK.DeviceTempCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceGyroCapabilitiesType> @_projectedValueProperty($gyro) public var gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $gyro: Combine.Published<SensorBioBTSDK.DeviceGyroCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceECGCapabilitiesType> @_projectedValueProperty($ecg) public var ecg: SensorBioBTSDK.DeviceECGCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $ecg: Combine.Published<SensorBioBTSDK.DeviceECGCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType, accel: SensorBioBTSDK.DeviceAccelCapabilitiesType, temp: SensorBioBTSDK.DeviceTempCapabilitiesType, gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType, ecg: SensorBioBTSDK.DeviceECGCapabilitiesType)
+  public var data: Foundation.Data {
+    get
+  }
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceSensorCurrentConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<SensorBioBTSDK.DeviceConfigurationStateType> @_projectedValueProperty($state) public var state: SensorBioBTSDK.DeviceConfigurationStateType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $state: Combine.Published<SensorBioBTSDK.DeviceConfigurationStateType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceConfigurationPPGModeEnableType> @_projectedValueProperty($mode) public var mode: SensorBioBTSDK.DeviceConfigurationPPGModeEnableType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $mode: Combine.Published<SensorBioBTSDK.DeviceConfigurationPPGModeEnableType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceSpectralCapabilitiesType> @_projectedValueProperty($spectral) public var spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $spectral: Combine.Published<SensorBioBTSDK.DeviceSpectralCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceAccelCapabilitiesType> @_projectedValueProperty($accel) public var accel: SensorBioBTSDK.DeviceAccelCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $accel: Combine.Published<SensorBioBTSDK.DeviceAccelCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceTempCapabilitiesType> @_projectedValueProperty($temp) public var temp: SensorBioBTSDK.DeviceTempCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $temp: Combine.Published<SensorBioBTSDK.DeviceTempCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceGyroCapabilitiesType> @_projectedValueProperty($gyro) public var gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $gyro: Combine.Published<SensorBioBTSDK.DeviceGyroCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceECGCapabilitiesType> @_projectedValueProperty($ecg) public var ecg: SensorBioBTSDK.DeviceECGCapabilitiesType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $ecg: Combine.Published<SensorBioBTSDK.DeviceECGCapabilitiesType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($period) public var period: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $period: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($duration) public var duration: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $duration: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(state: SensorBioBTSDK.DeviceConfigurationStateType, mode: SensorBioBTSDK.DeviceConfigurationPPGModeEnableType, spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType, accel: SensorBioBTSDK.DeviceAccelCapabilitiesType, temp: SensorBioBTSDK.DeviceTempCapabilitiesType, gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType, ecg: SensorBioBTSDK.DeviceECGCapabilitiesType, period: Swift.Int, duration: Swift.Int)
+  public init(data: Foundation.Data)
+  public var data: Foundation.Data {
+    get
+  }
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceSpectralCapabilitiesType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($raw) public var raw: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $raw: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_25) public var hz_25: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_25: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_50) public var hz_50: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_50: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($hz_100) public var hz_100: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hz_100: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($green) public var green: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $green: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($red) public var red: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $red: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($ir) public var ir: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $ir: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(raw: Swift.Bool, hz_25: Swift.Bool, hz_50: Swift.Bool, hz_100: Swift.Bool, green: Swift.Bool, red: Swift.Bool, ir: Swift.Bool)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceTempCapabilitiesType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($periodic_1min) public var periodic_1min: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $periodic_1min: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($periodic_5min) public var periodic_5min: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $periodic_5min: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($periodic_10min) public var periodic_10min: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $periodic_10min: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($raw) public var raw: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $raw: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(raw: Swift.Bool, periodic_1min: Swift.Bool, periodic_5min: Swift.Bool, periodic_10min: Swift.Bool)
+  public init(data: Foundation.Data)
+  public var jsonString: Swift.String {
+    get
+  }
+  public var data: Foundation.Data {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceTriggerCaptureConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($timed_enable) public var timed_enable: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $timed_enable: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($sleep_enable) public var sleep_enable: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $sleep_enable: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($period) public var period: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $period: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($duration) public var duration: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $duration: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($timezone_15min) public var timezone_15min: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $timezone_15min: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($start_hour) public var start_hour: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $start_hour: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($start_minute) public var start_minute: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $start_minute: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($end_hour) public var end_hour: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $end_hour: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($end_minute) public var end_minute: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $end_minute: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(timed_enable: Swift.Bool = false, sleep_enable: Swift.Bool = false, period: Swift.Int = 0, duration: Swift.Int = 0, timezone_15min: Swift.Int = 0, start_hour: Swift.Int = 0, start_minute: Swift.Int = 0, end_hour: Swift.Int = 0, end_minute: Swift.Int = 0)
+  public var data: Foundation.Data {
+    get
+  }
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceTriggerConfigurationType : Foundation.ObservableObject, Swift.Encodable {
+  @Combine.Published<SensorBioBTSDK.DeviceSensorConfigurationType> @_projectedValueProperty($sensor) public var sensor: SensorBioBTSDK.DeviceSensorConfigurationType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $sensor: Combine.Published<SensorBioBTSDK.DeviceSensorConfigurationType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceTriggerCaptureConfigurationType> @_projectedValueProperty($capture) public var capture: SensorBioBTSDK.DeviceTriggerCaptureConfigurationType {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $capture: Combine.Published<SensorBioBTSDK.DeviceTriggerCaptureConfigurationType>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init(sensor: SensorBioBTSDK.DeviceSensorConfigurationType, capture: SensorBioBTSDK.DeviceTriggerCaptureConfigurationType)
+  convenience public init(timed_enable: Swift.Bool = false, sleep_enable: Swift.Bool = false, spectral: SensorBioBTSDK.DeviceSpectralCapabilitiesType = DeviceSpectralCapabilitiesType(), accel: SensorBioBTSDK.DeviceAccelCapabilitiesType = DeviceAccelCapabilitiesType(), temp: SensorBioBTSDK.DeviceTempCapabilitiesType = DeviceTempCapabilitiesType(), gyro: SensorBioBTSDK.DeviceGyroCapabilitiesType = DeviceGyroCapabilitiesType(), ecg: SensorBioBTSDK.DeviceECGCapabilitiesType = DeviceECGCapabilitiesType(), period: Swift.Int = 0, duration: Swift.Int = 0, timezone_15min: Swift.Int = 0, start_hour: Swift.Int = 0, start_minute: Swift.Int = 0, end_hour: Swift.Int = 0, end_minute: Swift.Int = 0)
+  public var jsonString: Swift.String {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public class DeviceWornCheckResultType : Foundation.ObservableObject {
+  @Combine.Published<Swift.String> @_projectedValueProperty($code) public var code: Swift.String {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $code: Combine.Published<Swift.String>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($value) public var value: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $value: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(code: Swift.String, value: Swift.Int)
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+@objc public enum diagnosticType : Swift.UInt8, Swift.Codable {
+  case sleep = 0x00
+  case ppgBroken = 0x01
+  case pmicStatus = 0x02
+  case algorithm = 0x03
+  case rotation = 0x04
+  case pmicWatchdog = 0x05
+  case bluetoothPacket = 0xfe
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum eventType : Swift.UInt8, Swift.Codable {
+  case ppgUserTriggerButton = 0x00
+  case ppgUserTriggerAutoActivity = 0x01
+  case ppgUserTriggerBLE = 0x02
+  case ppgUserTriggerUART = 0x03
+  case ppgUserTriggerButtonStop = 0x04
+  case ppgUserTriggerAutoActivityStop = 0x05
+  case ppgUserTriggerBLEStop = 0x06
+  case ppgUserTriggerUARTStop = 0x07
+  case ppgUserTriggerManufacturingTestStop = 0x08
+  case singlePress = 0x09
+  case doublePress = 0x0a
+  case triplePress = 0x0b
+  case longPress = 0x0c
+  case none = 0x0d
+  case ppgWornStop = 0x0e
+  case ppgTimerStop = 0x0f
+  case ppgFWStop = 0x10
+  case ppgFWStart = 0x11
+  case unknown = 0xff
+  public init(from decoder: any Swift.Decoder) throws
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum HapticMotorType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
+  case on = 0x00
+  case pulse = 0x01
+  case unknown = 0xff
+  public init(from decoder: any Swift.Decoder) throws
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias AllCases = [SensorBioBTSDK.HapticMotorType]
+  public typealias RawValue = Swift.UInt8
+  nonisolated public static var allCases: [SensorBioBTSDK.HapticMotorType] {
+    get
+  }
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public struct HardwareRevisionType : Swift.Equatable {
+  public enum RevisionType {
+    case v1, v1_5, v2, v2_5, v3, unknown
+    public static func == (a: SensorBioBTSDK.HardwareRevisionType.RevisionType, b: SensorBioBTSDK.HardwareRevisionType.RevisionType) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+  }
+  public let source: Swift.String
+  public let type: SensorBioBTSDK.HardwareRevisionType.RevisionType
+  public init(_ rawValue: Swift.String)
+  public init(_ type: SensorBioBTSDK.HardwareRevisionType.RevisionType)
+  public var title: Swift.String {
+    get
+  }
+  public var hasSPO2: Swift.Bool {
+    get
+  }
+  public var hasECG: Swift.Bool {
+    get
+  }
+  public var hasTemp: Swift.Bool {
+    get
+  }
+  public var hasPMIC: Swift.Bool {
+    get
+  }
+  public var hasHapticMotor: Swift.Bool {
+    get
+  }
+  public var hasGyro: Swift.Bool {
+    get
+  }
+  public static func == (a: SensorBioBTSDK.HardwareRevisionType, b: SensorBioBTSDK.HardwareRevisionType) -> Swift.Bool
+}
+public class hrZoneLEDValueType : Foundation.ObservableObject {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($red) public var red: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $red: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($green) public var green: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $green: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($blue) public var blue: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $blue: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($on_ms) public var on_ms: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $on_ms: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($off_ms) public var off_ms: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $off_ms: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(red: Swift.Bool, green: Swift.Bool, blue: Swift.Bool, on_ms: Swift.Int, off_ms: Swift.Int)
+  public var stringValue: Swift.String {
+    get
+  }
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+@objc public enum hrZoneRangeType : Swift.UInt8, Swift.Codable {
+  case below = 0x00
+  case within = 0x01
+  case above = 0x02
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public class hrZoneRangeValueType : Foundation.ObservableObject {
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($enabled) public var enabled: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $enabled: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($lower) public var lower: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $lower: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Int> @_projectedValueProperty($upper) public var upper: Swift.Int {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $upper: Combine.Published<Swift.Int>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public init()
+  public init(enabled: Swift.Bool, lower: Swift.Int, upper: Swift.Int)
+  public var stringValue: Swift.String {
+    get
+  }
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+public enum LogLevel {
+  case verbose
+  case debug
+  case info
+  case warning
+  case error
+  public static func == (a: SensorBioBTSDK.LogLevel, b: SensorBioBTSDK.LogLevel) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+@objc public enum alterManufacturingTestType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
+  case flashIF = 0x01
+  case flashArray = 0x02
+  case spectralIF = 0x03
+  case spectralFIFO = 0x04
+  case imuIF = 0x05
+  case imuFIFO = 0x06
+  case led = 0x07
+  case motor = 0x08
+  case ppgUserTriggerButton = 0x09
+  case spectralLEDS = 0x0A
+  case imuSelfTest = 0x0B
+  case spectralLEDLeakage = 0x0C
+  case imuNoiseFloor = 0x0D
+  case temp = 0x0E
+  case pmic = 0x0F
+  case unknown = 0xff
+  public var isGen2: Swift.Bool {
+    get
+  }
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias AllCases = [SensorBioBTSDK.alterManufacturingTestType]
+  public typealias RawValue = Swift.UInt8
+  nonisolated public static var allCases: [SensorBioBTSDK.alterManufacturingTestType] {
+    get
+  }
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum manufacturingTestType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
+  case flashIF = 0x01
+  case flashArray = 0x02
+  case spectralIF = 0x03
+  case spectralFIFO = 0x04
+  case imuIF = 0x05
+  case imuFIFO = 0x06
+  case led = 0x07
+  case motor = 0x08
+  case ppgUserTriggerButton = 0x09
+  case spectralLEDS = 0x0A
+  case imuSelfTest = 0x0B
+  case spectralLEDLeakage = 0x0C
+  case imuNoiseFloor = 0x0D
+  case temp = 0x0E
+  case pmic = 0x0F
+  case spectralSelfTest = 0x11
+  case ecgRALATest = 0x12
+  case ecgLLTest = 0x13
+  case ecgWaveformTest = 0x14
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public static func filteredCases(hwRevision: SensorBioBTSDK.HardwareRevisionType?) -> [SensorBioBTSDK.manufacturingTestType]
+  public init?(rawValue: Swift.UInt8)
+  public typealias AllCases = [SensorBioBTSDK.manufacturingTestType]
+  public typealias RawValue = Swift.UInt8
+  nonisolated public static var allCases: [SensorBioBTSDK.manufacturingTestType] {
+    get
+  }
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum nextPacketStatusType : Swift.UInt8, Swift.Codable {
+  case successful = 0x00
+  case busy = 0x01
+  case caughtUp = 0x02
+  case pageEmpty = 0x03
+  case unknownPacket = 0x04
+  case badCommandFormat = 0x05
+  case badJSON = 0xfc
+  case badSDKDecode = 0xfd
+  case missingDevice = 0xfe
+  case unknown = 0xff
+  public init(from decoder: any Swift.Decoder) throws
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+public enum packetType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
+  case unknown
+  case steps
+  case activity
+  case temp
+  case worn
+  case sleep
+  case diagnostic
+  case ppg_failed
+  case battery
+  case charger
+  case ppg_metrics
+  case continuous_hr
+  case steps_active
+  case bbi
+  case cadence
+  case event
+  case bookend
+  case algorithmData
+  case rawECGChannel1
+  case rawECGFIFOCount
+  case rawAccelXADC
+  case rawAccelYADC
+  case rawAccelZADC
+  case rawAccelCompressedXADC
+  case rawAccelCompressedYADC
+  case rawAccelCompressedZADC
+  case ppgCalibrationStart
+  case ppgCalibrationDone
+  case motionLevel
+  case rawPPGCompressedGreen
+  case rawPPGCompressedRed
+  case rawPPGCompressedIR
+  case rawAccelFifoCount
+  case rawPPGProximity
+  case rawPPGGreen
+  case rawPPGRed
+  case rawPPGIR
+  case rawPPGFifoCount
+  case milestone
+  case settings
+  case caughtUp
+  public init(from decoder: any Swift.Decoder) throws
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias AllCases = [SensorBioBTSDK.packetType]
+  public typealias RawValue = Swift.UInt8
+  nonisolated public static var allCases: [SensorBioBTSDK.packetType] {
+    get
+  }
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@_inheritsConvenienceInitializers @objc public class ppgAlgorithmConfiguration : ObjectiveC.NSObject {
+  public var hr: Swift.Bool
+  public var hrv: Swift.Bool
+  public var rr: Swift.Bool
+  public var spo2: Swift.Bool
+  public var ecg: Swift.Bool
+  public var continuous: Swift.Bool
+  @objc override dynamic public init()
+  @objc public var commandString: Swift.String {
+    @objc get
+  }
+  @objc deinit
+}
+@objc public enum ppgFailedType : Swift.UInt8, Swift.Codable {
+  case worn = 0x00
+  case start = 0x01
+  case interrupt = 0x02
+  case overflow = 0x03
+  case fifoRead = 0x04
+  case alreadyRunning = 0x05
+  case lowBattery = 0x06
+  case userDisallowed = 0x07
+  case timedNotWorn = 0x08
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers public class ppgMetricsType : Foundation.ObservableObject {
+  @Combine.Published<Swift.String> @_projectedValueProperty($status) public var status: Swift.String {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $status: Combine.Published<Swift.String>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Float?> @_projectedValueProperty($hr) public var hr: Swift.Float? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hr: Combine.Published<Swift.Float?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Float?> @_projectedValueProperty($hrv) public var hrv: Swift.Float? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $hrv: Combine.Published<Swift.Float?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Float?> @_projectedValueProperty($rr) public var rr: Swift.Float? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $rr: Combine.Published<Swift.Float?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.Float?> @_projectedValueProperty($spo2) public var spo2: Swift.Float? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $spo2: Combine.Published<Swift.Float?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+@objc public enum ppgStatusType : Swift.UInt8, Swift.Codable {
+  case userContinuous = 0x00
+  case userComplete = 0x01
+  case backgroundComplete = 0x02
+  case backgroundMedtor = 0x03
+  case backgroundWornStop = 0x04
+  case backgroundUserStop = 0x05
+  case backgroundMotionStop = 0x06
+  case userWornStop = 0x07
+  case userUserStop = 0x08
+  case userMotionStop = 0x09
+  case userMedtorMotion = 0x0a
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@_inheritsConvenienceInitializers @objc public class SB_BTSDK : ObjectiveC.NSObject, Foundation.ObservableObject {
+  public struct PairedDeviceAttributes : Swift.Codable, Swift.Hashable {
+    public var id: Swift.String
+    public var name: Swift.String
+    public var type: SensorBioBTSDK.SB_BTSDK.sensrDeviceType
+    public init(id: Swift.String, name: Swift.String, type: SensorBioBTSDK.SB_BTSDK.sensrDeviceType)
+    public static func == (a: SensorBioBTSDK.SB_BTSDK.PairedDeviceAttributes, b: SensorBioBTSDK.SB_BTSDK.PairedDeviceAttributes) -> Swift.Bool
+    public func encode(to encoder: any Swift.Encoder) throws
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  @objc public enum sensrDeviceType : Swift.Int, Swift.Codable {
+    case alter = 3
+    case sensr = 4
+    case unknown = 99
+    public var title: Swift.String {
+      get
+    }
+    public init?(rawValue: Swift.Int)
+    public typealias RawValue = Swift.Int
+    public var rawValue: Swift.Int {
+      get
+    }
+  }
+  @objc @Combine.Published<Swift.Bool> @_projectedValueProperty($bluetoothAvailable) public var bluetoothAvailable: Swift.Bool {
+    @objc get
+  }
+  public var $bluetoothAvailable: Combine.Published<Swift.Bool>.Publisher {
+    get
+  }
+  @objc @Combine.Published<[SensorBioBTSDK.SB_Device]> @_projectedValueProperty($discoveredDevices) public var discoveredDevices: [SensorBioBTSDK.SB_Device] {
+    @objc get
+  }
+  public var $discoveredDevices: Combine.Published<[SensorBioBTSDK.SB_Device]>.Publisher {
+    get
+  }
+  @objc @Combine.Published<[SensorBioBTSDK.SB_Device]> @_projectedValueProperty($connectedDevices) public var connectedDevices: [SensorBioBTSDK.SB_Device] {
+    @objc get
+  }
+  public var $connectedDevices: Combine.Published<[SensorBioBTSDK.SB_Device]>.Publisher {
+    get
+  }
+  final public let log: Combine.PassthroughSubject<(SensorBioBTSDK.LogLevel, Swift.String, Swift.String, Swift.String, Swift.Int), Swift.Never>
+  final public let deviceDisconnected: Combine.PassthroughSubject<SensorBioBTSDK.SB_Device, Swift.Never>
+  final public let deviceConnected: Combine.PassthroughSubject<SensorBioBTSDK.SB_Device, Swift.Never>
+  public static var Version: Swift.String {
+    get
+  }
+  public func addPairedDevice(_ attributes: SensorBioBTSDK.SB_BTSDK.PairedDeviceAttributes)
+  public func removePairedDevice(_ id: Swift.String)
+  public func clearPairedDevices()
+  @objc override dynamic public init()
+  public func acquireLicense(_ licenseKey: Swift.String) -> (Swift.Bool, Swift.Int, Swift.String)
+  public func startScan(limitRSSI: Swift.Int? = nil) -> Swift.Bool
+  public func stopScan()
+  public func connect(_ id: Swift.String)
+  public func disconnect(_ id: Swift.String)
+  public func getCSVFromDataPackets(_ json: Swift.String) -> Swift.String
+  public func runSessionFile(_ id: Swift.String, file: Foundation.URL, offset: Swift.Int)
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+@objc @_inheritsConvenienceInitializers public class SB_Device : ObjectiveC.NSObject, Foundation.ObservableObject {
+  public enum ConnectionState {
+    case disconnected
+    case connecting
+    case configuring
+    case configured
+    public var title: Swift.String {
+      get
+    }
+    public static func == (a: SensorBioBTSDK.SB_Device.ConnectionState, b: SensorBioBTSDK.SB_Device.ConnectionState) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+  }
+  @objc public var type: SensorBioBTSDK.SB_BTSDK.sensrDeviceType
+  @Combine.Published<SensorBioBTSDK.SB_Device.ConnectionState> @_projectedValueProperty($connectionState) public var connectionState: SensorBioBTSDK.SB_Device.ConnectionState {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $connectionState: Combine.Published<SensorBioBTSDK.SB_Device.ConnectionState>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<Swift.String> @_projectedValueProperty($name) public var name: Swift.String {
+    get
+  }
+  public var $name: Combine.Published<Swift.String>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String> @_projectedValueProperty($id) public var id: Swift.String {
+    get
+  }
+  public var $id: Combine.Published<Swift.String>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($epoch) public var epoch: Swift.Int? {
+    get
+  }
+  public var $epoch: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($batteryLevel) public var batteryLevel: Swift.Int? {
+    get
+  }
+  public var $batteryLevel: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($worn) public var worn: Swift.Bool? {
+    get
+  }
+  public var $worn: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($charging) public var charging: Swift.Bool? {
+    get
+  }
+  public var $charging: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($on_charger) public var on_charger: Swift.Bool? {
+    get
+  }
+  public var $on_charger: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($charge_error) public var charge_error: Swift.Bool? {
+    get
+  }
+  public var $charge_error: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.BodySensorLocation?> @_projectedValueProperty($bodySensorLocation) public var bodySensorLocation: SensorBioBTSDK.BodySensorLocation? {
+    get
+  }
+  public var $bodySensorLocation: Combine.Published<SensorBioBTSDK.BodySensorLocation?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($modelNumber) public var modelNumber: Swift.String? {
+    get
+  }
+  public var $modelNumber: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($firmwareRevision) public var firmwareRevision: Swift.String? {
+    get
+  }
+  public var $firmwareRevision: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.HardwareRevisionType?> @_projectedValueProperty($hardwareRevision) public var hardwareRevision: SensorBioBTSDK.HardwareRevisionType? {
+    get
+  }
+  public var $hardwareRevision: Combine.Published<SensorBioBTSDK.HardwareRevisionType?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($manufacturerName) public var manufacturerName: Swift.String? {
+    get
+  }
+  public var $manufacturerName: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($serialNumber) public var serialNumber: Swift.String? {
+    get
+  }
+  public var $serialNumber: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($bluetoothSoftwareRevision) public var bluetoothSoftwareRevision: Swift.String? {
+    get
+  }
+  public var $bluetoothSoftwareRevision: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($algorithmsSoftwareRevision) public var algorithmsSoftwareRevision: Swift.String? {
+    get
+  }
+  public var $algorithmsSoftwareRevision: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($sleepSoftwareRevision) public var sleepSoftwareRevision: Swift.String? {
+    get
+  }
+  public var $sleepSoftwareRevision: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($sleepSoftwareRevisionValid) public var sleepSoftwareRevisionValid: Swift.Bool? {
+    get
+  }
+  public var $sleepSoftwareRevisionValid: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($canLogDiagnostics) public var canLogDiagnostics: Swift.Bool? {
+    get
+  }
+  public var $canLogDiagnostics: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceWornCheckResultType?> @_projectedValueProperty($wornCheckResult) public var wornCheckResult: SensorBioBTSDK.DeviceWornCheckResultType? {
+    get
+  }
+  public var $wornCheckResult: Combine.Published<SensorBioBTSDK.DeviceWornCheckResultType?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($advertisingInterval) public var advertisingInterval: Swift.Int? {
+    get
+  }
+  public var $advertisingInterval: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Float?> @_projectedValueProperty($chargeCycles) public var chargeCycles: Swift.Float? {
+    get
+  }
+  public var $chargeCycles: Combine.Published<Swift.Float?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($ledBrightness) public var ledBrightness: Swift.Int? {
+    get
+  }
+  public var $ledBrightness: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($heartBeatTime) public var heartBeatTime: Swift.Int? {
+    get
+  }
+  public var $heartBeatTime: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Foundation.Data?> @_projectedValueProperty($chipID) public var chipID: Foundation.Data? {
+    get
+  }
+  public var $chipID: Combine.Published<Foundation.Data?>.Publisher {
+    get
+  }
+  @Combine.Published<Foundation.Data?> @_projectedValueProperty($pspKey) public var pspKey: Foundation.Data? {
+    get
+  }
+  public var $pspKey: Combine.Published<Foundation.Data?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($advertiseAsHRM) public var advertiseAsHRM: Swift.Bool? {
+    get
+  }
+  public var $advertiseAsHRM: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($rawLogging) public var rawLogging: Swift.Bool? {
+    get
+  }
+  public var $rawLogging: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($rawPPGLogging) public var rawPPGLogging: Swift.Bool? {
+    get
+  }
+  public var $rawPPGLogging: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($rawAccelLogging) public var rawAccelLogging: Swift.Bool? {
+    get
+  }
+  public var $rawAccelLogging: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($rawGyroLogging) public var rawGyroLogging: Swift.Bool? {
+    get
+  }
+  public var $rawGyroLogging: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($rawECGLogging) public var rawECGLogging: Swift.Bool? {
+    get
+  }
+  public var $rawECGLogging: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($wornOverridden) public var wornOverridden: Swift.Bool? {
+    get
+  }
+  public var $wornOverridden: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($buttonResponseEnabled) public var buttonResponseEnabled: Swift.Bool? {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    set
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    _modify
+  }
+  public var $buttonResponseEnabled: Combine.Published<Swift.Bool?>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+    set
+  }
+  @Combine.Published<SensorBioBTSDK.buttonCommandType?> @_projectedValueProperty($singleButtonPressAction) public var singleButtonPressAction: SensorBioBTSDK.buttonCommandType? {
+    get
+  }
+  public var $singleButtonPressAction: Combine.Published<SensorBioBTSDK.buttonCommandType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.buttonCommandType?> @_projectedValueProperty($doubleButtonPressAction) public var doubleButtonPressAction: SensorBioBTSDK.buttonCommandType? {
+    get
+  }
+  public var $doubleButtonPressAction: Combine.Published<SensorBioBTSDK.buttonCommandType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.buttonCommandType?> @_projectedValueProperty($tripleButtonPressAction) public var tripleButtonPressAction: SensorBioBTSDK.buttonCommandType? {
+    get
+  }
+  public var $tripleButtonPressAction: Combine.Published<SensorBioBTSDK.buttonCommandType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.buttonCommandType?> @_projectedValueProperty($longButtonPressAction) public var longButtonPressAction: SensorBioBTSDK.buttonCommandType? {
+    get
+  }
+  public var $longButtonPressAction: Combine.Published<SensorBioBTSDK.buttonCommandType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.hrZoneLEDValueType?> @_projectedValueProperty($hrZoneLEDBelow) public var hrZoneLEDBelow: SensorBioBTSDK.hrZoneLEDValueType? {
+    get
+  }
+  public var $hrZoneLEDBelow: Combine.Published<SensorBioBTSDK.hrZoneLEDValueType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.hrZoneLEDValueType?> @_projectedValueProperty($hrZoneLEDWithin) public var hrZoneLEDWithin: SensorBioBTSDK.hrZoneLEDValueType? {
+    get
+  }
+  public var $hrZoneLEDWithin: Combine.Published<SensorBioBTSDK.hrZoneLEDValueType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.hrZoneLEDValueType?> @_projectedValueProperty($hrZoneLEDAbove) public var hrZoneLEDAbove: SensorBioBTSDK.hrZoneLEDValueType? {
+    get
+  }
+  public var $hrZoneLEDAbove: Combine.Published<SensorBioBTSDK.hrZoneLEDValueType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.hrZoneRangeValueType?> @_projectedValueProperty($hrZoneRange) public var hrZoneRange: SensorBioBTSDK.hrZoneRangeValueType? {
+    get
+  }
+  public var $hrZoneRange: Combine.Published<SensorBioBTSDK.hrZoneRangeValueType?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($buttonTaps) public var buttonTaps: Swift.Int? {
+    get
+  }
+  public var $buttonTaps: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool?> @_projectedValueProperty($paired) public var paired: Swift.Bool? {
+    get
+  }
+  public var $paired: Combine.Published<Swift.Bool?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($advertisingPageThreshold) public var advertisingPageThreshold: Swift.Int? {
+    get
+  }
+  public var $advertisingPageThreshold: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($ppgCapturePeriod) public var ppgCapturePeriod: Swift.Int? {
+    get
+  }
+  public var $ppgCapturePeriod: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($ppgCaptureDuration) public var ppgCaptureDuration: Swift.Int? {
+    get
+  }
+  public var $ppgCaptureDuration: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.String?> @_projectedValueProperty($tag) public var tag: Swift.String? {
+    get
+  }
+  public var $tag: Combine.Published<Swift.String?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceParameterDataStorageType?> @_projectedValueProperty($storageMode) public var storageMode: SensorBioBTSDK.DeviceParameterDataStorageType? {
+    get
+  }
+  public var $storageMode: Combine.Published<SensorBioBTSDK.DeviceParameterDataStorageType?>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int?> @_projectedValueProperty($signalStrength) public var signalStrength: Swift.Int? {
+    get
+  }
+  public var $signalStrength: Combine.Published<Swift.Int?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceCapabilitiesType?> @_projectedValueProperty($device_capabilities) public var device_capabilities: SensorBioBTSDK.DeviceCapabilitiesType? {
+    get
+  }
+  public var $device_capabilities: Combine.Published<SensorBioBTSDK.DeviceCapabilitiesType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DevicePassiveConfigurationType?> @_projectedValueProperty($passive_configuration) public var passive_configuration: SensorBioBTSDK.DevicePassiveConfigurationType? {
+    get
+  }
+  public var $passive_configuration: Combine.Published<SensorBioBTSDK.DevicePassiveConfigurationType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceActiveConfigurationType?> @_projectedValueProperty($active_configuration) public var active_configuration: SensorBioBTSDK.DeviceActiveConfigurationType? {
+    get
+  }
+  public var $active_configuration: Combine.Published<SensorBioBTSDK.DeviceActiveConfigurationType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceTriggerConfigurationType?> @_projectedValueProperty($trigger_configuration) public var trigger_configuration: SensorBioBTSDK.DeviceTriggerConfigurationType? {
+    get
+  }
+  public var $trigger_configuration: Combine.Published<SensorBioBTSDK.DeviceTriggerConfigurationType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceParamsHashType?> @_projectedValueProperty($device_params_hash) public var device_params_hash: SensorBioBTSDK.DeviceParamsHashType? {
+    get
+  }
+  public var $device_params_hash: Combine.Published<SensorBioBTSDK.DeviceParamsHashType?>.Publisher {
+    get
+  }
+  @Combine.Published<SensorBioBTSDK.DeviceSensorCurrentConfigurationType?> @_projectedValueProperty($current_sensor_configuration) public var current_sensor_configuration: SensorBioBTSDK.DeviceSensorCurrentConfigurationType? {
+    get
+  }
+  public var $current_sensor_configuration: Combine.Published<SensorBioBTSDK.DeviceSensorCurrentConfigurationType?>.Publisher {
+    get
+  }
+  final public let updateFirmwareStarted: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let updateFirmwareFinished: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let updateFirmwareProgress: Combine.PassthroughSubject<Swift.Float, Swift.Never>
+  final public let updateFirmwareFailed: Combine.PassthroughSubject<SensorBioBTSDK.FirmwareStatus, Swift.Never>
+  final public let heartRateUpdated: Combine.PassthroughSubject<(Swift.Int, Swift.Int, [Swift.Double]), Swift.Never>
+  final public let endSleepStatus: Combine.PassthroughSubject<Swift.Bool, Swift.Never>
+  final public let manufacturingTestResult: Combine.PassthroughSubject<(Swift.Bool, Swift.String), Swift.Never>
+  final public let ppgFailed: Combine.PassthroughSubject<Swift.Int, Swift.Never>
+  final public let streamingPacket: Combine.PassthroughSubject<SensorBioBTSDK.sensrStreamingPacket, Swift.Never>
+  final public let dataPackets: Combine.PassthroughSubject<(Swift.Int, [SensorBioBTSDK.sensrDataPacket]), Swift.Never>
+  final public let dataComplete: Combine.PassthroughSubject<(Swift.Int, Swift.Int, Swift.Int, Swift.Int, Swift.Bool), Swift.Never>
+  final public let dataFailure: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let ppgMetrics: Combine.PassthroughSubject<SensorBioBTSDK.ppgMetricsType, Swift.Never>
+  final public let connected: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  public static func previewed(type: SensorBioBTSDK.SB_BTSDK.sensrDeviceType = .alter, battery: Swift.Int? = nil, charging: Swift.Bool? = nil, on_charger: Swift.Bool? = nil, worn: Swift.Bool? = nil, modelNumber: Swift.String? = nil, firmwareRevision: Swift.String? = nil, hardwareRevision: SensorBioBTSDK.HardwareRevisionType? = nil, manufacturerName: Swift.String? = nil, serialNumber: Swift.String? = nil, bluetoothSoftwareRevision: Swift.String? = nil, algorithmsSoftwareRevision: Swift.String? = nil, sleepSoftwareRevision: Swift.String? = nil, commandCompletionStatus: SensorBioBTSDK.DeviceCommandCompletionStatus? = nil) -> SensorBioBTSDK.SB_Device
+  @objc override dynamic public init()
+  convenience public init(_ name: Swift.String, id: Swift.String, peripheral: CoreBluetooth.CBPeripheral?, type: SensorBioBTSDK.SB_BTSDK.sensrDeviceType)
+  public func writeEpochAsync(_ newEpoch: Swift.Int) async throws
+  public func readEpochAsync() async throws -> Swift.Int
+  public func endSleepAsync() async throws
+  public func getAllPacketsAsync(pages: Swift.Int, delay: Swift.Int) async throws
+  public func getAllPacketsAcknowledgeAsync(_ ack: Swift.Bool) async throws
+  public func getPacketCountAsync() async throws -> Swift.Int
+  public func disableWornDetectAsync() async throws
+  public func enableWornDetectAsync() async throws
+  public func startManualAsync(_ algorithms: SensorBioBTSDK.ppgAlgorithmConfiguration) async throws
+  public func stopManualAsync() async throws
+  public func userLEDAsync(red: Swift.Bool, green: Swift.Bool, blue: Swift.Bool, blink: Swift.Bool = false, seconds: Swift.Int = 4, brightness: Swift.Int? = nil) async throws
+  public func hapticMotorAsync(type: SensorBioBTSDK.HapticMotorType, seconds: Swift.Int, intensity: Swift.Int) async throws
+  public func enterShipModeAsync() async throws
+  public func resetAsync() async throws
+  public func airplaneModeAsync() async throws
+  public func configuredAsync() async throws
+  public func writeSerialNumberAsync(_ partID: Swift.String) async throws
+  public func readSerialNumberAsync() async throws -> Swift.String
+  public func deleteSerialNumberAsync() async throws
+  public func writeAdvIntervalAsync(_ seconds: Swift.Int) async throws
+  public func readAdvIntervalAsync() async throws -> Swift.Int
+  public func deleteAdvIntervalAsync() async throws
+  public func clearChargeCyclesAsync() async throws
+  public func readChargeCyclesAsync() async throws -> Swift.Float
+  public func writeLEDBrightnessAsync(_ percent: Swift.Int) async throws
+  public func readLEDBrightnessAsync() async throws -> Swift.Int
+  public func deleteLEDBrightnessAsync() async throws
+  public func writeHeartBeatTimeAsync(_ seconds: Swift.Int) async throws
+  public func readHeartBeatTimeAsync() async throws -> Swift.Int
+  public func deleteHeartBeatTimeAsync() async throws
+  public func readChipIDAsync() async throws -> Foundation.Data?
+  public func writePSPKeyAsync(_ key: Foundation.Data) async throws
+  public func readPSPKeyAsync() async throws -> Foundation.Data?
+  public func deletePSPKeyAsync() async throws
+  public func writeDataStorageTypeAsync(_ type: SensorBioBTSDK.DeviceParameterDataStorageType) async throws
+  public func readDataStorageTypeAsync() async throws -> SensorBioBTSDK.DeviceParameterDataStorageType
+  public func deleteDataStorageTypeAsync() async throws
+  public func readCanLogDiagnosticsAsync() async throws -> Swift.Bool
+  public func updateCanLogDiagnosticsAsync(_ allow: Swift.Bool) async throws
+  public func alterManufacturingTestAsync(_ test: SensorBioBTSDK.alterManufacturingTestType) async throws
+  public func manufacturingTestAsync(_ test: SensorBioBTSDK.manufacturingTestType) async throws
+  public func setAskForButtonResponseAsync(_ enable: Swift.Bool) async throws
+  public func getAskForButtonResponseAsync() async throws -> Swift.Bool
+  public func setHRZoneColorAsync(_ type: SensorBioBTSDK.hrZoneRangeType, red: Swift.Bool, green: Swift.Bool, blue: Swift.Bool, on_milliseconds: Swift.Int, off_milliseconds: Swift.Int) async throws
+  public func getHRZoneColorAsync(_ type: SensorBioBTSDK.hrZoneRangeType) async throws -> SensorBioBTSDK.hrZoneLEDValueType
+  public func setHRZoneRangeAsync(_ enabled: Swift.Bool, high_value: Swift.Int, low_value: Swift.Int) async throws
+  public func getHRZoneRangeAsync() async throws -> SensorBioBTSDK.hrZoneRangeValueType
+  public func getPPGAlgorithmAsync() async throws -> (SensorBioBTSDK.ppgAlgorithmConfiguration, SensorBioBTSDK.eventType)
+  public func setAdvertiseAsHRMAsync(_ asHRM: Swift.Bool) async throws
+  public func getAdvertiseAsHRMAsync() async throws -> Swift.Bool
+  public func setButtonCommandAsync(_ tap: SensorBioBTSDK.buttonTapType, command: SensorBioBTSDK.buttonCommandType) async throws
+  public func getButtonCommandAsync(_ tap: SensorBioBTSDK.buttonTapType) async throws -> SensorBioBTSDK.buttonCommandType
+  public func setRawLoggingStatusAsync(_ enable: Swift.Bool, ppg: Swift.Bool = true, accel: Swift.Bool = true, gyro: Swift.Bool = true, ecg: Swift.Bool = true) async throws
+  public func wornCheckAsync() async throws -> SensorBioBTSDK.DeviceWornCheckResultType
+  public func getRawLoggingStatusAsync() async throws -> (Swift.Bool, Swift.Bool, Swift.Bool, Swift.Bool, Swift.Bool)
+  public func getWornOverrideStatusAsync() async throws
+  public func updateFirmwareAsync(_ file: Foundation.URL, delay: Swift.Int? = nil, size: Swift.Int? = nil) async throws
+  public func setSessionPPGCaptureDurationAsync(_ value: Swift.Int) async throws
+  public func setSessionPPGCapturePeriodAsync(_ value: Swift.Int) async throws
+  public func setSessionTagAsync(_ value: Swift.String) async throws
+  public func getSessionPPGCapturePeriodAsync() async throws -> Swift.Int
+  public func getSessionPPGCaptureDurationAsync() async throws -> Swift.Int
+  public func getSessionTagAsync() async throws -> Swift.String
+  public func resetSessionParamsAsync() async throws
+  public func acceptSessionParamsAsync() async throws
+  public func getFileSystemFilenamesAsync(_ type: SensorBioBTSDK.packetType, delay: Swift.Int = 0) async throws -> Swift.Int
+  public func getDeviceCapabilitiesAsync() async throws -> SensorBioBTSDK.DeviceCapabilitiesType
+  public func getSensorConfigurationStatusAsync() async throws -> SensorBioBTSDK.DeviceSensorCurrentConfigurationType?
+  public func setDeviceActiveConfigurationAsync(configuration: SensorBioBTSDK.DeviceActiveConfigurationType) async throws
+  public func getDeviceActiveConfigurationAsync() async throws -> SensorBioBTSDK.DeviceActiveConfigurationType
+  public func deleteDeviceActiveConfigurationAsync() async throws
+  public func setDevicePassiveConfigurationAsync(configuration: SensorBioBTSDK.DevicePassiveConfigurationType) async throws
+  public func getDevicePassiveConfigurationAsync() async throws -> SensorBioBTSDK.DevicePassiveConfigurationType
+  public func deleteDevicePassiveConfigurationAsync() async throws
+  public func setDeviceTriggerConfigurationAsync(configuration: SensorBioBTSDK.DeviceTriggerConfigurationType) async throws
+  public func getDeviceTriggerConfigurationAsync() async throws -> SensorBioBTSDK.DeviceTriggerConfigurationType
+  public func deleteDeviceTriggerConfigurationAsync() async throws
+  public func setDeviceParameterButtonConfigurationAsync(configuration: SensorBioBTSDK.DeviceButtonConfigurationType) async throws
+  public func getDeviceParameterButtonConfigurationAsync() async throws -> SensorBioBTSDK.DeviceButtonConfigurationType
+  public func deleteDeviceParameterButtonConfigurationAsync() async throws
+  public func getDeviceParametersHashAsync() async throws -> SensorBioBTSDK.DeviceParamsHashType
+  public func getSignalStrength()
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class sensrDataPacket : ObjectiveC.NSObject, Swift.Codable {
+  public var type: SensorBioBTSDK.packetType
+  public var settings_type: SensorBioBTSDK.settingsType
+  public var epoch: Swift.Int
+  public var end_epoch: Swift.Int
+  public var worn: Swift.Bool
+  public var epoch_ms: Swift.Int
+  public var seconds: Swift.Int
+  public var value: Swift.Int
+  public var active_seconds: Swift.Int
+  public var voltage: Swift.Int
+  public var temperature: Swift.Float
+  public var hr_valid: Swift.Bool
+  public var hr_result: Swift.Float
+  public var hrv_valid: Swift.Bool
+  public var hrv_result: Swift.Float
+  public var rr_valid: Swift.Bool
+  public var rr_result: Swift.Float
+  public var spo2_valid: Swift.Bool
+  public var spo2_result: Swift.Float
+  public var tag: Swift.String
+  public var settings_value: Swift.Float
+  public var raw_data: Foundation.Data
+  public var raw_data_string: Swift.String
+  public var diagnostic_type: SensorBioBTSDK.diagnosticType
+  public var ppg_failed_type: SensorBioBTSDK.ppgFailedType
+  public var ppg_metrics_status: SensorBioBTSDK.ppgStatusType
+  public var continuous_hr: [Swift.Int]
+  public var bbi: [Swift.Int]
+  public var cadence_spm: [Swift.Int]
+  public var event_type: SensorBioBTSDK.eventType
+  public var bookend_type: SensorBioBTSDK.bookendType
+  public var bookend_payload: Swift.Int
+  public var duration_ms: Swift.Int
+  public var green_led_current: Swift.Int
+  public var red_led_current: Swift.Int
+  public var ir_led_current: Swift.Int
+  public var white_irr_led_current: Swift.Int
+  public var white_white_led_current: Swift.Int
+  public var charging: Swift.Bool
+  public var charge_full: Swift.Bool
+  public var algorithmPacketSubType: SensorBioBTSDK.algorithmPacketType
+  public var algorithmPacketIndex: Swift.Int
+  public var algorithmPacketCount: Swift.Int
+  public var algorithmPacketData: Foundation.Data
+  public var csv: Swift.String {
+    get
+  }
+  required public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+  @objc deinit
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class sensrStreamingPacket : ObjectiveC.NSObject, Swift.Codable {
+  public var type: SensorBioBTSDK.streamingType
+  public var epoch_sec: Swift.Int
+  public var epoch_ms: Swift.Int
+  public var hr_bpm: Swift.Int
+  public var cadence_spm: Swift.Int
+  public var hr_confidence: Swift.Int
+  public var cadence_confidence: Swift.Int
+  public var rmssd_ms: Swift.Int
+  public var numberOfDatapoints: Swift.Int
+  public var rr_bpm: Swift.Int
+  public var snr_ratio: Swift.Int
+  public var bbi_ms: Swift.Int
+  public var snr_type: Swift.Int
+  public var ppg: Swift.Float
+  public var ppgWavelengths: SensorBioBTSDK.wavelengthType
+  public var motionState: Swift.Bool
+  public var ppgState: SensorBioBTSDK.eventType
+  public var packet_count: Swift.Int
+  public var raw_data_string: Swift.String
+  public var csv: Swift.String {
+    get
+  }
+  public init(_ data: Foundation.Data)
+  required public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+  @objc deinit
+}
+@objc public enum sessionParameterType : Swift.UInt8, Swift.Codable {
+  case ppgCapturePeriod = 0x00
+  case ppgCaptureDuration = 0x01
+  case tag = 0x10
+  case reset = 0xfd
+  case accept = 0xfe
+  case unknown = 0xff
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum settingsType : Swift.UInt8, Swift.Codable {
+  case accelHalfRange = 0x00
+  case gyroHalfRange = 0x01
+  case imuSamplingRate = 0x02
+  case ppgCapturePeriod = 0x03
+  case ppgCaptureDuration = 0x04
+  case ppgSamplingRate = 0x05
+  case unknown = 0xff
+  public init(from decoder: any Swift.Decoder) throws
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@objc public enum streamingType : Swift.UInt8, Swift.Codable {
+  case hr = 0x00
+  case hrv = 0x01
+  case rr = 0x02
+  case bbi = 0x03
+  case ppgSNR = 0x04
+  case ppgWave = 0x05
+  case motionState = 0x06
+  case ppgState = 0x07
+  case heartBeat = 0x08
+  case unknown = 0xff
+  public init(from decoder: any Swift.Decoder) throws
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+extension Swift.String {
+  public func versionGreaterThan(_ compare: Swift.String, separator: Swift.Character = ".") -> Swift.Bool
+  public func versionLessThan(_ compare: Swift.String, separator: Swift.Character = ".") -> Swift.Bool
+  public func versionEqualTo(_ compare: Swift.String, separator: Swift.Character = ".") -> Swift.Bool
+  public func versionGreaterThanOrEqualTo(_ compare: Swift.String, separator: Swift.Character = ".") -> Swift.Bool
+  public func versionLessThanOrEqualTo(_ compare: Swift.String, separator: Swift.Character = ".") -> Swift.Bool
+}
+@objc public enum wavelengthType : Swift.UInt8, Swift.Codable {
+  case green = 0x00
+  case red = 0x01
+  case IR = 0x02
+  case whiteIR = 0x03
+  case whiteWhite = 0x04
+  case ecg = 0x05
+  case unknown = 0xff
+  public init(from decoder: any Swift.Decoder) throws
+  public var title: Swift.String {
+    get
+  }
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+extension SensorBioBTSDK.algorithmPacketType : Swift.Equatable {}
+extension SensorBioBTSDK.algorithmPacketType : Swift.Hashable {}
+extension SensorBioBTSDK.algorithmPacketType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.FirmwareStatus : Swift.Equatable {}
+extension SensorBioBTSDK.FirmwareStatus : Swift.Hashable {}
+extension SensorBioBTSDK.FirmwareStatus : Swift.RawRepresentable {}
+extension SensorBioBTSDK.BodySensorLocation : Swift.Equatable {}
+extension SensorBioBTSDK.BodySensorLocation : Swift.Hashable {}
+extension SensorBioBTSDK.BodySensorLocation : Swift.RawRepresentable {}
+extension SensorBioBTSDK.bookendType : Swift.Equatable {}
+extension SensorBioBTSDK.bookendType : Swift.Hashable {}
+extension SensorBioBTSDK.bookendType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.buttonCommandType : Swift.Equatable {}
+extension SensorBioBTSDK.buttonCommandType : Swift.Hashable {}
+extension SensorBioBTSDK.buttonCommandType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.buttonTapType : Swift.Equatable {}
+extension SensorBioBTSDK.buttonTapType : Swift.Hashable {}
+extension SensorBioBTSDK.buttonTapType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.DeviceCommandCompletionStatus : Swift.Equatable {}
+extension SensorBioBTSDK.DeviceCommandCompletionStatus : Swift.Hashable {}
+extension SensorBioBTSDK.DeviceConfigurationPPGModeEnableType : Swift.Equatable {}
+extension SensorBioBTSDK.DeviceConfigurationPPGModeEnableType : Swift.Hashable {}
+extension SensorBioBTSDK.DeviceConfigurationPPGModeEnableType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.DeviceConfigurationStateType : Swift.Equatable {}
+extension SensorBioBTSDK.DeviceConfigurationStateType : Swift.Hashable {}
+extension SensorBioBTSDK.DeviceConfigurationStateType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.DeviceParameterDataStorageType : Swift.Equatable {}
+extension SensorBioBTSDK.DeviceParameterDataStorageType : Swift.Hashable {}
+extension SensorBioBTSDK.DeviceParameterDataStorageType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.DeviceParameterType : Swift.Equatable {}
+extension SensorBioBTSDK.DeviceParameterType : Swift.Hashable {}
+extension SensorBioBTSDK.DeviceParameterType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.diagnosticType : Swift.Equatable {}
+extension SensorBioBTSDK.diagnosticType : Swift.Hashable {}
+extension SensorBioBTSDK.diagnosticType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.eventType : Swift.Equatable {}
+extension SensorBioBTSDK.eventType : Swift.Hashable {}
+extension SensorBioBTSDK.eventType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.HapticMotorType : Swift.Equatable {}
+extension SensorBioBTSDK.HapticMotorType : Swift.Hashable {}
+extension SensorBioBTSDK.HapticMotorType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.HardwareRevisionType.RevisionType : Swift.Equatable {}
+extension SensorBioBTSDK.HardwareRevisionType.RevisionType : Swift.Hashable {}
+extension SensorBioBTSDK.hrZoneRangeType : Swift.Equatable {}
+extension SensorBioBTSDK.hrZoneRangeType : Swift.Hashable {}
+extension SensorBioBTSDK.hrZoneRangeType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.LogLevel : Swift.Equatable {}
+extension SensorBioBTSDK.LogLevel : Swift.Hashable {}
+extension SensorBioBTSDK.alterManufacturingTestType : Swift.Equatable {}
+extension SensorBioBTSDK.alterManufacturingTestType : Swift.Hashable {}
+extension SensorBioBTSDK.alterManufacturingTestType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.manufacturingTestType : Swift.Equatable {}
+extension SensorBioBTSDK.manufacturingTestType : Swift.Hashable {}
+extension SensorBioBTSDK.manufacturingTestType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.nextPacketStatusType : Swift.Equatable {}
+extension SensorBioBTSDK.nextPacketStatusType : Swift.Hashable {}
+extension SensorBioBTSDK.nextPacketStatusType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.packetType : Swift.Equatable {}
+extension SensorBioBTSDK.packetType : Swift.Hashable {}
+extension SensorBioBTSDK.packetType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.ppgFailedType : Swift.Equatable {}
+extension SensorBioBTSDK.ppgFailedType : Swift.Hashable {}
+extension SensorBioBTSDK.ppgFailedType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.ppgStatusType : Swift.Equatable {}
+extension SensorBioBTSDK.ppgStatusType : Swift.Hashable {}
+extension SensorBioBTSDK.ppgStatusType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.SB_BTSDK.sensrDeviceType : Swift.Equatable {}
+extension SensorBioBTSDK.SB_BTSDK.sensrDeviceType : Swift.Hashable {}
+extension SensorBioBTSDK.SB_BTSDK.sensrDeviceType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.SB_Device.ConnectionState : Swift.Equatable {}
+extension SensorBioBTSDK.SB_Device.ConnectionState : Swift.Hashable {}
+extension SensorBioBTSDK.sessionParameterType : Swift.Equatable {}
+extension SensorBioBTSDK.sessionParameterType : Swift.Hashable {}
+extension SensorBioBTSDK.sessionParameterType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.settingsType : Swift.Equatable {}
+extension SensorBioBTSDK.settingsType : Swift.Hashable {}
+extension SensorBioBTSDK.settingsType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.streamingType : Swift.Equatable {}
+extension SensorBioBTSDK.streamingType : Swift.Hashable {}
+extension SensorBioBTSDK.streamingType : Swift.RawRepresentable {}
+extension SensorBioBTSDK.wavelengthType : Swift.Equatable {}
+extension SensorBioBTSDK.wavelengthType : Swift.Hashable {}
+extension SensorBioBTSDK.wavelengthType : Swift.RawRepresentable {}
