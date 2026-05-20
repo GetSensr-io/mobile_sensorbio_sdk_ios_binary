@@ -64,7 +64,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.2.0'
+    :tag => 'v0.3.0'
 end
 
 post_install do |installer|
@@ -328,6 +328,7 @@ public let deviceDisconnected:          PassthroughSubject<String, Never>   // p
 public let persistDeviceStateRequested: PassthroughSubject<Void, Never>     // SDK asks the app to call persistDeviceState(_:)
 public let deviceConnected:             PassthroughSubject<Void, Never>     // low-level BLE connect
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
+public let deviceLinkFailed:            PassthroughSubject<SB_DeviceLinkFailure, Never>  // server rejected the device-link (serial-enforced subscription)
 
 // Streaming biometrics — timestamp + value
 public let hr:    PassthroughSubject<(Int, Int),     Never>                 // bpm
@@ -380,6 +381,9 @@ public var firmwareUpdated: Bool
 public func signIn(email: String, password: String) async throws -> SB_SignInOutcome
 public func createAccount(_ request: SB_CreateAccountRequest) async throws -> SB_CreateAccountOutcome
 public func checkEmailAvailability(email: String) async throws -> SB_EmailAvailabilityOutcome
+public func validateAccountRequirements(
+    _ request: SB_ValidateAccountRequirementsRequest
+) async throws -> SB_ValidateAccountRequirementsResult
 
 // Session
 public func hydrateSession()                                          // restore from keychain
@@ -709,7 +713,8 @@ The SDK ships ~170 public structs and ~65 public enums under `Sources/SensorBioS
 
 These domain types are returned by, or accepted by, the ✅ Supported methods above and are stable for customer integration today.
 
-- **Auth & session** — `SB_Session`, `SB_CreateAccountRequest`, `SB_SignInOutcome`, `SB_CreateAccountOutcome`, `SB_AuthError`, `SB_Gender`, `SB_EmailAvailabilityOutcome`, `SB_ChangePasswordOutcome`, `SB_RequestPasswordResetOutcome`, `SB_AgreementCheck`, `SB_AgreementType`.
+- **Auth & session** — `SB_Session`, `SB_CreateAccountRequest`, `SB_SignInOutcome`, `SB_CreateAccountOutcome`, `SB_AuthError`, `SB_Gender`, `SB_EmailAvailabilityOutcome`, `SB_ChangePasswordOutcome`, `SB_RequestPasswordResetOutcome`, `SB_AgreementCheck`, `SB_AgreementType`, `SB_ValidateAccountRequirementsRequest`, `SB_ValidateAccountRequirementsResult`, `SB_AccountRequirementStatus`, `SB_SubscriptionDetails`, `SB_ResetPasswordCode`.
+- **Device link outcomes** — `SB_DeviceLinkFailure`.
 - **User profile & goals** — `SB_UserProfile`, `SB_UserProfileUpdate`, `SB_PhysicalStats`, `SB_CardioStats`, `SB_UnitType`, `SB_UpdateUserProfileOutcome`, `SB_Goals`, `SB_UpdateGoalsOutcome`.
 - **Pairing & device** — `SB_DiscoveredDevice`, `SB_PairedDeviceState`, `SB_BluetoothDeviceType`, `SB_DeviceConnectionState`, `SB_NetworkStatus`.
 - **Dashboard** — `SB_DashboardData`, `SB_DashboardItemActivity`, `SB_DashboardItemSleep`, `SB_DashboardItemRecovery`, `SB_DashboardCircularItem`, `SB_DashboardMetric`, `SB_DashboardMetricType`, `SB_DashboardMetricFooter`, `SB_DashboardItemRecoveryStage`, `SB_DashboardInsight`, `SB_DashboardSleepRecommendationCard`.

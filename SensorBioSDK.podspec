@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SensorBioSDK'
-  s.version          = '0.2.0'
+  s.version          = '0.3.0'
   s.summary          = 'Sensr-Bio SDK for iOS — binary distribution.'
   s.description      = <<~DESC
     Customer-facing iOS SDK for the Sensr-Bio biometric platform. This is
@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
 
         pod 'SensorBioSDK',
           :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-          :tag => 'v0.2.0'
+          :tag => 'v0.3.0'
 
     No source code is shipped; no manual file copy. CocoaPods clones the
     repo at the tag, finds this podspec at the root, links the three
