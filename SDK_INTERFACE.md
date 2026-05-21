@@ -345,8 +345,8 @@ public let firmwareProgress:            PassthroughSubject<Float, Never>
 #### 🚧 WIP
 
 ```swift
-public let spotCheckResult:             PassthroughSubject<SB_SpotCheckResult, Never>
-public let spotCheckProcessed:          PassthroughSubject<Void, Never>
+public let biometricRecordResult:       PassthroughSubject<SB_BiometricRecordResult, Never>
+public let biometricRecordProcessed:    PassthroughSubject<Void, Never>
 public let sleepStored:                 PassthroughSubject<Void, Never>
 public let scheduledSurveyToPresent:    PassthroughSubject<SB_WhiteLabelScheduledSurveyTime, Never>
 ```
@@ -465,9 +465,55 @@ public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) asyn
 
 ### 5.3 Recording — 🚧 WIP
 
+Two layers are exposed today:
+
+**High-level orchestrations.** Each runs a fixed-duration session end-to-end: BLE start/stop, countdown, post-stop sync wait, session build, and submission. Three completion paths each (natural / early-finish-with-submit via `finishCurrentRecording()` / cancellation via `Task.cancel()`).
+
+```swift
+public func recordDetailedBiometrics(
+    duration: TimeInterval,
+    minDuration: TimeInterval,
+    sessionName: String? = nil,
+    sessionNameAlreadyExists: Bool = false,
+    workflowTemplate: SB_WorkflowTemplate? = nil
+) async throws
+
+public func recordMeditation(
+    duration: TimeInterval,
+    minDuration: TimeInterval,
+    sessionName: String? = nil,
+    sessionNameAlreadyExists: Bool = false,
+    workflowTemplate: SB_WorkflowTemplate? = nil
+) async throws
+
+public func finishCurrentRecording()        // signal: "user tapped End Recording"
+```
+
+Observable orchestration state — gates the recording UI:
+
+| Property | Type | Description |
+|---|---|---|
+| `recordingState` | `SB_RecordingState` | `.idle` / `.recording(elapsed, target)` / `.finalizing(phase)` |
+| `canFinalize` | `Bool` | True once `elapsed ≥ minDuration` AND at least one HR sample has arrived |
+
+Throws `SB_RecordingError`:
+
+```swift
+public enum SB_RecordingError: Error {
+    case alreadyRecording
+    case noPairedDevice
+    case bleStartFailed(underlying: Error)
+    case bleStopFailed(underlying: Error)
+    case tooShort(elapsed: TimeInterval, minimum: TimeInterval)
+    case insufficientData    // detailed-biometrics only
+}
+```
+
+**Low-level BLE methods.** Used internally by the orchestrations; also callable directly for the activity recording flow (Phase 7.3 will absorb activity into its own high-level orchestration).
+
 ```swift
 public func startBiometricRecording() async throws   // HR + HRV + RR + SpO2 + ECG
-public func startActivityRecording() async throws    // HR only
+public func startActivityRecording() async throws    // HR + HRV / lighter algo set
 public func stopRecording() async throws
 public func submitFinishedRecording(_ session: SB_FinishedRecordingSession)
 ```
@@ -728,9 +774,9 @@ These domain types are returned by, or accepted by, the ✅ Supported methods ab
 
 - **Org / settings** — `SB_UserAppSettings`, `SB_OrgMembership`, `SB_OrganizationMemberStatus`, `SB_ExerciseZoneAttributes`.
 - **SpO2 reads** — `SB_SpO2DailyTrending`, `SB_SpO2RangeTrending`, `SB_SpO2DailyGraph`, `SB_SpO2RangeGraph`.
-- **Workouts / activities** — `SB_ActivityRecordingList`, `SB_ActivityTimeline`, `SB_ActivitySummary`, `SB_ActivitySummarySet`, `SB_ActiveWorkoutSegment`, `SB_WorkoutItem`, `SB_WorkoutDetail`, `SB_WorkoutSummaryMetric`, `SB_WorkoutTimelineResult`, `SB_WorkoutEntry`, `SB_WorkoutRecordingInfo`, `SB_WorkoutType`, `SB_WorkoutEntryType`, `SB_WorkoutMetricType`, `SB_WorkoutDetailValueType`, `SB_ModifyAction`, `SB_ModifyOutcome`, `SB_MeditationGraph`, `SB_OngoingWorkoutProgram`, `SB_ARDADetails`, `SB_ARDARunningTimeline`, `SB_ARDATrainingTypeMetrics`, `SB_HRMValues`, `SB_HRMExerciseZone`, `SB_HRMData`, `SB_HRMCategory`, `SB_HREffortZone`.
-- **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_DailyStats`, `SB_DailyStatsResponse`.
-- **Spot-check & live telemetry** — `SB_SpotCheckDetails`, `SB_SpotCheckMeasurements`, `SB_SpotCheckResult`, `SB_LiveMetric`.
+- **Workouts / activities** — `SB_ActivityRecordingList`, `SB_ActivityTimeline`, `SB_ActivitySummary`, `SB_ActivitySummarySet`, `SB_ActiveWorkoutSegment`, `SB_WorkoutItem`, `SB_WorkoutDetail`, `SB_WorkoutSummaryMetric`, `SB_WorkoutTimelineResult`, `SB_WorkoutEntry`, `SB_WorkoutRecordingInfo`, `SB_WorkoutType`, `SB_WorkoutEntryType`, `SB_WorkoutMetricType`, `SB_WorkoutDetailValueType`, `SB_ModifyAction`, `SB_ModifyOutcome`, `SB_MeditationGraph`, `SB_OngoingWorkoutProgram`, `SB_ARDADetails`, `SB_ARDARunningTimeline`, `SB_ARDATrainingTypeMetrics`, `SB_HRMExerciseZone`, `SB_HRMData`, `SB_HRMCategory`, `SB_HREffortZone`.
+- **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_RecordingFinalizationPhase`, `SB_RecordingError`, `SB_WorkflowTemplate`, `SB_DailyStats`, `SB_DailyStatsResponse`.
+- **Biometric-record & live telemetry** — `SB_SpotCheckDetails` (server-read shape — JSON name preserved), `SB_BiometricRecordMeasurements`, `SB_BiometricRecordResult`, `SB_LiveMetric`.
 - **Insights extras** — `SB_InsightFeedback`, `SB_ExperimentRecommendation`, `SB_RoutineMetadata`, `SB_RoutineGoal`.
 - **Surveys / questionnaires / white-label** — `SB_WhiteLabelSettings`, `SB_WhiteLabelScheduledSurveyTime`, `SB_WhiteLabelRecordingSurveyInfo`, `SB_WhiteLabelDefaultSimpleCard`, `SB_WhiteLabelLinkButton`, `SB_WhiteLabelRecordingType`, `SB_LinkButtonAuthTokenType`, `SB_CustomQuestionnaire`, `SB_CustomQuestionnaireButton`, `SB_CustomQuestionnaireButtonStyle`, `SB_CustomQuestionnaireButtonAction`, `SB_BriefSurvey`, `SB_BriefSurveyQuestion`, `SB_BriefSurveyType`, `SB_BriefSurveyAnswer`.
 - **Misc** — `SB_AnalyticsEvent`, `SB_NotificationElement`, `SB_NotificationElemType`, `SB_TimestampTZ`, `SB_TimeTzWrapper`, `SB_GPSData`, `SB_GPSPoint`, `SB_FormattedUnitValueMetric`, `SB_GraphHeaderTag`, `SB_HistogramPair`, `SB_PoincarePlotGraph`, `SB_PoincarePoint`, `SB_ValueWithBaselineInfoCard`, `SB_TimelineBlock`, `SB_TimeSegment`, `SB_WMYChart`, `SB_TimeValueStraightLine`, `SB_ValueType`, `SB_PageFetchDirection`, `SB_DeviceSyncStatus`, `SB_PedometerEngineDelegateType`, `SB_ServerActivityInfoKeys`, `SB_ServerWorkoutInfoKeys`, `SB_ServerMetaDataKeys`, `SB_ServerDeviceName`, `SB_MobileApplicationLogLevel`, `SB_MobileDashboardRefreshOption`, `SB_SummaryGranularity`.
