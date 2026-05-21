@@ -345,8 +345,8 @@ public let firmwareProgress:            PassthroughSubject<Float, Never>
 #### 🚧 WIP
 
 ```swift
-public let spotCheckResult:             PassthroughSubject<SB_SpotCheckResult, Never>
-public let spotCheckProcessed:          PassthroughSubject<Void, Never>
+public let biometricRecordResult:       PassthroughSubject<SB_BiometricRecordResult, Never>
+public let biometricRecordProcessed:    PassthroughSubject<Void, Never>
 public let sleepStored:                 PassthroughSubject<Void, Never>
 public let scheduledSurveyToPresent:    PassthroughSubject<SB_WhiteLabelScheduledSurveyTime, Never>
 ```
@@ -730,7 +730,7 @@ These domain types are returned by, or accepted by, the ✅ Supported methods ab
 - **SpO2 reads** — `SB_SpO2DailyTrending`, `SB_SpO2RangeTrending`, `SB_SpO2DailyGraph`, `SB_SpO2RangeGraph`.
 - **Workouts / activities** — `SB_ActivityRecordingList`, `SB_ActivityTimeline`, `SB_ActivitySummary`, `SB_ActivitySummarySet`, `SB_ActiveWorkoutSegment`, `SB_WorkoutItem`, `SB_WorkoutDetail`, `SB_WorkoutSummaryMetric`, `SB_WorkoutTimelineResult`, `SB_WorkoutEntry`, `SB_WorkoutRecordingInfo`, `SB_WorkoutType`, `SB_WorkoutEntryType`, `SB_WorkoutMetricType`, `SB_WorkoutDetailValueType`, `SB_ModifyAction`, `SB_ModifyOutcome`, `SB_MeditationGraph`, `SB_OngoingWorkoutProgram`, `SB_ARDADetails`, `SB_ARDARunningTimeline`, `SB_ARDATrainingTypeMetrics`, `SB_HRMValues`, `SB_HRMExerciseZone`, `SB_HRMData`, `SB_HRMCategory`, `SB_HREffortZone`.
 - **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_DailyStats`, `SB_DailyStatsResponse`.
-- **Spot-check & live telemetry** — `SB_SpotCheckDetails`, `SB_SpotCheckMeasurements`, `SB_SpotCheckResult`, `SB_LiveMetric`.
+- **Biometric record & live telemetry** — `SB_SpotCheckDetails` (timeline detail-fetch), `SB_BiometricRecordMeasurements`, `SB_BiometricRecordResult`, `SB_LiveMetric`.
 - **Insights extras** — `SB_InsightFeedback`, `SB_ExperimentRecommendation`, `SB_RoutineMetadata`, `SB_RoutineGoal`.
 - **Surveys / questionnaires / white-label** — `SB_WhiteLabelSettings`, `SB_WhiteLabelScheduledSurveyTime`, `SB_WhiteLabelRecordingSurveyInfo`, `SB_WhiteLabelDefaultSimpleCard`, `SB_WhiteLabelLinkButton`, `SB_WhiteLabelRecordingType`, `SB_LinkButtonAuthTokenType`, `SB_CustomQuestionnaire`, `SB_CustomQuestionnaireButton`, `SB_CustomQuestionnaireButtonStyle`, `SB_CustomQuestionnaireButtonAction`, `SB_BriefSurvey`, `SB_BriefSurveyQuestion`, `SB_BriefSurveyType`, `SB_BriefSurveyAnswer`.
 - **Misc** — `SB_AnalyticsEvent`, `SB_NotificationElement`, `SB_NotificationElemType`, `SB_TimestampTZ`, `SB_TimeTzWrapper`, `SB_GPSData`, `SB_GPSPoint`, `SB_FormattedUnitValueMetric`, `SB_GraphHeaderTag`, `SB_HistogramPair`, `SB_PoincarePlotGraph`, `SB_PoincarePoint`, `SB_ValueWithBaselineInfoCard`, `SB_TimelineBlock`, `SB_TimeSegment`, `SB_WMYChart`, `SB_TimeValueStraightLine`, `SB_ValueType`, `SB_PageFetchDirection`, `SB_DeviceSyncStatus`, `SB_PedometerEngineDelegateType`, `SB_ServerActivityInfoKeys`, `SB_ServerWorkoutInfoKeys`, `SB_ServerMetaDataKeys`, `SB_ServerDeviceName`, `SB_MobileApplicationLogLevel`, `SB_MobileDashboardRefreshOption`, `SB_SummaryGranularity`.
