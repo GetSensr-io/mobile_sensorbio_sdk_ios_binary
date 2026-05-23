@@ -37,7 +37,7 @@ target 'YourApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.3.2'
+    :tag => 'v0.4.0'
 end
 
 post_install do |installer|
@@ -117,6 +117,17 @@ When a new SDK version drops:
 5. Open the workspace, rebuild.
 
 `SDK_INTERFACE.md` documents any breaking changes per release.
+
+## Release notes
+
+### v0.4.0 — May 22, 2026
+
+- SDK now owns biometric, meditation, and activity recording orchestration end-to-end — host app awaits one async call (`recordDetailedBiometrics`, `recordMeditation`, `recordActivity`) and the SDK manages BLE start/stop, the timer, post-stop sync, session build, and submission.
+- In-flight recordings persist across app kill and resume (or auto-finalize) on relaunch. New surface: `activeRecording`, `awaitActiveRecordingCompletion()`, `cancelCurrentRecording()`. See `SDK_INTERFACE.md` §5.3.
+- **Breaking:** public-surface rename `spotCheck*` → `biometricRecord*` (`recordSpotCheck` → `recordDetailedBiometrics`, `SB_SpotCheck*` types → `SB_BiometricRecord*`). Update call sites.
+- One-shot migration of legacy host-app UserDefaults + Keychain on first SDK launch — signed-in users and paired devices survive the upgrade from older host-app builds where these were app-side.
+- SensrV1 hardware now appears in pair-scan results alongside V2 / V2.5 / V3.
+- Stable cache keys for sleep-detail and dashboard endpoints (eliminates spurious cache misses).
 
 ## Support
 
