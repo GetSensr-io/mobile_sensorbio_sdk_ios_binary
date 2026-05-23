@@ -2,6 +2,8 @@
 
 This document describes the **public** customer-facing surface of `SensorBioSDK` as it exists today. The SDK ships as a set of `.xcframework`s consumed via CocoaPods (see [README.md](./README.md) for integration); `import SensorBioSDK` is the only line a customer app needs.
 
+> **Source of truth.** This file lives on `mobile_sensorbio_sdk_ios` `main` and tracks the latest public surface. A copy is synced into [`mobile_sensorbio_sdk_ios_binary`](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary/blob/main/SDK_INTERFACE.md) at each tagged binary release; customers pinning to a binary tag should read the copy in the binary repo for the surface that matches their pin. The SDK-repo version may include symbols not yet present in the most recent binary release.
+
 > **Visibility note.** This document covers the customer-facing API surface only. SDK-internal symbols are filtered out of the binary framework's Swift interface and are not documented here.
 
 ---
@@ -307,12 +309,6 @@ public var haveUnuploadedPackets: AnyPublisher<Bool, Never>
 public var developmentLogStats: (storeURL: URL, enginePacketCount: Int)
 ```
 
-#### 🚧 WIP
-
-```swift
-public var isRecording: Bool
-```
-
 ### 3.4 Event streams (Combine subjects)
 
 Subscribe via `sensorBio.<subject>.sink { … }`.
@@ -345,8 +341,8 @@ public let firmwareProgress:            PassthroughSubject<Float, Never>
 #### 🚧 WIP
 
 ```swift
-public let spotCheckResult:             PassthroughSubject<SB_SpotCheckResult, Never>
-public let spotCheckProcessed:          PassthroughSubject<Void, Never>
+public let biometricRecordResult:       PassthroughSubject<SB_BiometricRecordResult, Never>
+public let biometricRecordProcessed:    PassthroughSubject<Void, Never>
 public let sleepStored:                 PassthroughSubject<Void, Never>
 public let scheduledSurveyToPresent:    PassthroughSubject<SB_WhiteLabelScheduledSurveyTime, Never>
 ```
@@ -359,17 +355,6 @@ public weak var sleepDetectionDelegate: SleepDetectionDelegate?
 public protocol SleepDetectionDelegate: AnyObject {
     func detectedSleep(startEpochInms: Int64, endEpochms: Int64)
 }
-```
-
-### 3.6 Recording control flags — 🚧 WIP
-
-```swift
-public var stopRecordingNow: Bool
-public var deviceConnectedBackDuringActivityRecording: Int
-public var deviceDisconnectedDuringActivityRecording: Int
-public var checkIfActivityHRUploaded: Bool
-public var shouldWaitForActivityHRToUpload: Bool
-public var firmwareUpdated: Bool
 ```
 
 ---
@@ -465,11 +450,116 @@ public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) asyn
 
 ### 5.3 Recording — 🚧 WIP
 
+Two layers are exposed today:
+
+**High-level orchestrations.** Each runs a session end-to-end: BLE start/stop, timer (fixed-duration countdown or open-ended count-up), post-stop sync wait, session build, and submission. Three completion paths each: natural completion (countdown modes only) / early-finish-with-submit via `finishCurrentRecording()` / cancellation via `Task.cancel()`. Submission is automatic — there is no separate "submit" call.
+
 ```swift
-public func startBiometricRecording() async throws   // HR + HRV + RR + SpO2 + ECG
-public func startActivityRecording() async throws    // HR only
+public func recordDetailedBiometrics(
+    duration: TimeInterval,
+    minDuration: TimeInterval,
+    sessionName: String? = nil,
+    sessionNameAlreadyExists: Bool = false,
+    workflowTemplate: SB_WorkflowTemplate? = nil
+) async throws
+
+public func recordMeditation(
+    duration: TimeInterval,
+    minDuration: TimeInterval,
+    sessionName: String? = nil,
+    sessionNameAlreadyExists: Bool = false,
+    workflowTemplate: SB_WorkflowTemplate? = nil
+) async throws
+
+public func recordActivity(
+    type: SB_ActivityType = .generalCardio,
+    activityName: String,
+    minDuration: TimeInterval,
+    sessionName: String? = nil,
+    sessionNameAlreadyExists: Bool = false,
+    workflowTemplate: SB_WorkflowTemplate? = nil
+) async throws
+
+public func finishCurrentRecording()        // signal: "user tapped End Recording"
+```
+
+`recordActivity(...)` is open-ended — it has no `duration:` parameter and runs until `finishCurrentRecording()` flips or the calling `Task` cancels. `recordingState` publishes `.recording(elapsed:, target: nil)` so countdown UIs render count-up format from the `nil` target.
+
+**Manual session logging.** For "log an activity that happened earlier" (no live recording, no device involvement). The SDK builds the session from the typed inputs and queues it for upload.
+
+```swift
+public func createActivitySession(
+    type: SB_ActivityType = .generalCardio,
+    activityName: String,
+    startDate: Date,
+    duration: TimeInterval,
+    sessionName: String? = nil,
+    sessionNameAlreadyExists: Bool = false,
+    workflowTemplate: SB_WorkflowTemplate? = nil
+)
+```
+
+Observable orchestration state — gates the recording UI:
+
+| Property | Type | Description |
+|---|---|---|
+| `recordingState` | `SB_RecordingState` | `.idle` / `.recording(elapsed, target)` / `.finalizing(phase)` |
+| `canFinalize` | `Bool` | True once `elapsed ≥ minDuration` AND at least one HR sample has arrived |
+
+Throws `SB_RecordingError`:
+
+```swift
+public enum SB_RecordingError: Error {
+    case alreadyRecording
+    case noPairedDevice
+    case bleStartFailed(underlying: Error)
+    case bleStopFailed(underlying: Error)
+    case tooShort(elapsed: TimeInterval, minimum: TimeInterval)
+    case insufficientData    // detailed-biometrics only
+}
+```
+
+**Low-level BLE methods.** The high-level orchestrations call these under the hood; they're also exposed publicly for customers building a custom recording flow (your own timer, your own UX) — call `start*Recording()`, drive your own loop, then `stopRecording()`. Submission still flows automatically; you never call a submit method directly.
+
+```swift
+public func startBiometricRecording() async throws   // HR + HRV + RR + SpO2 + ECG + continuous
+public func startActivityRecording() async throws    // HR + HRV / lighter algo set
 public func stopRecording() async throws
-public func submitFinishedRecording(_ session: SB_FinishedRecordingSession)
+```
+
+**Persist + restore across app kill.** The SDK persists every in-flight `record*(...)` orchestration on entry and clears the envelope on every terminal path. If the host process is killed mid-recording, `SB_SDK.init()` re-publishes the matching `recordingState` synchronously on next launch and either resumes the countdown (fixed-duration, not expired), runs the auto-finalize path (fixed-duration, past expected end), or resumes the open-ended count-up (activity). Submission still flows automatically. Host viewmodels rebind via `awaitActiveRecordingCompletion()` — same `async throws` shape as the original `record*(...)` call.
+
+```swift
+public var activeRecording: SB_PersistedRecording? { get }
+public func awaitActiveRecordingCompletion() async throws
+public func cancelCurrentRecording()
+```
+
+- `activeRecording` is non-nil whenever `recordingState != .idle`. Read on launch to decide whether to route the user to the matching recording view.
+- `awaitActiveRecordingCompletion()` no-ops when no restore is in flight, so host VMs can call it unconditionally. Cancellation forwards to the underlying SDK-owned task — the existing "cancel my local Task on End-Recording" pattern keeps working unchanged.
+- `cancelCurrentRecording()` is the explicit cancel for restored recordings (no host-side `Task` to cancel). Fresh recordings still cancel by cancelling the caller's `Task` directly.
+
+The persisted envelope:
+
+```swift
+public enum SB_PersistedRecordingKind: String, Codable, Sendable, Equatable {
+    case biometrics, meditation, activity
+}
+
+public struct SB_PersistedRecording: Codable, Sendable, Equatable {
+    public let kind: SB_PersistedRecordingKind
+    public let startEpochMs: Int64
+    public let duration: TimeInterval?              // nil for .activity
+    public let minDuration: TimeInterval
+    public let sessionName: String?
+    public let sessionNameAlreadyExists: Bool
+    public let workflowTemplate: SB_WorkflowTemplate?
+    public let activityType: SB_ActivityType?       // .activity only
+    public let activityName: String?                // .activity only
+    public var startDate: Date { get }
+    public var endDate: Date? { get }               // nil for .activity
+    public var isExpired: Bool { get }
+}
 ```
 
 ### 5.4 Sync — ✅ Supported (automatic)
@@ -728,9 +818,9 @@ These domain types are returned by, or accepted by, the ✅ Supported methods ab
 
 - **Org / settings** — `SB_UserAppSettings`, `SB_OrgMembership`, `SB_OrganizationMemberStatus`, `SB_ExerciseZoneAttributes`.
 - **SpO2 reads** — `SB_SpO2DailyTrending`, `SB_SpO2RangeTrending`, `SB_SpO2DailyGraph`, `SB_SpO2RangeGraph`.
-- **Workouts / activities** — `SB_ActivityRecordingList`, `SB_ActivityTimeline`, `SB_ActivitySummary`, `SB_ActivitySummarySet`, `SB_ActiveWorkoutSegment`, `SB_WorkoutItem`, `SB_WorkoutDetail`, `SB_WorkoutSummaryMetric`, `SB_WorkoutTimelineResult`, `SB_WorkoutEntry`, `SB_WorkoutRecordingInfo`, `SB_WorkoutType`, `SB_WorkoutEntryType`, `SB_WorkoutMetricType`, `SB_WorkoutDetailValueType`, `SB_ModifyAction`, `SB_ModifyOutcome`, `SB_MeditationGraph`, `SB_OngoingWorkoutProgram`, `SB_ARDADetails`, `SB_ARDARunningTimeline`, `SB_ARDATrainingTypeMetrics`, `SB_HRMValues`, `SB_HRMExerciseZone`, `SB_HRMData`, `SB_HRMCategory`, `SB_HREffortZone`.
-- **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_DailyStats`, `SB_DailyStatsResponse`.
-- **Spot-check & live telemetry** — `SB_SpotCheckDetails`, `SB_SpotCheckMeasurements`, `SB_SpotCheckResult`, `SB_LiveMetric`.
+- **Workouts / activities** — `SB_ActivityRecordingList`, `SB_ActivityTimeline`, `SB_ActivitySummary`, `SB_ActivitySummarySet`, `SB_ActiveWorkoutSegment`, `SB_WorkoutItem`, `SB_WorkoutDetail`, `SB_WorkoutSummaryMetric`, `SB_WorkoutTimelineResult`, `SB_WorkoutEntry`, `SB_WorkoutRecordingInfo`, `SB_WorkoutType`, `SB_WorkoutEntryType`, `SB_WorkoutMetricType`, `SB_WorkoutDetailValueType`, `SB_ModifyAction`, `SB_ModifyOutcome`, `SB_MeditationGraph`, `SB_OngoingWorkoutProgram`, `SB_ARDADetails`, `SB_ARDARunningTimeline`, `SB_ARDATrainingTypeMetrics`, `SB_HRMExerciseZone`, `SB_HRMData`, `SB_HRMCategory`, `SB_HREffortZone`.
+- **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_RecordingFinalizationPhase`, `SB_RecordingError`, `SB_WorkflowTemplate`, `SB_ActivityType`, `SB_DailyStats`, `SB_DailyStatsResponse`.
+- **Biometric-record & live telemetry** — `SB_SpotCheckDetails` (server-read shape — JSON name preserved), `SB_BiometricRecordResult`, `SB_LiveMetric`.
 - **Insights extras** — `SB_InsightFeedback`, `SB_ExperimentRecommendation`, `SB_RoutineMetadata`, `SB_RoutineGoal`.
 - **Surveys / questionnaires / white-label** — `SB_WhiteLabelSettings`, `SB_WhiteLabelScheduledSurveyTime`, `SB_WhiteLabelRecordingSurveyInfo`, `SB_WhiteLabelDefaultSimpleCard`, `SB_WhiteLabelLinkButton`, `SB_WhiteLabelRecordingType`, `SB_LinkButtonAuthTokenType`, `SB_CustomQuestionnaire`, `SB_CustomQuestionnaireButton`, `SB_CustomQuestionnaireButtonStyle`, `SB_CustomQuestionnaireButtonAction`, `SB_BriefSurvey`, `SB_BriefSurveyQuestion`, `SB_BriefSurveyType`, `SB_BriefSurveyAnswer`.
 - **Misc** — `SB_AnalyticsEvent`, `SB_NotificationElement`, `SB_NotificationElemType`, `SB_TimestampTZ`, `SB_TimeTzWrapper`, `SB_GPSData`, `SB_GPSPoint`, `SB_FormattedUnitValueMetric`, `SB_GraphHeaderTag`, `SB_HistogramPair`, `SB_PoincarePlotGraph`, `SB_PoincarePoint`, `SB_ValueWithBaselineInfoCard`, `SB_TimelineBlock`, `SB_TimeSegment`, `SB_WMYChart`, `SB_TimeValueStraightLine`, `SB_ValueType`, `SB_PageFetchDirection`, `SB_DeviceSyncStatus`, `SB_PedometerEngineDelegateType`, `SB_ServerActivityInfoKeys`, `SB_ServerWorkoutInfoKeys`, `SB_ServerMetaDataKeys`, `SB_ServerDeviceName`, `SB_MobileApplicationLogLevel`, `SB_MobileDashboardRefreshOption`, `SB_SummaryGranularity`.
