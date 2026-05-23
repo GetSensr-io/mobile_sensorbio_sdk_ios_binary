@@ -131,4 +131,4 @@ When a new SDK version drops:
 
 ## Support
 
-For integration help, contact engineering@sensr.ai.
+For integration help, contact support@sensorbio.com.
