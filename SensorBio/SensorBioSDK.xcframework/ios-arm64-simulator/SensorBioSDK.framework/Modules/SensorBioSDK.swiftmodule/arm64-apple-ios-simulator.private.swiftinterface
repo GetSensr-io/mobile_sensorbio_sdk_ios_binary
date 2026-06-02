@@ -10344,46 +10344,6 @@ public struct SB_CreateAccountRequest {
   public var deviceSerialNumber: Swift.String?
   public init(username: Swift.String, email: Swift.String, password: Swift.String, birthday: Foundation.DateComponents, gender: SensorBioSDK.SB_Gender, heightCm: Swift.Float, weight: Swift.Float, imperialUnits: Swift.Bool, orgId: Swift.String? = nil, accountVerificationAccessCode: Swift.String? = nil, deviceSerialNumber: Swift.String? = nil)
 }
-public struct SB_CustomQuestionnaire : Swift.Codable, Swift.Equatable, Swift.Sendable {
-  public var id: Swift.String
-  public var title: Swift.String
-  public var description: Swift.String
-  public var buttons: [SensorBioSDK.SB_CustomQuestionnaireButton]
-  public init(id: Swift.String, title: Swift.String, description: Swift.String, buttons: [SensorBioSDK.SB_CustomQuestionnaireButton])
-  public static func == (a: SensorBioSDK.SB_CustomQuestionnaire, b: SensorBioSDK.SB_CustomQuestionnaire) -> Swift.Bool
-  public func encode(to encoder: any Swift.Encoder) throws
-  public init(from decoder: any Swift.Decoder) throws
-}
-public struct SB_CustomQuestionnaireButton : Swift.Codable, Swift.Equatable, Swift.Sendable {
-  public var text: Swift.String
-  public var action: SensorBioSDK.SB_CustomQuestionnaireButtonAction
-  public var linkURL: Swift.String?
-  public var style: SensorBioSDK.SB_CustomQuestionnaireButtonStyle
-  public init(text: Swift.String, action: SensorBioSDK.SB_CustomQuestionnaireButtonAction, linkURL: Swift.String? = nil, style: SensorBioSDK.SB_CustomQuestionnaireButtonStyle)
-  public static func == (a: SensorBioSDK.SB_CustomQuestionnaireButton, b: SensorBioSDK.SB_CustomQuestionnaireButton) -> Swift.Bool
-  public func encode(to encoder: any Swift.Encoder) throws
-  public init(from decoder: any Swift.Decoder) throws
-}
-public enum SB_CustomQuestionnaireButtonAction : Swift.String, Swift.Codable, Swift.Equatable, Swift.Sendable {
-  case noAction
-  case openURL
-  case showLater
-  case dontShowAgain
-  public init?(rawValue: Swift.String)
-  public typealias RawValue = Swift.String
-  public var rawValue: Swift.String {
-    get
-  }
-}
-public enum SB_CustomQuestionnaireButtonStyle : Swift.String, Swift.Codable, Swift.Equatable, Swift.Sendable {
-  case button
-  case link
-  public init?(rawValue: Swift.String)
-  public typealias RawValue = Swift.String
-  public var rawValue: Swift.String {
-    get
-  }
-}
 public struct SB_DailyRecoveryGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var goalItem: SensorBioSDK.SB_DashboardItemRecovery
   public var variationPercentage: Swift.Float
@@ -10543,7 +10503,7 @@ public struct SB_DashboardSleepRecommendationCard : Swift.Codable, Swift.Equatab
   @_spi(SensorBioInternal) final public func saveCachedResponse(cacheType: Swift.String, date: Foundation.Date, payload: Foundation.Data)
   @_spi(SensorBioInternal) final public func deleteCachedResponse(cacheType: Swift.String, date: Foundation.Date)
   @_spi(SensorBioInternal) final public func fetchPendingPacketUploads() async throws -> [SensorBioSDK.SB_PendingPacketUpload]
-  @_spi(SensorBioInternal) final public func deletePendingPacketUpload(syncTime: Swift.Int, block: Swift.Int) async throws
+  @_spi(SensorBioInternal) final public func markPacketUploaded(syncTime: Swift.Int, block: Swift.Int) async throws
   @_spi(SensorBioInternal) @objc deinit
 }
 @_spi(SensorBioInternal) public enum SB_DataSyncDBManager {
@@ -10561,6 +10521,12 @@ public struct SB_DateValuePoint : Swift.Codable, Swift.Equatable, Swift.Sendable
 }
 @_spi(SensorBioInternal) public struct SB_DefaultsMigrator {
   @_spi(SensorBioInternal) public static func runIfNeeded()
+}
+public struct SB_DetectedSleep : Swift.Equatable, Swift.Sendable {
+  public let startEpochInms: Swift.Int64
+  public let endEpochms: Swift.Int64
+  public init(startEpochInms: Swift.Int64, endEpochms: Swift.Int64)
+  public static func == (a: SensorBioSDK.SB_DetectedSleep, b: SensorBioSDK.SB_DetectedSleep) -> Swift.Bool
 }
 public enum SB_DeviceConnectionState {
   case temporarilyDisconnecting
@@ -10736,12 +10702,9 @@ public struct SB_Goals : Swift.Equatable {
   public var targetSteps: Swift.Int
   public var targetCalories: Swift.Int
   public var targetSleep: Swift.Int
-  public var targetWorkout: Swift.Int
-  public var targetWorkoutInAWeek: Swift.Int
-  public var targetRoutineGoal: Swift.String
+  public var currentSteps: Swift.Int
+  public var currentCalories: Swift.Int
   public var currentSleep: Swift.Int
-  public var currentWorkout: Swift.Int
-  public init(targetSteps: Swift.Int, targetCalories: Swift.Int, targetSleep: Swift.Int, targetWorkout: Swift.Int, targetWorkoutInAWeek: Swift.Int, targetRoutineGoal: Swift.String, currentSleep: Swift.Int, currentWorkout: Swift.Int)
   public static func == (a: SensorBioSDK.SB_Goals, b: SensorBioSDK.SB_Goals) -> Swift.Bool
 }
 public struct SB_GPSData : Swift.Codable, Swift.Equatable, Swift.Sendable {
@@ -11055,15 +11018,6 @@ public enum SB_LineColor : Swift.Int32, Swift.Codable, Swift.Equatable, Swift.Se
   public init?(rawValue: Swift.Int32)
   public typealias RawValue = Swift.Int32
   public var rawValue: Swift.Int32 {
-    get
-  }
-}
-public enum SB_LinkButtonAuthTokenType : Swift.Equatable {
-  case noToken
-  case standardTempToken
-  public static func == (a: SensorBioSDK.SB_LinkButtonAuthTokenType, b: SensorBioSDK.SB_LinkButtonAuthTokenType) -> Swift.Bool
-  public func hash(into hasher: inout Swift.Hasher)
-  public var hashValue: Swift.Int {
     get
   }
 }
@@ -11547,19 +11501,6 @@ public struct SB_RGBAColor : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-public struct SB_RoutineGoal : Swift.Equatable, Swift.Identifiable {
-  public let id: Swift.String
-  public var name: Swift.String
-  public var description: Swift.String
-  public init(name: Swift.String, description: Swift.String)
-  public static func == (a: SensorBioSDK.SB_RoutineGoal, b: SensorBioSDK.SB_RoutineGoal) -> Swift.Bool
-  public typealias ID = Swift.String
-}
-public struct SB_RoutineMetadata : Swift.Equatable {
-  public var goals: [SensorBioSDK.SB_RoutineGoal]
-  public init(goals: [SensorBioSDK.SB_RoutineGoal])
-  public static func == (a: SensorBioSDK.SB_RoutineMetadata, b: SensorBioSDK.SB_RoutineMetadata) -> Swift.Bool
-}
 public struct SB_RRDailyGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var brpm: Swift.Float
   public var rawAvg: Swift.Float
@@ -11954,18 +11895,6 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public var $deviceAirplaneModeOn: Combine.Published<Swift.Bool>.Publisher {
     get
   }
-  @Combine.Published<SensorBioSDK.SB_WhiteLabelSettings?> @_projectedValueProperty($whiteLabelSettings) public var whiteLabelSettings: SensorBioSDK.SB_WhiteLabelSettings? {
-    get
-    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
-    set
-    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
-    _modify
-  }
-  public var $whiteLabelSettings: Combine.Published<SensorBioSDK.SB_WhiteLabelSettings?>.Publisher {
-    get
-    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
-    set
-  }
   final public let biometricRecordResult: Combine.PassthroughSubject<SensorBioSDK.SB_BiometricRecordResult, Swift.Never>
   @Combine.Published<Swift.Int> @_projectedValueProperty($percentSynced) public var percentSynced: Swift.Int {
     get
@@ -11996,7 +11925,6 @@ public let sensorBio: SensorBioSDK.SB_SDK
   @_spi(SensorBioInternal) final public let hrSyncFinishedForActivity: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   @_spi(SensorBioInternal) final public let analyticsEvents: Combine.PassthroughSubject<SensorBioSDK.SB_AnalyticsEvent, Swift.Never>
   @_spi(SensorBioInternal) final public let persistDeviceStateRequested: Combine.PassthroughSubject<Swift.Void, Swift.Never>
-  final public let scheduledSurveyToPresent: Combine.PassthroughSubject<SensorBioSDK.SB_WhiteLabelScheduledSurveyTime, Swift.Never>
   final public let signOutComplete: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let biometricRecordProcessed: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let hr: Combine.PassthroughSubject<(Swift.Int, Swift.Int), Swift.Never>
@@ -12020,8 +11948,8 @@ public let sensorBio: SensorBioSDK.SB_SDK
     set
   }
   final public let sleepStored: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let sleepDetected: Combine.PassthroughSubject<SensorBioSDK.SB_DetectedSleep, Swift.Never>
   final public let sdkVersion: Swift.String
-  weak public var sleepDetectionDelegate: (any SensorBioSDK.SleepDetectionDelegate)?
   public var isDeviceConnected: Swift.Bool {
     get
   }
@@ -12097,19 +12025,13 @@ extension SensorBioSDK.SB_SDK {
   public func fetchRangeSpO2(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_SpO2RangeTrending
 }
 extension SensorBioSDK.SB_SDK {
-  public func fetchCustomQuestionnaire() async throws -> SensorBioSDK.SB_CustomQuestionnaire?
-  public func submitCustomQuestionnaireAction(questionnaireId: Swift.String, action: SensorBioSDK.SB_CustomQuestionnaireButtonAction) async throws
-}
-extension SensorBioSDK.SB_SDK {
   public func fetchDailyStats(startDate: Swift.Int32, days: Swift.Int32, includeBiometrics: Swift.Bool, includeSleep: Swift.Bool, includeSteps: Swift.Bool) async throws -> SensorBioSDK.SB_DailyStatsResponse
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchDashboardData(date: Foundation.Date, tzOffset: Swift.Int32) async throws -> SensorBioSDK.SB_DashboardData
 }
 extension SensorBioSDK.SB_SDK {
-  public func fetchLockedDevices() async throws -> [Swift.String]
   public func updateUserDeviceInfo(macAddress: Swift.String, metadata: [Swift.String : Swift.String], unlinkDevice: Swift.Bool)
-  public func uploadLastSyncTime(epoch: Swift.Int64, deviceId: Swift.String)
 }
 extension SensorBioSDK.SB_SDK {
   public var haveUnuploadedPackets: Combine.AnyPublisher<Swift.Bool, Swift.Never> {
@@ -12136,7 +12058,7 @@ extension SensorBioSDK.SB_SDK {
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchGoals() async throws -> SensorBioSDK.SB_Goals
-  public func updateGoals(steps: Swift.Int, calories: Swift.Int, sleep: Swift.Int, workout: Swift.Int, workoutInAWeek: Swift.Int, routineGoal: Swift.String) async throws -> SensorBioSDK.SB_UpdateGoalsOutcome
+  public func updateGoals(steps: Swift.Int, calories: Swift.Int, sleep: Swift.Int) async throws -> SensorBioSDK.SB_UpdateGoalsOutcome
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchNewInsights() async throws -> SensorBioSDK.SB_NewInsights
@@ -12171,10 +12093,6 @@ extension SensorBioSDK.SB_SDK {
   public func recordMeditation(duration: Foundation.TimeInterval, minDuration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false, workflowTemplate: SensorBioSDK.SB_WorkflowTemplate? = nil) async throws
 }
 extension SensorBioSDK.SB_SDK {
-  public func fetchRoutineMetadata() async throws -> SensorBioSDK.SB_RoutineMetadata
-}
-extension SensorBioSDK.SB_SDK {
-  public func registerApp(pushToken: Swift.String, carrierName: Swift.String, deviceId: Swift.String) async throws
   @discardableResult
   public func refreshGlobalState() async throws -> SensorBioSDK.SB_OrgMembership
 }
@@ -12201,11 +12119,6 @@ extension SensorBioSDK.SB_SDK {
 }
 extension SensorBioSDK.SB_SDK {
   @_spi(SensorBioInternal) public func uploadBiometrics(_ upload: SensorBioSDK.SB_BiometricsUpload) async throws
-}
-extension SensorBioSDK.SB_WhiteLabelSettings {
-  public var isRawLoggingEnabled: Swift.Bool {
-    get
-  }
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchActivityList() async throws -> SensorBioSDK.SB_ActivityRecordingList
@@ -13135,161 +13048,6 @@ public enum SB_ViewGranularity : Swift.Int32, Swift.Codable, Swift.Equatable, Sw
     get
   }
 }
-public struct SB_WhiteLabelDefaultSimpleCard : Swift.Equatable {
-  public let title: Swift.String?
-  public let imageURL: Swift.String?
-  public let cardDescription: Swift.String?
-  public let linkButton: SensorBioSDK.SB_WhiteLabelLinkButton?
-  public init(title: Swift.String?, imageURL: Swift.String?, cardDescription: Swift.String?, linkButton: SensorBioSDK.SB_WhiteLabelLinkButton?)
-  public static func == (a: SensorBioSDK.SB_WhiteLabelDefaultSimpleCard, b: SensorBioSDK.SB_WhiteLabelDefaultSimpleCard) -> Swift.Bool
-}
-public struct SB_WhiteLabelLinkButton : Swift.Equatable {
-  public let text: Swift.String
-  public let url: Swift.String
-  public let authTokenType: SensorBioSDK.SB_LinkButtonAuthTokenType
-  public let iconURL: Swift.String?
-  public init(text: Swift.String, url: Swift.String, authTokenType: SensorBioSDK.SB_LinkButtonAuthTokenType, iconURL: Swift.String?)
-  public static func == (a: SensorBioSDK.SB_WhiteLabelLinkButton, b: SensorBioSDK.SB_WhiteLabelLinkButton) -> Swift.Bool
-}
-public struct SB_WhiteLabelRecordingSurveyInfo : Swift.Equatable {
-  public let recordingType: SensorBioSDK.SB_WhiteLabelRecordingType
-  public let surveyCustomURL: Swift.String?
-  public init(recordingType: SensorBioSDK.SB_WhiteLabelRecordingType, surveyCustomURL: Swift.String?)
-  public static func == (a: SensorBioSDK.SB_WhiteLabelRecordingSurveyInfo, b: SensorBioSDK.SB_WhiteLabelRecordingSurveyInfo) -> Swift.Bool
-}
-public enum SB_WhiteLabelRecordingType : Swift.Equatable {
-  case manualBiometrics
-  case meditation
-  case generalActivity
-  case sleep
-  case assessmentJump
-  case assessmentRSI
-  case assessmentVO2Max
-  case assessmentBalance
-  case assessmentOneRM
-  public static func == (a: SensorBioSDK.SB_WhiteLabelRecordingType, b: SensorBioSDK.SB_WhiteLabelRecordingType) -> Swift.Bool
-  public func hash(into hasher: inout Swift.Hasher)
-  public var hashValue: Swift.Int {
-    get
-  }
-}
-public struct SB_WhiteLabelScheduledSurveyTime : Swift.Equatable {
-  public let surveyLink: Swift.String
-  public let surveyName: Swift.String
-  public let pushNotificationMessage: Swift.String
-  public let dayOfWeek: Swift.Int
-  public let hour: Swift.Int
-  public let minute: Swift.Int
-  public init(surveyLink: Swift.String, surveyName: Swift.String, pushNotificationMessage: Swift.String, dayOfWeek: Swift.Int, hour: Swift.Int, minute: Swift.Int)
-  public static func == (a: SensorBioSDK.SB_WhiteLabelScheduledSurveyTime, b: SensorBioSDK.SB_WhiteLabelScheduledSurveyTime) -> Swift.Bool
-}
-public struct SB_WhiteLabelSettings {
-  public let settingsVersion: Swift.String
-  public let visualAssessmentTabName: Swift.String?
-  public let brandingLogoURL: Swift.String?
-  public let customRecoveryScoreName: Swift.String?
-  public let ppgDuration: Swift.Int?
-  public let ppgInterval: Swift.Int?
-  public let disableAutoSleep: Swift.Bool?
-  public let ppgSamplingRate: Swift.Int?
-  public let imuSamplingRate: Swift.Int?
-  public let continuousPpgDuringSleep: Swift.Bool?
-  public let maxBiometricsScanDurationSecs: Swift.Int?
-  public let reserveBatteryPercentage: Swift.Int?
-  public let ignoreWornAndMotionForPPG: Swift.Bool?
-  public let enableDaytimeBiometrics: Swift.Bool?
-  public let doNotDisconnectDevicesInBG: Swift.Bool?
-  public let enableDeviceLockedToUserCapability: Swift.Bool
-  public let sleepLab: Swift.Bool
-  public let meditationPlus: Swift.Bool
-  public let monitoringPlus: Swift.Bool
-  public let heartHealthPremium: Swift.Bool
-  public let eliteRunner: Swift.Bool
-  public let impersonationSystem: Swift.Bool
-  public let anonymousId: Swift.Bool
-  public let rawDataDownload: Swift.Bool
-  public let scheduleAndConference: Swift.Bool
-  public let vitalityProgram: Swift.Bool
-  public let workflowAccess: Swift.Bool
-  public let deleteAccountWithoutCustomerSupportIntervention: Swift.Bool
-  public let questionnaireButton: SensorBioSDK.SB_WhiteLabelLinkButton?
-  public let rawAccelLogging: Swift.Bool
-  public let rawPPGLogging: Swift.Bool
-  public let dashboardRefreshOption: SensorBioSDK.SB_MobileDashboardRefreshOption?
-  public let applicationLogLevel: SensorBioSDK.SB_MobileApplicationLogLevel?
-  public let whatsAppSupportNumber: Swift.String
-  public let supportEmail: Swift.String
-  public let primaryCustomerSupportEmail: Swift.String
-  public let primaryColor: SensorBioSDK.SB_RGBAColor?
-  public let primaryGradientStartColor: SensorBioSDK.SB_RGBAColor?
-  public let primaryGradientEndColor: SensorBioSDK.SB_RGBAColor?
-  public let secondaryColor: SensorBioSDK.SB_RGBAColor?
-  public let secondaryLightColor: SensorBioSDK.SB_RGBAColor?
-  public let sleepSurveyLink: Swift.String?
-  public let spotCheckSurveyLink: Swift.String?
-  public let meditationSurveyLink: Swift.String?
-  public let disableSleepSurvey: Swift.Bool
-  public let disableSpotCheckSurvey: Swift.Bool
-  public let disableMeditationSurvey: Swift.Bool
-  public let disableActivitySurvey: Swift.Bool
-  public let showSteps: Swift.Bool
-  public let showCalories: Swift.Bool
-  public let showSleepStages: Swift.Bool
-  public let showHR: Swift.Bool
-  public let showHRV: Swift.Bool
-  public let showRR: Swift.Bool
-  public let showSPO2: Swift.Bool
-  public let showTemperature: Swift.Bool
-  public let showActivityScore: Swift.Bool
-  public let showRecoveryScore: Swift.Bool
-  public let showArteryAge: Swift.Bool
-  public let showDashboardTab: Swift.Bool
-  public let showInsightsTab: Swift.Bool
-  public let showActivitiesTab: Swift.Bool
-  public let showRecordTab: Swift.Bool
-  public let showRecordBiometrics: Swift.Bool
-  public let showGenerateBiometricReports: Swift.Bool
-  public let showTrackSleep: Swift.Bool
-  public let showTrackActivity: Swift.Bool
-  public let showPhysicalAssessments: Swift.Bool
-  public let showVisualAssessments: Swift.Bool
-  public let showMeditation: Swift.Bool
-  public let showRoutines: Swift.Bool
-  public let showMonitoring: Swift.Bool
-  public let showSupport: Swift.Bool
-  public let showReferAFriend: Swift.Bool
-  public let showIntegrations: Swift.Bool
-  public let showExerciseLibrary: Swift.Bool
-  public let showMyDailyGoals: Swift.Bool
-  public let showShareWithHealthApp: Swift.Bool
-  public let showBreatherFitActivity: Swift.Bool
-  public let showRoutineOnboarding: Swift.Bool
-  public let showGenericAssessments: Swift.Bool
-  public let showRecordingSettings: Swift.Bool
-  public let showAirplaneMode: Swift.Bool
-  public let hideUserOnboardingMobileDashboardMessages: Swift.Bool
-  public let showActivityGymWorkout: Swift.Bool
-  public let showActivityWorkoutRoutines: Swift.Bool
-  public let showActivityWorkoutPrograms: Swift.Bool
-  public let showExercisePrograms: Swift.Bool
-  public let hideUserProfile: Swift.Bool
-  public let showPoincarePlot: Swift.Bool
-  public let showToggleForSleepAlgorithm: Swift.Bool
-  public let bottomWidgets: [SensorBioSDK.SB_WhiteLabelDefaultSimpleCard]
-  public let surveyInfoList: [SensorBioSDK.SB_WhiteLabelRecordingSurveyInfo]
-  public let scheduledSurveyTimes: [SensorBioSDK.SB_WhiteLabelScheduledSurveyTime]
-  public let firmwareUpgradesEnabled: Swift.Bool
-  public let assessmentPrompt: Swift.String?
-  public let assessmentURLLink: Swift.String?
-  public let imuFrequencyInHertz: Swift.Int?
-  public let usesSensorConfiguration: Swift.Bool
-  public let sensorConfigVersion: Swift.Int
-  public let captureMinutes: Swift.Int
-  public let passiveSensorConfiguration: SensorBioBTSDK.DevicePassiveConfigurationType?
-  public let activeSensorConfiguration: SensorBioBTSDK.DeviceActiveConfigurationType?
-  public let triggerSensorConfiguration: SensorBioBTSDK.DeviceTriggerConfigurationType?
-  public init(settingsVersion: Swift.String, visualAssessmentTabName: Swift.String?, brandingLogoURL: Swift.String?, customRecoveryScoreName: Swift.String?, ppgDuration: Swift.Int?, ppgInterval: Swift.Int?, disableAutoSleep: Swift.Bool?, ppgSamplingRate: Swift.Int?, imuSamplingRate: Swift.Int?, continuousPpgDuringSleep: Swift.Bool?, maxBiometricsScanDurationSecs: Swift.Int?, reserveBatteryPercentage: Swift.Int?, ignoreWornAndMotionForPPG: Swift.Bool?, enableDaytimeBiometrics: Swift.Bool?, doNotDisconnectDevicesInBG: Swift.Bool?, enableDeviceLockedToUserCapability: Swift.Bool, sleepLab: Swift.Bool, meditationPlus: Swift.Bool, monitoringPlus: Swift.Bool, heartHealthPremium: Swift.Bool, eliteRunner: Swift.Bool, impersonationSystem: Swift.Bool, anonymousId: Swift.Bool, rawDataDownload: Swift.Bool, scheduleAndConference: Swift.Bool, vitalityProgram: Swift.Bool, workflowAccess: Swift.Bool, deleteAccountWithoutCustomerSupportIntervention: Swift.Bool, questionnaireButton: SensorBioSDK.SB_WhiteLabelLinkButton?, rawAccelLogging: Swift.Bool, rawPPGLogging: Swift.Bool, dashboardRefreshOption: SensorBioSDK.SB_MobileDashboardRefreshOption?, applicationLogLevel: SensorBioSDK.SB_MobileApplicationLogLevel?, whatsAppSupportNumber: Swift.String, supportEmail: Swift.String, primaryCustomerSupportEmail: Swift.String, primaryColor: SensorBioSDK.SB_RGBAColor?, primaryGradientStartColor: SensorBioSDK.SB_RGBAColor?, primaryGradientEndColor: SensorBioSDK.SB_RGBAColor?, secondaryColor: SensorBioSDK.SB_RGBAColor?, secondaryLightColor: SensorBioSDK.SB_RGBAColor?, sleepSurveyLink: Swift.String?, spotCheckSurveyLink: Swift.String?, meditationSurveyLink: Swift.String?, disableSleepSurvey: Swift.Bool, disableSpotCheckSurvey: Swift.Bool, disableMeditationSurvey: Swift.Bool, disableActivitySurvey: Swift.Bool, showSteps: Swift.Bool, showCalories: Swift.Bool, showSleepStages: Swift.Bool, showHR: Swift.Bool, showHRV: Swift.Bool, showRR: Swift.Bool, showSPO2: Swift.Bool, showTemperature: Swift.Bool, showActivityScore: Swift.Bool, showRecoveryScore: Swift.Bool, showArteryAge: Swift.Bool, showDashboardTab: Swift.Bool, showInsightsTab: Swift.Bool, showActivitiesTab: Swift.Bool, showRecordTab: Swift.Bool, showRecordBiometrics: Swift.Bool, showGenerateBiometricReports: Swift.Bool, showTrackSleep: Swift.Bool, showTrackActivity: Swift.Bool, showPhysicalAssessments: Swift.Bool, showVisualAssessments: Swift.Bool, showMeditation: Swift.Bool, showRoutines: Swift.Bool, showMonitoring: Swift.Bool, showSupport: Swift.Bool, showReferAFriend: Swift.Bool, showIntegrations: Swift.Bool, showExerciseLibrary: Swift.Bool, showMyDailyGoals: Swift.Bool, showShareWithHealthApp: Swift.Bool, showBreatherFitActivity: Swift.Bool, showRoutineOnboarding: Swift.Bool, showGenericAssessments: Swift.Bool, showRecordingSettings: Swift.Bool, showAirplaneMode: Swift.Bool, hideUserOnboardingMobileDashboardMessages: Swift.Bool, showActivityGymWorkout: Swift.Bool, showActivityWorkoutRoutines: Swift.Bool, showActivityWorkoutPrograms: Swift.Bool, showExercisePrograms: Swift.Bool, hideUserProfile: Swift.Bool, showPoincarePlot: Swift.Bool, showToggleForSleepAlgorithm: Swift.Bool, bottomWidgets: [SensorBioSDK.SB_WhiteLabelDefaultSimpleCard], surveyInfoList: [SensorBioSDK.SB_WhiteLabelRecordingSurveyInfo], scheduledSurveyTimes: [SensorBioSDK.SB_WhiteLabelScheduledSurveyTime], firmwareUpgradesEnabled: Swift.Bool, assessmentPrompt: Swift.String?, assessmentURLLink: Swift.String?, imuFrequencyInHertz: Swift.Int?, usesSensorConfiguration: Swift.Bool, sensorConfigVersion: Swift.Int, captureMinutes: Swift.Int, passiveSensorConfiguration: SensorBioBTSDK.DevicePassiveConfigurationType?, activeSensorConfiguration: SensorBioBTSDK.DeviceActiveConfigurationType?, triggerSensorConfiguration: SensorBioBTSDK.DeviceTriggerConfigurationType?)
-}
 public struct SB_WMYChart : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var mainPoints: [SensorBioSDK.SB_DateValuePoint]
   public var rolling7DayAvgPoints: [SensorBioSDK.SB_DateValuePoint]
@@ -13676,9 +13434,6 @@ nonisolated extension SensorBioSDK.Proto_Session : SwiftProtobuf.Message, SwiftP
   nonisolated public var hashValue: Swift.Int {
     get
   }
-}
-public protocol SleepDetectionDelegate : AnyObject {
-  func detectedSleep(startEpochInms: Swift.Int64, endEpochms: Swift.Int64)
 }
 public struct SleepingHeartRate {
   public let value: Swift.UInt8
@@ -35937,10 +35692,6 @@ extension SensorBioSDK.SB_CalorieMetricType : Swift.Hashable {}
 extension SensorBioSDK.SB_CalorieMetricType : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_Color : Swift.Hashable {}
 extension SensorBioSDK.SB_Color : Swift.RawRepresentable {}
-extension SensorBioSDK.SB_CustomQuestionnaireButtonAction : Swift.Hashable {}
-extension SensorBioSDK.SB_CustomQuestionnaireButtonAction : Swift.RawRepresentable {}
-extension SensorBioSDK.SB_CustomQuestionnaireButtonStyle : Swift.Hashable {}
-extension SensorBioSDK.SB_CustomQuestionnaireButtonStyle : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_DashboardItemRecoveryStage : Swift.Hashable {}
 extension SensorBioSDK.SB_DashboardItemRecoveryStage : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_DashboardMetricType : Swift.Hashable {}
@@ -35969,7 +35720,6 @@ extension SensorBioSDK.SB_InsightFeedback : Swift.Equatable {}
 extension SensorBioSDK.SB_InsightFeedback : Swift.Hashable {}
 extension SensorBioSDK.SB_LineColor : Swift.Hashable {}
 extension SensorBioSDK.SB_LineColor : Swift.RawRepresentable {}
-extension SensorBioSDK.SB_LinkButtonAuthTokenType : Swift.Hashable {}
 extension SensorBioSDK.SB_MobileApplicationLogLevel : Swift.Hashable {}
 extension SensorBioSDK.SB_MobileDashboardRefreshOption : Swift.Hashable {}
 extension SensorBioSDK.SB_ModifyAction : Swift.Hashable {}
@@ -36005,7 +35755,6 @@ extension SensorBioSDK.SB_AccountRequirementStatus : Swift.Equatable {}
 extension SensorBioSDK.SB_AccountRequirementStatus : Swift.Hashable {}
 extension SensorBioSDK.SB_SDK.Environment : Swift.Equatable {}
 extension SensorBioSDK.SB_SDK.Environment : Swift.Hashable {}
-extension SensorBioSDK.SB_WhiteLabelRecordingType : Swift.Hashable {}
 extension SensorBioSDK.SB_SummaryGranularity : Swift.Hashable {}
 extension SensorBioSDK.SB_SummaryGranularity : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_ServerActivityInfoKeys : Swift.Equatable {}
