@@ -8,50 +8,6 @@ This document describes the **public** customer-facing surface of `SensorBioSDK`
 
 ---
 
-## Stability & support tier
-
-The SDK is in a guided rollout. **Not every public symbol below is ready for customer use yet.** A feature lands in the public surface as soon as the underlying machinery works, but it is only marked ✅ Supported once it has been wired into the bundled `ExampleApp` reference app and validated end-to-end.
-
-- ✅ **Supported** — exercised by `ExampleApp`, safe to build production code against today.
-- 🚧 **WIP** — present in the public surface (and listed in this doc for forward visibility) but not yet validated for customer use. Treat as preview; do not depend on the shape staying stable. Many of these symbols are not guaranteed to remain public — they currently exist on the public surface because they are consumed by internal applications, and may be tightened or removed before they are formally offered to customers.
-
-### Quick map
-
-| Area | Status | Notes |
-|---|---|---|
-| CocoaPods install, Info.plist, app launch | ✅ Supported | `SB_SDK.environment`, `SB_SDK.log` |
-| Auth — sign in / sign up / sign out | ✅ Supported | `signIn`, `createAccount`, `signOut`, `hydrateSession` |
-| Auth — agreements, password reset, password change, email check, temp tokens | ✅ Supported | |
-| User profile updates / photo | ✅ Supported | |
-| Goals fetch / update | ✅ Supported | |
-| Pairing & connect | ✅ Supported | Scan, connect, disconnect, `userLED`, `setAskForDeviceResponse`, `persistDeviceState`, `removeDeviceFromPairedDevices` |
-| Device commands beyond LED + device-response | ✅ Supported | airplane mode, reset, firmware update |
-| Recording (biometric / activity / stop / finished-session) | 🚧 WIP | |
-| Streaming biometric subjects (hr / hrv / rr / spo2 / snr / bbi / ppg / ecg) | ✅ Supported | |
-| Dashboard | ✅ Supported | `fetchDashboardData` |
-| Activity reads — steps / calories / recovery | ✅ Supported | |
-| Biometric reads — daily + range HR / HRV / RR | ✅ Supported | |
-| Biometric reads — SpO2 daily + range | 🚧 WIP | |
-| Sleep reads — detail + aggregation | ✅ Supported | |
-| Sleep writes — add / modify / delete / reprocess / email PDF | ✅ Supported | |
-| Workouts — list / detail / timeline / modify / meditation | 🚧 WIP | |
-| Spot-check details + result subject | 🚧 WIP | |
-| Recording metadata endpoints | 🚧 WIP | |
-| Routine metadata | 🚧 WIP | |
-| Insights — personal + population reads | ✅ Supported | |
-| Insights — feedback submission | 🚧 WIP | |
-| Custom questionnaire + brief surveys | 🚧 WIP | |
-| Devices endpoints (locked devices, update info, upload sync time) | 🚧 WIP | |
-| Services endpoints (register push, refresh global state, refresh user settings) | 🚧 WIP | |
-| Daily stats endpoint | 🚧 WIP | |
-| White-label settings | 🚧 WIP | |
-| `SleepDetectionDelegate` | 🚧 WIP | |
-| Diagnostics publishers | ✅ Supported | `haveUnuploadedPackets`, `developmentLogStats`, `isRawLoggingEnabled` |
-| DI `Container` / `@Injectable` | 🚧 WIP | Internal plumbing; no customer use case yet |
-| `SDKConstants` / `SDKGlobals` | 🚧 WIP | Internal-only knobs today |
-
----
-
 ## 1. Adding the SDK
 
 ### 1.1 CocoaPods (binary distribution)
@@ -158,7 +114,7 @@ If either of the BLE-related entries is missing, you will see one of the followi
 
 ---
 
-## 2. Lifecycle & Configuration — ✅ Supported
+## 2. Lifecycle & Configuration
 
 ### 2.1 App startup
 
@@ -214,7 +170,7 @@ extension SB_SDK {
 
 ---
 
-## 3. The `SB_SDK` Facade — ✅ Supported (core)
+## 3. The `SB_SDK` Facade
 
 All customer-facing functionality is exposed off the `sensorBio` singleton. The class drops the canonical-product prefix from history because **it is the SDK** — there is one and only one — but adopts `SB_` in the source rename for binary-distribution hygiene.
 
@@ -231,8 +187,6 @@ public let sensorBio = SB_SDK.shared
 ### 3.2 Observable state (Combine `@Published`)
 
 Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from the app's perspective.
-
-#### ✅ Supported
 
 **Session & user**
 
@@ -288,15 +242,13 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 | `algorithmsSoftwareRevision` | `String?` | |
 | `sleepSoftwareRevision` | `String?` | |
 
-#### 🚧 WIP
+**Update prompts & misc**
 
-The following `@Published` properties exist today and may be observed, but their data flow has not been validated for customer use yet — treat as preview:
+The following `@Published` properties are also observable:
 
-`whiteLabelSettings`, `forceUserToUpdatePassword`, `forceUserToUpdateProfile`, `exerciseZoneAttributes`, `updateSuggested`, `updateRequired`, `deviceAirplaneModeOn`, `webAppCookie`, `lastSyncedTemp`.
+`forceUserToUpdatePassword`, `forceUserToUpdateProfile`, `exerciseZoneAttributes`, `updateSuggested`, `updateRequired`, `deviceAirplaneModeOn`, `webAppCookie`, `lastSyncedTemp`.
 
 ### 3.3 Computed read-only properties
-
-#### ✅ Supported
 
 ```swift
 public var isAuthenticated: Bool         // session != nil
@@ -312,8 +264,6 @@ public var developmentLogStats: (storeURL: URL, enginePacketCount: Int)
 ### 3.4 Event streams (Combine subjects)
 
 Subscribe via `sensorBio.<subject>.sink { … }`.
-
-#### ✅ Supported — auth, pairing & streaming biometrics
 
 ```swift
 // Auth & pairing lifecycle
@@ -336,30 +286,18 @@ public let bbi:   PassthroughSubject<(Int64, Int),   Never>                 // m
 public let ppg:   PassthroughSubject<(Int64, Float), Never>                 // raw
 public let ecg:   PassthroughSubject<(Int64, Float), Never>                 // raw
 public let firmwareProgress:            PassthroughSubject<Float, Never>
-```
 
-#### 🚧 WIP
-
-```swift
+// Biometric-record & sleep-store results
 public let biometricRecordResult:       PassthroughSubject<SB_BiometricRecordResult, Never>
 public let biometricRecordProcessed:    PassthroughSubject<Void, Never>
 public let sleepStored:                 PassthroughSubject<Void, Never>
-public let scheduledSurveyToPresent:    PassthroughSubject<SB_WhiteLabelScheduledSurveyTime, Never>
+public let sleepDetected:               PassthroughSubject<SB_DetectedSleep, Never>  // valid on-device sleep finalized (start/end epoch ms)
 ```
 
-### 3.5 Delegate hooks — 🚧 WIP
-
-```swift
-public weak var sleepDetectionDelegate: SleepDetectionDelegate?
-
-public protocol SleepDetectionDelegate: AnyObject {
-    func detectedSleep(startEpochInms: Int64, endEpochms: Int64)
-}
-```
 
 ---
 
-## 4. Authentication — ✅ Supported
+## 4. Authentication
 
 ```swift
 // Sign-in / sign-up
@@ -406,7 +344,7 @@ do {
 
 ## 5. BLE Device Control
 
-### 5.1 Scan & connect — ✅ Supported
+### 5.1 Scan & connect
 
 ```swift
 public func startScan()
@@ -437,7 +375,7 @@ sensorBio.pairingConnection
 
 `persistDeviceState(_:)` is the matching write-back: the SDK emits `persistDeviceStateRequested` when the in-memory paired-device map should be persisted on the app side; the app responds by calling `persistDeviceState(_:)` with its serialized devices dictionary.
 
-### 5.2 Device commands — ✅ Supported
+### 5.2 Device commands
 
 ```swift
 public func userLED(red: Bool = false, green: Bool = false, blue: Bool = false,
@@ -448,7 +386,7 @@ public func reset()
 public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) async throws
 ```
 
-### 5.3 Recording — 🚧 WIP
+### 5.3 Recording
 
 Two layers are exposed today:
 
@@ -562,7 +500,7 @@ public struct SB_PersistedRecording: Codable, Sendable, Equatable {
 }
 ```
 
-### 5.4 Sync — ✅ Supported (automatic)
+### 5.4 Sync — automatic
 
 Sync runs automatically once a paired device connects. No customer-side method call is required to trigger it; the SDK manages the sync lifecycle internally and emits state changes via the `@Published` `deviceSyncing` / `percentSynced` / `lastSyncd` properties (see §3.2).
 
@@ -572,13 +510,13 @@ Sync runs automatically once a paired device connects. No customer-side method c
 
 Every method below is `async throws` on the `SB_SDK` facade. All return typed `SB_*` domain models; authentication is automatic once the user is signed in. Outcome-style methods (e.g. `signIn`, `updateGoals`) return discriminated enums rather than raw errors for common business cases.
 
-### 6.1 Dashboard — ✅ Supported
+### 6.1 Dashboard
 
 ```swift
 public func fetchDashboardData(date: Date, tzOffset: Int32) async throws -> SB_DashboardData
 ```
 
-### 6.2 Activity reads — ✅ Supported
+### 6.2 Activity reads
 
 ```swift
 public func fetchSteps(date: Date, granularity: SB_ViewGranularity)        async throws -> SB_StepsTrending
@@ -587,10 +525,9 @@ public func fetchDailyRecovery(date: Date)                                 async
 public func fetchRangeRecovery(date: Date, granularity: SB_ViewGranularity) async throws -> SB_RecoveryRangeTrending
 ```
 
-### 6.3 Biometric reads — HR / HRV / RR ✅ Supported · SpO2 🚧 WIP
+### 6.3 Biometric reads — HR / HRV / RR · SpO2 🚧 WIP
 
 ```swift
-// ✅ Supported
 public func fetchDailyHR(date: Date)                                       async throws -> SB_HRDailyTrending
 public func fetchRangeHR(date: Date, granularity: SB_ViewGranularity)      async throws -> SB_HRRangeTrending
 public func fetchDailyHRV(date: Date)                                      async throws -> SB_HRVDailyTrending
@@ -603,29 +540,26 @@ public func fetchDailySpO2(date: Date)                                     async
 public func fetchRangeSpO2(date: Date, granularity: SB_ViewGranularity)    async throws -> SB_SpO2RangeTrending
 ```
 
-### 6.4 Sleep reads — ✅ Supported
+### 6.4 Sleep reads
 
 ```swift
 public func fetchSleepDetail(endDate: Date, endTimestamp: Date)                     async throws -> SB_SleepDetailDay
 public func fetchSleepAggregation(date: Date, granularity: SB_ViewGranularity)      async throws -> SB_SleepDetailAggregated
 ```
 
-### 6.5 Insights — personal + population ✅ Supported · feedback 🚧 WIP
+### 6.5 Insights — personal + population + feedback
 
 ```swift
-// ✅ Supported
 public func fetchNewInsights() async throws -> SB_NewInsights
 public func fetchPopulationInsightsMetricList() async throws -> SB_PopulationInsightsFilterList
 public func fetchPopulationInsights(
     ageStart: Int32, ageEnd: Int32,
     gender: SB_PopulationGender, metricType: SB_PopulationMetricType
 ) async throws -> (histogram: SB_PopulationInsightsHistogram?, radarChart: SB_PopulationInsightsRadarChart?)
-
-// 🚧 WIP
 public func submitInsightsFeedback(insightId: Int64, feedback: SB_InsightFeedback) async throws
 ```
 
-### 6.6 User profile — ✅ Supported
+### 6.6 User profile
 
 ```swift
 public func updateUserProfile(_ profile: SB_UserProfileUpdate) async throws -> SB_UpdateUserProfileOutcome
@@ -634,14 +568,16 @@ public func uploadUserPhoto(imageData: Data) async throws -> String?
 public func deleteUserPhoto() async throws
 ```
 
-### 6.7 Goals — ✅ Supported
+### 6.7 Goals
+
+Steps / calories / sleep are the customer-facing goal surface. `SB_Goals` is returned with those three targets/currents public; its workout / routine-goal members are Sensr-Bio-only and absent from the binary.
 
 ```swift
 public func fetchGoals() async throws -> SB_Goals
-public func updateGoals(steps: Int, calories: Int, maxHr: Int?, restingHr: Int?, vo2Max: Float?) async throws
+public func updateGoals(steps: Int, calories: Int, sleep: Int) async throws -> SB_UpdateGoalsOutcome
 ```
 
-### 6.8 Sleep writes — ✅ Supported
+### 6.8 Sleep writes
 
 ```swift
 public func fetchSleepSessions(date: Date) async throws -> [SB_SleepItem]
@@ -652,7 +588,7 @@ public func reprocessSleep(endDate: Int32, endTimestamp: Int64) async throws
 public func emailSleepReportPDF(date: Date, timestamp: Int64, email: String) async throws
 ```
 
-### 6.9 Workouts & activities — 🚧 WIP
+### 6.9 Workouts & activities
 
 ```swift
 public func fetchActivityList() async throws -> SB_ActivityRecordingList
@@ -665,31 +601,27 @@ public func modifyActivityInWorkout(action: SB_ModifyAction, date: Date, startTi
 public func fetchMeditationGraph(date: Date, sessionTimestamp: Int64) async throws -> SB_MeditationGraph
 ```
 
-### 6.10 Spot-check & recording metadata — 🚧 WIP
+### 6.10 Spot-check & recording metadata
 
 ```swift
 public func fetchSpotCheckDetails(id: String) async throws -> SB_SpotCheckDetails?
 public func fetchRecordingMetaInfo(_ type: SB_RecordingMetaType) async throws -> [SB_RecordingSessionMeta]
 public func deleteRecordingMeta(id: String, name: String, type: SB_RecordingMetaType) async throws
-public func fetchRoutineMetadata() async throws -> SB_RoutineMetadata
 ```
 
-### 6.11 Surveys & questionnaires — 🚧 WIP
+### 6.11 Surveys & questionnaires
+
+Brief surveys are the real sleep / workout / meditation survey responses the device collects; they stay on the public surface.
 
 ```swift
-public func fetchCustomQuestionnaire() async throws -> SB_CustomQuestionnaire?
-public func submitCustomQuestionnaireAction(questionnaireId: String, action: SB_CustomQuestionnaireButtonAction) async throws
 public func submitBriefSurvey(_ survey: SB_BriefSurvey)
 public func manageNextSurvey()
 ```
 
-### 6.12 Devices, services & global state — 🚧 WIP
+### 6.12 Devices, services & global state
 
 ```swift
-public func fetchLockedDevices() async throws -> [String]
 public func updateUserDeviceInfo(macAddress: String, metadata: [String: String], unlinkDevice: Bool)
-public func uploadLastSyncTime(epoch: Int64, deviceId: String)
-public func registerApp(pushToken: String, carrierName: String, deviceId: String) async throws
 public func refreshGlobalState() async throws -> SB_OrgMembership
 public func refreshUserAppSettings() async throws -> SB_UserAppSettings
 public func fetchDailyStats(startDate: Int32, days: Int32, metrics: [String]) async throws -> [SB_DailyStats]
@@ -699,7 +631,7 @@ public func fetchDailyStats(startDate: Int32, days: Int32, metrics: [String]) as
 
 ## 7. Top-Level Symbols & Namespaces
 
-### 7.1 Logging — ✅ Supported
+### 7.1 Logging
 
 ```swift
 public enum LogLevel { case verbose, debug, info, warning, error }
@@ -711,7 +643,7 @@ extension SB_SDK {
 
 Subscribe `SB_SDK.log` to forward SDK log entries into your own logging pipeline (Crashlytics, OSLog, custom file sink, etc.).
 
-### 7.2 Environment — ✅ Supported
+### 7.2 Environment
 
 ```swift
 extension SB_SDK {
@@ -722,7 +654,7 @@ extension SB_SDK {
 }
 ```
 
-### 7.3 Constants namespace — 🚧 WIP
+### 7.3 Constants namespace
 
 ```swift
 public enum SDKConstants {
@@ -745,7 +677,7 @@ public enum SDKConstants {
 }
 ```
 
-### 7.4 Globals namespace — 🚧 WIP
+### 7.4 Globals namespace
 
 ```swift
 public enum SDKGlobals {
@@ -759,7 +691,7 @@ public enum SDKGlobals {
 public var gblIsMetric: Bool { get set }
 ```
 
-### 7.5 Dependency-injection container — 🚧 WIP
+### 7.5 Dependency-injection container
 
 ```swift
 public struct Injectable<T> {
@@ -775,7 +707,7 @@ public final class Container: @unchecked Sendable {
 }
 ```
 
-### 7.6 Diagnostic logger — 🚧 WIP
+### 7.6 Diagnostic logger
 
 ```swift
 public class SB_FXCLogging: NSObject {
@@ -795,51 +727,7 @@ public class SB_FXCLogging: NSObject {
 
 ---
 
-## 8. Domain Types
-
-The SDK ships ~170 public structs and ~65 public enums under `Sources/SensorBioSDK/Structs/` and `Sources/SensorBioSDK/Enums/`. The clusters below are tagged by the support tier of the SDK methods that consume them.
-
-### 8.1 ✅ Supported clusters
-
-These domain types are returned by, or accepted by, the ✅ Supported methods above and are stable for customer integration today.
-
-- **Auth & session** — `SB_Session`, `SB_CreateAccountRequest`, `SB_SignInOutcome`, `SB_CreateAccountOutcome`, `SB_AuthError`, `SB_Gender`, `SB_EmailAvailabilityOutcome`, `SB_ChangePasswordOutcome`, `SB_RequestPasswordResetOutcome`, `SB_AgreementCheck`, `SB_AgreementType`, `SB_ValidateAccountRequirementsRequest`, `SB_ValidateAccountRequirementsResult`, `SB_AccountRequirementStatus`, `SB_SubscriptionDetails`, `SB_ResetPasswordCode`.
-- **Device link outcomes** — `SB_DeviceLinkFailure`.
-- **User profile & goals** — `SB_UserProfile`, `SB_UserProfileUpdate`, `SB_PhysicalStats`, `SB_CardioStats`, `SB_UnitType`, `SB_UpdateUserProfileOutcome`, `SB_Goals`, `SB_UpdateGoalsOutcome`.
-- **Pairing & device** — `SB_DiscoveredDevice`, `SB_PairedDeviceState`, `SB_BluetoothDeviceType`, `SB_DeviceConnectionState`, `SB_NetworkStatus`.
-- **Dashboard** — `SB_DashboardData`, `SB_DashboardItemActivity`, `SB_DashboardItemSleep`, `SB_DashboardItemRecovery`, `SB_DashboardCircularItem`, `SB_DashboardMetric`, `SB_DashboardMetricType`, `SB_DashboardMetricFooter`, `SB_DashboardItemRecoveryStage`, `SB_DashboardInsight`, `SB_DashboardSleepRecommendationCard`.
-- **Reads — granularity & shared primitives** — `SB_ViewGranularity`, `SB_TimeValuePoint`, `SB_DateValuePoint`, `SB_BarGraph`, `SB_BarGraphDataPoint`, `SB_ValueUnitWrapper`, `SB_ValueUnitBlock`, `SB_RGBAColor`, `SB_Color`, `SB_LineColor`, `SB_HighLightZone`, `SB_Zone`.
-- **Activity reads** — `SB_StepsTrending`, `SB_StepsGraph`, `SB_StepMetric`, `SB_StepMetricType`, `SB_CaloriesTrending`, `SB_CaloriesGraph`, `SB_CalorieMetric`, `SB_DailyRecoveryTrending`, `SB_DailyRecoveryGraph`, `SB_RecoveryRangeTrending`, `SB_RecoveryRangeGraph`, `SB_RecoveryScoreSection`, `SB_RecoveryScoreFactor`.
-- **Biometric reads (HR/HRV/RR)** — `SB_HRDailyTrending`, `SB_HRRangeTrending`, `SB_HRDailyGraph`, `SB_HRRangeGraph`, `SB_HRVDailyTrending`, `SB_HRVRangeTrending`, `SB_HRVDailyGraph`, `SB_HRVRangeGraph`, `SB_RRDailyTrending`, `SB_RRRangeTrending`, `SB_RRDailyGraph`, `SB_RRRangeGraph`, `SB_HeartRateTimeValuePoint`, `SB_HRVTimeValuePoint`, `SB_HeartRateValueType`, `SB_HRVValueType`.
-- **Sleep reads & writes** — `SB_SleepDetailDay`, `SB_SleepDetailAggregated`, `SB_SleepSession`, `SB_SleepItem`, `SB_SleepStages`, `SB_SleepStagesAggregated`, `SB_SleepStageInterval`, `SB_SleepSessionStage`, `SB_SleepBiometrics`, `SB_SleepBiometricGraph`, `SB_SleepDisturbances`, `SB_DisturbanceStage`, `SB_DisturbanceGraph`, `SB_SleepScore`, `SB_SleepScoreSection`, `SB_SleepScoreFactor`, `SB_SleepScorePenalty`, `SB_SleepStage`, `SB_SleepStatus`, `SB_SleepMetricValue`, `SB_SleepApneaInfo`, `SB_ApneaEvent`, `SB_SleepPosition`, `SB_SleepPositionInfo`, `SB_SleepPositionInterval`, `SB_SleepPositionState`, `SB_SleepDebtAggregatedGraph`, `SB_SleepDebtDateValuePointWrapper`, `SB_SleepBedtimeRecommendation`, `SB_SleepTrend`, `SB_SleepTrendChart`, `SB_SleepScoreProcessState`, `SB_SleepAccounting`, `SB_SleepAccountingItem`.
-- **Insights** — `SB_NewInsights`, `SB_InsightItem`, `SB_InsightItemGroup`, `SB_InsightInfluencer`, `SB_InsightError`, `SB_PopulationInsightsFilterList`, `SB_PopulationInsightMetric`, `SB_PopulationInsightsHistogram`, `SB_PopulationInsightsRadarChart`, `SB_PopulationAgeGroup`, `SB_PopulationMetricType`, `SB_PopulationGender`, `SB_RadarChartPoint`, `SB_RadarPair`.
-
-### 8.2 🚧 WIP clusters
-
-- **Org / settings** — `SB_UserAppSettings`, `SB_OrgMembership`, `SB_OrganizationMemberStatus`, `SB_ExerciseZoneAttributes`.
-- **SpO2 reads** — `SB_SpO2DailyTrending`, `SB_SpO2RangeTrending`, `SB_SpO2DailyGraph`, `SB_SpO2RangeGraph`.
-- **Workouts / activities** — `SB_ActivityRecordingList`, `SB_ActivityTimeline`, `SB_ActivitySummary`, `SB_ActivitySummarySet`, `SB_ActiveWorkoutSegment`, `SB_WorkoutItem`, `SB_WorkoutDetail`, `SB_WorkoutSummaryMetric`, `SB_WorkoutTimelineResult`, `SB_WorkoutEntry`, `SB_WorkoutRecordingInfo`, `SB_WorkoutType`, `SB_WorkoutEntryType`, `SB_WorkoutMetricType`, `SB_WorkoutDetailValueType`, `SB_ModifyAction`, `SB_ModifyOutcome`, `SB_MeditationGraph`, `SB_OngoingWorkoutProgram`, `SB_ARDADetails`, `SB_ARDARunningTimeline`, `SB_ARDATrainingTypeMetrics`, `SB_HRMExerciseZone`, `SB_HRMData`, `SB_HRMCategory`, `SB_HREffortZone`.
-- **Recording & upload** — `SB_FinishedRecordingSession`, `SB_FinishedRecordingType`, `SB_RecordingSessionMeta`, `SB_RecordingMetaType`, `SB_RecordingState`, `SB_RecordingFinalizationPhase`, `SB_RecordingError`, `SB_WorkflowTemplate`, `SB_ActivityType`, `SB_DailyStats`, `SB_DailyStatsResponse`.
-- **Biometric-record & live telemetry** — `SB_SpotCheckDetails` (server-read shape — JSON name preserved), `SB_BiometricRecordResult`, `SB_LiveMetric`.
-- **Insights extras** — `SB_InsightFeedback`, `SB_ExperimentRecommendation`, `SB_RoutineMetadata`, `SB_RoutineGoal`.
-- **Surveys / questionnaires / white-label** — `SB_WhiteLabelSettings`, `SB_WhiteLabelScheduledSurveyTime`, `SB_WhiteLabelRecordingSurveyInfo`, `SB_WhiteLabelDefaultSimpleCard`, `SB_WhiteLabelLinkButton`, `SB_WhiteLabelRecordingType`, `SB_LinkButtonAuthTokenType`, `SB_CustomQuestionnaire`, `SB_CustomQuestionnaireButton`, `SB_CustomQuestionnaireButtonStyle`, `SB_CustomQuestionnaireButtonAction`, `SB_BriefSurvey`, `SB_BriefSurveyQuestion`, `SB_BriefSurveyType`, `SB_BriefSurveyAnswer`.
-- **Misc** — `SB_AnalyticsEvent`, `SB_NotificationElement`, `SB_NotificationElemType`, `SB_TimestampTZ`, `SB_TimeTzWrapper`, `SB_GPSData`, `SB_GPSPoint`, `SB_FormattedUnitValueMetric`, `SB_GraphHeaderTag`, `SB_HistogramPair`, `SB_PoincarePlotGraph`, `SB_PoincarePoint`, `SB_ValueWithBaselineInfoCard`, `SB_TimelineBlock`, `SB_TimeSegment`, `SB_WMYChart`, `SB_TimeValueStraightLine`, `SB_ValueType`, `SB_PageFetchDirection`, `SB_DeviceSyncStatus`, `SB_PedometerEngineDelegateType`, `SB_ServerActivityInfoKeys`, `SB_ServerWorkoutInfoKeys`, `SB_ServerMetaDataKeys`, `SB_ServerDeviceName`, `SB_MobileApplicationLogLevel`, `SB_MobileDashboardRefreshOption`, `SB_SummaryGranularity`.
-
----
-
-## 9. Protocols
-
-```swift
-public protocol SleepDetectionDelegate: AnyObject {
-    func detectedSleep(startEpochInms: Int64, endEpochms: Int64)
-}
-```
-
-This is the **only** customer-facing protocol. It is currently 🚧 WIP.
-
----
-
-## 10. Putting it together — minimal example (✅ Supported surface only)
+## 8. Putting it together — minimal example
 
 ```swift
 import SwiftUI
@@ -906,8 +794,3 @@ final class HomeViewModel: ObservableObject {
 }
 ```
 
----
-
-## 11. Other library products you may see
-
-If you inspect the SDK package and see library products other than `SensorBioSDK`, treat them as **internal build-graph dependencies**. They are not part of the customer API surface, and customer apps should never import them directly — `import SensorBioSDK` is always sufficient. All sensor-decoding, sleep-analysis, and packet-processing behavior is exposed through the public API documented above.
