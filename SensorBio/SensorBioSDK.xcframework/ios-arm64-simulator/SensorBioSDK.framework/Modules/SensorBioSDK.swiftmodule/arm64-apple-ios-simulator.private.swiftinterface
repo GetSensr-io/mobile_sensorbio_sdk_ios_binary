@@ -21,57 +21,6 @@ import UIKit
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
-@_spi(SensorBioInternal) final public class ActivityPacket {
-  @_spi(SensorBioInternal) final public var epochInms: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var processed: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var value: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var rawData: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var rawDataStr: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(_ packet: SensorBioBTSDK.sensrDataPacket)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.ActivityPacket> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.ActivityPacket>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.ActivityPacket : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.ActivityPacket
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.ActivityPacket : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use ActivityPacket's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use ActivityPacket's persistentModelID instead")
-extension SensorBioSDK.ActivityPacket : Swift.Sendable {
-}
 nonisolated public enum Proto_AgreementType : SwiftProtobuf.Enum, Swift.CaseIterable {
   public typealias RawValue = Swift.Int
   case none
@@ -1910,96 +1859,6 @@ nonisolated extension SensorBioSDK.Proto_OneRMAssessmentData.ExerciseMeta : Swif
   nonisolated public var hashValue: Swift.Int {
     get
   }
-}
-@_spi(SensorBioInternal) final public class BBIPacket {
-  @_spi(SensorBioInternal) final public var epochInms: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var value: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var processed: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(_ packet: SensorBioSDK.StreamingPacket)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.BBIPacket> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.BBIPacket>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.BBIPacket : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.BBIPacket
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.BBIPacket : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use BBIPacket's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use BBIPacket's persistentModelID instead")
-extension SensorBioSDK.BBIPacket : Swift.Sendable {
-}
-@_spi(SensorBioInternal) final public class CachedResponse {
-  @_spi(SensorBioInternal) final public var key: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var cacheType: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var dateKey: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var payload: Foundation.Data {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var cachedAt: Foundation.Date {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(cacheType: Swift.String, dateKey: Swift.Int, payload: Foundation.Data)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.CachedResponse> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.CachedResponse>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.CachedResponse : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.CachedResponse
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.CachedResponse : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use CachedResponse's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use CachedResponse's persistentModelID instead")
-extension SensorBioSDK.CachedResponse : Swift.Sendable {
 }
 nonisolated public enum Proto_ViewGranularity : SwiftProtobuf.Enum, Swift.CaseIterable {
   public typealias RawValue = Swift.Int
@@ -7584,49 +7443,6 @@ nonisolated extension SensorBioSDK.Proto_ProcessAssessmentResponse : SwiftProtob
 nonisolated extension SensorBioSDK.Proto_ProcessAssessmentResponse.ErrCode : SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap
 }
-@_spi(SensorBioInternal) final public class EnginePacket {
-  @_spi(SensorBioInternal) final public var epochInms: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var packetData: Foundation.Data {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var processed: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(epochInms: Swift.Int64, packetData: Foundation.Data, isValid: Swift.Bool, processed: Swift.Int)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.EnginePacket> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.EnginePacket>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.EnginePacket : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.EnginePacket
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.EnginePacket : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use EnginePacket's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use EnginePacket's persistentModelID instead")
-extension SensorBioSDK.EnginePacket : Swift.Sendable {
-}
 nonisolated public enum Proto_ExerciseType : SwiftProtobuf.Enum, Swift.CaseIterable {
   public typealias RawValue = Swift.Int
   case unknown
@@ -7887,45 +7703,6 @@ nonisolated extension SensorBioSDK.Proto_ExerciseTypeMeta : SwiftProtobuf.Messag
     get
   }
 }
-@_spi(SensorBioInternal) final public class ExerciseZoneAttributes {
-  @_spi(SensorBioInternal) final public var maxHr: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var rhr: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var zoneWeights: [Swift.Float] {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(maxHr: Swift.Float, rhr: Swift.Float, zoneWeights: [Swift.Float])
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.ExerciseZoneAttributes> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.ExerciseZoneAttributes>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.ExerciseZoneAttributes : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.ExerciseZoneAttributes
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.ExerciseZoneAttributes : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use ExerciseZoneAttributes's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use ExerciseZoneAttributes's persistentModelID instead")
-extension SensorBioSDK.ExerciseZoneAttributes : Swift.Sendable {
-}
 nonisolated public enum Proto_ExperimentStatus : SwiftProtobuf.Enum, Swift.CaseIterable {
   public typealias RawValue = Swift.Int
   case expNotStarted
@@ -8142,170 +7919,130 @@ public class Fxc {
   public func getUpdatedMetricIds() -> [Swift.UInt8]
   public func getSleepSessions() -> [SensorBioSDK.SleepSession]
 }
-@_spi(SensorBioInternal) @objc @_inheritsConvenienceInitializers public class SB_FXCLogging : ObjectiveC.NSObject {
-  @_spi(SensorBioInternal) public enum InfoType : Swift.String {
-    @_spi(SensorBioInternal) case biostrapActivity
-    @_spi(SensorBioInternal) case biostrapBookend
-    @_spi(SensorBioInternal) case biostrapSleepStages
-    @_spi(SensorBioInternal) case philipsBookend
-    @_spi(SensorBioInternal) case philipsPrivateData
-    @_spi(SensorBioInternal) case philipsSleepStages
-    @_spi(SensorBioInternal) case philipsDataError
-    @_spi(SensorBioInternal) case philipsSleepResults
-    @_spi(SensorBioInternal) public init?(rawValue: Swift.String)
-    @_spi(SensorBioInternal) public typealias RawValue = Swift.String
-    @_spi(SensorBioInternal) public var rawValue: Swift.String {
-      @_spi(SensorBioInternal) get
+@objc @_inheritsConvenienceInitializers public class SB_FXCLogging : ObjectiveC.NSObject {
+  public enum InfoType : Swift.String {
+    case biostrapActivity
+    case biostrapBookend
+    case biostrapSleepStages
+    case philipsBookend
+    case philipsPrivateData
+    case philipsSleepStages
+    case philipsDataError
+    case philipsSleepResults
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
     }
   }
-  @_spi(SensorBioInternal) public enum LEVEL {
-    @_spi(SensorBioInternal) case verbose
-    @_spi(SensorBioInternal) case debug
-    @_spi(SensorBioInternal) case info
-    @_spi(SensorBioInternal) case warning
-    @_spi(SensorBioInternal) case error
-    @_spi(SensorBioInternal) case none
-    @_spi(SensorBioInternal) public static func == (a: SensorBioSDK.SB_FXCLogging.LEVEL, b: SensorBioSDK.SB_FXCLogging.LEVEL) -> Swift.Bool
-    @_spi(SensorBioInternal) public func hash(into hasher: inout Swift.Hasher)
-    @_spi(SensorBioInternal) public var hashValue: Swift.Int {
-      @_spi(SensorBioInternal) get
+  public enum LEVEL {
+    case verbose
+    case debug
+    case info
+    case warning
+    case error
+    case none
+    public static func == (a: SensorBioSDK.SB_FXCLogging.LEVEL, b: SensorBioSDK.SB_FXCLogging.LEVEL) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
     }
   }
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static var crashlyticsLogger: ((Swift.String) -> Swift.Void)?
-  @_spi(SensorBioInternal) public var minLevel: SensorBioSDK.SB_FXCLogging.LEVEL {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  nonisolated(unsafe) public static var crashlyticsLogger: ((Swift.String) -> Swift.Void)?
+  public var minLevel: SensorBioSDK.SB_FXCLogging.LEVEL {
+    get
+    set
   }
-  @_spi(SensorBioInternal) public var prefix: Swift.String
-  @_spi(SensorBioInternal) @objc override dynamic public init()
-  @_spi(SensorBioInternal) public func verbose(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
-  @_spi(SensorBioInternal) public func debug(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
-  @_spi(SensorBioInternal) public func info(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
-  @_spi(SensorBioInternal) public func warning(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
-  @_spi(SensorBioInternal) public func error(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
-  @_spi(SensorBioInternal) public func alwaysLog(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
-  @_spi(SensorBioInternal) @objc deinit
+  public var prefix: Swift.String
+  @objc override dynamic public init()
+  public func verbose(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
+  public func debug(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
+  public func info(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
+  public func warning(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
+  public func error(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
+  public func alwaysLog(_ value: Swift.String?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line, sessionStart: Swift.Int, sessionEnd: Swift.Int, infoType: SensorBioSDK.SB_FXCLogging.InfoType)
+  @objc deinit
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_FXCLogging {
-  @_spi(SensorBioInternal) public func fullLogURL() -> Foundation.URL?
+extension SensorBioSDK.SB_FXCLogging {
+  public func fullLogURL() -> Foundation.URL?
 }
-@_spi(SensorBioInternal) nonisolated(unsafe) public let fxcLogging: SensorBioSDK.SB_FXCLogging
-@_spi(SensorBioInternal) final public class FXCSleep {
-  @_spi(SensorBioInternal) final public var fxcEpoch: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var algorithmPacketData: Foundation.Data {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(algorithmPacketData: Foundation.Data, isValid: Swift.Bool = false)
-  @_spi(SensorBioInternal) public static func fxcEpoch(for algorithmData: Foundation.Data) -> Swift.Int64
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.FXCSleep> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.FXCSleep>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.FXCSleep : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.FXCSleep
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.FXCSleep : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use FXCSleep's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use FXCSleep's persistentModelID instead")
-extension SensorBioSDK.FXCSleep : Swift.Sendable {
-}
+nonisolated(unsafe) public let fxcLogging: SensorBioSDK.SB_FXCLogging
 public struct FXCSleepStage {
   public let value: Swift.UInt8
   public let quality: Swift.UInt8
   public init(value: Swift.UInt8, quality: Swift.UInt8)
 }
-@_spi(SensorBioInternal) final public class HRMeasure {
-  @_spi(SensorBioInternal) final public var timestamp: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+final public class HRMeasure {
+  final public var timestamp: Swift.Int64 {
+    get
+    set
   }
-  @_spi(SensorBioInternal) final public var hr: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  final public var hr: Swift.Float {
+    get
+    set
   }
-  @_spi(SensorBioInternal) final public var bbi: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  final public var bbi: Swift.Int {
+    get
+    set
   }
-  @_spi(SensorBioInternal) public init(timestamp: Swift.Int64, hr: Swift.Float, bbi: Swift.Int)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.HRMeasure> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  public init(timestamp: Swift.Int64, hr: Swift.Float, bbi: Swift.Int)
+  final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.HRMeasure> {
+    get
+    set
   }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
+  final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
+    get
   }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.HRMeasure>)
-  @_spi(SensorBioInternal) @objc deinit
+  public init(backingData: any SwiftData.BackingData<SensorBioSDK.HRMeasure>)
+  @objc deinit
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.HRMeasure : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
+extension SensorBioSDK.HRMeasure : nonisolated SwiftData.PersistentModel {
+  public typealias ID = SwiftData.PersistentIdentifier
+  @available(swift 5.9)
   @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
   public typealias Root = SensorBioSDK.HRMeasure
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
+  final public var hashValue: Swift.Int {
+    get
   }
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.HRMeasure : nonisolated Observation.Observable {
+extension SensorBioSDK.HRMeasure : nonisolated Observation.Observable {
 }
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use HRMeasure's persistentModelID instead")
+@available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use HRMeasure's persistentModelID instead")
 @available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use HRMeasure's persistentModelID instead")
 extension SensorBioSDK.HRMeasure : Swift.Sendable {
 }
-@_spi(SensorBioInternal) final public class HRVMeasure {
-  @_spi(SensorBioInternal) final public var timestamp: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+final public class HRVMeasure {
+  final public var timestamp: Swift.Int64 {
+    get
+    set
   }
-  @_spi(SensorBioInternal) final public var value: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  final public var value: Swift.Float {
+    get
+    set
   }
-  @_spi(SensorBioInternal) public init(timestamp: Swift.Int64, value: Swift.Float)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.HRVMeasure> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  public init(timestamp: Swift.Int64, value: Swift.Float)
+  final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.HRVMeasure> {
+    get
+    set
   }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
+  final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
+    get
   }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.HRVMeasure>)
-  @_spi(SensorBioInternal) @objc deinit
+  public init(backingData: any SwiftData.BackingData<SensorBioSDK.HRVMeasure>)
+  @objc deinit
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.HRVMeasure : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
+extension SensorBioSDK.HRVMeasure : nonisolated SwiftData.PersistentModel {
+  public typealias ID = SwiftData.PersistentIdentifier
+  @available(swift 5.9)
   @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
   public typealias Root = SensorBioSDK.HRVMeasure
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
+  final public var hashValue: Swift.Int {
+    get
   }
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.HRVMeasure : nonisolated Observation.Observable {
+extension SensorBioSDK.HRVMeasure : nonisolated Observation.Observable {
 }
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use HRVMeasure's persistentModelID instead")
+@available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use HRVMeasure's persistentModelID instead")
 @available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use HRVMeasure's persistentModelID instead")
 extension SensorBioSDK.HRVMeasure : Swift.Sendable {
 }
@@ -8949,195 +8686,6 @@ nonisolated extension SensorBioSDK.Proto_Influencer : SwiftProtobuf.Message, Swi
     get
   }
 }
-@_spi(SensorBioInternal) final public class OnDeviceSleepSession {
-  @_spi(SensorBioInternal) final public var date: Foundation.Date {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var startTimestamp: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var endTimestamp: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var sleepOnsetTimestamp: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var userWokeupAtTimestamp: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var sleepLatency: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var score: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var lightSleepTotalTime: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var deepSleepTotalTime: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var awakeTotalTime: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var remSleepTotalTime: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var arousalCount: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isDetectedByAutoSleep: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isUploadedToServer: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var heartRateVariability: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var heartRate: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var stages: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var stagesTimestams: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var endedByApp: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var endedByWorn: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var endedByMovement: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isBiometricUploaded: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var endedByLowBattery: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isOverlappingExistingSleep: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var usesPhilipsSleepAlgorithm: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(date: Foundation.Date = Date(timeIntervalSince1970: 0), startTimestamp: Swift.Int64 = 0, endTimestamp: Swift.Int64 = 0, sleepOnsetTimestamp: Swift.Int64 = 0, userWokeupAtTimestamp: Swift.Int64 = 0, sleepLatency: Swift.Int32 = 0, score: Swift.Int32 = 0, lightSleepTotalTime: Swift.Int32 = 0, deepSleepTotalTime: Swift.Int32 = 0, awakeTotalTime: Swift.Int32 = 0, remSleepTotalTime: Swift.Int32 = 0, arousalCount: Swift.Int32 = 0, isDetectedByAutoSleep: Swift.Bool = false, isUploadedToServer: Swift.Bool = false, heartRateVariability: Swift.Int32 = 0, heartRate: Swift.Int32 = 0, stages: Swift.String = "", stagesTimestams: Swift.String = "", endedByApp: Swift.Bool = false, endedByWorn: Swift.Bool = false, endedByMovement: Swift.Bool = false, isBiometricUploaded: Swift.Bool = false, endedByLowBattery: Swift.Bool = false, isOverlappingExistingSleep: Swift.Bool = false, usesPhilipsSleepAlgorithm: Swift.Bool = true)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.OnDeviceSleepSession> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.OnDeviceSleepSession>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.OnDeviceSleepSession : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.OnDeviceSleepSession
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.OnDeviceSleepSession : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use OnDeviceSleepSession's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use OnDeviceSleepSession's persistentModelID instead")
-extension SensorBioSDK.OnDeviceSleepSession : Swift.Sendable {
-}
-@_spi(SensorBioInternal) final public class PacketBytesModel {
-  @_spi(SensorBioInternal) final public var syncTime: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var block: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var deviceID: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var tzOffsetMS: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var date: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var metadata: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var uploaded: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var rawData: Foundation.Data {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(syncTime: Swift.Int, block: Swift.Int, deviceID: Swift.String, tzOffset: Swift.Int, date: Swift.Int, metadata: Swift.String, uploaded: Swift.Bool = false, rawData: Foundation.Data)
-  @_spi(SensorBioInternal) final public var sdkUploadRequest: SensorBioSDK.SB_DeviceDataPacketUpload {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.PacketBytesModel> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.PacketBytesModel>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.PacketBytesModel : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.PacketBytesModel
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.PacketBytesModel : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use PacketBytesModel's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use PacketBytesModel's persistentModelID instead")
-extension SensorBioSDK.PacketBytesModel : Swift.Sendable {
-}
 nonisolated public enum Proto_PopulationGender : SwiftProtobuf.Enum, Swift.CaseIterable {
   public typealias RawValue = Swift.Int
   case populationAll
@@ -9297,77 +8845,6 @@ nonisolated extension SensorBioSDK.Proto_PopulationAgeGroup : SwiftProtobuf.Mess
   nonisolated public var hashValue: Swift.Int {
     get
   }
-}
-@_spi(SensorBioInternal) final public class PPGResult {
-  @_spi(SensorBioInternal) final public var epochInms: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var processed: Swift.Int {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var hrvValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var hrValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var rrValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var spo2Valid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var hrvValue: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var hrValue: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var rrValue: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var spo2Value: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var isValid: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(_ packet: SensorBioBTSDK.sensrDataPacket)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.PPGResult> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.PPGResult>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.PPGResult : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.PPGResult
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.PPGResult : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use PPGResult's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use PPGResult's persistentModelID instead")
-extension SensorBioSDK.PPGResult : Swift.Sendable {
 }
 nonisolated public struct Proto_RawPacketActivity : Swift.Sendable {
   nonisolated public var timestampTz: SensorBioSDK.Proto_TimestampTZ {
@@ -9812,38 +9289,38 @@ nonisolated extension SensorBioSDK.Proto_RoutineTag : SwiftProtobuf.Message, Swi
     get
   }
 }
-@_spi(SensorBioInternal) final public class RRMeasure {
-  @_spi(SensorBioInternal) final public var timestamp: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+final public class RRMeasure {
+  final public var timestamp: Swift.Int64 {
+    get
+    set
   }
-  @_spi(SensorBioInternal) final public var value: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  final public var value: Swift.Float {
+    get
+    set
   }
-  @_spi(SensorBioInternal) public init(timestamp: Swift.Int64, value: Swift.Float)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.RRMeasure> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
+  public init(timestamp: Swift.Int64, value: Swift.Float)
+  final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.RRMeasure> {
+    get
+    set
   }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
+  final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
+    get
   }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.RRMeasure>)
-  @_spi(SensorBioInternal) @objc deinit
+  public init(backingData: any SwiftData.BackingData<SensorBioSDK.RRMeasure>)
+  @objc deinit
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.RRMeasure : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
+extension SensorBioSDK.RRMeasure : nonisolated SwiftData.PersistentModel {
+  public typealias ID = SwiftData.PersistentIdentifier
+  @available(swift 5.9)
   @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
   public typealias Root = SensorBioSDK.RRMeasure
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
+  final public var hashValue: Swift.Int {
+    get
   }
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.RRMeasure : nonisolated Observation.Observable {
+extension SensorBioSDK.RRMeasure : nonisolated Observation.Observable {
 }
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use RRMeasure's persistentModelID instead")
+@available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use RRMeasure's persistentModelID instead")
 @available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use RRMeasure's persistentModelID instead")
 extension SensorBioSDK.RRMeasure : Swift.Sendable {
 }
@@ -9854,19 +9331,6 @@ public struct SB_ActiveWorkoutSegment : Swift.Codable, Swift.Equatable, Swift.Se
   public static func == (a: SensorBioSDK.SB_ActiveWorkoutSegment, b: SensorBioSDK.SB_ActiveWorkoutSegment) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
-}
-@_spi(SensorBioInternal) public enum SB_ActivityPacketsManager {
-  @_spi(SensorBioInternal) public static func save(_ activityPackets: [SensorBioBTSDK.sensrDataPacket])
-  @_spi(SensorBioInternal) public static func markValid()
-  @_spi(SensorBioInternal) public static func deleteInvalid()
-  @_spi(SensorBioInternal) public static func markProcessed(epochsInms: [Swift.Int64])
-  @_spi(SensorBioInternal) public static func between(startEpoch: Swift.Int64, endEpoch: Swift.Int64) -> [SensorBioSDK.ActivityPacket]
-  @_spi(SensorBioInternal) public static func fetchUnprocessed() -> [SensorBioSDK.ActivityPacket]
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static var activityUploadInProgress: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public static func upload()
 }
 public struct SB_ActivityRecordingList : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var featured: [Swift.String]
@@ -9933,40 +9397,6 @@ public struct SB_AnalyticsEvent : Swift.Sendable {
   public let properties: [Swift.String : Swift.String]
   public init(name: Swift.String, properties: [Swift.String : Swift.String] = [:])
 }
-@_spi(SensorBioInternal) public actor SB_APIClient {
-  @_spi(SensorBioInternal) public static let shared: SensorBioSDK.SB_APIClient
-  @_spi(SensorBioInternal) public init()
-  @_spi(SensorBioInternal) nonisolated public func metadata(authToken: Swift.String?) -> [Swift.String : Swift.String]
-  @_spi(SensorBioInternal) @objc deinit
-  @_spi(SensorBioInternal) @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
-  @_semantics("defaultActor") nonisolated final public var unownedExecutor: _Concurrency.UnownedSerialExecutor {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) public struct SB_GRPCTransportError : Swift.Error, Swift.CustomStringConvertible {
-  @_spi(SensorBioInternal) public enum Code : Swift.Int {
-    @_spi(SensorBioInternal) case notFound
-    @_spi(SensorBioInternal) case deadlineExceeded
-    @_spi(SensorBioInternal) case internalError
-    @_spi(SensorBioInternal) case unavailable
-    @_spi(SensorBioInternal) case unauthenticated
-    @_spi(SensorBioInternal) case other
-    @_spi(SensorBioInternal) public init?(rawValue: Swift.Int)
-    @_spi(SensorBioInternal) public typealias RawValue = Swift.Int
-    @_spi(SensorBioInternal) public var rawValue: Swift.Int {
-      @_spi(SensorBioInternal) get
-    }
-  }
-  @_spi(SensorBioInternal) public let code: SensorBioSDK.SB_GRPCTransportError.Code
-  @_spi(SensorBioInternal) public let message: Swift.String
-  @_spi(SensorBioInternal) public let underlying: (any Swift.Error)?
-  @_spi(SensorBioInternal) public var isUnauthenticated: Swift.Bool {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public var description: Swift.String {
-    @_spi(SensorBioInternal) get
-  }
-}
 public struct SB_ApneaEvent : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var startTs: Swift.Int64
   public var endTs: Swift.Int64
@@ -10011,14 +9441,14 @@ public enum SB_AuthError : Swift.Error {
     get
   }
 }
-@_spi(SensorBioInternal) public protocol SB_AuthTokenProvider : AnyObject, Swift.Sendable {
-  @_spi(SensorBioInternal) func getAuthToken() -> Swift.String?
-  @_spi(SensorBioInternal) func getRefreshToken() -> Swift.String?
-  @_spi(SensorBioInternal) func saveTokens(access: Swift.String, refresh: Swift.String?)
-  @_spi(SensorBioInternal) func saveAuthToken(token: Swift.String)
-  @_spi(SensorBioInternal) func removeAuthToken()
-  @_spi(SensorBioInternal) func deleteKeychainAuthTokenIfIsFirstRun()
-  @_spi(SensorBioInternal) func moveAuthTokenToKeychainIfNeeded()
+public protocol SB_AuthTokenProvider : AnyObject, Swift.Sendable {
+  func getAuthToken() -> Swift.String?
+  func getRefreshToken() -> Swift.String?
+  func saveTokens(access: Swift.String, refresh: Swift.String?)
+  func saveAuthToken(token: Swift.String)
+  func removeAuthToken()
+  func deleteKeychainAuthTokenIfIsFirstRun()
+  func moveAuthTokenToKeychainIfNeeded()
 }
 public struct SB_BarGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var totalPoints: Swift.Int64
@@ -10040,97 +9470,33 @@ public struct SB_BarGraphDataPoint : Swift.Codable, Swift.Equatable, Swift.Senda
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-@_spi(SensorBioInternal) public enum SB_BBIManager {
-  @_spi(SensorBioInternal) public static func save(_ bbiPackets: [SensorBioSDK.StreamingPacket])
-  @_spi(SensorBioInternal) public static func between(startEpoch: Swift.Int64, endEpoch: Swift.Int64) -> (bbiArray: [Swift.UInt16], timestampsArray: [Swift.UInt64], allProcessed: Swift.Bool)
-  @_spi(SensorBioInternal) public static func markValid()
-  @_spi(SensorBioInternal) public static func deleteInvalid()
-  @_spi(SensorBioInternal) public static func markProcessed(epochsInms: [Swift.Int64])
-  @_spi(SensorBioInternal) public static func fetchUnprocessed() -> [SensorBioSDK.BBIPacket]
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_BBIManager {
-  @_spi(SensorBioInternal) public static func sleepFeaturesRequest(bbiMsArray: [Swift.UInt16], timestampsMsArray: [Swift.UInt64], sleepEnd: Swift.Int64) -> SensorBioSDK.SB_BiometricFeaturesUpload
-}
-@_spi(SensorBioInternal) public struct SB_BiometricFeaturesUpload : Swift.Sendable {
-  @_spi(SensorBioInternal) public struct HRVTimeDomain : Swift.Sendable {
-    @_spi(SensorBioInternal) public var meanRrInterval: Swift.Float?
-    @_spi(SensorBioInternal) public var minRrInterval: Swift.Float?
-    @_spi(SensorBioInternal) public var maxRrInterval: Swift.Float?
-    @_spi(SensorBioInternal) public var rmssd: Swift.Float?
-    @_spi(SensorBioInternal) public var sdnn: Swift.Float?
-    @_spi(SensorBioInternal) public var stressIndex: Swift.Float?
-    @_spi(SensorBioInternal) public var nn50: Swift.Int32?
-    @_spi(SensorBioInternal) public var pNn50: Swift.Float?
-    @_spi(SensorBioInternal) public var triangularIndex: Swift.Float?
-    @_spi(SensorBioInternal) public var hrvTi: Swift.Float?
-    @_spi(SensorBioInternal) public var tiNn: Swift.Float?
-    @_spi(SensorBioInternal) public var outlierPercentage: Swift.Float?
-    @_spi(SensorBioInternal) public init(meanRrInterval: Swift.Float? = nil, minRrInterval: Swift.Float? = nil, maxRrInterval: Swift.Float? = nil, rmssd: Swift.Float? = nil, sdnn: Swift.Float? = nil, stressIndex: Swift.Float? = nil, nn50: Swift.Int32? = nil, pNn50: Swift.Float? = nil, triangularIndex: Swift.Float? = nil, hrvTi: Swift.Float? = nil, tiNn: Swift.Float? = nil, outlierPercentage: Swift.Float? = nil)
-  }
-  @_spi(SensorBioInternal) public struct HRVNonLinear : Swift.Sendable {
-    @_spi(SensorBioInternal) public var sd1: Swift.Float?
-    @_spi(SensorBioInternal) public var sd2: Swift.Float?
-    @_spi(SensorBioInternal) public var sd2BySd1: Swift.Float?
-    @_spi(SensorBioInternal) public init(sd1: Swift.Float? = nil, sd2: Swift.Float? = nil, sd2BySd1: Swift.Float? = nil)
-  }
-  @_spi(SensorBioInternal) public struct HRVFrequencyDomain : Swift.Sendable {
-    @_spi(SensorBioInternal) public var ulf: Swift.Float?
-    @_spi(SensorBioInternal) public var vlf: Swift.Float?
-    @_spi(SensorBioInternal) public var lf: Swift.Float?
-    @_spi(SensorBioInternal) public var hf: Swift.Float?
-    @_spi(SensorBioInternal) public var vhf: Swift.Float?
-    @_spi(SensorBioInternal) public var lfByHf: Swift.Float?
-    @_spi(SensorBioInternal) public init(ulf: Swift.Float? = nil, vlf: Swift.Float? = nil, lf: Swift.Float? = nil, hf: Swift.Float? = nil, vhf: Swift.Float? = nil, lfByHf: Swift.Float? = nil)
-  }
-  @_spi(SensorBioInternal) public var isSleepDerivedMetrics: Swift.Bool
-  @_spi(SensorBioInternal) public var sleepEndTsMillis: Swift.Int64?
-  @_spi(SensorBioInternal) public var ansBalanceParasympatheticPns: Swift.Float?
-  @_spi(SensorBioInternal) public var ansBalanceSympatheticSns: Swift.Float?
-  @_spi(SensorBioInternal) public var hrvTimeDomain: SensorBioSDK.SB_BiometricFeaturesUpload.HRVTimeDomain
-  @_spi(SensorBioInternal) public var hrvNonLinear: SensorBioSDK.SB_BiometricFeaturesUpload.HRVNonLinear
-  @_spi(SensorBioInternal) public var hrvFrequencyDomain: SensorBioSDK.SB_BiometricFeaturesUpload.HRVFrequencyDomain
-  @_spi(SensorBioInternal) public init(isSleepDerivedMetrics: Swift.Bool = false, sleepEndTsMillis: Swift.Int64? = nil, ansBalanceParasympatheticPns: Swift.Float? = nil, ansBalanceSympatheticSns: Swift.Float? = nil, hrvTimeDomain: SensorBioSDK.SB_BiometricFeaturesUpload.HRVTimeDomain = HRVTimeDomain(), hrvNonLinear: SensorBioSDK.SB_BiometricFeaturesUpload.HRVNonLinear = HRVNonLinear(), hrvFrequencyDomain: SensorBioSDK.SB_BiometricFeaturesUpload.HRVFrequencyDomain = HRVFrequencyDomain())
-}
 public struct SB_BiometricRecordResult : Swift.Equatable, Swift.Sendable {
   public var id: Swift.String?
   public var startEpoch: Swift.Int64
   public var error: Foundation.NSError?
   public static func == (a: SensorBioSDK.SB_BiometricRecordResult, b: SensorBioSDK.SB_BiometricRecordResult) -> Swift.Bool
 }
-@_spi(SensorBioInternal) public struct SB_BiometricsUpload : Swift.Sendable {
-  @_spi(SensorBioInternal) public struct DataPoint : Swift.Sendable {
-    @_spi(SensorBioInternal) public let tsMillis: Swift.Int64
-    @_spi(SensorBioInternal) public let tzOffset: Swift.Int32
-    @_spi(SensorBioInternal) public let value: Swift.Float
-    @_spi(SensorBioInternal) public let uncertainty: Swift.Float
-    @_spi(SensorBioInternal) public init(tsMillis: Swift.Int64, tzOffset: Swift.Int32, value: Swift.Float, uncertainty: Swift.Float = 0)
+public struct SB_BiometricsUpload : Swift.Sendable {
+  public struct DataPoint : Swift.Sendable {
+    public let tsMillis: Swift.Int64
+    public let tzOffset: Swift.Int32
+    public let value: Swift.Float
+    public let uncertainty: Swift.Float
+    public init(tsMillis: Swift.Int64, tzOffset: Swift.Int32, value: Swift.Float, uncertainty: Swift.Float = 0)
   }
-  @_spi(SensorBioInternal) public var heartRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) public var hrv: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) public var respiratoryRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) public var spo2: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) public var interBeatInterval: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) public var isContinuousMode: Swift.Bool?
-  @_spi(SensorBioInternal) public init(heartRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], hrv: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], respiratoryRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], spo2: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], interBeatInterval: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], isContinuousMode: Swift.Bool? = nil)
-  @_spi(SensorBioInternal) public var isEmpty: Swift.Bool {
-    @_spi(SensorBioInternal) get
+  public var heartRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  public var hrv: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  public var respiratoryRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  public var spo2: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  public var interBeatInterval: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  public var isContinuousMode: Swift.Bool?
+  public init(heartRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], hrv: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], respiratoryRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], spo2: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], interBeatInterval: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], isContinuousMode: Swift.Bool? = nil)
+  public var isEmpty: Swift.Bool {
+    get
   }
-  @_spi(SensorBioInternal) public var serializedSizeInBytes: Swift.Int {
-    @_spi(SensorBioInternal) get
+  public var serializedSizeInBytes: Swift.Int {
+    get
   }
-}
-@_spi(SensorBioInternal) public enum SB_BiometricsUploadManager {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static var biometricsUploadInProgress: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public static func CheckAndCallSubmitFinishedRecordingSession()
-  @_spi(SensorBioInternal) public static func UploadPPGAndBBIData()
-}
-@_spi(SensorBioInternal) final public class SB_BluetoothConnectionController : @unchecked Swift.Sendable {
-  @_spi(SensorBioInternal) public init(manager: SensorBioSDK.SB_SDK)
-  @_spi(SensorBioInternal) final public func attachToSDK(_ sdk: SensorBioBTSDK.SB_BTSDK)
-  @_spi(SensorBioInternal) @objc deinit
 }
 public enum SB_BluetoothDeviceType : Swift.Int, Swift.Sendable {
   case sensrV1
@@ -10146,60 +9512,16 @@ public enum SB_BluetoothDeviceType : Swift.Int, Swift.Sendable {
     get
   }
 }
-@_spi(SensorBioInternal) final public class SB_BluetoothPacketDecoder : @unchecked Swift.Sendable {
-  @_spi(SensorBioInternal) final public var stepsBuffer: [SensorBioBTSDK.sensrDataPacket]
-  @_spi(SensorBioInternal) final public var ppgBuffer: [SensorBioBTSDK.sensrDataPacket]
-  @_spi(SensorBioInternal) final public var activityBuffer: [SensorBioBTSDK.sensrDataPacket]
-  @_spi(SensorBioInternal) final public var fxcBuffer: [SensorBioBTSDK.sensrDataPacket]
-  @_spi(SensorBioInternal) final public var bbiBuffer: [SensorBioSDK.StreamingPacket]
-  @_spi(SensorBioInternal) public init(manager: SensorBioSDK.SB_SDK)
-  @_spi(SensorBioInternal) final public func processData(id: Swift.String, packets: [SensorBioBTSDK.sensrDataPacket])
-  @_spi(SensorBioInternal) final public func drainBuffersToDB()
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) final public class SB_BluetoothScanController {
-  @_spi(SensorBioInternal) public init(manager: SensorBioSDK.SB_SDK)
-  @_spi(SensorBioInternal) final public func attachToSDK(_ sdk: SensorBioBTSDK.SB_BTSDK)
-  @_spi(SensorBioInternal) final public func start()
-  @_spi(SensorBioInternal) final public func stop()
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) final public class SB_BluetoothSDKSyncParametersManager {
-  @_spi(SensorBioInternal) final public var pages: Swift.Int {
-    get
-  }
-  @_spi(SensorBioInternal) final public var delay: Swift.Int {
-    get
-  }
-  @_spi(SensorBioInternal) public init()
-  @_spi(SensorBioInternal) final public func disconnected()
-  @_spi(SensorBioInternal) final public func adjust(successful: Swift.Bool, packetCount: Swift.Int, disconnecting: Swift.Bool = false)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) final public class SB_BluetoothSDKSyncStallManager {
-  @_spi(SensorBioInternal) public enum StateType {
-    @_spi(SensorBioInternal) case idle
-    @_spi(SensorBioInternal) case syncing_wait
-    @_spi(SensorBioInternal) case syncing_timeout
-    @_spi(SensorBioInternal) public static func == (a: SensorBioSDK.SB_BluetoothSDKSyncStallManager.StateType, b: SensorBioSDK.SB_BluetoothSDKSyncStallManager.StateType) -> Swift.Bool
-    @_spi(SensorBioInternal) public func hash(into hasher: inout Swift.Hasher)
-    @_spi(SensorBioInternal) public var hashValue: Swift.Int {
-      @_spi(SensorBioInternal) get
-    }
-  }
-  @_spi(SensorBioInternal) final public var state: SensorBioSDK.SB_BluetoothSDKSyncStallManager.StateType
-  @_spi(SensorBioInternal) public init()
-  @_spi(SensorBioInternal) final public func reset()
-  @_spi(SensorBioInternal) final public func check() -> Swift.Bool
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) final public class SB_BluetoothSyncController : @unchecked Swift.Sendable {
-  @_spi(SensorBioInternal) final public let syncStallManager: SensorBioSDK.SB_BluetoothSDKSyncStallManager
-  @_spi(SensorBioInternal) public init(manager: SensorBioSDK.SB_SDK)
-  @_spi(SensorBioInternal) final public func attachToDevice(_ device: SensorBioBTSDK.SB_Device)
-  @_spi(SensorBioInternal) final public func start(_ file: Swift.String = #fileID, _ function: Swift.String = #function, _ line: Swift.Int = #line, force: Swift.Bool = false)
-  @_spi(SensorBioInternal) final public func handleDisconnect()
-  @_spi(SensorBioInternal) @objc deinit
+final public class SB_BluetoothPacketDecoder : @unchecked Swift.Sendable {
+  final public var stepsBuffer: [SensorBioBTSDK.sensrDataPacket]
+  final public var ppgBuffer: [SensorBioBTSDK.sensrDataPacket]
+  final public var activityBuffer: [SensorBioBTSDK.sensrDataPacket]
+  final public var fxcBuffer: [SensorBioBTSDK.sensrDataPacket]
+  final public var bbiBuffer: [SensorBioSDK.StreamingPacket]
+  public init(manager: SensorBioSDK.SB_SDK)
+  final public func processData(id: Swift.String, packets: [SensorBioBTSDK.sensrDataPacket])
+  final public func drainBuffersToDB()
+  @objc deinit
 }
 public struct SB_BriefSurvey : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var id: Swift.String?
@@ -10491,26 +9813,6 @@ public struct SB_DashboardSleepRecommendationCard : Swift.Codable, Swift.Equatab
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers final public class SB_DataStore {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let shared: SensorBioSDK.SB_DataStore
-  @_spi(SensorBioInternal) final public let storeURL: Foundation.URL
-  @_spi(SensorBioInternal) final public func wipeAll()
-  @_spi(SensorBioInternal) final public func add<T>(_ object: T) async throws where T : SwiftData.PersistentModel
-  @_spi(SensorBioInternal) final public var enginePacketCount: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) final public func fetchCachedResponse(cacheType: Swift.String, date: Foundation.Date) -> Foundation.Data?
-  @_spi(SensorBioInternal) final public func saveCachedResponse(cacheType: Swift.String, date: Foundation.Date, payload: Foundation.Data)
-  @_spi(SensorBioInternal) final public func deleteCachedResponse(cacheType: Swift.String, date: Foundation.Date)
-  @_spi(SensorBioInternal) final public func fetchPendingPacketUploads() async throws -> [SensorBioSDK.SB_PendingPacketUpload]
-  @_spi(SensorBioInternal) final public func markPacketUploaded(syncTime: Swift.Int, block: Swift.Int) async throws
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) public enum SB_DataSyncDBManager {
-  @_spi(SensorBioInternal) public static func MarkDataValid()
-  @_spi(SensorBioInternal) public static func DeleteInvalidData()
-  @_spi(SensorBioInternal) public static func UploadValidData()
-}
 public struct SB_DateValuePoint : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var date: Swift.Int32
   public var value: Swift.Float
@@ -10518,9 +9820,6 @@ public struct SB_DateValuePoint : Swift.Codable, Swift.Equatable, Swift.Sendable
   public static func == (a: SensorBioSDK.SB_DateValuePoint, b: SensorBioSDK.SB_DateValuePoint) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
-}
-@_spi(SensorBioInternal) public struct SB_DefaultsMigrator {
-  @_spi(SensorBioInternal) public static func runIfNeeded()
 }
 public struct SB_DetectedSleep : Swift.Equatable, Swift.Sendable {
   public let startEpochInms: Swift.Int64
@@ -10538,21 +9837,6 @@ public enum SB_DeviceConnectionState {
     get
   }
 }
-@_spi(SensorBioInternal) public struct SB_DeviceDataPacketUpload : Swift.Sendable {
-  @_spi(SensorBioInternal) public var binaryFile: Foundation.Data
-  @_spi(SensorBioInternal) public var deviceId: Swift.String
-  @_spi(SensorBioInternal) public var syncTsMs: Swift.UInt64
-  @_spi(SensorBioInternal) public var dateYyyymmdd: Swift.UInt32
-  @_spi(SensorBioInternal) public var seq: Swift.UInt32
-  @_spi(SensorBioInternal) public var tzOffsetMins: Swift.Int32
-  @_spi(SensorBioInternal) public var metadata: [Swift.String : Swift.String]
-  @_spi(SensorBioInternal) public init(binaryFile: Foundation.Data, deviceId: Swift.String, syncTsMs: Swift.UInt64, dateYyyymmdd: Swift.UInt32, seq: Swift.UInt32, tzOffsetMins: Swift.Int32, metadata: [Swift.String : Swift.String] = [:])
-}
-@_spi(SensorBioInternal) public enum SB_DeviceDataPacketUploadOutcome : Swift.Sendable {
-  @_spi(SensorBioInternal) case ok
-  @_spi(SensorBioInternal) case invalidDateYyyymmdd
-  @_spi(SensorBioInternal) case otherError(message: Swift.String)
-}
 public enum SB_DeviceLinkFailure : Swift.Sendable {
   case deviceSerialNumberRequired
   case deviceSerialNumberMismatch
@@ -10562,32 +9846,9 @@ public enum SB_DeviceLinkFailure : Swift.Sendable {
     get
   }
 }
-@_spi(SensorBioInternal) final public class SB_DeviceMetadataRelay {
-  @_spi(SensorBioInternal) public init(device: SensorBioBTSDK.SB_Device, manager: SensorBioSDK.SB_SDK)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) final public class SB_DevicesSyncInfo {
-  @_spi(SensorBioInternal) final public var wristbandMacAddress: Swift.String?
-  @_spi(SensorBioInternal) final public var lastWristbandPacketTimestamp: Foundation.TimeInterval?
-  @_spi(SensorBioInternal) final public var lastWristbandDecreasingRemainingSecsUpdateDate: Foundation.Date?
-  @_spi(SensorBioInternal) final public var lastWristbandDecreasingRemainingSecs: Swift.Int?
-  @_spi(SensorBioInternal) final public var wristbandSyncSpeed: Swift.Double
-  @_spi(SensorBioInternal) final public var wristbandLogsInfo: [Swift.Int : Swift.Int]
-  @_spi(SensorBioInternal) public init()
-  @_spi(SensorBioInternal) final public func restoreWristbandDefaultValues(macAddress: Swift.String?)
-  @_spi(SensorBioInternal) final public func getWristbandSyncRemainingSeconds(macAddress: Swift.String) -> Swift.Int?
-  @_spi(SensorBioInternal) final public func getWristbandSyncRemainingTimeFormatted(macAddress: Swift.String) -> Swift.String
-  @_spi(SensorBioInternal) final public func secondsToHoursMinutesSecondsFormatted(seconds: Swift.Int) -> Swift.String
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers final public class SB_DevicesSyncInfoManager {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let shared: SensorBioSDK.SB_DevicesSyncInfoManager
-  @_spi(SensorBioInternal) final public let hardwareVersionToAvoidFirmware: Swift.String
-  @_spi(SensorBioInternal) final public func updateLogs(macAddress: Swift.String, currentLogs: Swift.Int)
-  @_spi(SensorBioInternal) final public func updateLastPacketTS(macAddress: Swift.String, time: Foundation.TimeInterval)
-  @_spi(SensorBioInternal) final public func wipeWristbandSyncInfo()
-  @_spi(SensorBioInternal) final public func uploadLastSyncTime(epoch: Swift.Int64, deviceId: Swift.String)
-  @_spi(SensorBioInternal) @objc deinit
+final public class SB_DeviceMetadataRelay {
+  public init(device: SensorBioBTSDK.SB_Device, manager: SensorBioSDK.SB_SDK)
+  @objc deinit
 }
 public enum SB_DeviceSyncStatus : Swift.Int {
   case Unknown, Disconnected, Connected, Syncing
@@ -10639,12 +9900,6 @@ public struct SB_ExerciseZoneAttributes : Swift.Codable, Swift.Equatable, Swift.
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers final public class SB_ExerciseZoneAttributesManager {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let shared: SensorBioSDK.SB_ExerciseZoneAttributesManager
-  @_spi(SensorBioInternal) final public func current() -> SensorBioSDK.SB_ExerciseZoneAttributes?
-  @_spi(SensorBioInternal) final public func save(_ attributes: SensorBioSDK.SB_ExerciseZoneAttributes)
-  @_spi(SensorBioInternal) @objc deinit
-}
 public struct SB_ExperimentRecommendation : Swift.Sendable {
   public let reason: Swift.String
   public let methodNames: [Swift.String]
@@ -10681,12 +9936,6 @@ public struct SB_FormattedUnitValueMetric : Swift.Codable, Swift.Equatable, Swif
   public static func == (a: SensorBioSDK.SB_FormattedUnitValueMetric, b: SensorBioSDK.SB_FormattedUnitValueMetric) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
-}
-@_spi(SensorBioInternal) public enum SB_FXCSleepManager {
-  @_spi(SensorBioInternal) public static func save(_ packets: [SensorBioBTSDK.sensrDataPacket])
-  @_spi(SensorBioInternal) public static func markValid()
-  @_spi(SensorBioInternal) public static func deleteInvalid()
-  @_spi(SensorBioInternal) public static func deleteOld()
 }
 public enum SB_Gender : Swift.Sendable {
   case male
@@ -10845,33 +10094,33 @@ public struct SB_HRMExerciseZone : Swift.Codable, Swift.Equatable, Swift.Sendabl
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers final public class SB_HRMManager {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let shared: SensorBioSDK.SB_HRMManager
-  @_spi(SensorBioInternal) @objc deinit
+@_hasMissingDesignatedInitializers final public class SB_HRMManager {
+  nonisolated(unsafe) public static let shared: SensorBioSDK.SB_HRMManager
+  @objc deinit
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_HRMManager {
-  @_spi(SensorBioInternal) final public func saveHR(_ packets: [SensorBioSDK.StreamingPacket])
-  @_spi(SensorBioInternal) final public func fetchHR(endTime: Swift.Int64) -> [SensorBioSDK.HRMeasure]
-  @_spi(SensorBioInternal) final public func deleteHR(endTime: Swift.Int64)
+extension SensorBioSDK.SB_HRMManager {
+  final public func saveHR(_ packets: [SensorBioSDK.StreamingPacket])
+  final public func fetchHR(endTime: Swift.Int64) -> [SensorBioSDK.HRMeasure]
+  final public func deleteHR(endTime: Swift.Int64)
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_HRMManager {
-  @_spi(SensorBioInternal) final public func saveHRV(_ packets: [SensorBioSDK.StreamingPacket])
-  @_spi(SensorBioInternal) final public func fetchHRV(endTime: Swift.Int64) -> [SensorBioSDK.HRVMeasure]
-  @_spi(SensorBioInternal) final public func deleteHRV(endTime: Swift.Int64)
+extension SensorBioSDK.SB_HRMManager {
+  final public func saveHRV(_ packets: [SensorBioSDK.StreamingPacket])
+  final public func fetchHRV(endTime: Swift.Int64) -> [SensorBioSDK.HRVMeasure]
+  final public func deleteHRV(endTime: Swift.Int64)
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_HRMManager {
-  @_spi(SensorBioInternal) final public func saveRR(_ packets: [SensorBioSDK.StreamingPacket])
-  @_spi(SensorBioInternal) final public func fetchRR(endTime: Swift.Int64) -> [SensorBioSDK.RRMeasure]
-  @_spi(SensorBioInternal) final public func deleteRR(endTime: Swift.Int64)
+extension SensorBioSDK.SB_HRMManager {
+  final public func saveRR(_ packets: [SensorBioSDK.StreamingPacket])
+  final public func fetchRR(endTime: Swift.Int64) -> [SensorBioSDK.RRMeasure]
+  final public func deleteRR(endTime: Swift.Int64)
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_HRMManager {
-  @_spi(SensorBioInternal) final public func deleteSessionData(endTime: Swift.Int64)
+extension SensorBioSDK.SB_HRMManager {
+  final public func deleteSessionData(endTime: Swift.Int64)
 }
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_HRMManager {
-  @_spi(SensorBioInternal) final public func fetchAllHRDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) final public func fetchAllHRVDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) final public func fetchAllRRDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  @_spi(SensorBioInternal) final public func fetchAllBBIDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+extension SensorBioSDK.SB_HRMManager {
+  final public func fetchAllHRDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  final public func fetchAllHRVDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  final public func fetchAllRRDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
+  final public func fetchAllBBIDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
 }
 public struct SB_HRRangeGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var avgBpm: Swift.Float
@@ -11002,12 +10251,6 @@ public struct SB_InsightItem : Swift.Sendable {
 }
 public struct SB_InsightItemGroup : Swift.Sendable {
   public let items: [SensorBioSDK.SB_InsightItem]
-}
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers final public class SB_JobsManager : @unchecked Swift.Sendable {
-  @_spi(SensorBioInternal) public static let shared: SensorBioSDK.SB_JobsManager
-  @_spi(SensorBioInternal) final public func cancelAllOperations()
-  @_spi(SensorBioInternal) final public func updateUserDeviceInfo(macAddress: Swift.String, metadata: [Swift.String : Swift.String], unlinkDevice: Swift.Bool = false, deviceSerialNumber: Swift.String? = nil)
-  @_spi(SensorBioInternal) @objc deinit
 }
 public enum SB_LineColor : Swift.Int32, Swift.Codable, Swift.Equatable, Swift.Sendable {
   case red
@@ -11143,64 +10386,25 @@ public enum SB_NotificationElemType : Swift.Int32, Swift.Codable, Swift.Equatabl
     get
   }
 }
-@_spi(SensorBioInternal) @objc @_inheritsConvenienceInitializers public class SB_OnDeviceSleepDecoder : ObjectiveC.NSObject {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static var startTimestamp: Swift.Int64
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static var endTimestamp: Swift.Int64
-  @_spi(SensorBioInternal) public static func CreateSleepTags(_ activityPacketsValues: [(value: Swift.Int64, timestampMs: Swift.Int64)]) -> [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]
-  @_spi(SensorBioInternal) public static func UpdateSleepStartTimeConsideringSpuriousSleep(sleepTags: [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]) -> [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]
-  @_spi(SensorBioInternal) public static func AddToSleepDB(_ sleepStages: [SensorBioSDK.edge_sleep_stages_e], _ stagesTimestamps: [Swift.Int64], _ isOverlapping: Swift.Bool, _ usesPhilipsSleepAlgorithm: Swift.Bool = true)
-  @_spi(SensorBioInternal) public static func launchSleepUploadThread()
-  @_spi(SensorBioInternal) @objc public static func FindUnuploadedSleepAndUpload()
-  @_spi(SensorBioInternal) public static func UploadBioEdgeDataForSleep(startEpoch: Swift.Int64, endEpoch: Swift.Int64, completedSuccessfully: @escaping @Sendable () -> Swift.Void)
-  @_spi(SensorBioInternal) public static func MergeOverlappingSleepsInDatabase(_ sleeps: [SensorBioBTSDK.sensrDataPacket]) -> [SensorBioBTSDK.sensrDataPacket]
-  @_spi(SensorBioInternal) public static func DeleteSleepWithEndtime(_ endTime: Swift.Int64)
-  @_spi(SensorBioInternal) public static func clearAll()
-  @_spi(SensorBioInternal) public static func isSafeToLogOut() -> Swift.Bool
-  @_spi(SensorBioInternal) public static func endAutoSleepSuccessful(_ macAddress: Swift.String)
-  @_spi(SensorBioInternal) public static func endAutoSleepFailed(_ macAddress: Swift.String)
-  @_spi(SensorBioInternal) public static func appIsInBackground()
-  @_spi(SensorBioInternal) public static func appIsInForeground()
-  @_spi(SensorBioInternal) @objc override dynamic public init()
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) public struct SB_OnDeviceSleepUpload : Swift.Sendable {
-  @_spi(SensorBioInternal) public var startTimestamp: Swift.Int64
-  @_spi(SensorBioInternal) public var endTimestamp: Swift.Int64
-  @_spi(SensorBioInternal) public var sleepOnsetTimestamp: Swift.Int64
-  @_spi(SensorBioInternal) public var userWokeupAtTimestamp: Swift.Int64
-  @_spi(SensorBioInternal) public var tzOffset: Swift.Int32
-  @_spi(SensorBioInternal) public var lightSleepTotalTime: Swift.Int32
-  @_spi(SensorBioInternal) public var deepSleepTotalTime: Swift.Int32
-  @_spi(SensorBioInternal) public var awakeTotalTime: Swift.Int32
-  @_spi(SensorBioInternal) public var remSleepTotalTime: Swift.Int32
-  @_spi(SensorBioInternal) public var sleepLatency: Swift.Int32
-  @_spi(SensorBioInternal) public var arousalCount: Swift.Int32
-  @_spi(SensorBioInternal) public var heartRate: Swift.Int32
-  @_spi(SensorBioInternal) public var score: Swift.Int32
-  @_spi(SensorBioInternal) public var isDetectedByAutoSleep: Swift.Bool
-  @_spi(SensorBioInternal) public var endedByApp: Swift.Bool
-  @_spi(SensorBioInternal) public var endedByWorn: Swift.Bool
-  @_spi(SensorBioInternal) public var endedByMovement: Swift.Bool
-  @_spi(SensorBioInternal) public var usesPhilipsSleepAlgorithm: Swift.Bool
-  @_spi(SensorBioInternal) public var stages: [Swift.Int32]
-  @_spi(SensorBioInternal) public var stageTimestamps: [Swift.Int64]
-  @_spi(SensorBioInternal) public init(startTimestamp: Swift.Int64, endTimestamp: Swift.Int64, sleepOnsetTimestamp: Swift.Int64, userWokeupAtTimestamp: Swift.Int64, tzOffset: Swift.Int32, lightSleepTotalTime: Swift.Int32, deepSleepTotalTime: Swift.Int32, awakeTotalTime: Swift.Int32, remSleepTotalTime: Swift.Int32, sleepLatency: Swift.Int32, arousalCount: Swift.Int32, heartRate: Swift.Int32, score: Swift.Int32, isDetectedByAutoSleep: Swift.Bool, endedByApp: Swift.Bool, endedByWorn: Swift.Bool, endedByMovement: Swift.Bool, usesPhilipsSleepAlgorithm: Swift.Bool, stages: [Swift.Int32], stageTimestamps: [Swift.Int64])
-}
-@_spi(SensorBioInternal) public enum SB_OnDeviceSleepUploadOutcome : Swift.Sendable {
-  @_spi(SensorBioInternal) case ok(spurious: SensorBioSDK.SB_SleepSpuriousReason?)
-  @_spi(SensorBioInternal) case invalidPermanent(message: Swift.String)
-  @_spi(SensorBioInternal) case transientFailure(message: Swift.String)
-}
-@_spi(SensorBioInternal) public enum SB_SleepSpuriousReason : Swift.Sendable {
-  @_spi(SensorBioInternal) case tooShort
-  @_spi(SensorBioInternal) case noStages
-  @_spi(SensorBioInternal) case insufficientHrv
-  @_spi(SensorBioInternal) case unspecified
-  @_spi(SensorBioInternal) public static func == (a: SensorBioSDK.SB_SleepSpuriousReason, b: SensorBioSDK.SB_SleepSpuriousReason) -> Swift.Bool
-  @_spi(SensorBioInternal) public func hash(into hasher: inout Swift.Hasher)
-  @_spi(SensorBioInternal) public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
+@objc @_inheritsConvenienceInitializers public class SB_OnDeviceSleepDecoder : ObjectiveC.NSObject {
+  nonisolated(unsafe) public static var startTimestamp: Swift.Int64
+  nonisolated(unsafe) public static var endTimestamp: Swift.Int64
+  public static func CreateSleepTags(_ activityPacketsValues: [(value: Swift.Int64, timestampMs: Swift.Int64)]) -> [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]
+  public static func UpdateSleepStartTimeConsideringSpuriousSleep(sleepTags: [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]) -> [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]
+  public static func AddToSleepDB(_ sleepStages: [SensorBioSDK.edge_sleep_stages_e], _ stagesTimestamps: [Swift.Int64], _ isOverlapping: Swift.Bool, _ usesPhilipsSleepAlgorithm: Swift.Bool = true)
+  public static func launchSleepUploadThread()
+  @objc public static func FindUnuploadedSleepAndUpload()
+  public static func UploadBioEdgeDataForSleep(startEpoch: Swift.Int64, endEpoch: Swift.Int64, completedSuccessfully: @escaping @Sendable () -> Swift.Void)
+  public static func MergeOverlappingSleepsInDatabase(_ sleeps: [SensorBioBTSDK.sensrDataPacket]) -> [SensorBioBTSDK.sensrDataPacket]
+  public static func DeleteSleepWithEndtime(_ endTime: Swift.Int64)
+  public static func clearAll()
+  public static func isSafeToLogOut() -> Swift.Bool
+  public static func endAutoSleepSuccessful(_ macAddress: Swift.String)
+  public static func endAutoSleepFailed(_ macAddress: Swift.String)
+  public static func appIsInBackground()
+  public static func appIsInForeground()
+  @objc override dynamic public init()
+  @objc deinit
 }
 public struct SB_OngoingWorkoutProgram : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var name: Swift.String
@@ -11257,14 +10461,6 @@ public enum SB_PedometerEngineDelegateType : Swift.Int {
   public var rawValue: Swift.Int {
     get
   }
-}
-@_spi(SensorBioInternal) public struct SB_PendingPacketUpload : Swift.Sendable {
-  @_spi(SensorBioInternal) public let syncTime: Swift.Int
-  @_spi(SensorBioInternal) public let block: Swift.Int
-  @_spi(SensorBioInternal) public let date: Swift.Int
-  @_spi(SensorBioInternal) public let byteCount: Swift.Int
-  @_spi(SensorBioInternal) public let uploadRequest: SensorBioSDK.SB_DeviceDataPacketUpload
-  @_spi(SensorBioInternal) public init(syncTime: Swift.Int, block: Swift.Int, date: Swift.Int, byteCount: Swift.Int, uploadRequest: SensorBioSDK.SB_DeviceDataPacketUpload)
 }
 public enum SB_PersistedRecordingKind : Swift.String, Swift.Codable, Swift.Sendable, Swift.Equatable {
   case biometrics
@@ -11379,16 +10575,6 @@ public enum SB_PopulationMetricType : Swift.Int32, Swift.Sendable {
   public var rawValue: Swift.Int32 {
     get
   }
-}
-@_spi(SensorBioInternal) public enum SB_PPGResultManager {
-  @_spi(SensorBioInternal) public static func save(_ ppgPackets: [SensorBioBTSDK.sensrDataPacket])
-  @_spi(SensorBioInternal) public static func markValid()
-  @_spi(SensorBioInternal) public static func deleteInvalid()
-  @_spi(SensorBioInternal) public static func between(startEpoch: Swift.Int64, endEpoch: Swift.Int64) -> [SensorBioSDK.PPGResult]
-  @_spi(SensorBioInternal) public static func allProcessedBetween(startEpoch: Swift.Int64, endEpoch: Swift.Int64) -> Swift.Bool
-  @_spi(SensorBioInternal) public static func areProcessedForSleep(sleepEpochms: Swift.Int64, endEpochms: Swift.Int64) -> Swift.Bool
-  @_spi(SensorBioInternal) public static func fetchUnprocessed() -> [SensorBioSDK.PPGResult]
-  @_spi(SensorBioInternal) public static func markProcessed(epochsInms: [Swift.Int64])
 }
 public struct SB_RadarChartPoint : Swift.Sendable {
   public let metricName: Swift.String
@@ -11921,10 +11107,10 @@ public let sensorBio: SensorBioSDK.SB_SDK
   final public let pairingConnection: Combine.PassthroughSubject<Swift.String, Swift.Never>
   final public let deviceDisconnected: Combine.PassthroughSubject<Swift.String, Swift.Never>
   final public let deviceLinkFailed: Combine.PassthroughSubject<SensorBioSDK.SB_DeviceLinkFailure, Swift.Never>
-  @_spi(SensorBioInternal) final public let syncCompleted: Combine.PassthroughSubject<SensorBioSDK.SB_SyncResult?, Swift.Never>
-  @_spi(SensorBioInternal) final public let hrSyncFinishedForActivity: Combine.PassthroughSubject<Swift.Void, Swift.Never>
-  @_spi(SensorBioInternal) final public let analyticsEvents: Combine.PassthroughSubject<SensorBioSDK.SB_AnalyticsEvent, Swift.Never>
-  @_spi(SensorBioInternal) final public let persistDeviceStateRequested: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let syncCompleted: Combine.PassthroughSubject<SensorBioSDK.SB_SyncResult?, Swift.Never>
+  final public let hrSyncFinishedForActivity: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let analyticsEvents: Combine.PassthroughSubject<SensorBioSDK.SB_AnalyticsEvent, Swift.Never>
+  final public let persistDeviceStateRequested: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let signOutComplete: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let biometricRecordProcessed: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let hr: Combine.PassthroughSubject<(Swift.Int, Swift.Int), Swift.Never>
@@ -11959,7 +11145,7 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public var isRawLoggingEnabled: Swift.Bool {
     get
   }
-  @_spi(SensorBioInternal) public func syncDeviceData(_ file: Swift.String = #fileID, _ function: Swift.String = #function, _ line: Swift.Int = #line, force: Swift.Bool = false)
+  public func syncDeviceData(_ file: Swift.String = #fileID, _ function: Swift.String = #function, _ line: Swift.Int = #line, force: Swift.Bool = false)
   public func removeDeviceFromPairedDevices(_ id: Swift.String)
   public func setAskForDeviceResponse(_ enable: Swift.Bool)
   public func startScan()
@@ -12118,9 +11304,6 @@ extension SensorBioSDK.SB_SDK {
   public func submitBriefSurvey(_ survey: SensorBioSDK.SB_BriefSurvey)
 }
 extension SensorBioSDK.SB_SDK {
-  @_spi(SensorBioInternal) public func uploadBiometrics(_ upload: SensorBioSDK.SB_BiometricsUpload) async throws
-}
-extension SensorBioSDK.SB_SDK {
   public func fetchActivityList() async throws -> SensorBioSDK.SB_ActivityRecordingList
   public func fetchWorkoutRecordingInfo() async throws -> SensorBioSDK.SB_WorkoutRecordingInfo
 }
@@ -12132,41 +11315,37 @@ extension SensorBioSDK.SB_SDK {
   public func modifyActivityInWorkout(action: SensorBioSDK.SB_ModifyAction, date: Foundation.Date, timestamp: Foundation.Date, workoutName: Swift.String, index: Swift.Int32, params: [Swift.String : Swift.String] = [:], activityTsToModify: Foundation.Date) async throws -> SensorBioSDK.SB_ModifyOutcome
   public func fetchMeditationGraph(date: Foundation.Date, sessionTimestamp: Swift.Int64) async throws -> SensorBioSDK.SB_MeditationGraph
 }
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers final public class SB_SecurityManager : SensorBioSDK.SB_AuthTokenProvider, @unchecked Swift.Sendable {
-  @_spi(SensorBioInternal) public static let shared: SensorBioSDK.SB_SecurityManager
-  @_spi(SensorBioInternal) final public func getAuthToken() -> Swift.String?
-  @_spi(SensorBioInternal) final public func saveAuthToken(token: Swift.String)
-  @_spi(SensorBioInternal) final public func removeAuthToken()
-  @_spi(SensorBioInternal) final public func getRefreshToken() -> Swift.String?
-  @_spi(SensorBioInternal) final public func saveTokens(access: Swift.String, refresh: Swift.String?)
-  @_spi(SensorBioInternal) final public func deleteKeychainAuthTokenIfIsFirstRun()
-  @_spi(SensorBioInternal) final public func moveAuthTokenToKeychainIfNeeded()
-  @_spi(SensorBioInternal) @objc deinit
+@_hasMissingDesignatedInitializers final public class SB_SecurityManager : SensorBioSDK.SB_AuthTokenProvider, @unchecked Swift.Sendable {
+  public static let shared: SensorBioSDK.SB_SecurityManager
+  final public func getAuthToken() -> Swift.String?
+  final public func saveAuthToken(token: Swift.String)
+  final public func removeAuthToken()
+  final public func getRefreshToken() -> Swift.String?
+  final public func saveTokens(access: Swift.String, refresh: Swift.String?)
+  final public func deleteKeychainAuthTokenIfIsFirstRun()
+  final public func moveAuthTokenToKeychainIfNeeded()
+  @objc deinit
 }
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers public class SB_SensorPacketProcessor : Combine.ObservableObject, @unchecked Swift.Sendable {
-  @_spi(SensorBioInternal) public static let shared: SensorBioSDK.SB_SensorPacketProcessor
-  @_spi(SensorBioInternal) @Combine.Published<Swift.Bool> @_projectedValueProperty($haveUnuploadedPackets) public var haveUnuploadedPackets: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+@_hasMissingDesignatedInitializers public class SB_SensorPacketProcessor : Combine.ObservableObject, @unchecked Swift.Sendable {
+  public static let shared: SensorBioSDK.SB_SensorPacketProcessor
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($haveUnuploadedPackets) public var haveUnuploadedPackets: Swift.Bool {
+    get
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
     set
-    @_spi(SensorBioInternal) @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
+    @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
     _modify
   }
-  @_spi(SensorBioInternal) public var $haveUnuploadedPackets: Combine.Published<Swift.Bool>.Publisher {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
+  public var $haveUnuploadedPackets: Combine.Published<Swift.Bool>.Publisher {
+    get
+    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
     set
   }
-  @_spi(SensorBioInternal) public func upload() async
-  @_spi(SensorBioInternal) public func addNew(_ dataPackets: [SensorBioBTSDK.sensrDataPacket])
-  @_spi(SensorBioInternal) public func process() async
-  @_spi(SensorBioInternal) public func reset() async
-  @_spi(SensorBioInternal) public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) final public class SB_SensorStreamer {
-  @_spi(SensorBioInternal) public init(device: SensorBioBTSDK.SB_Device, manager: SensorBioSDK.SB_SDK)
-  @_spi(SensorBioInternal) @objc deinit
+  public func upload() async
+  public func addNew(_ dataPackets: [SensorBioBTSDK.sensrDataPacket])
+  public func process() async
+  public func reset() async
+  public typealias ObjectWillChangePublisher = Combine.ObservableObjectPublisher
+  @objc deinit
 }
 public enum SB_ServerActivityInfoKeys : Swift.String {
   case Name, Equipment, Variation, Reps, Weight, WeightUnit
@@ -12487,23 +11666,6 @@ public struct SB_SleepSession : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers public class SB_SleepSessionManager {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let shared: SensorBioSDK.SB_SleepSessionManager
-  @_spi(SensorBioInternal) @discardableResult
-  public func insertIfNew(_ session: SensorBioSDK.OnDeviceSleepSession) -> Swift.Bool
-  @_spi(SensorBioInternal) public func all() -> [SensorBioSDK.OnDeviceSleepSession]
-  @_spi(SensorBioInternal) public func unsynced() -> [SensorBioSDK.OnDeviceSleepSession]
-  @_spi(SensorBioInternal) public func hasUnsynced() -> Swift.Bool
-  @_spi(SensorBioInternal) public func findExact(startTimestamp: Swift.Int64, endTimestamp: Swift.Int64) -> SensorBioSDK.OnDeviceSleepSession?
-  @_spi(SensorBioInternal) public func delete(endTimestamp: Swift.Int64)
-  @_spi(SensorBioInternal) public func deleteAll()
-  @_spi(SensorBioInternal) public func markUploaded(endTimestamp: Swift.Int64)
-  @_spi(SensorBioInternal) public func markBiometricUploaded(endTimestamp: Swift.Int64)
-  @_spi(SensorBioInternal) @objc deinit
-}
-extension SensorBioSDK.SB_SleepSession {
-  @_spi(SensorBioInternal) public init(_ row: SensorBioSDK.OnDeviceSleepSession)
-}
 public struct SB_SleepSessionStage : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var startTs: Swift.Int64
   public var endTs: Swift.Int64
@@ -12598,14 +11760,14 @@ public struct SB_SleepStatusWithMsg : Swift.Codable, Swift.Equatable, Swift.Send
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-@_spi(SensorBioInternal) public enum SB_SleepTag : Swift.Int, Swift.Sendable {
-  @_spi(SensorBioInternal) case awake
-  @_spi(SensorBioInternal) case lightSleep
-  @_spi(SensorBioInternal) case deepSleep
-  @_spi(SensorBioInternal) public init?(rawValue: Swift.Int)
-  @_spi(SensorBioInternal) public typealias RawValue = Swift.Int
-  @_spi(SensorBioInternal) public var rawValue: Swift.Int {
-    @_spi(SensorBioInternal) get
+public enum SB_SleepTag : Swift.Int, Swift.Sendable {
+  case awake
+  case lightSleep
+  case deepSleep
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
   }
 }
 public struct SB_SleepTemperatureGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
@@ -12752,20 +11914,6 @@ public enum SB_StepMetricType : Swift.Int32, Swift.Codable, Swift.Equatable, Swi
     get
   }
 }
-@_spi(SensorBioInternal) public enum SB_StepPacketsActivityManager {
-  @_spi(SensorBioInternal) public static func save(_ stepsPackets: [SensorBioBTSDK.sensrDataPacket])
-  @_spi(SensorBioInternal) public static func markValid()
-  @_spi(SensorBioInternal) public static func deleteInvalid()
-  @_spi(SensorBioInternal) public static func markProcessed(epochsInms: [Swift.Int64])
-  @_spi(SensorBioInternal) public static func between(startEpoch: Swift.Int64, endEpoch: Swift.Int64) -> [SensorBioSDK.EnginePacket]
-  @_spi(SensorBioInternal) public static func allProcessedBetween(startEpoch: Swift.Int64, endEpoch: Swift.Int64) -> Swift.Bool
-  @_spi(SensorBioInternal) public static func fetchUnprocessed() -> [SensorBioSDK.EnginePacket]
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static var engineUploadInProgress: Swift.Bool {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public static func upload()
-}
 public struct SB_StepsGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var progressChartDescriptionValue: Swift.String
   public var metrics: [SensorBioSDK.SB_StepMetric]
@@ -12781,12 +11929,6 @@ public struct SB_StepsTrending : Swift.Codable, Swift.Equatable, Swift.Sendable 
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
-@_spi(SensorBioInternal) public enum SB_SubmitFinishedRequestsManager {
-  @_spi(SensorBioInternal) public static func migrateLegacyPendingRequestsIfNeeded()
-  @_spi(SensorBioInternal) public static func AddSubmitFinishedRequest(_ session: SensorBioSDK.SB_FinishedRecordingSession)
-  @_spi(SensorBioInternal) public static func RemoveSubmitFinishedRequest(_ session: SensorBioSDK.SB_FinishedRecordingSession)
-  @_spi(SensorBioInternal) public static func PendingFinishedRecordingSessions() -> [SensorBioSDK.SB_FinishedRecordingSession]
-}
 public enum SB_SummaryGranularity : Swift.Int32, Swift.Codable, Swift.Equatable, Swift.Sendable {
   case day
   case week
@@ -12798,17 +11940,17 @@ public enum SB_SummaryGranularity : Swift.Int32, Swift.Codable, Swift.Equatable,
     get
   }
 }
-@_spi(SensorBioInternal) @_hasMissingDesignatedInitializers final public class SB_SurveyScheduleManager {
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let shared: SensorBioSDK.SB_SurveyScheduleManager
-  @_spi(SensorBioInternal) @objc deinit
-  @_spi(SensorBioInternal) final public func parseScheduledSurveys()
-  @_spi(SensorBioInternal) final public func manageNextSurvey()
+@_hasMissingDesignatedInitializers final public class SB_SurveyScheduleManager {
+  nonisolated(unsafe) public static let shared: SensorBioSDK.SB_SurveyScheduleManager
+  @objc deinit
+  final public func parseScheduledSurveys()
+  final public func manageNextSurvey()
 }
-@_spi(SensorBioInternal) public struct SB_SyncResult {
-  @_spi(SensorBioInternal) public let acknowledge: Swift.Bool
-  @_spi(SensorBioInternal) public let logCount: Swift.Int
-  @_spi(SensorBioInternal) public let syncDuration: Foundation.TimeInterval
-  @_spi(SensorBioInternal) public init(acknowledge: Swift.Bool, logCount: Swift.Int, syncDuration: Foundation.TimeInterval)
+public struct SB_SyncResult {
+  public let acknowledge: Swift.Bool
+  public let logCount: Swift.Int
+  public let syncDuration: Foundation.TimeInterval
+  public init(acknowledge: Swift.Bool, logCount: Swift.Int, syncDuration: Foundation.TimeInterval)
 }
 public struct SB_TimelineBlock : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var blockTitle: Swift.String
@@ -13237,61 +12379,6 @@ public struct SB_Zone {
   public var hexStringColor: Swift.String
   public init(name: Swift.String, minValue: Swift.Double, hexStringColor: Swift.String)
 }
-@_spi(SensorBioInternal) final public class ScheduledSurvey {
-  @_spi(SensorBioInternal) final public var surveyLink: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var surveyName: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var pushNotificationMessage: Swift.String {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var dayOfWeek: Swift.CShort {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var hour: Swift.CShort {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var minute: Swift.CShort {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var lastTimeShown: Foundation.Date {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(surveyLink: Swift.String, surveyName: Swift.String, pushNotificationMessage: Swift.String, dayOfWeek: Swift.CShort, hour: Swift.CShort, minute: Swift.CShort, lastTimeShown: Foundation.Date = .distantPast)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.ScheduledSurvey> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.ScheduledSurvey>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.ScheduledSurvey : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.ScheduledSurvey
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.ScheduledSurvey : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use ScheduledSurvey's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use ScheduledSurvey's persistentModelID instead")
-extension SensorBioSDK.ScheduledSurvey : Swift.Sendable {
-}
 public enum SDKConstants {
   public static let SDKLicenseKey: Swift.String
   public static let RIGHT: Swift.Int
@@ -13311,59 +12398,59 @@ extension SensorBioSDK.SDKConstants {
     public static let Weight: Swift.Float
   }
 }
-@_spi(SensorBioInternal) public struct sdkDefaults {
-  @_spi(SensorBioInternal) public static let suiteName: Swift.String
-  @_spi(SensorBioInternal) public static let keychainService: Swift.String
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let object: Foundation.UserDefaults
-  @_spi(SensorBioInternal) nonisolated(unsafe) public static let keychain: SwiftKeychainWrapper.KeychainWrapper
-  @_spi(SensorBioInternal) public static let userId: Swift.String
-  @_spi(SensorBioInternal) public static let userEmailAddress: Swift.String
-  @_spi(SensorBioInternal) public static let userProfileFullName: Swift.String
-  @_spi(SensorBioInternal) public static let userProfileImageURL: Swift.String
-  @_spi(SensorBioInternal) public static let userProfileBirthday: Swift.String
-  @_spi(SensorBioInternal) public static let userSex: Swift.String
-  @_spi(SensorBioInternal) public static let userLocation: Swift.String
-  @_spi(SensorBioInternal) public static let userRegistrationDate: Swift.String
-  @_spi(SensorBioInternal) public static let webAppCookie: Swift.String
-  @_spi(SensorBioInternal) public static let userMetricWeight: Swift.String
-  @_spi(SensorBioInternal) public static let userMetricHeight: Swift.String
-  @_spi(SensorBioInternal) public static let userWalkStride: Swift.String
-  @_spi(SensorBioInternal) public static let userRunStride: Swift.String
-  @_spi(SensorBioInternal) public static let userVo2Max: Swift.String
-  @_spi(SensorBioInternal) public static let userMaxHr: Swift.String
-  @_spi(SensorBioInternal) public static let userComputedMaxHr: Swift.String
-  @_spi(SensorBioInternal) public static let userHRVBaseline: Swift.String
-  @_spi(SensorBioInternal) public static let organizationId: Swift.String
-  @_spi(SensorBioInternal) public static let organizationName: Swift.String
-  @_spi(SensorBioInternal) public static let organizationGroupName: Swift.String
-  @_spi(SensorBioInternal) public static let isMetricKey: Swift.String
-  @_spi(SensorBioInternal) public static let shouldUseComputedMaxHr: Swift.String
-  @_spi(SensorBioInternal) public static let forceUserToUpdatePassword: Swift.String
-  @_spi(SensorBioInternal) public static let forceUserToUpdateProfile: Swift.String
-  @_spi(SensorBioInternal) public static let userRegistrationDateKey: Swift.String
-  @_spi(SensorBioInternal) public static let featureFlags: Swift.String
-  @_spi(SensorBioInternal) public static let logoImageKey: Swift.String
-  @_spi(SensorBioInternal) public static let logoURLKey: Swift.String
-  @_spi(SensorBioInternal) public static let devicesKey: Swift.String
-  @_spi(SensorBioInternal) public static let lastSyncdKey: Swift.String
-  @_spi(SensorBioInternal) public static let airplaneModeStatus: Swift.String
-  @_spi(SensorBioInternal) public static let haveGrantedBluetoothPermission: Swift.String
-  @_spi(SensorBioInternal) public static let sensorConfigurationState: Swift.String
-  @_spi(SensorBioInternal) public static let recordingStartDateKey: Swift.String
-  @_spi(SensorBioInternal) public static let recordingStopDateKey: Swift.String
-  @_spi(SensorBioInternal) public static let latestValidBookendPackets: Swift.String
-  @_spi(SensorBioInternal) public static let lastCustomEpochAsPrimaryKey: Swift.String
-  @_spi(SensorBioInternal) public static let persistedRecordingKey: Swift.String
-  @_spi(SensorBioInternal) public static let interimSleepObjects: Swift.String
-  @_spi(SensorBioInternal) public static let currentFXCSleepsActivityEpoch: Swift.String
-  @_spi(SensorBioInternal) public static let fxcSleepAlgorithmData: Swift.String
-  @_spi(SensorBioInternal) public static let fxcPacketsIndicesArray: Swift.String
-  @_spi(SensorBioInternal) public static let upperLimitEpochForFXCPackets: Swift.String
-  @_spi(SensorBioInternal) public static let devOptionsLastActivityEpoch: Swift.String
-  @_spi(SensorBioInternal) public static let devOptionsDataSyncErrorCodes: Swift.String
-  @_spi(SensorBioInternal) public static let lastSyncedEpochKey: Swift.String
-  @_spi(SensorBioInternal) public static let hasRunBefore: Swift.String
-  @_spi(SensorBioInternal) public static let didMigrateSQLiteToAppSupport: Swift.String
+public struct sdkDefaults {
+  public static let suiteName: Swift.String
+  public static let keychainService: Swift.String
+  nonisolated(unsafe) public static let object: Foundation.UserDefaults
+  nonisolated(unsafe) public static let keychain: SwiftKeychainWrapper.KeychainWrapper
+  public static let userId: Swift.String
+  public static let userEmailAddress: Swift.String
+  public static let userProfileFullName: Swift.String
+  public static let userProfileImageURL: Swift.String
+  public static let userProfileBirthday: Swift.String
+  public static let userSex: Swift.String
+  public static let userLocation: Swift.String
+  public static let userRegistrationDate: Swift.String
+  public static let webAppCookie: Swift.String
+  public static let userMetricWeight: Swift.String
+  public static let userMetricHeight: Swift.String
+  public static let userWalkStride: Swift.String
+  public static let userRunStride: Swift.String
+  public static let userVo2Max: Swift.String
+  public static let userMaxHr: Swift.String
+  public static let userComputedMaxHr: Swift.String
+  public static let userHRVBaseline: Swift.String
+  public static let organizationId: Swift.String
+  public static let organizationName: Swift.String
+  public static let organizationGroupName: Swift.String
+  public static let isMetricKey: Swift.String
+  public static let shouldUseComputedMaxHr: Swift.String
+  public static let forceUserToUpdatePassword: Swift.String
+  public static let forceUserToUpdateProfile: Swift.String
+  public static let userRegistrationDateKey: Swift.String
+  public static let featureFlags: Swift.String
+  public static let logoImageKey: Swift.String
+  public static let logoURLKey: Swift.String
+  public static let devicesKey: Swift.String
+  public static let lastSyncdKey: Swift.String
+  public static let airplaneModeStatus: Swift.String
+  public static let haveGrantedBluetoothPermission: Swift.String
+  public static let sensorConfigurationState: Swift.String
+  public static let recordingStartDateKey: Swift.String
+  public static let recordingStopDateKey: Swift.String
+  public static let latestValidBookendPackets: Swift.String
+  public static let lastCustomEpochAsPrimaryKey: Swift.String
+  public static let persistedRecordingKey: Swift.String
+  public static let interimSleepObjects: Swift.String
+  public static let currentFXCSleepsActivityEpoch: Swift.String
+  public static let fxcSleepAlgorithmData: Swift.String
+  public static let fxcPacketsIndicesArray: Swift.String
+  public static let upperLimitEpochForFXCPackets: Swift.String
+  public static let devOptionsLastActivityEpoch: Swift.String
+  public static let devOptionsDataSyncErrorCodes: Swift.String
+  public static let lastSyncedEpochKey: Swift.String
+  public static let hasRunBefore: Swift.String
+  public static let didMigrateSQLiteToAppSupport: Swift.String
 }
 public enum SDKGlobals {
   public static let defaultPPGDuration: Swift.Int
@@ -13384,28 +12471,6 @@ public var gblIsMetric: Swift.Bool {
   get
 }
 nonisolated(unsafe) public var userMemberStatus: SensorBioSDK.SB_OrganizationMemberStatus
-@_spi(SensorBioInternal) public struct SensorPacketMetaData : Swift.Codable {
-  @_spi(SensorBioInternal) public let app_version: Swift.String?
-  @_spi(SensorBioInternal) public let bluetooth_sdk_version: Swift.String?
-  @_spi(SensorBioInternal) public let firmware_revision: Swift.String?
-  @_spi(SensorBioInternal) public let hardware_revision: Swift.String?
-  @_spi(SensorBioInternal) public let serial_number: Swift.String?
-  @_spi(SensorBioInternal) public let model_number: Swift.String?
-  @_spi(SensorBioInternal) public let manufacturer_name: Swift.String?
-  @_spi(SensorBioInternal) public let bluetooth_software_revision: Swift.String?
-  @_spi(SensorBioInternal) public let algorithms_software_revision: Swift.String?
-  @_spi(SensorBioInternal) public let sleep_software_revision: Swift.String?
-  @_spi(SensorBioInternal) public let phone_platform: Swift.String?
-  @_spi(SensorBioInternal) public let phone_model: Swift.String?
-  @_spi(SensorBioInternal) public let phone_os_version: Swift.String?
-  @_spi(SensorBioInternal) public let timezone: Swift.String?
-  @_spi(SensorBioInternal) public init(app_version: Swift.String?, bluetooth_sdk_version: Swift.String?, firmware_revision: Swift.String?, hardware_revision: Swift.String?, serial_number: Swift.String?, model_number: Swift.String?, manufacturer_name: Swift.String?, bluetooth_software_revision: Swift.String?, algorithms_software_revision: Swift.String?, sleep_software_revision: Swift.String?, phone_platform: Swift.String?, phone_model: Swift.String?, phone_os_version: Swift.String?, timezone: Swift.String?)
-  @_spi(SensorBioInternal) public var jsonString: Swift.String {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public func encode(to encoder: any Swift.Encoder) throws
-  @_spi(SensorBioInternal) public init(from decoder: any Swift.Decoder) throws
-}
 nonisolated public struct Proto_Session : Swift.Sendable {
   public var startTime: Swift.Int64
   public var mode: Swift.String
@@ -14273,27 +13338,27 @@ nonisolated extension SensorBioSDK.Proto_PoincarePlotGraph : SwiftProtobuf.Messa
     get
   }
 }
-@_spi(SensorBioInternal) public struct StreamingPacket : Swift.Codable {
-  @_spi(SensorBioInternal) public var bbi: Swift.Int?
-  @_spi(SensorBioInternal) public var epochms: Swift.Int64?
-  @_spi(SensorBioInternal) public var snr: Swift.Float?
-  @_spi(SensorBioInternal) public var type: SensorBioSDK.StreamingPacket.StreamingPacketType
-  @_spi(SensorBioInternal) public var hr: Swift.Float?
-  @_spi(SensorBioInternal) public var epoch: Swift.Int?
-  @_spi(SensorBioInternal) public var rr: Swift.Float?
-  @_spi(SensorBioInternal) public var hrv: Swift.Float?
-  @_spi(SensorBioInternal) public var ppg: Swift.Float?
-  @_spi(SensorBioInternal) public init(bbi: Swift.Int? = nil, epochms: Swift.Int64? = nil, snr: Swift.Float? = nil, type: SensorBioSDK.StreamingPacket.StreamingPacketType, hr: Swift.Float? = nil, epoch: Swift.Int? = nil, rr: Swift.Float? = nil, hrv: Swift.Float? = nil, ppg: Swift.Float? = nil)
-  @_spi(SensorBioInternal) public enum StreamingPacketType : Swift.String, Swift.Codable {
-    @_spi(SensorBioInternal) case bbi, hrv, motion, ppg, snr, rr, hr
-    @_spi(SensorBioInternal) public init?(rawValue: Swift.String)
-    @_spi(SensorBioInternal) public typealias RawValue = Swift.String
-    @_spi(SensorBioInternal) public var rawValue: Swift.String {
-      @_spi(SensorBioInternal) get
+public struct StreamingPacket : Swift.Codable {
+  public var bbi: Swift.Int?
+  public var epochms: Swift.Int64?
+  public var snr: Swift.Float?
+  public var type: SensorBioSDK.StreamingPacket.StreamingPacketType
+  public var hr: Swift.Float?
+  public var epoch: Swift.Int?
+  public var rr: Swift.Float?
+  public var hrv: Swift.Float?
+  public var ppg: Swift.Float?
+  public init(bbi: Swift.Int? = nil, epochms: Swift.Int64? = nil, snr: Swift.Float? = nil, type: SensorBioSDK.StreamingPacket.StreamingPacketType, hr: Swift.Float? = nil, epoch: Swift.Int? = nil, rr: Swift.Float? = nil, hrv: Swift.Float? = nil, ppg: Swift.Float? = nil)
+  public enum StreamingPacketType : Swift.String, Swift.Codable {
+    case bbi, hrv, motion, ppg, snr, rr, hr
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
     }
   }
-  @_spi(SensorBioInternal) public func encode(to encoder: any Swift.Encoder) throws
-  @_spi(SensorBioInternal) public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
 }
 nonisolated public struct Proto_UserSessionAuthToken : Swift.Sendable {
   public var accessToken: Swift.String
@@ -22031,45 +21096,6 @@ nonisolated extension SensorBioSDK.Proto_ActiveWorkflowRecording : SwiftProtobuf
   nonisolated public var hashValue: Swift.Int {
     get
   }
-}
-@_spi(SensorBioInternal) final public class TemperatureMeasure {
-  @_spi(SensorBioInternal) final public var tsMillis: Swift.Int64 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var tzOffset: Swift.Int32 {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var avgTempInCelcius: Swift.Float {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(tsMillis: Swift.Int64, tzOffset: Swift.Int32, avgTempInCelcius: Swift.Float)
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.TemperatureMeasure> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.TemperatureMeasure>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.TemperatureMeasure : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.TemperatureMeasure
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.TemperatureMeasure : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use TemperatureMeasure's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use TemperatureMeasure's persistentModelID instead")
-extension SensorBioSDK.TemperatureMeasure : Swift.Sendable {
 }
 nonisolated public enum Proto_SleepStageType : SwiftProtobuf.Enum, Swift.CaseIterable {
   public typealias RawValue = Swift.Int
@@ -35614,78 +34640,22 @@ nonisolated extension SensorBioSDK.Proto_WorkoutProgramRoutine : SwiftProtobuf.M
     get
   }
 }
-@_spi(SensorBioInternal) final public class WristbandSyncInfo {
-  @_spi(SensorBioInternal) final public var macAddress: Swift.String? {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var lastPacketTimestamp: Swift.Double? {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var lastDecreasingRemainingSecsUpdateDate: Foundation.Date? {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var lastDecreasingRemainingSecs: Swift.Int? {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var syncSpeed: Swift.Double {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public var logsInfoJSON: Foundation.Data {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) public init(macAddress: Swift.String? = nil, lastPacketTimestamp: Swift.Double? = nil, lastDecreasingRemainingSecsUpdateDate: Foundation.Date? = nil, lastDecreasingRemainingSecs: Swift.Int? = nil, syncSpeed: Swift.Double = 0.0, logsInfoJSON: Foundation.Data = Data())
-  @_spi(SensorBioInternal) final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.WristbandSyncInfo> {
-    @_spi(SensorBioInternal) get
-    @_spi(SensorBioInternal) set
-  }
-  @_spi(SensorBioInternal) final public class var schemaMetadata: [SwiftData.Schema.PropertyMetadata] {
-    @_spi(SensorBioInternal) get
-  }
-  @_spi(SensorBioInternal) public init(backingData: any SwiftData.BackingData<SensorBioSDK.WristbandSyncInfo>)
-  @_spi(SensorBioInternal) @objc deinit
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.WristbandSyncInfo : nonisolated SwiftData.PersistentModel {
-  @_spi(SensorBioInternal) public typealias ID = SwiftData.PersistentIdentifier
-  @_spi(SensorBioInternal) @available(swift 5.9)
-  @available(iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, macOS 26.0, *)
-  public typealias Root = SensorBioSDK.WristbandSyncInfo
-  @_spi(SensorBioInternal) final public var hashValue: Swift.Int {
-    @_spi(SensorBioInternal) get
-  }
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.WristbandSyncInfo : nonisolated Observation.Observable {
-}
-@_spi(SensorBioInternal) @available(swift, deprecated: 5.9, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use WristbandSyncInfo's persistentModelID instead")
-@available(*, unavailable, message: "PersistentModels are not Sendable, consider utilizing a ModelActor or use WristbandSyncInfo's persistentModelID instead")
-extension SensorBioSDK.WristbandSyncInfo : Swift.Sendable {
-}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_FXCLogging.InfoType : Swift.Equatable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_FXCLogging.InfoType : Swift.Hashable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_FXCLogging.InfoType : Swift.RawRepresentable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_FXCLogging.LEVEL : Swift.Equatable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_FXCLogging.LEVEL : Swift.Hashable {}
+extension SensorBioSDK.SB_FXCLogging.InfoType : Swift.Equatable {}
+extension SensorBioSDK.SB_FXCLogging.InfoType : Swift.Hashable {}
+extension SensorBioSDK.SB_FXCLogging.InfoType : Swift.RawRepresentable {}
+extension SensorBioSDK.SB_FXCLogging.LEVEL : Swift.Equatable {}
+extension SensorBioSDK.SB_FXCLogging.LEVEL : Swift.Hashable {}
 extension SensorBioSDK.LogLevel : Swift.Equatable {}
 extension SensorBioSDK.LogLevel : Swift.Hashable {}
 extension SensorBioSDK.SB_ActivityType : Swift.Hashable {}
 extension SensorBioSDK.SB_ActivityType : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_AgreementType : Swift.Equatable {}
 extension SensorBioSDK.SB_AgreementType : Swift.Hashable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_GRPCTransportError.Code : Swift.Equatable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_GRPCTransportError.Code : Swift.Hashable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_GRPCTransportError.Code : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_AuthError : Swift.Equatable {}
 extension SensorBioSDK.SB_AuthError : Swift.Hashable {}
 extension SensorBioSDK.SB_BluetoothDeviceType : Swift.Equatable {}
 extension SensorBioSDK.SB_BluetoothDeviceType : Swift.Hashable {}
 extension SensorBioSDK.SB_BluetoothDeviceType : Swift.RawRepresentable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_BluetoothSDKSyncStallManager.StateType : Swift.Equatable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_BluetoothSDKSyncStallManager.StateType : Swift.Hashable {}
 extension SensorBioSDK.SB_BriefSurveyType : Swift.Hashable {}
 extension SensorBioSDK.SB_BriefSurveyType : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_CalorieMetricType : Swift.Hashable {}
@@ -35727,8 +34697,6 @@ extension SensorBioSDK.SB_ModifyAction : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_NetworkStatus : Swift.Hashable {}
 extension SensorBioSDK.SB_NotificationElemType : Swift.Hashable {}
 extension SensorBioSDK.SB_NotificationElemType : Swift.RawRepresentable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_SleepSpuriousReason : Swift.Equatable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_SleepSpuriousReason : Swift.Hashable {}
 extension SensorBioSDK.SB_OrganizationMemberStatus : Swift.Equatable {}
 extension SensorBioSDK.SB_OrganizationMemberStatus : Swift.Hashable {}
 extension SensorBioSDK.SB_OrganizationMemberStatus : Swift.RawRepresentable {}
@@ -35777,9 +34745,9 @@ extension SensorBioSDK.SB_SleepStage : Swift.Hashable {}
 extension SensorBioSDK.SB_SleepStage : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_SleepStatus : Swift.Hashable {}
 extension SensorBioSDK.SB_SleepStatus : Swift.RawRepresentable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_SleepTag : Swift.Equatable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_SleepTag : Swift.Hashable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.SB_SleepTag : Swift.RawRepresentable {}
+extension SensorBioSDK.SB_SleepTag : Swift.Equatable {}
+extension SensorBioSDK.SB_SleepTag : Swift.Hashable {}
+extension SensorBioSDK.SB_SleepTag : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_StepMetricType : Swift.Hashable {}
 extension SensorBioSDK.SB_StepMetricType : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_UnitType : Swift.Hashable {}
@@ -35800,6 +34768,6 @@ extension SensorBioSDK.SleepSession.StartSource : Swift.RawRepresentable {}
 extension SensorBioSDK.SleepSession.EndSource : Swift.Equatable {}
 extension SensorBioSDK.SleepSession.EndSource : Swift.Hashable {}
 extension SensorBioSDK.SleepSession.EndSource : Swift.RawRepresentable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.StreamingPacket.StreamingPacketType : Swift.Equatable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.StreamingPacket.StreamingPacketType : Swift.Hashable {}
-@_spi(SensorBioInternal) extension SensorBioSDK.StreamingPacket.StreamingPacketType : Swift.RawRepresentable {}
+extension SensorBioSDK.StreamingPacket.StreamingPacketType : Swift.Equatable {}
+extension SensorBioSDK.StreamingPacket.StreamingPacketType : Swift.Hashable {}
+extension SensorBioSDK.StreamingPacket.StreamingPacketType : Swift.RawRepresentable {}
