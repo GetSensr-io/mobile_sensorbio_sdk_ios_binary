@@ -1,0 +1,44 @@
+# SBOM (CycloneDX via syft) + license inventory.
+# Always-fresh: regenerates on every push to the default branch, on version tags,
+# on release, and weekly — so a current SBOM exists even if a release tag is
+# forgotten. Retained as a build artifact (90 days). syft is free + language-
+# agnostic (Go, npm, PyPI, Gradle, CocoaPods, Conan, ...), and also captures the
+# license of each component, which doubles as the license inventory.
+name: SBOM + License
+
+on:
+  push:
+    branches: [main, master, develop, development, production, sensr_develop, new_proto_structure]
+    tags: ['v*', 'V*']
+  release:
+    types: [published]
+  schedule:
+    - cron: '23 5 * * 1'  # weekly Monday 05:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: SBOM (CycloneDX)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Generate SBOM
+        uses: anchore/sbom-action@61119d458adab75f756bc0b9e4bde25725f86a7a # v0.17.7
+        with:
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: sbom-${{ github.event.release.tag_name || github.ref_name }}-${{ github.sha }}
+          path: sbom.cyclonedx.json
+          retention-days: 90
+      # Optional per-language forbidden-license GATE (fails the build on AGPL/SSPL/etc.):
+      #   Go     -> google/go-licenses check ./...
+      #   Node   -> license-checker --failOn 'AGPL-3.0;SSPL-1.0'
+      #   Python -> pip-licenses --fail-on 'AGPL-3.0'
+      # Left out by default to keep this universal; add per repo where you want to enforce.

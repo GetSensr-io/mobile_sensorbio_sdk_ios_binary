@@ -1,0 +1,9 @@
+# CODEOWNERS — default owner reviews general changes; security team only on security paths.
+
+# --- Security-relevant paths → security team review ---
+/.github/                @GetSensr-io/security
+/.pre-commit-config.yaml @GetSensr-io/security
+/.gitleaks.toml          @GetSensr-io/security
+**/*auth*                @GetSensr-io/security
+**/*secret*              @GetSensr-io/security
+**/*credential*          @GetSensr-io/security
