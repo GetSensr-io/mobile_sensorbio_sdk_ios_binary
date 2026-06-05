@@ -1,0 +1,89 @@
+# Container security scan (Trivy).
+# Self-gating: the scan only runs if a root-level Dockerfile exists, so this file
+# is safe to keep in every repo (it no-ops where there's no image to scan, and
+# auto-activates if a repo adds a Dockerfile later).
+# Team-safe: results print to the job log. The PR-time fs scan FAILS on CRITICAL
+# only (HIGH is reported as advisory, so pre-existing transitive dep debt doesn't
+# block PRs — Dependabot remediates that). The image scan (what actually ships)
+# fails on CRITICAL+HIGH and runs on push/schedule, not PRs. SARIF upload to the
+# GitHub Security tab is intentionally omitted (needs GitHub Advanced Security /
+# Enterprise; we are on Team).
+name: Container Security
+
+on:
+  pull_request:
+    paths: [Dockerfile, .github/workflows/container-scan.yml]
+  push:
+    branches: [main, master, develop, development, production, sensr_develop, new_proto_structure]
+  schedule:
+    - cron: '37 5 * * 2'  # weekly Tuesday 05:37 UTC — catch newly-disclosed base-image vulns
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 3
+    outputs:
+      has_dockerfile: ${{ steps.check.outputs.has_dockerfile }}
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - id: check
+        run: |
+          if [ -f Dockerfile ]; then echo "has_dockerfile=true" >> "$GITHUB_OUTPUT"; else echo "has_dockerfile=false" >> "$GITHUB_OUTPUT"; fi
+
+  trivy-fs:
+    needs: detect
+    if: needs.detect.outputs.has_dockerfile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      # Advisory pass: surfaces CRITICAL+HIGH (deps + Dockerfile misconfig + secrets)
+      # in the log, but never fails the PR.
+      - name: Trivy filesystem scan — report CRITICAL+HIGH (advisory)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '0'
+      # Gate: fail the PR only on fixable CRITICAL vulns.
+      - name: Trivy filesystem scan — gate on CRITICAL
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+
+  # Image-layer scan: builds the image and scans base-image + installed-package
+  # vulns. Heavier than the fs scan, so it runs on push/schedule/dispatch — not
+  # on every PR. PRs still get the fast fs scan above.
+  trivy-image:
+    needs: detect
+    if: needs.detect.outputs.has_dockerfile == 'true' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Build image
+        # Assumes `docker build .` works from the repo root; tune this per repo if
+        # the Dockerfile needs build-args or a different context.
+        run: docker build -t local-scan-target:${{ github.sha }} .
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: local-scan-target:${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+      # To also publish to the GitHub Security tab: enable GitHub Advanced Security
+      # (Enterprise), set `format: sarif`, and add a github/codeql-action/upload-sarif step.

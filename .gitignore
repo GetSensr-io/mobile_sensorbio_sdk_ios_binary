@@ -10,3 +10,6 @@
 # Podfile.lock IS committed so customers run against the same resolution.
 ExampleApp/Pods/
 ExampleApp/*.xcworkspace/
+
+# Local agent worktrees / files
+.claude/

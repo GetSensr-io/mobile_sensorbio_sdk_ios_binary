@@ -1,0 +1,14 @@
+# gitleaks configuration (SB-890 baseline).
+# Extends gitleaks defaults. The allowlist below covers KNOWN false positives in
+# this repo (vendored / build-artifact / client-config files). Keep entries narrow;
+# allowlisting reduces noise, it does NOT make code trusted.
+title = "sensorbio gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "CocoaPods lockfile (dependency hashes)"
+paths = [
+  '''.*Podfile\.lock$''',
+]

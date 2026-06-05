@@ -1,0 +1,29 @@
+# Pre-commit hooks — block secrets/bad code before push. `pip install pre-commit && pre-commit install`
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=5120']
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  # ---- Optional: Claude Code /security-review on push (local, opt-in) ----
+  # Runs on pre-PUSH (not every commit). Uses the developer's own `claude` CLI —
+  # NO repo API key — and is skipped silently if claude isn't installed. The
+  # CI-level AI review (runs on PRs, needs ANTHROPIC_API_KEY) is separate — SB-931.
+  - repo: local
+    hooks:
+      - id: claude-security-review
+        name: claude /security-review (local AI scan, optional)
+        entry: bash -c 'command -v claude >/dev/null 2>&1 && claude -p "/security-review" --output-format=text < /dev/null || echo "claude CLI not installed — skipping local AI security review (optional)"'
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
