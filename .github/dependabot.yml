@@ -1,9 +1,36 @@
 version: 2
 
+# Dependabot config — SB-890 follow-up.
+#
+# Two groups per ecosystem, separated by `applies-to`:
+#   patch-and-minor : version updates only; patch+minor batched, no majors
+#   security-fixes  : security (CVE) updates only; all packages batched
+#
+# Labels are entry-level (Dependabot has no per-group label override), so
+# all PRs get the `dependencies` label. The `security` label is applied
+# automatically by .github/workflows/dependabot-auto-label.yml — it uses
+# dependabot/fetch-metadata to detect `update-type: security-update:*`.
+#
+# `reviewers` removed by GitHub May 2025 — CODEOWNERS replaces it.
+
 updates:
+
   - package-ecosystem: github-actions
-    directory: /
+    directory: "/"
     schedule:
-      interval: weekly
-      day: monday
-    labels: [dependencies, security, ci]
+      interval: monthly
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    groups:
+      patch-and-minor:
+        applies-to: version-updates
+        update-types: [patch, minor]
+      security-fixes:
+        applies-to: security-updates
+        patterns: ["*"]
+    ignore:
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
+
