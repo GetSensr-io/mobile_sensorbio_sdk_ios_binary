@@ -1,0 +1,37 @@
+# Auto-label Dependabot PRs so security updates are filterable by `security` label.
+#
+# Dependabot doesn't support per-group labels in dependabot.yml — labels are set
+# at the `updates:` entry level. This workflow reads each Dependabot PR's metadata
+# (via dependabot/fetch-metadata) and applies the `security` label when the update
+# is a security update (CVE-driven), not a routine version bump.
+#
+# Triggered only for PRs authored by dependabot[bot]; uses the workflow's own
+# GITHUB_TOKEN (no PATs, no secrets). Safe because it only adds a label.
+name: Dependabot auto-label
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  label:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 3
+    steps:
+      - name: Read Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add `security` label if this is a security update
+        if: startsWith(steps.meta.outputs.update-type, 'security-update:')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr edit "$PR" --add-label security --repo "$GITHUB_REPOSITORY"
