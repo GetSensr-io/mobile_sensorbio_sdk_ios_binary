@@ -379,7 +379,7 @@ sensorBio.pairingConnection
 
 ```swift
 public func userLED(red: Bool = false, green: Bool = false, blue: Bool = false,
-                    blink: Bool = false, for seconds: Int)
+                    blink: Bool = false, for seconds: Int) async throws
 public func setAskForDeviceResponse(_ enable: Bool)
 public func airplaneMode() async throws
 public func reset()
@@ -388,34 +388,26 @@ public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) asyn
 
 ### 5.3 Recording
 
-Two layers are exposed today:
+Recording is fully SDK-orchestrated — there is no low-level start/stop surface; the SDK owns the BLE session lifecycle end-to-end.
 
 **High-level orchestrations.** Each runs a session end-to-end: BLE start/stop, timer (fixed-duration countdown or open-ended count-up), post-stop sync wait, session build, and submission. Three completion paths each: natural completion (countdown modes only) / early-finish-with-submit via `finishCurrentRecording()` / cancellation via `Task.cancel()`. Submission is automatic — there is no separate "submit" call.
 
 ```swift
 public func recordDetailedBiometrics(
     duration: TimeInterval,
-    minDuration: TimeInterval,
-    sessionName: String? = nil,
-    sessionNameAlreadyExists: Bool = false,
-    workflowTemplate: SB_WorkflowTemplate? = nil
+    minDuration: TimeInterval
 ) async throws
 
 public func recordMeditation(
     duration: TimeInterval,
     minDuration: TimeInterval,
     sessionName: String? = nil,
-    sessionNameAlreadyExists: Bool = false,
-    workflowTemplate: SB_WorkflowTemplate? = nil
+    sessionNameAlreadyExists: Bool = false
 ) async throws
 
 public func recordActivity(
-    type: SB_ActivityType = .generalCardio,
     activityName: String,
-    minDuration: TimeInterval,
-    sessionName: String? = nil,
-    sessionNameAlreadyExists: Bool = false,
-    workflowTemplate: SB_WorkflowTemplate? = nil
+    minDuration: TimeInterval
 ) async throws
 
 public func finishCurrentRecording()        // signal: "user tapped End Recording"
@@ -427,13 +419,9 @@ public func finishCurrentRecording()        // signal: "user tapped End Recordin
 
 ```swift
 public func createActivitySession(
-    type: SB_ActivityType = .generalCardio,
     activityName: String,
     startDate: Date,
-    duration: TimeInterval,
-    sessionName: String? = nil,
-    sessionNameAlreadyExists: Bool = false,
-    workflowTemplate: SB_WorkflowTemplate? = nil
+    duration: TimeInterval
 )
 ```
 
@@ -455,14 +443,6 @@ public enum SB_RecordingError: Error {
     case tooShort(elapsed: TimeInterval, minimum: TimeInterval)
     case insufficientData    // detailed-biometrics only
 }
-```
-
-**Low-level BLE methods.** The high-level orchestrations call these under the hood; they're also exposed publicly for customers building a custom recording flow (your own timer, your own UX) — call `start*Recording()`, drive your own loop, then `stopRecording()`. Submission still flows automatically; you never call a submit method directly.
-
-```swift
-public func startBiometricRecording() async throws   // HR + HRV + RR + SpO2 + ECG + continuous
-public func startActivityRecording() async throws    // HR + HRV / lighter algo set
-public func stopRecording() async throws
 ```
 
 **Persist + restore across app kill.** The SDK persists every in-flight `record*(...)` orchestration on entry and clears the envelope on every terminal path. If the host process is killed mid-recording, `SB_SDK.init()` re-publishes the matching `recordingState` synchronously on next launch and either resumes the countdown (fixed-duration, not expired), runs the auto-finalize path (fixed-duration, past expected end), or resumes the open-ended count-up (activity). Submission still flows automatically. Host viewmodels rebind via `awaitActiveRecordingCompletion()` — same `async throws` shape as the original `record*(...)` call.
@@ -491,7 +471,6 @@ public struct SB_PersistedRecording: Codable, Sendable, Equatable {
     public let minDuration: TimeInterval
     public let sessionName: String?
     public let sessionNameAlreadyExists: Bool
-    public let workflowTemplate: SB_WorkflowTemplate?
     public let activityType: SB_ActivityType?       // .activity only
     public let activityName: String?                // .activity only
     public var startDate: Date { get }
@@ -521,8 +500,27 @@ public func fetchDashboardData(date: Date, tzOffset: Int32) async throws -> SB_D
 ```swift
 public func fetchSteps(date: Date, granularity: SB_ViewGranularity)        async throws -> SB_StepsTrending
 public func fetchCalories(date: Date, granularity: SB_ViewGranularity)     async throws -> SB_CaloriesTrending
+public func fetchDailyActivityDetail(date: Date, granularity: SB_ViewGranularity) async throws -> SB_DailyActivityDetail
 public func fetchDailyRecovery(date: Date)                                 async throws -> SB_DailyRecoveryTrending
 public func fetchRangeRecovery(date: Date, granularity: SB_ViewGranularity) async throws -> SB_RecoveryRangeTrending
+```
+
+`fetchDailyActivityDetail` returns the activity **score** plus a per-metric breakdown — steps, calories burned, distance, and active time — each carrying chart datapoints. The metrics reuse `SB_StepMetric` (switch on `metricType`: `.steps` / `.caloriesBurned` / `.distance` / `.totalDuration`):
+
+```swift
+public struct SB_DailyActivityDetail: Codable, Equatable, Sendable {
+    public var score: SB_ActivityScore?
+    public var metrics: [SB_StepMetric]
+}
+
+public struct SB_ActivityScore: Codable, Equatable, Sendable {
+    public var score: Float
+    public var diffVsBaseline: Float
+    public var diffVsLastGranularityValue: Float
+    public var scoreDescription: String
+    public var colorHex: String              // server-suggested; app may ignore
+    public var progressPercentage: Float     // 0–1 ring fill
+}
 ```
 
 ### 6.3 Biometric reads — HR / HRV / RR · SpO2 🚧 WIP
@@ -585,7 +583,6 @@ public func addSleepSession(onset: Date, wakeUp: Date) async throws
 public func modifySleepSession(onset: Date, wakeUp: Date, endTimestamp: Int64, date: Date) async throws
 public func deleteSleepSession(endTimestamp: Int64, date: Date) async throws
 public func reprocessSleep(endDate: Int32, endTimestamp: Int64) async throws
-public func emailSleepReportPDF(date: Date, timestamp: Int64, email: String) async throws
 ```
 
 ### 6.9 Workouts & activities
@@ -597,7 +594,6 @@ public func fetchWorkoutSummary(date: Date, granularity: SB_SummaryGranularity, 
 public func fetchWorkoutDetail(workoutTime: Date) async throws -> SB_WorkoutDetail?
 public func fetchWorkoutTimeline(date: Date, searchTerm: String = "", filterType: SB_WorkoutEntryType = .all) async throws -> SB_WorkoutTimelineResult
 public func modifyWorkout(action: SB_ModifyAction, date: Date, workoutTime: Date, name: String?) async throws -> SB_ModifyOutcome
-public func modifyActivityInWorkout(action: SB_ModifyAction, date: Date, startTime: Date, duration: Int32) async throws -> SB_ModifyOutcome
 public func fetchMeditationGraph(date: Date, sessionTimestamp: Int64) async throws -> SB_MeditationGraph
 ```
 

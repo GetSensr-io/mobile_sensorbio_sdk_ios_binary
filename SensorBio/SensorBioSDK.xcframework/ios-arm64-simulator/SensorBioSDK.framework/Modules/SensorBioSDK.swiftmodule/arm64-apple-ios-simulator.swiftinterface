@@ -9666,6 +9666,26 @@ public struct SB_CreateAccountRequest {
   public var deviceSerialNumber: Swift.String?
   public init(username: Swift.String, email: Swift.String, password: Swift.String, birthday: Foundation.DateComponents, gender: SensorBioSDK.SB_Gender, heightCm: Swift.Float, weight: Swift.Float, imperialUnits: Swift.Bool, orgId: Swift.String? = nil, accountVerificationAccessCode: Swift.String? = nil, deviceSerialNumber: Swift.String? = nil)
 }
+public struct SB_DailyActivityDetail : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public var score: SensorBioSDK.SB_ActivityScore?
+  public var metrics: [SensorBioSDK.SB_StepMetric]
+  public init(score: SensorBioSDK.SB_ActivityScore? = nil, metrics: [SensorBioSDK.SB_StepMetric] = [])
+  public static func == (a: SensorBioSDK.SB_DailyActivityDetail, b: SensorBioSDK.SB_DailyActivityDetail) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct SB_ActivityScore : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public var score: Swift.Float
+  public var diffVsBaseline: Swift.Float
+  public var diffVsLastGranularityValue: Swift.Float
+  public var scoreDescription: Swift.String
+  public var colorHex: Swift.String
+  public var progressPercentage: Swift.Float
+  public init(score: Swift.Float = 0, diffVsBaseline: Swift.Float = 0, diffVsLastGranularityValue: Swift.Float = 0, scoreDescription: Swift.String = "", colorHex: Swift.String = "", progressPercentage: Swift.Float = 0)
+  public static func == (a: SensorBioSDK.SB_ActivityScore, b: SensorBioSDK.SB_ActivityScore) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
 public struct SB_DailyRecoveryGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var goalItem: SensorBioSDK.SB_DashboardItemRecovery
   public var variationPercentage: Swift.Float
@@ -10479,10 +10499,9 @@ public struct SB_PersistedRecording : Swift.Codable, Swift.Sendable, Swift.Equat
   public let minDuration: Foundation.TimeInterval
   public let sessionName: Swift.String?
   public let sessionNameAlreadyExists: Swift.Bool
-  public let workflowTemplate: SensorBioSDK.SB_WorkflowTemplate?
   public let activityType: SensorBioSDK.SB_ActivityType?
   public let activityName: Swift.String?
-  public init(kind: SensorBioSDK.SB_PersistedRecordingKind, startEpochMs: Swift.Int64, duration: Foundation.TimeInterval?, minDuration: Foundation.TimeInterval, sessionName: Swift.String?, sessionNameAlreadyExists: Swift.Bool, workflowTemplate: SensorBioSDK.SB_WorkflowTemplate?, activityType: SensorBioSDK.SB_ActivityType?, activityName: Swift.String?)
+  public init(kind: SensorBioSDK.SB_PersistedRecordingKind, startEpochMs: Swift.Int64, duration: Foundation.TimeInterval?, minDuration: Foundation.TimeInterval, sessionName: Swift.String?, sessionNameAlreadyExists: Swift.Bool, activityType: SensorBioSDK.SB_ActivityType?, activityName: Swift.String?)
   public var startDate: Foundation.Date {
     get
   }
@@ -11154,10 +11173,7 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public func reset()
   public func connect(_ id: Swift.String, pairing: Swift.Bool = false)
   public func disconnect(_ id: Swift.String? = nil)
-  public func userLED(red: Swift.Bool = false, green: Swift.Bool = false, blue: Swift.Bool = false, blink: Swift.Bool = false, for seconds: Swift.Int)
-  public func startBiometricRecording() async throws
-  public func startActivityRecording() async throws
-  public func stopRecording() async throws
+  public func userLED(red: Swift.Bool = false, green: Swift.Bool = false, blue: Swift.Bool = false, blink: Swift.Bool = false, for seconds: Swift.Int) async throws
   public func updateFirmware(_ url: Foundation.URL, delay: Swift.Int? = nil, size: Swift.Int? = nil) async throws
   public func findSleepSession(startTimestamp: Swift.Int64, endTimestamp: Swift.Int64) -> SensorBioSDK.SB_SleepSession?
   public func persistDeviceState(_ devicesDictionary: [Swift.String : Any])
@@ -11173,6 +11189,7 @@ extension SensorBioSDK.SB_SDK {
 extension SensorBioSDK.SB_SDK {
   public func fetchSteps(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_StepsTrending
   public func fetchCalories(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_CaloriesTrending
+  public func fetchDailyActivityDetail(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_DailyActivityDetail
   public func fetchDailyRecovery(date: Foundation.Date) async throws -> SensorBioSDK.SB_DailyRecoveryTrending
   public func fetchRangeRecovery(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_RecoveryRangeTrending
 }
@@ -11259,11 +11276,11 @@ extension SensorBioSDK.SB_SDK {
   public func deleteUserPhoto() async throws
 }
 extension SensorBioSDK.SB_SDK {
-  public func recordActivity(type: SensorBioSDK.SB_ActivityType = .generalCardio, activityName: Swift.String, minDuration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false, workflowTemplate: SensorBioSDK.SB_WorkflowTemplate? = nil) async throws
-  public func createActivitySession(type: SensorBioSDK.SB_ActivityType = .generalCardio, activityName: Swift.String, startDate: Foundation.Date, duration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false, workflowTemplate: SensorBioSDK.SB_WorkflowTemplate? = nil)
+  public func recordActivity(activityName: Swift.String, minDuration: Foundation.TimeInterval) async throws
+  public func createActivitySession(activityName: Swift.String, startDate: Foundation.Date, duration: Foundation.TimeInterval)
 }
 extension SensorBioSDK.SB_SDK {
-  public func recordDetailedBiometrics(duration: Foundation.TimeInterval, minDuration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false, workflowTemplate: SensorBioSDK.SB_WorkflowTemplate? = nil) async throws
+  public func recordDetailedBiometrics(duration: Foundation.TimeInterval, minDuration: Foundation.TimeInterval) async throws
   public func finishCurrentRecording()
   public var activeRecording: SensorBioSDK.SB_PersistedRecording? {
     get
@@ -11276,7 +11293,7 @@ extension SensorBioSDK.SB_SDK {
   public func deleteRecordingMeta(id: Swift.String, name: Swift.String, type: SensorBioSDK.SB_RecordingMetaType) async throws
 }
 extension SensorBioSDK.SB_SDK {
-  public func recordMeditation(duration: Foundation.TimeInterval, minDuration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false, workflowTemplate: SensorBioSDK.SB_WorkflowTemplate? = nil) async throws
+  public func recordMeditation(duration: Foundation.TimeInterval, minDuration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false) async throws
 }
 extension SensorBioSDK.SB_SDK {
   @discardableResult
@@ -11297,7 +11314,6 @@ extension SensorBioSDK.SB_SDK {
   public func modifySleepSession(onset: Foundation.Date, wakeUp: Foundation.Date, endTimestamp: Swift.Int64, date: Foundation.Date) async throws -> Swift.String
   public func deleteSleepSession(endTimestamp: Swift.Int64, date: Foundation.Date) async throws
   public func reprocessSleep(endDate: Swift.Int32, endTimestamp: Swift.Int64) async throws
-  public func emailSleepReportPDF(date: Foundation.Date, timestamp: Swift.Int64, email: Swift.String) async throws
 }
 extension SensorBioSDK.SB_SDK {
   public func manageNextSurvey()
@@ -11312,7 +11328,6 @@ extension SensorBioSDK.SB_SDK {
   public func fetchWorkoutDetail(workoutTime: Foundation.Date) async throws -> SensorBioSDK.SB_WorkoutDetail?
   public func fetchWorkoutTimeline(date: Foundation.Date, searchTerm: Swift.String = "", pageNumber: Swift.Int32 = 1, fetchDirection: SensorBioSDK.SB_PageFetchDirection = .down, cursor: Swift.String? = nil) async throws -> SensorBioSDK.SB_WorkoutTimelineResult
   public func modifyWorkout(action: SensorBioSDK.SB_ModifyAction, date: Foundation.Date, timestamp: Foundation.Date, workoutName: Swift.String, params: [Swift.String : Swift.String] = [:]) async throws -> SensorBioSDK.SB_ModifyOutcome
-  public func modifyActivityInWorkout(action: SensorBioSDK.SB_ModifyAction, date: Foundation.Date, timestamp: Foundation.Date, workoutName: Swift.String, index: Swift.Int32, params: [Swift.String : Swift.String] = [:], activityTsToModify: Foundation.Date) async throws -> SensorBioSDK.SB_ModifyOutcome
   public func fetchMeditationGraph(date: Foundation.Date, sessionTimestamp: Swift.Int64) async throws -> SensorBioSDK.SB_MeditationGraph
 }
 @_hasMissingDesignatedInitializers final public class SB_SecurityManager : SensorBioSDK.SB_AuthTokenProvider, @unchecked Swift.Sendable {
@@ -11896,7 +11911,8 @@ public struct SB_StepMetric : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var metricType: SensorBioSDK.SB_StepMetricType
   public var datapoints: [SensorBioSDK.SB_DateValuePoint]
   public var timeDatapoints: [SensorBioSDK.SB_TimeValuePoint]
-  public init(name: Swift.String = "", unit: Swift.String = "", barChartTitle: Swift.String = "", avgValue: Swift.Float = 0, metricType: SensorBioSDK.SB_StepMetricType = .unknown, datapoints: [SensorBioSDK.SB_DateValuePoint] = [], timeDatapoints: [SensorBioSDK.SB_TimeValuePoint] = [])
+  public var progressPercentage: Swift.Float
+  public init(name: Swift.String = "", unit: Swift.String = "", barChartTitle: Swift.String = "", avgValue: Swift.Float = 0, metricType: SensorBioSDK.SB_StepMetricType = .unknown, datapoints: [SensorBioSDK.SB_DateValuePoint] = [], timeDatapoints: [SensorBioSDK.SB_TimeValuePoint] = [], progressPercentage: Swift.Float = 0)
   public static func == (a: SensorBioSDK.SB_StepMetric, b: SensorBioSDK.SB_StepMetric) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -12200,15 +12216,6 @@ public struct SB_WMYChart : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var significantChangeMax: Swift.Float
   public init(mainPoints: [SensorBioSDK.SB_DateValuePoint] = [], rolling7DayAvgPoints: [SensorBioSDK.SB_DateValuePoint] = [], desireRangeMin: Swift.Float = 0, desireRangeMax: Swift.Float = 0, standardDeviation: Swift.Float = 0, significantChangeMin: Swift.Float = 0, significantChangeMax: Swift.Float = 0)
   public static func == (a: SensorBioSDK.SB_WMYChart, b: SensorBioSDK.SB_WMYChart) -> Swift.Bool
-  public func encode(to encoder: any Swift.Encoder) throws
-  public init(from decoder: any Swift.Decoder) throws
-}
-public struct SB_WorkflowTemplate : Swift.Sendable, Swift.Equatable, Swift.Codable {
-  public let templateId: Swift.String
-  public let workflowId: Swift.String
-  public let itemSequenceId: Swift.Int32
-  public init(templateId: Swift.String, workflowId: Swift.String, itemSequenceId: Swift.Int32)
-  public static func == (a: SensorBioSDK.SB_WorkflowTemplate, b: SensorBioSDK.SB_WorkflowTemplate) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
