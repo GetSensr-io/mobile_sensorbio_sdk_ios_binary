@@ -11153,6 +11153,7 @@ public let sensorBio: SensorBioSDK.SB_SDK
     set
   }
   final public let sleepStored: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let sleepUploaded: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let sleepDetected: Combine.PassthroughSubject<SensorBioSDK.SB_DetectedSleep, Swift.Never>
   final public let sdkVersion: Swift.String
   public var isDeviceConnected: Swift.Bool {
