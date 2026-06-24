@@ -11215,6 +11215,7 @@ extension SensorBioSDK.SB_SDK {
   public func acceptAgreements(tosVersion: Swift.String, healthDataVersion: Swift.String) async throws
   public func requestPasswordReset(email: Swift.String) async throws -> SensorBioSDK.SB_RequestPasswordResetOutcome
   public func changePassword(currentPassword: Swift.String, newPassword: Swift.String) async throws -> SensorBioSDK.SB_ChangePasswordOutcome
+  public func deleteAccount() async throws -> Swift.Bool
   public func signOut() async throws
   public func generateTemporaryAuthToken() async throws -> Swift.String?
 }
