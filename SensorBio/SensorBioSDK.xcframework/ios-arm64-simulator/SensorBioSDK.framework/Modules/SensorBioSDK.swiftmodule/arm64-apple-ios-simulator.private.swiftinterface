@@ -11130,6 +11130,7 @@ public let sensorBio: SensorBioSDK.SB_SDK
   final public let hrSyncFinishedForActivity: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let analyticsEvents: Combine.PassthroughSubject<SensorBioSDK.SB_AnalyticsEvent, Swift.Never>
   final public let persistDeviceStateRequested: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let subscriptionLost: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let signOutComplete: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let biometricRecordProcessed: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let hr: Combine.PassthroughSubject<(Swift.Int, Swift.Int), Swift.Never>
@@ -11181,6 +11182,10 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public static var persistedDevicesDictionary: [Swift.String : Swift.AnyObject]? {
     get
   }
+  public static var migratedDevicesSnapshot: [Swift.String : Swift.AnyObject]? {
+    get
+  }
+  public static func captureLegacyDevicesSnapshotIfNeeded()
   public func refresh()
   @objc deinit
 }
@@ -12443,8 +12448,10 @@ public struct sdkDefaults {
   public static let logoURLKey: Swift.String
   public static let devicesKey: Swift.String
   public static let lastSyncdKey: Swift.String
+  public static let migratedDevicesSnapshotKey: Swift.String
   public static let airplaneModeStatus: Swift.String
   public static let haveGrantedBluetoothPermission: Swift.String
+  public static let subscriptionBlocked: Swift.String
   public static let sensorConfigurationState: Swift.String
   public static let recordingStartDateKey: Swift.String
   public static let recordingStopDateKey: Swift.String

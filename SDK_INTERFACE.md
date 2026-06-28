@@ -275,6 +275,7 @@ public let persistDeviceStateRequested: PassthroughSubject<Void, Never>     // S
 public let deviceConnected:             PassthroughSubject<Void, Never>     // low-level BLE connect
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
 public let deviceLinkFailed:            PassthroughSubject<SB_DeviceLinkFailure, Never>  // server rejected the device-link (serial-enforced subscription)
+public let subscriptionLost:            PassthroughSubject<Void, Never>     // an authenticated RPC was rejected for no active subscription — host should alert + force logout
 
 // Streaming biometrics — timestamp + value
 public let hr:    PassthroughSubject<(Int, Int),     Never>                 // bpm
@@ -374,6 +375,16 @@ sensorBio.pairingConnection
 ```
 
 `persistDeviceState(_:)` is the matching write-back: the SDK emits `persistDeviceStateRequested` when the in-memory paired-device map should be persisted on the app side; the app responds by calling `persistDeviceState(_:)` with its serialized devices dictionary.
+
+Static bootstrap + diagnostic accessors (callable before `SB_SDK.shared` initializes):
+
+```swift
+public static var persistedDevicesDictionary: [String: AnyObject]?      // persisted devices dict (devicesKey)
+public static var migratedDevicesSnapshot: [String: AnyObject]?         // one-time pre-collapse copy; nil until captured
+public static func captureLegacyDevicesSnapshotIfNeeded()              // call at launch before selecting/collapsing
+```
+
+`captureLegacyDevicesSnapshotIfNeeded()` is a diagnostic: on first launch it copies a genuine multi-device `devicesKey` (count > 1) into a never-overwritten key so the original set survives the app's first `persistDeviceState(_:)`, which collapses storage to a single `gblCurrentDevice` entry. `migratedDevicesSnapshot` reads it back. No-op for single-device or already-captured installs.
 
 ### 5.2 Device commands
 
