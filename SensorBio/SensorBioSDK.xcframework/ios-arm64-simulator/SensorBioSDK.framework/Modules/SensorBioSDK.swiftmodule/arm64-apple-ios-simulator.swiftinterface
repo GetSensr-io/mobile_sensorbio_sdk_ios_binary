@@ -9499,7 +9499,9 @@ public struct SB_BiometricsUpload : Swift.Sendable {
   }
 }
 public enum SB_BluetoothDeviceType : Swift.Int, Swift.Sendable {
+  case alter
   case sensrV1
+  case alterV2
   case sensrV2
   case sensrV2_5
   case sensrV3
