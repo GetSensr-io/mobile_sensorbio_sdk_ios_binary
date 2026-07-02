@@ -329,10 +329,12 @@ Example:
 ```swift
 do {
     switch try await sensorBio.signIn(email: email, password: password) {
-    case .success:           routeToHome()
-    case .passwordIncorrect: showError("Incorrect password")
-    case .unknownUsername:   showError("Unknown email")
-    case .other(let msg):    showError(msg)
+    case .success:                     routeToHome()
+    case .passwordIncorrect:           showError("Incorrect username or password")
+    case .unknownUsername:             showError("Unknown email")
+    case .subscriptionRequired(let m): showError(m.isEmpty ? "A subscription is required" : m)
+    case .loginBlocked(let m):         showError(m.isEmpty ? "Too many failed attempts. Try again later." : m)
+    case .other(let msg):              showError(msg)
     }
 } catch {
     showError(error.localizedDescription)
@@ -777,7 +779,7 @@ final class HomeViewModel: ObservableObject {
             switch try await sensorBio.signIn(email: email, password: password) {
             case .success:
                 await refreshDashboard()
-            case .passwordIncorrect, .unknownUsername, .other:
+            case .passwordIncorrect, .unknownUsername, .subscriptionRequired, .loginBlocked, .other:
                 break
             }
         } catch { print(error) }

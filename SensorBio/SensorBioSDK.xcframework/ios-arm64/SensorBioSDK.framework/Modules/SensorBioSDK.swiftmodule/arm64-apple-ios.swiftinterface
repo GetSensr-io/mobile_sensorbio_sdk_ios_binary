@@ -9489,8 +9489,7 @@ public struct SB_BiometricsUpload : Swift.Sendable {
   public var respiratoryRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
   public var spo2: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
   public var interBeatInterval: [SensorBioSDK.SB_BiometricsUpload.DataPoint]
-  public var isContinuousMode: Swift.Bool?
-  public init(heartRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], hrv: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], respiratoryRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], spo2: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], interBeatInterval: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], isContinuousMode: Swift.Bool? = nil)
+  public init(heartRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], hrv: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], respiratoryRate: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], spo2: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [], interBeatInterval: [SensorBioSDK.SB_BiometricsUpload.DataPoint] = [])
   public var isEmpty: Swift.Bool {
     get
   }
@@ -11417,6 +11416,7 @@ public enum SB_SignInOutcome {
   case passwordIncorrect
   case unknownUsername
   case subscriptionRequired(message: Swift.String)
+  case loginBlocked(message: Swift.String)
   case other(message: Swift.String)
 }
 public struct SB_SleepAccounting : Swift.Codable, Swift.Equatable, Swift.Sendable {
@@ -12457,6 +12457,7 @@ public struct sdkDefaults {
   public static let sensorConfigurationState: Swift.String
   public static let recordingStartDateKey: Swift.String
   public static let recordingStopDateKey: Swift.String
+  public static let pendingDeviceStopKey: Swift.String
   public static let latestValidBookendPackets: Swift.String
   public static let lastCustomEpochAsPrimaryKey: Swift.String
   public static let persistedRecordingKey: Swift.String
