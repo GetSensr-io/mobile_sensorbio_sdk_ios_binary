@@ -88,6 +88,14 @@ struct SignInView: View {
         case .unknownUsername:
             Label("Unknown username", systemImage: "xmark.octagon.fill")
                 .foregroundStyle(.red)
+        case .subscriptionRequired(let message):
+            Label(message.isEmpty ? "A subscription is required" : message,
+                  systemImage: "creditcard.trianglebadge.exclamationmark")
+                .foregroundStyle(.orange)
+        case .loginBlocked(let message):
+            Label(message.isEmpty ? "Too many failed attempts. Try again later." : message,
+                  systemImage: "lock.trianglebadge.exclamationmark.fill")
+                .foregroundStyle(.red)
         case .other(let message):
             Label(message.isEmpty ? "Server returned a non-OK error" : message,
                   systemImage: "exclamationmark.triangle.fill")

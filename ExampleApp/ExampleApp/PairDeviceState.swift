@@ -55,7 +55,7 @@ final class PairDeviceState {
                 self.cancelWatchdog()
                 sensorBio.stopScan()
                 self.phase = .confirming
-                sensorBio.userLED(blue: true, blink: true, for: 5)
+                Task { try? await sensorBio.userLED(blue: true, blink: true, for: 5) }
                 sensorBio.setAskForDeviceResponse(true)
                 self.startWatchdog(after: 30) { [weak self] in
                     self?.phase = .error("Timed out waiting for button press on the device.")

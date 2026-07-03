@@ -221,7 +221,7 @@ struct SleepDetailView: View {
                     return
                 }
                 let endTs = Date(timeIntervalSince1970: TimeInterval(session.endTimestamp) / 1000)
-                daily = try await sensorBio.fetchSleepDetail(endDate: endTs, endTimestamp: endTs)
+                daily = try await sensorBio.fetchSleepDetail(endDate: endTs, endTimestamp: Int64(session.endTimestamp))
             } else {
                 range = try await sensorBio.fetchSleepAggregation(date: dateContext.selectedDate, granularity: granularity)
             }

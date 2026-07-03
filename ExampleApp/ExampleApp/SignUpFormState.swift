@@ -90,10 +90,18 @@ final class SignUpFormState {
                 result = .invalidHeight
             case .invalidWeight:
                 result = .invalidWeight
+            case .invalidAccessCode:
+                result = .other(message: "Invalid access code.")
+            case .accessCodeAlreadyInUse:
+                result = .other(message: "That access code is already in use.")
+            case .deviceSerialNumberRequired:
+                result = .other(message: "A device serial number is required.")
+            case .deviceSerialNumberMismatch:
+                result = .other(message: "The device serial number does not match.")
             case .other(let message):
                 result = .other(message: message)
-                @unknown default:
-                    break
+            @unknown default:
+                break
             }
         } catch {
             result = .threw(error.localizedDescription)

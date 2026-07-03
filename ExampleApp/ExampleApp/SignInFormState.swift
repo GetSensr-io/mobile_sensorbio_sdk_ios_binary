@@ -14,6 +14,8 @@ final class SignInFormState {
         case success(username: String)
         case passwordIncorrect
         case unknownUsername
+        case subscriptionRequired(message: String)
+        case loginBlocked(message: String)
         case other(message: String)
         case threw(String)
     }
@@ -37,10 +39,14 @@ final class SignInFormState {
                 result = .passwordIncorrect
             case .unknownUsername:
                 result = .unknownUsername
+            case .subscriptionRequired(let message):
+                result = .subscriptionRequired(message: message)
+            case .loginBlocked(let message):
+                result = .loginBlocked(message: message)
             case .other(let message):
                 result = .other(message: message)
-                @unknown default:
-                    break
+            @unknown default:
+                break
             }
         } catch {
             result = .threw(String(describing: error))
