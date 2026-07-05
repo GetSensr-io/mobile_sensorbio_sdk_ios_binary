@@ -10993,22 +10993,16 @@ public let sensorBio: SensorBioSDK.SB_SDK
     @available(iOS 14.0, tvOS 14.0, watchOS 7.0, macOS 11.0, *)
     set
   }
-  @Combine.Published<Swift.Double?> @_projectedValueProperty($lastSyncStartEpoch) public var lastSyncStartEpoch: Swift.Double? {
-    get
-  }
-  public var $lastSyncStartEpoch: Combine.Published<Swift.Double?>.Publisher {
-    get
-  }
-  @Combine.Published<Swift.Double?> @_projectedValueProperty($lastSyncEndEpoch) public var lastSyncEndEpoch: Swift.Double? {
-    get
-  }
-  public var $lastSyncEndEpoch: Combine.Published<Swift.Double?>.Publisher {
-    get
-  }
   @Combine.Published<Foundation.Date> @_projectedValueProperty($lastSyncd) public var lastSyncd: Foundation.Date {
     get
   }
   public var $lastSyncd: Combine.Published<Foundation.Date>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Int64> @_projectedValueProperty($latestDeviceEpochInMillis) public var latestDeviceEpochInMillis: Swift.Int64 {
+    get
+  }
+  public var $latestDeviceEpochInMillis: Combine.Published<Swift.Int64>.Publisher {
     get
   }
   @Combine.Published<SensorBioSDK.SB_PairedDeviceState?> @_projectedValueProperty($pairedDevice) public var pairedDevice: SensorBioSDK.SB_PairedDeviceState? {
@@ -11027,6 +11021,12 @@ public let sensorBio: SensorBioSDK.SB_SDK
     get
   }
   public var $canFinalize: Combine.Published<Swift.Bool>.Publisher {
+    get
+  }
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($isRecordingPaused) public var isRecordingPaused: Swift.Bool {
+    get
+  }
+  public var $isRecordingPaused: Combine.Published<Swift.Bool>.Publisher {
     get
   }
   @Combine.Published<SensorBioSDK.SB_NetworkStatus> @_projectedValueProperty($networkStatus) public var networkStatus: SensorBioSDK.SB_NetworkStatus {
@@ -11183,10 +11183,6 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public static var persistedDevicesDictionary: [Swift.String : Swift.AnyObject]? {
     get
   }
-  public static var migratedDevicesSnapshot: [Swift.String : Swift.AnyObject]? {
-    get
-  }
-  public static func captureLegacyDevicesSnapshotIfNeeded()
   public func refresh()
   @objc deinit
 }
@@ -11301,6 +11297,10 @@ extension SensorBioSDK.SB_SDK {
   public func deleteRecordingMeta(id: Swift.String, name: Swift.String, type: SensorBioSDK.SB_RecordingMetaType) async throws
 }
 extension SensorBioSDK.SB_SDK {
+  public func pauseRecording()
+  public func resumeRecording()
+}
+extension SensorBioSDK.SB_SDK {
   public func recordMeditation(duration: Foundation.TimeInterval, minDuration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false) async throws
 }
 extension SensorBioSDK.SB_SDK {
@@ -11324,7 +11324,6 @@ extension SensorBioSDK.SB_SDK {
   public func reprocessSleep(endDate: Swift.Int32, endTimestamp: Swift.Int64) async throws
 }
 extension SensorBioSDK.SB_SDK {
-  public func manageNextSurvey()
   public func submitBriefSurvey(_ survey: SensorBioSDK.SB_BriefSurvey)
 }
 extension SensorBioSDK.SB_SDK {
@@ -11970,7 +11969,7 @@ public enum SB_SummaryGranularity : Swift.Int32, Swift.Codable, Swift.Equatable,
   nonisolated(unsafe) public static let shared: SensorBioSDK.SB_SurveyScheduleManager
   @objc deinit
   final public func parseScheduledSurveys()
-  final public func manageNextSurvey()
+  final public func checkForDueSurvey()
 }
 public struct SB_SyncResult {
   public let acknowledge: Swift.Bool
@@ -12450,7 +12449,6 @@ public struct sdkDefaults {
   public static let logoURLKey: Swift.String
   public static let devicesKey: Swift.String
   public static let lastSyncdKey: Swift.String
-  public static let migratedDevicesSnapshotKey: Swift.String
   public static let airplaneModeStatus: Swift.String
   public static let haveGrantedBluetoothPermission: Swift.String
   public static let subscriptionBlocked: Swift.String
@@ -12486,6 +12484,7 @@ public enum SDKGlobals {
 }
 nonisolated(unsafe) public let dbSaveDispatchGroup: Dispatch.DispatchGroup
 nonisolated(unsafe) public var gblNumberOfSyncsAfterTappingStopActivity: Swift.Int
+nonisolated(unsafe) public var gblFinalizeSyncStartDate: Foundation.Date?
 nonisolated(unsafe) public var gblIsActivityGoingOn: Swift.Bool
 public var gblIsMetric: Swift.Bool {
   get

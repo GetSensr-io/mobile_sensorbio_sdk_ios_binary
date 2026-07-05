@@ -215,8 +215,7 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 | `deviceSyncing` | `Bool` | Active sync in progress |
 | `percentSynced` | `Int` | Sync progress (0–100) |
 | `lastSyncd` | `Date` | Wall-clock of last successful sync |
-| `lastSyncStartEpoch` | `Double?` | Sync-window start timestamp |
-| `lastSyncEndEpoch` | `Double?` | Sync-window end timestamp |
+| `latestDeviceEpochInMillis` | `Int64` | Epoch (ms) of the newest sensor packet synced from the device; advanced only from real packet timestamps (never wall-clock). Diagnostic (Developer Tools); recording finalize gates on the device bookend, not this |
 
 **Device telemetry**
 
@@ -378,15 +377,11 @@ sensorBio.pairingConnection
 
 `persistDeviceState(_:)` is the matching write-back: the SDK emits `persistDeviceStateRequested` when the in-memory paired-device map should be persisted on the app side; the app responds by calling `persistDeviceState(_:)` with its serialized devices dictionary.
 
-Static bootstrap + diagnostic accessors (callable before `SB_SDK.shared` initializes):
+Static bootstrap accessor (callable before `SB_SDK.shared` initializes):
 
 ```swift
 public static var persistedDevicesDictionary: [String: AnyObject]?      // persisted devices dict (devicesKey)
-public static var migratedDevicesSnapshot: [String: AnyObject]?         // one-time pre-collapse copy; nil until captured
-public static func captureLegacyDevicesSnapshotIfNeeded()              // call at launch before selecting/collapsing
 ```
-
-`captureLegacyDevicesSnapshotIfNeeded()` is a diagnostic: on first launch it copies a genuine multi-device `devicesKey` (count > 1) into a never-overwritten key so the original set survives the app's first `persistDeviceState(_:)`, which collapses storage to a single `gblCurrentDevice` entry. `migratedDevicesSnapshot` reads it back. No-op for single-device or already-captured installs.
 
 ### 5.2 Device commands
 
@@ -424,9 +419,14 @@ public func recordActivity(
 ) async throws
 
 public func finishCurrentRecording()        // signal: "user tapped End Recording"
+
+public func pauseRecording()                // freeze the timer + stop the device stream
+public func resumeRecording()               // restart the device stream + resume the timer
 ```
 
 `recordActivity(...)` is open-ended — it has no `duration:` parameter and runs until `finishCurrentRecording()` flips or the calling `Task` cancels. `recordingState` publishes `.recording(elapsed:, target: nil)` so countdown UIs render count-up format from the `nil` target.
+
+**Pause / resume** (`recordActivity` + `recordMeditation`). `pauseRecording()` freezes the elapsed clock (`recordingState` holds its last `.recording(elapsed:, target:)` value and `canFinalize` stops advancing) and stops the device's manual PPG stream, so the paused span carries no biometric data. `resumeRecording()` restarts the stream and continues the clock. Both are no-ops outside an active recording; the device stop/start is a fire-and-forget BLE round-trip so the timer freezes/thaws instantly. Each paused window is submitted as the complement `activeWorkoutSegments` on the finished session, so downstream sees only the active spans.
 
 **Manual session logging.** For "log an activity that happened earlier" (no live recording, no device involvement). The SDK builds the session from the typed inputs and queues it for upload.
 
@@ -444,6 +444,7 @@ Observable orchestration state — gates the recording UI:
 |---|---|---|
 | `recordingState` | `SB_RecordingState` | `.idle` / `.recording(elapsed, target)` / `.finalizing(phase)` |
 | `canFinalize` | `Bool` | True once `elapsed ≥ minDuration` AND at least one HR sample has arrived |
+| `isRecordingPaused` | `Bool` | True while the recording is paused (see `pauseRecording()`); drives the Pause/Resume button |
 
 Throws `SB_RecordingError`:
 
@@ -624,7 +625,6 @@ Brief surveys are the real sleep / workout / meditation survey responses the dev
 
 ```swift
 public func submitBriefSurvey(_ survey: SB_BriefSurvey)
-public func manageNextSurvey()
 ```
 
 ### 6.12 Devices, services & global state
