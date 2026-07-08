@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 6.3.2 (swiftlang-6.3.2.1.108 clang-2100.1.1.101)
+// swift-compiler-version: Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)
 // swift-module-flags: -target arm64-apple-ios18.0 -enable-objc-interop -enable-library-evolution -swift-version 6 -O -enable-experimental-feature DebugDescriptionMacro -module-name SensorBioSDK
-// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.3.2
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.3.3
 import CocoaMQTT
 import Combine
 import CoreBluetooth
@@ -7985,6 +7985,10 @@ final public class HRMeasure {
     get
     set
   }
+  final public var processed: Swift.Int {
+    get
+    set
+  }
   public init(timestamp: Swift.Int64, hr: Swift.Float, bbi: Swift.Int)
   final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.HRMeasure> {
     get
@@ -8017,6 +8021,10 @@ final public class HRVMeasure {
     set
   }
   final public var value: Swift.Float {
+    get
+    set
+  }
+  final public var processed: Swift.Int {
     get
     set
   }
@@ -9298,6 +9306,10 @@ final public class RRMeasure {
     get
     set
   }
+  final public var processed: Swift.Int {
+    get
+    set
+  }
   public init(timestamp: Swift.Int64, value: Swift.Float)
   final public var persistentBackingData: any SwiftData.BackingData<SensorBioSDK.RRMeasure> {
     get
@@ -9700,7 +9712,8 @@ public struct SB_DailyRecoveryGraph : Swift.Codable, Swift.Equatable, Swift.Send
 }
 public struct SB_DailyRecoveryTrending : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var graph: SensorBioSDK.SB_DailyRecoveryGraph?
-  public init(graph: SensorBioSDK.SB_DailyRecoveryGraph? = nil)
+  public var joinedDate: Foundation.Date?
+  public init(graph: SensorBioSDK.SB_DailyRecoveryGraph? = nil, joinedDate: Foundation.Date? = nil)
   public static func == (a: SensorBioSDK.SB_DailyRecoveryTrending, b: SensorBioSDK.SB_DailyRecoveryTrending) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -10122,20 +10135,17 @@ public struct SB_HRMExerciseZone : Swift.Codable, Swift.Equatable, Swift.Sendabl
 extension SensorBioSDK.SB_HRMManager {
   final public func saveHR(_ packets: [SensorBioSDK.StreamingPacket])
   final public func fetchHR(endTime: Swift.Int64) -> [SensorBioSDK.HRMeasure]
-  final public func deleteHR(endTime: Swift.Int64)
+  final public func markHRProcessed(timestamps: [Swift.Int64])
 }
 extension SensorBioSDK.SB_HRMManager {
   final public func saveHRV(_ packets: [SensorBioSDK.StreamingPacket])
   final public func fetchHRV(endTime: Swift.Int64) -> [SensorBioSDK.HRVMeasure]
-  final public func deleteHRV(endTime: Swift.Int64)
+  final public func markHRVProcessed(timestamps: [Swift.Int64])
 }
 extension SensorBioSDK.SB_HRMManager {
   final public func saveRR(_ packets: [SensorBioSDK.StreamingPacket])
   final public func fetchRR(endTime: Swift.Int64) -> [SensorBioSDK.RRMeasure]
-  final public func deleteRR(endTime: Swift.Int64)
-}
-extension SensorBioSDK.SB_HRMManager {
-  final public func deleteSessionData(endTime: Swift.Int64)
+  final public func markRRProcessed(timestamps: [Swift.Int64])
 }
 extension SensorBioSDK.SB_HRMManager {
   final public func fetchAllHRDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
@@ -10648,6 +10658,39 @@ public enum SB_RecordingError : Swift.Error, Swift.Sendable {
   case tooShort(elapsed: Foundation.TimeInterval, minimum: Foundation.TimeInterval)
   case insufficientData
 }
+public struct SB_RecordingSubmissionInfo : Swift.Identifiable, Swift.Equatable, Swift.Sendable {
+  public let localId: Foundation.UUID
+  public var id: Foundation.UUID {
+    get
+  }
+  public let type: SensorBioSDK.SB_FinishedRecordingType
+  public let startTsMillis: Swift.Int64
+  public let endTsMillis: Swift.Int64
+  public let tzOffsetSeconds: Swift.Int32
+  public let status: SensorBioSDK.SB_RecordingSubmissionStatus
+  public let serverRecordingId: Swift.String?
+  public let metadata: [Swift.String : Swift.String]
+  public let attemptCount: Swift.Int
+  public let lastErrorMessage: Swift.String?
+  public let createdAt: Foundation.Date
+  public let updatedAt: Foundation.Date
+  public let autoPresentOnProcessed: Swift.Bool
+  public let presentedAt: Foundation.Date?
+  public init(localId: Foundation.UUID, type: SensorBioSDK.SB_FinishedRecordingType, startTsMillis: Swift.Int64, endTsMillis: Swift.Int64, tzOffsetSeconds: Swift.Int32, status: SensorBioSDK.SB_RecordingSubmissionStatus, serverRecordingId: Swift.String?, metadata: [Swift.String : Swift.String], attemptCount: Swift.Int, lastErrorMessage: Swift.String?, createdAt: Foundation.Date, updatedAt: Foundation.Date, autoPresentOnProcessed: Swift.Bool, presentedAt: Foundation.Date?)
+  public static func == (a: SensorBioSDK.SB_RecordingSubmissionInfo, b: SensorBioSDK.SB_RecordingSubmissionInfo) -> Swift.Bool
+  public typealias ID = Foundation.UUID
+}
+public enum SB_RecordingSubmissionStatus : Swift.String, Swift.Codable, Swift.Sendable {
+  case pendingUpload
+  case uploaded
+  case processed
+  case failed
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
 public struct SB_RecoveryCalibrationData : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var totalSegments: Swift.Int32
   public var segmentsUsed: Swift.Int32
@@ -10669,7 +10712,8 @@ public struct SB_RecoveryRangeGraph : Swift.Codable, Swift.Equatable, Swift.Send
 }
 public struct SB_RecoveryRangeTrending : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var graph: SensorBioSDK.SB_RecoveryRangeGraph?
-  public init(graph: SensorBioSDK.SB_RecoveryRangeGraph? = nil)
+  public var joinedDate: Foundation.Date?
+  public init(graph: SensorBioSDK.SB_RecoveryRangeGraph? = nil, joinedDate: Foundation.Date? = nil)
   public static func == (a: SensorBioSDK.SB_RecoveryRangeTrending, b: SensorBioSDK.SB_RecoveryRangeTrending) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -10677,10 +10721,9 @@ public struct SB_RecoveryRangeTrending : Swift.Codable, Swift.Equatable, Swift.S
 public struct SB_RecoveryScoreFactor : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var title: Swift.String
   public var description: Swift.String
-  public var value: Swift.Float
-  public var color: SensorBioSDK.SB_Color
-  public var hexColor: Swift.String?
-  public init(title: Swift.String = "", description: Swift.String = "", value: Swift.Float = 0, color: SensorBioSDK.SB_Color = .unknown, hexColor: Swift.String? = nil)
+  public var percentile: Swift.Float
+  public var scoreValue: Swift.Float
+  public init(title: Swift.String = "", description: Swift.String = "", percentile: Swift.Float = 0, scoreValue: Swift.Float = 0)
   public static func == (a: SensorBioSDK.SB_RecoveryScoreFactor, b: SensorBioSDK.SB_RecoveryScoreFactor) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -11299,6 +11342,14 @@ extension SensorBioSDK.SB_SDK {
 extension SensorBioSDK.SB_SDK {
   public func pauseRecording()
   public func resumeRecording()
+}
+extension SensorBioSDK.SB_SDK {
+  public var pendingSubmissionsPublisher: Combine.AnyPublisher<[SensorBioSDK.SB_RecordingSubmissionInfo], Swift.Never> {
+    get
+  }
+  public func pendingSubmissions() -> [SensorBioSDK.SB_RecordingSubmissionInfo]
+  public func reconcileSubmissions(against entries: [SensorBioSDK.SB_WorkoutEntry])
+  public func retrySubmission(localId: Foundation.UUID)
 }
 extension SensorBioSDK.SB_SDK {
   public func recordMeditation(duration: Foundation.TimeInterval, minDuration: Foundation.TimeInterval, sessionName: Swift.String? = nil, sessionNameAlreadyExists: Swift.Bool = false) async throws
@@ -34736,6 +34787,9 @@ extension SensorBioSDK.SB_RecordingMetaType : Swift.Hashable {}
 extension SensorBioSDK.SB_RecordingMetaType : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_RecordingFinalizationPhase : Swift.Hashable {}
 extension SensorBioSDK.SB_RecordingFinalizationPhase : Swift.RawRepresentable {}
+extension SensorBioSDK.SB_RecordingSubmissionStatus : Swift.Equatable {}
+extension SensorBioSDK.SB_RecordingSubmissionStatus : Swift.Hashable {}
+extension SensorBioSDK.SB_RecordingSubmissionStatus : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_ViewGranularity : Swift.Hashable {}
 extension SensorBioSDK.SB_ViewGranularity : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_AccountRequirementStatus : Swift.Equatable {}

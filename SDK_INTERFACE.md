@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.3.2'
+    :tag => 'v0.11.0'
 end
 
 post_install do |installer|
@@ -295,6 +295,34 @@ public let sleepDetected:               PassthroughSubject<SB_DetectedSleep, Nev
 ```
 
 
+### 3.5 Recording submissions (optimistic timeline)
+
+In-flight finished-recording submissions the SDK is still uploading /
+processing, backed by the durable `SB_RecordingSubmission` store. Drive the
+timeline's pinned "we're working on it" cards off this, then reconcile them
+against the fetched timeline. Values cross the boundary as the
+`SB_RecordingSubmissionInfo` value type (no SwiftData leak); status is
+`SB_RecordingSubmissionStatus` (`pendingUpload` → `uploaded` → `processed`,
+or `failed`). Only non-`processed` rows are surfaced.
+
+```swift
+// Current in-flight submissions (status != .processed), newest first;
+// CurrentValueSubject-backed, so new subscribers get the state immediately.
+public var pendingSubmissionsPublisher: AnyPublisher<[SB_RecordingSubmissionInfo], Never> { get }
+
+// One-shot snapshot of the same set (e.g. on .onAppear).
+public func pendingSubmissions() -> [SB_RecordingSubmissionInfo]
+
+// Flip any in-flight submission the server now shows to .processed (drops it
+// from the set). Call after fetchWorkoutTimeline, passing the flattened
+// entries: result.items.flatMap { $0.entries }. No extra network.
+public func reconcileSubmissions(against entries: [SB_WorkoutEntry])
+
+// Manually re-drive a .failed submission (reset to .pendingUpload + kick the
+// engine). No-op if the id is unknown or the submission isn't .failed.
+public func retrySubmission(localId: UUID)
+```
+
 ---
 
 ## 4. Authentication
@@ -534,6 +562,47 @@ public struct SB_ActivityScore: Codable, Equatable, Sendable {
     public var scoreDescription: String
     public var colorHex: String              // server-suggested; app may ignore
     public var progressPercentage: Float     // 0–1 ring fill
+}
+```
+
+`fetchDailyRecovery` / `fetchRangeRecovery` return the recovery **score** (via `goalItem`) plus the sleep-derived context that fed it. Both trending wrappers also carry the signed-in user's `joinedDate` (sourced from the profile, not the recovery payload) so the app can describe the averaging window:
+
+```swift
+public struct SB_DailyRecoveryTrending: Codable, Equatable, Sendable {
+    public var graph: SB_DailyRecoveryGraph?
+    public var joinedDate: Date?             // from the user profile, nil if unknown
+}
+
+public struct SB_RecoveryRangeTrending: Codable, Equatable, Sendable {
+    public var graph: SB_RecoveryRangeGraph?
+    public var joinedDate: Date?             // from the user profile, nil if unknown
+}
+
+public struct SB_DailyRecoveryGraph: Codable, Equatable, Sendable {
+    public var goalItem: SB_DashboardItemRecovery
+    public var variationPercentage: Float
+    public var sleepTimeSeconds: Float
+    public var restingHr: Float
+    public var scoreFactors: [SB_RecoveryScoreFactor]   // daily only
+}
+
+public struct SB_RecoveryRangeGraph: Codable, Equatable, Sendable {
+    public var goalItem: SB_DashboardItemRecovery
+    public var variationPercentage: Float
+    public var sleepTimeSeconds: Float
+    public var restingHr: Float
+    public var recoveryScoreSection: SB_RecoveryScoreSection?
+}
+```
+
+Each contributing factor reports its `percentile` (0–100) and a pre-computed `scoreValue` — the factor's weighted contribution to the recovery score, i.e. `percentile × weight` under `0.4·HRV + 0.4·RHR + 0.1·Sleep Efficiency + 0.1·Sleep Duration`. Colors are **not** returned; the app derives them from the percentile.
+
+```swift
+public struct SB_RecoveryScoreFactor: Codable, Equatable, Sendable {
+    public var title: String
+    public var description: String
+    public var percentile: Float             // 0–100 (e.g. a nocturnal-HRV percentile of 73)
+    public var scoreValue: Float             // weighted points, e.g. 73 × 0.4 = 29.2
 }
 ```
 
