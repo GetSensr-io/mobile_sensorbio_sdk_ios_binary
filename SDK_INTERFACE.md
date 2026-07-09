@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.11.0'
+    :tag => 'v0.12.0'
 end
 
 post_install do |installer|
@@ -270,7 +270,6 @@ public let signOutComplete:             PassthroughSubject<Void, Never>
 public let deviceDiscovered:            PassthroughSubject<SB_DiscoveredDevice, Never>
 public let pairingConnection:           PassthroughSubject<String, Never>   // payload: macAddress
 public let deviceDisconnected:          PassthroughSubject<String, Never>   // payload: macAddress
-public let persistDeviceStateRequested: PassthroughSubject<Void, Never>     // SDK asks the app to call persistDeviceState(_:)
 public let deviceConnected:             PassthroughSubject<Void, Never>     // low-level BLE connect
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
 public let deviceLinkFailed:            PassthroughSubject<SB_DeviceLinkFailure, Never>  // server rejected the device-link (serial-enforced subscription)
@@ -381,8 +380,10 @@ public func startScan()
 public func stopScan()
 public func connect(_ id: String, pairing: Bool = false)
 public func disconnect(_ id: String? = nil)
-public func removeDeviceFromPairedDevices(_ id: String)
-public func persistDeviceState(_ devicesDictionary: [String: Any])
+public func removeDeviceFromPairedDevices(_ id: String)   // unpair: also clears the persisted paired-device store
+public func persistPairedDevice(macAddress: String, name: String, type: SB_BluetoothDeviceType)
+public func clearPairedDevice()
+public internal(set) var isSigningOut: Bool               // true from signOut() until the next signIn/createAccount
 ```
 
 The pairing flow uses the typed `SB_DiscoveredDevice` payload:
@@ -403,7 +404,7 @@ sensorBio.pairingConnection
     .store(in: &cancellables)
 ```
 
-`persistDeviceState(_:)` is the matching write-back: the SDK emits `persistDeviceStateRequested` when the in-memory paired-device map should be persisted on the app side; the app responds by calling `persistDeviceState(_:)` with its serialized devices dictionary.
+The SDK owns paired-device persistence end-to-end — there is no app-built devices dictionary. On a successful pair the host calls `persistPairedDevice(macAddress:name:type:)`; the SDK serializes the identity to `devicesKey`, updates `pairedDevice`, and registers the device with the BLE layer. `clearPairedDevice()` wipes the paired snapshot (cancelled pair / pre-scan reset), and `removeDeviceFromPairedDevices(_:)` clears it on an explicit unpair; `signOut()` clears it too. `isSigningOut` is read-only state the SDK uses to gate BLE auto-reconnect across the signed-out window.
 
 Static bootstrap accessor (callable before `SB_SDK.shared` initializes):
 
@@ -530,6 +531,8 @@ Sync runs automatically once a paired device connects. No customer-side method c
 ## 6. Server APIs (async/await)
 
 Every method below is `async throws` on the `SB_SDK` facade. All return typed `SB_*` domain models; authentication is automatic once the user is signed in. Outcome-style methods (e.g. `signIn`, `updateGoals`) return discriminated enums rather than raw errors for common business cases.
+
+**Caching (dashboard + detail reads).** These reads are disk-cache-backed. Past dates are served offline-first from the on-disk cache; today is always fetched fresh from the server, but the response is still cached and — on a network failure — the last cached payload is returned, so a cold relaunch with no connectivity shows stale "today" instead of a blank screen. Each cache-backed read also has a synchronous, no-network peek that returns the last cached value (or `nil`) for stale-while-revalidate rendering: `cachedDashboardData(for:)`, `cachedDailyHR(for:)` / `cachedRangeHR(for:granularity:)` (and the HRV / RR / SpO2 equivalents), `cachedSteps(for:granularity:)`, `cachedCalories(for:granularity:)`, `cachedDailyActivityDetail(for:granularity:)`, `cachedDailyRecovery(for:)` / `cachedRangeRecovery(for:granularity:)`, `cachedSleepDetail(endDate:endTimestamp:)`, and `cachedSleepAggregation(for:granularity:)`.
 
 ### 6.1 Dashboard
 
@@ -837,10 +840,6 @@ final class HomeViewModel: ObservableObject {
         sensorBio.$pairedDevice
             .receive(on: DispatchQueue.main)
             .assign(to: &$paired)
-
-        sensorBio.persistDeviceStateRequested
-            .sink { _ in /* serialize + call sensorBio.persistDeviceState(...) */ }
-            .store(in: &bag)
     }
 
     func signIn(email: String, password: String) async {

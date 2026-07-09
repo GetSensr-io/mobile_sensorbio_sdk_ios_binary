@@ -11054,6 +11054,9 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public var $pairedDevice: Combine.Published<SensorBioSDK.SB_PairedDeviceState?>.Publisher {
     get
   }
+  public var isSigningOut: Swift.Bool {
+    get
+  }
   @Combine.Published<SensorBioSDK.SB_RecordingState> @_projectedValueProperty($recordingState) public var recordingState: SensorBioSDK.SB_RecordingState {
     get
   }
@@ -11173,7 +11176,6 @@ public let sensorBio: SensorBioSDK.SB_SDK
   final public let syncCompleted: Combine.PassthroughSubject<SensorBioSDK.SB_SyncResult?, Swift.Never>
   final public let hrSyncFinishedForActivity: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let analyticsEvents: Combine.PassthroughSubject<SensorBioSDK.SB_AnalyticsEvent, Swift.Never>
-  final public let persistDeviceStateRequested: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let subscriptionLost: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let signOutComplete: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   final public let biometricRecordProcessed: Combine.PassthroughSubject<Swift.Void, Swift.Never>
@@ -11222,7 +11224,8 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public func userLED(red: Swift.Bool = false, green: Swift.Bool = false, blue: Swift.Bool = false, blink: Swift.Bool = false, for seconds: Swift.Int) async throws
   public func updateFirmware(_ url: Foundation.URL, delay: Swift.Int? = nil, size: Swift.Int? = nil) async throws
   public func findSleepSession(startTimestamp: Swift.Int64, endTimestamp: Swift.Int64) -> SensorBioSDK.SB_SleepSession?
-  public func persistDeviceState(_ devicesDictionary: [Swift.String : Any])
+  public func persistPairedDevice(macAddress: Swift.String, name: Swift.String, type: SensorBioSDK.SB_BluetoothDeviceType)
+  public func clearPairedDevice()
   public static var persistedDevicesDictionary: [Swift.String : Swift.AnyObject]? {
     get
   }
@@ -11238,6 +11241,11 @@ extension SensorBioSDK.SB_SDK {
   public func fetchDailyActivityDetail(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_DailyActivityDetail
   public func fetchDailyRecovery(date: Foundation.Date) async throws -> SensorBioSDK.SB_DailyRecoveryTrending
   public func fetchRangeRecovery(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_RecoveryRangeTrending
+  public func cachedSteps(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_StepsTrending?
+  public func cachedCalories(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_CaloriesTrending?
+  public func cachedDailyActivityDetail(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_DailyActivityDetail?
+  public func cachedDailyRecovery(for date: Foundation.Date) -> SensorBioSDK.SB_DailyRecoveryTrending?
+  public func cachedRangeRecovery(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_RecoveryRangeTrending?
 }
 extension SensorBioSDK.SB_SDK {
   public static func runDefaultsMigratorIfNeeded()
@@ -11273,12 +11281,21 @@ extension SensorBioSDK.SB_SDK {
   public func fetchRangeRR(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_RRRangeTrending
   public func fetchDailySpO2(date: Foundation.Date) async throws -> SensorBioSDK.SB_SpO2DailyTrending
   public func fetchRangeSpO2(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_SpO2RangeTrending
+  public func cachedDailyHR(for date: Foundation.Date) -> SensorBioSDK.SB_HRDailyTrending?
+  public func cachedRangeHR(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_HRRangeTrending?
+  public func cachedDailyHRV(for date: Foundation.Date) -> SensorBioSDK.SB_HRVDailyTrending?
+  public func cachedRangeHRV(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_HRVRangeTrending?
+  public func cachedDailyRR(for date: Foundation.Date) -> SensorBioSDK.SB_RRDailyTrending?
+  public func cachedRangeRR(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_RRRangeTrending?
+  public func cachedDailySpO2(for date: Foundation.Date) -> SensorBioSDK.SB_SpO2DailyTrending?
+  public func cachedRangeSpO2(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_SpO2RangeTrending?
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchDailyStats(startDate: Swift.Int32, days: Swift.Int32, includeBiometrics: Swift.Bool, includeSleep: Swift.Bool, includeSteps: Swift.Bool) async throws -> SensorBioSDK.SB_DailyStatsResponse
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchDashboardData(date: Foundation.Date, tzOffset: Swift.Int32) async throws -> SensorBioSDK.SB_DashboardData
+  public func cachedDashboardData(for date: Foundation.Date) -> SensorBioSDK.SB_DashboardData?
 }
 extension SensorBioSDK.SB_SDK {
   public func updateUserDeviceInfo(macAddress: Swift.String, metadata: [Swift.String : Swift.String], unlinkDevice: Swift.Bool)
@@ -11361,6 +11378,8 @@ extension SensorBioSDK.SB_SDK {
 extension SensorBioSDK.SB_SDK {
   public func fetchSleepDetail(endDate: Foundation.Date, endTimestamp: Swift.Int64) async throws -> SensorBioSDK.SB_SleepDetailDay
   public func fetchSleepAggregation(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_SleepDetailAggregated
+  public func cachedSleepDetail(endDate: Foundation.Date, endTimestamp: Swift.Int64) -> SensorBioSDK.SB_SleepDetailDay?
+  public func cachedSleepAggregation(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_SleepDetailAggregated?
 }
 public enum SB_SleepWriteError : Swift.Error {
   case insufficientData
