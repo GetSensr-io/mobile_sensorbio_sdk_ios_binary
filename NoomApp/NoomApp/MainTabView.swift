@@ -19,7 +19,6 @@ struct MainTabView: View {
                 .tabItem { Label("Sleep", systemImage: "moon.fill") }
         }
         .tint(NoomTheme.red)
-        .safeAreaInset(edge: .top, spacing: 0) { ConnectionIndicator() }
     }
 }
 
@@ -56,8 +55,8 @@ struct SleepHomeView: View {
     }
 }
 
-/// Persistent status bar shown above the TabView when a Noom Band is paired.
-struct ConnectionIndicator: View {
+/// Compact band status shown beside the dashboard profile control.
+struct BandBatteryBadge: View {
     @State private var haveDevice: Bool = sensorBio.haveDevice
     @State private var connected: Bool = sensorBio.connected
     @State private var battery: Int? = sensorBio.batteryLevel
@@ -66,28 +65,40 @@ struct ConnectionIndicator: View {
     var body: some View {
         Group {
             if haveDevice {
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
+                    Image(systemName: batteryIcon())
                     if connected {
-                        Image(systemName: batteryIcon()).foregroundStyle(NoomTheme.red)
-                        Text(battery.map { "Noom Band \($0)%" } ?? "Noom Band connected")
-                            .foregroundStyle(NoomTheme.logoBlack)
-                        if charging == true { Image(systemName: "bolt.fill").foregroundStyle(NoomTheme.gold) }
+                        Text(battery.map { "\($0)%" } ?? "Live")
+                        if charging == true {
+                            Image(systemName: "bolt.fill")
+                        }
                     } else {
-                        Image(systemName: "antenna.radiowaves.left.and.right.slash").foregroundStyle(NoomTheme.muted)
-                        Text("Noom Band not connected").foregroundStyle(NoomTheme.muted)
+                        Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                        Text("Offline")
                     }
                 }
                 .font(.system(size: 12, weight: .bold, design: .rounded))
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 12).padding(.top, 8).padding(.bottom, 7)
-                .background(NoomTheme.card)
-                .overlay(alignment: .bottom) { NoomTheme.softLine.frame(height: 1) }
+                .foregroundStyle(connected ? NoomTheme.logoBlack : NoomTheme.muted)
+                .padding(.horizontal, 9)
+                .padding(.vertical, 7)
+                .background(
+                    connected ? NoomTheme.red.opacity(0.12) : NoomTheme.softLine.opacity(0.72),
+                    in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                )
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(accessibilityStatus)
             }
         }
         .onReceive(sensorBio.$haveDevice) { haveDevice = $0 }
         .onReceive(sensorBio.$connected) { connected = $0 }
         .onReceive(sensorBio.$batteryLevel) { battery = $0 }
         .onReceive(sensorBio.$charging) { charging = $0 }
+    }
+
+    private var accessibilityStatus: String {
+        guard connected else { return "Noom Band not connected" }
+        if let battery { return "Noom Band battery \(battery) percent" }
+        return "Noom Band connected"
     }
 
     private func batteryIcon() -> String {

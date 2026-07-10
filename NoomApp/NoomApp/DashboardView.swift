@@ -16,20 +16,23 @@ struct DashboardView: View {
         @Bindable var ctx = dateContext
         NoomScreen {
             NoomTopBar(label: formattedDate(dateContext.selectedDate)) {
-                NavigationLink {
-                    ProfileView(session: session)
-                } label: {
-                    ZStack {
-                        Circle().fill(NoomTheme.ink).frame(width: 36, height: 36)
-                        Text(initials(from: session.username))
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
+                HStack(spacing: 8) {
+                    BandBatteryBadge()
+                    NavigationLink {
+                        ProfileView(session: session)
+                    } label: {
+                        ZStack {
+                            Circle().fill(NoomTheme.ink).frame(width: 36, height: 36)
+                            Text(initials(from: session.username))
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                        }
+                        .frame(width: 44, height: 44)
+                        .contentShape(Circle())
                     }
-                    .frame(width: 44, height: 44)
-                    .contentShape(Circle())
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Profile")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Profile")
             }
 
             if dashboard.isLoading && dashboard.data == nil {

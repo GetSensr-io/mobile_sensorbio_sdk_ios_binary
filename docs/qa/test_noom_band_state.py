@@ -4,6 +4,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 DASHBOARD = (ROOT / "NoomApp/NoomApp/DashboardView.swift").read_text()
+MAIN_TAB = (ROOT / "NoomApp/NoomApp/MainTabView.swift").read_text()
 STATE = (ROOT / "NoomApp/NoomApp/NoomBandConnectionState.swift").read_text()
 PAIR = (ROOT / "NoomApp/NoomApp/PairDeviceState.swift").read_text()
 QA = (ROOT / "NoomApp/NoomApp/ContentView.swift").read_text()
@@ -26,10 +27,20 @@ class NoomBandStateTests(unittest.TestCase):
         self.assertIn("sensorBio.$connected", DASHBOARD)
 
     def test_profile_is_real_navigation_destination_with_accessible_hit_target(self):
-        self.assertIn("NavigationLink {\n                    ProfileView(session: session)", DASHBOARD)
+        self.assertIn("NavigationLink {", DASHBOARD)
+        self.assertIn("ProfileView(session: session)", DASHBOARD)
         self.assertIn('.frame(width: 44, height: 44)', DASHBOARD)
         self.assertIn('.contentShape(Circle())', DASHBOARD)
         self.assertIn('.accessibilityLabel("Profile")', DASHBOARD)
+
+    def test_band_status_is_compact_and_adjacent_to_the_profile_control(self):
+        self.assertNotIn(".safeAreaInset(edge: .top", MAIN_TAB)
+        self.assertIn("struct BandBatteryBadge", MAIN_TAB)
+        self.assertIn("BandBatteryBadge()", DASHBOARD)
+        badge = DASHBOARD.index("BandBatteryBadge()")
+        profile = DASHBOARD.index("NavigationLink {", badge)
+        self.assertLess(badge, profile)
+        self.assertIn("Text(battery.map { \"\\($0)%\" }", MAIN_TAB)
 
     def test_sign_out_uses_sdk_only_after_success_and_no_manual_device_wipe(self):
         sdk_call = PROFILE.index("try await sensorBio.signOut()")
