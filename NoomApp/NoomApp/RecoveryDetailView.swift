@@ -35,6 +35,7 @@ struct RecoveryDetailView: View {
         .noomBackground()
         .navigationTitle(Metric.recovery.title)
         .navigationBarTitleDisplayMode(.inline)
+        .noomDetailBackButton()
         .safeAreaInset(edge: .top, spacing: 0) {
             DetailHeaderControls(granularity: $granularity)
         }

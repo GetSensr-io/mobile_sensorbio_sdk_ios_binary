@@ -473,6 +473,7 @@ struct BaselineMetricDetail: View {
         .background(Color(uiColor: .systemGroupedBackground))
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .noomDetailBackButton()
     }
 
     @ViewBuilder

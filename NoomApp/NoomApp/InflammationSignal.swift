@@ -123,6 +123,7 @@ struct InflammationSignalDetailView: View {
                 )
                 .navigationTitle(Metric.inflammation.title)
                 .navigationBarTitleDisplayMode(.inline)
+                .noomDetailBackButton()
             }
         }
     }

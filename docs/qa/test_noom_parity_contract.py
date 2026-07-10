@@ -16,6 +16,10 @@ PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
 METRIC_FORMATTING = (SRC / "Metric.swift").read_text()
 BODY_STATUS = METRIC_FORMATTING
 SLEEP_HOME = (SRC / "MainTabView.swift").read_text()
+NOOM_DESIGN = (SRC / "NoomDesignSystem.swift").read_text()
+SLEEP_DETAIL = (SRC / "SleepDetailView.swift").read_text()
+RECOVERY_DETAIL = (SRC / "RecoveryDetailView.swift").read_text()
+INFLAMMATION_DETAIL = (SRC / "InflammationSignal.swift").read_text()
 NUMERIC_DISPLAY_SOURCES = {
     "DashboardView.swift": DASHBOARD,
     "InsightsView.swift": INSIGHTS_VIEW,
@@ -41,6 +45,22 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("Use staging SDK environment", CONTENT)
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
+
+    def test_detail_pages_have_one_explicit_accessible_back_affordance(self) -> None:
+        for snippet in (
+            "struct NoomDetailBackButton",
+            '@Environment(\\.dismiss)',
+            'Image(systemName: "chevron.left")',
+            '.accessibilityLabel("Back")',
+            "func noomDetailBackButton()",
+            "navigationBarBackButtonHidden(true)",
+            "ToolbarItem(placement: .topBarLeading)",
+        ):
+            self.assertIn(snippet, NOOM_DESIGN)
+        self.assertIn(".noomDetailBackButton()", METRIC_FORMATTING)
+        self.assertIn(".noomDetailBackButton()", SLEEP_DETAIL)
+        self.assertIn(".noomDetailBackButton()", RECOVERY_DETAIL)
+        self.assertIn(".noomDetailBackButton()", INFLAMMATION_DETAIL)
 
     def test_dashboard_logo_sits_top_left_on_the_today_header_row(self) -> None:
         header = DASHBOARD[DASHBOARD.index("NoomScreen {"):DASHBOARD.index("if dashboard.isLoading")]

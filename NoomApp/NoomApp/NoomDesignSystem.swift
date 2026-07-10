@@ -68,6 +68,34 @@ struct NoomBackground: ViewModifier {
 
 extension View {
     func noomBackground() -> some View { modifier(NoomBackground()) }
+
+    func noomDetailBackButton() -> some View {
+        navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NoomDetailBackButton()
+                }
+            }
+    }
+}
+
+struct NoomDetailBackButton: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 17, weight: .bold))
+                .foregroundStyle(NoomTheme.logoBlack)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Back")
+        .accessibilityHint("Returns to the previous screen")
+    }
 }
 
 struct NoomLogoPlate: View {

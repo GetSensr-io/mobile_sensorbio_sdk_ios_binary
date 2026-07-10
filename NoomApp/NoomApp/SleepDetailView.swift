@@ -59,6 +59,7 @@ struct SleepDetailView: View {
         .noomBackground()
         .navigationTitle(Metric.sleep.title)
         .navigationBarTitleDisplayMode(.inline)
+        .noomDetailBackButton()
         .safeAreaInset(edge: .top, spacing: 0) {
             DetailHeaderControls(granularity: $granularity)
         }
