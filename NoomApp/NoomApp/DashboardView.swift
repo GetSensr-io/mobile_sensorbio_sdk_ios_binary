@@ -18,7 +18,7 @@ struct DashboardView: View {
         NoomScreen {
             HStack(alignment: .center, spacing: 12) {
                 NoomLogoPlate(compact: true)
-                    .accessibilityLabel("Noom")
+                    .accessibilityLabel("Noom plus")
                 Spacer()
                 HStack(spacing: 8) {
                     NavigationLink { RecordActivityView() } label: {

@@ -46,6 +46,50 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
 
+    def test_qa_metric_details_use_disclosed_unit_correct_samples_without_sdk_auth(self) -> None:
+        content = (SRC / "ContentView.swift").read_text()
+        destination_block = content[content.index("private func qaDestination"):content.index("private var metricBaselinePreview")]
+        for live_detail in (
+            "StepsDetailView()",
+            "CaloriesDetailView()",
+            "HRDetailView()",
+            "HRVDetailView()",
+            "RRDetailView()",
+        ):
+            self.assertNotIn(live_detail, destination_block)
+
+        for token in (
+            "metricPreview(for: .steps)",
+            "metricPreview(for: .calories)",
+            "metricPreview(for: .heartRate)",
+            "metricPreview(for: .hrv)",
+            "metricPreview(for: .respiratoryRate)",
+            'previewDisclosure: "Synthetic development data. Not a personal health result."',
+            'unit: "steps"',
+            'unit: "kcal"',
+            'unit: "bpm"',
+            'unit: "ms"',
+            'unit: "breaths/min"',
+        ):
+            self.assertIn(token, content)
+
+    def test_customer_facing_identity_is_noomplus_with_a_noom_plus_lockup(self) -> None:
+        import plistlib
+
+        with (SRC / "Info.plist").open("rb") as handle:
+            info = plistlib.load(handle)
+        self.assertEqual(info["CFBundleDisplayName"], "NoomPlus")
+
+        design = (SRC / "NoomDesignSystem.swift").read_text()
+        for token in (
+            "struct NoomPlusLockup",
+            'Image("NoomLogoBrandfetch")',
+            'Text("+")',
+            '.accessibilityLabel("Noom plus")',
+            "NoomPlusLockup(compact: compact)",
+        ):
+            self.assertIn(token, design)
+
     def test_qa_detail_routes_are_pushed_so_back_dismisses(self) -> None:
         content = (SRC / "ContentView.swift").read_text()
         expected_routes = {

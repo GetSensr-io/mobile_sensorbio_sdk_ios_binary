@@ -98,14 +98,31 @@ struct NoomDetailBackButton: View {
     }
 }
 
+struct NoomPlusLockup: View {
+    var compact: Bool = false
+
+    var body: some View {
+        HStack(alignment: .center, spacing: compact ? 2 : 3) {
+            Image("NoomLogoBrandfetch")
+                .resizable()
+                .scaledToFit()
+                .frame(width: compact ? 78 : 112, height: compact ? 18 : 25)
+            Text("+")
+                .font(.system(size: compact ? 23 : 31, weight: .bold, design: .rounded))
+                .foregroundStyle(NoomTheme.logoBlack)
+                .offset(y: compact ? -1 : -2)
+        }
+        .fixedSize()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Noom plus")
+    }
+}
+
 struct NoomLogoPlate: View {
     var compact: Bool = false
 
     var body: some View {
-        Image("NoomLogoBrandfetch")
-            .resizable()
-            .scaledToFit()
-            .frame(width: compact ? 78 : 112, height: compact ? 18 : 25)
+        NoomPlusLockup(compact: compact)
             .padding(.horizontal, compact ? 10 : 14)
             .padding(.vertical, compact ? 8 : 10)
             .background(Color.white, in: RoundedRectangle(cornerRadius: compact ? 12 : 16, style: .continuous))
@@ -114,7 +131,6 @@ struct NoomLogoPlate: View {
                     .stroke(NoomTheme.logoBlack.opacity(0.08), lineWidth: 1)
             }
             .shadow(color: NoomTheme.ink.opacity(0.07), radius: 12, x: 0, y: 6)
-            .accessibilityLabel("Noom")
     }
 }
 
@@ -122,11 +138,7 @@ struct NoomBareLogo: View {
     var compact: Bool = false
 
     var body: some View {
-        Image("NoomLogoBrandfetch")
-            .resizable()
-            .scaledToFit()
-            .frame(width: compact ? 78 : 118, height: compact ? 18 : 27)
-            .accessibilityLabel("Noom")
+        NoomPlusLockup(compact: compact)
     }
 }
 

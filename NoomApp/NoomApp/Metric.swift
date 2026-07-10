@@ -395,10 +395,20 @@ struct BaselineMetricDetail: View {
     let tone: BaselineDetailTone
     let baseline: PersonalBaseline?
     let readings: [MetricReading]
+    var previewDisclosure: String? = nil
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                if let previewDisclosure {
+                    NoomStateBanner(
+                        title: "Preview sample",
+                        detail: previewDisclosure,
+                        systemImage: "wrench.and.screwdriver",
+                        tint: NoomTheme.rose
+                    )
+                }
+
                 VStack(alignment: .leading, spacing: 8) {
                     Text(date.formatted(date: .abbreviated, time: .omitted))
                         .font(.subheadline.weight(.medium))

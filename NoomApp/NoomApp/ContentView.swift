@@ -325,16 +325,32 @@ private struct NoomQAHost: View {
         case .metricBaseline:
             metricBaselinePreview
         case .stepsDetail:
-            StepsDetailView()
+            metricPreview(for: .steps)
         case .caloriesDetail:
-            CaloriesDetailView()
+            metricPreview(for: .calories)
         case .heartRateDetail:
-            HRDetailView()
+            metricPreview(for: .heartRate)
         case .hrvDetail:
-            HRVDetailView()
+            metricPreview(for: .hrv)
         case .respiratoryRateDetail:
-            RRDetailView()
+            metricPreview(for: .respiratoryRate)
         }
+    }
+
+    private func metricPreview(for metric: NoomQAMetricPreview) -> some View {
+        BaselineMetricDetail(
+            title: metric.title,
+            symbol: metric.symbol,
+            accent: metric.accent,
+            date: .now,
+            value: metric.value,
+            valueText: MetricFormatting.humanNumber(metric.value),
+            unit: metric.unit,
+            tone: metric.tone,
+            baseline: PersonalBaseline.make(currentValue: metric.value, historicalValues: metric.history),
+            readings: metric.readings,
+            previewDisclosure: "Synthetic development data. Not a personal health result."
+        )
     }
 
     private var metricBaselinePreview: some View {
@@ -353,7 +369,8 @@ private struct NoomQAHost: View {
                 MetricReading(label: "Average", value: "67 bpm"),
                 MetricReading(label: "Low", value: "52 bpm"),
                 MetricReading(label: "High", value: "98 bpm")
-            ]
+            ],
+            previewDisclosure: "Synthetic development data. Not a personal health result."
         )
     }
 
@@ -362,6 +379,89 @@ private struct NoomQAHost: View {
         didSetInitialDestination = true
         path = [destination]
     }
+}
+
+private struct NoomQAMetricPreview {
+    let title: String
+    let symbol: String
+    let accent: Color
+    let value: Double
+    let unit: String
+    let tone: BaselineDetailTone
+    let history: [Double]
+    let readings: [MetricReading]
+
+    static let steps = NoomQAMetricPreview(
+        title: "Steps",
+        symbol: "figure.walk",
+        accent: NoomTheme.red,
+        value: 6_250,
+        unit: "steps",
+        tone: .activity,
+        history: [5_880, 6_140, 5_720, 6_430, 6_080, 5_940, 6_520, 6_210, 5_830, 6_360, 6_010, 6_470, 5_900, 6_180, 6_340, 6_020],
+        readings: [
+            MetricReading(label: "Daily total", value: "6,250 steps"),
+            MetricReading(label: "Source", value: "Synthetic preview")
+        ]
+    )
+
+    static let calories = NoomQAMetricPreview(
+        title: "Active Calories",
+        symbol: "flame.fill",
+        accent: .pink,
+        value: 438,
+        unit: "kcal",
+        tone: .activity,
+        history: [402, 451, 420, 467, 431, 446, 415, 472, 439, 458, 427, 463, 410, 449, 435, 470],
+        readings: [
+            MetricReading(label: "Active energy", value: "438 kcal"),
+            MetricReading(label: "Source", value: "Synthetic preview")
+        ]
+    )
+
+    static let heartRate = NoomQAMetricPreview(
+        title: "Resting Heart Rate",
+        symbol: "heart.fill",
+        accent: .red,
+        value: 58,
+        unit: "bpm",
+        tone: .heartRate,
+        history: [60, 59, 61, 58, 62, 60, 59, 61, 58, 60, 59, 61, 60, 58, 62, 59],
+        readings: [
+            MetricReading(label: "Resting", value: "58 bpm"),
+            MetricReading(label: "Average", value: "67 bpm"),
+            MetricReading(label: "Low", value: "52 bpm"),
+            MetricReading(label: "High", value: "98 bpm")
+        ]
+    )
+
+    static let hrv = NoomQAMetricPreview(
+        title: "Heart-rate Variability",
+        symbol: "waveform.path.ecg",
+        accent: .indigo,
+        value: 46,
+        unit: "ms",
+        tone: .variability,
+        history: [43, 47, 45, 49, 44, 48, 46, 50, 42, 47, 45, 49, 44, 48, 46, 51],
+        readings: [
+            MetricReading(label: "Nightly median", value: "46 ms"),
+            MetricReading(label: "Source", value: "Synthetic preview")
+        ]
+    )
+
+    static let respiratoryRate = NoomQAMetricPreview(
+        title: "Respiratory Rate",
+        symbol: "lungs.fill",
+        accent: .teal,
+        value: 14.8,
+        unit: "breaths/min",
+        tone: .respiratory,
+        history: [14.5, 14.9, 14.6, 15.1, 14.7, 15.0, 14.8, 15.2, 14.4, 14.9, 14.6, 15.0, 14.7, 15.1, 14.8, 15.2],
+        readings: [
+            MetricReading(label: "Nightly median", value: "14.8 breaths/min"),
+            MetricReading(label: "Source", value: "Synthetic preview")
+        ]
+    )
 }
 
 private struct NoomMetricPreviewHub: View {

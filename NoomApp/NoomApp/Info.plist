@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleDisplayName</key>
-	<string>Noom</string>
+	<string>NoomPlus</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -21,15 +21,15 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>11</string>
+	<string>12</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<true/>
 	<key>ProductLoopEndpoint</key>
 	<string>https://stoic-mink-37.convex.site</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Noom uses Bluetooth to connect to your Noom Band.</string>
+	<string>NoomPlus uses Bluetooth to connect to your Noom Band.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Noom uses Bluetooth to connect to your Noom Band.</string>
+	<string>NoomPlus uses Bluetooth to connect to your Noom Band.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
