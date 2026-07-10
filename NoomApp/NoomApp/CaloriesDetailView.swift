@@ -5,66 +5,69 @@ struct CaloriesDetailView: View {
     @Environment(AppDateContext.self) private var dateContext
     @State private var granularity: SB_ViewGranularity = .day
     @State private var data: SB_CaloriesTrending?
-    @State private var isLoading: Bool = false
-    @State private var errorMessage: String? = nil
+    @State private var baseline: PersonalBaseline?
+    @State private var isLoading = false
+    @State private var errorMessage: String?
 
     var body: some View {
-        List {
+        Group {
             if isLoading {
-                Section { HStack { ProgressView(); Text("Loading\u{2026}").foregroundStyle(.secondary) } }
-            } else if let error = errorMessage {
-                Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
+                ProgressView("Loading active calories…")
+            } else if let errorMessage {
+                ContentUnavailableView("Active calories unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
+            } else if granularity == .day, let metric = data?.graph?.metrics.first {
+                BaselineMetricDetail(
+                    title: Metric.calories.title,
+                    symbol: "flame.fill",
+                    accent: .pink,
+                    date: dateContext.selectedDate,
+                    value: dailyTotal(metric),
+                    valueText: MetricFormatting.humanNumber(dailyTotal(metric)),
+                    unit: metric.unit,
+                    tone: .activity,
+                    baseline: baseline,
+                    readings: metric.timeDatapoints.sorted { $0.timestamp < $1.timestamp }.map {
+                        MetricReading(
+                            label: MetricFormatting.dayTimeLabel(timestampMillis: $0.timestamp, timezoneOffsetMinutes: $0.timezone),
+                            value: "\(MetricFormatting.humanNumber(Double($0.value))) \(metric.unit)"
+                        )
+                    }
+                )
             } else if let metrics = data?.graph?.metrics, !metrics.isEmpty {
-                ForEach(metrics.indices, id: \.self) { idx in
-                    metricSection(metrics[idx])
-                }
+                List(metrics.indices, id: \.self) { metricSection(metrics[$0]) }
             } else {
-                Section { Text("No data").foregroundStyle(.secondary) }
+                ContentUnavailableView("No active calories yet", systemImage: "flame")
             }
         }
         .navigationTitle(Metric.calories.title)
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            DetailHeaderControls(granularity: $granularity)
-        }
-        .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) {
-            await load()
-        }
+        .safeAreaInset(edge: .top, spacing: 0) { DetailHeaderControls(granularity: $granularity) }
+        .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) { await load() }
     }
 
-    @ViewBuilder
     private func metricSection(_ metric: SB_CalorieMetric) -> some View {
-        Section(metric.name.isEmpty ? "Metric" : metric.name) {
-            LabeledContent("Average", value: "\(Int(metric.avgValue).formatted(.number)) \(metric.unit)")
-            if granularity == .day {
-                if metric.timeDatapoints.isEmpty {
-                    Text("No data").foregroundStyle(.secondary)
-                } else {
-                    ForEach(metric.timeDatapoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
-                        LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
-                                       value: "\(Int(point.value).formatted(.number)) \(metric.unit)")
-                    }
-                }
-            } else {
-                if metric.datapoints.isEmpty {
-                    Text("No data").foregroundStyle(.secondary)
-                } else {
-                    ForEach(metric.datapoints.sorted { $0.date < $1.date }, id: \.date) { point in
-                        LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
-                                       value: "\(Int(point.value).formatted(.number)) \(metric.unit)")
-                    }
-                }
+        Section(metric.name.isEmpty ? "Active calories" : metric.name) {
+            LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Double(metric.avgValue))) \(metric.unit)")
+            ForEach(metric.datapoints.sorted { $0.date < $1.date }, id: \.date) { point in
+                LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: "\(MetricFormatting.humanNumber(Double(point.value))) \(metric.unit)")
             }
         }
     }
 
-    @MainActor
-    private func load() async {
+    private func dailyTotal(_ metric: SB_CalorieMetric) -> Double {
+        let total = metric.timeDatapoints.reduce(0) { $0 + Double($1.value) }
+        return total > 0 ? total : Double(metric.avgValue)
+    }
+
+    @MainActor private func load() async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
         do {
             data = try await sensorBio.fetchCalories(date: dateContext.selectedDate, granularity: granularity)
+            guard granularity == .day, let metric = data?.graph?.metrics.first else { baseline = nil; return }
+            let history = (try? await PersonalBaselineLoader.trailingValues(for: .calories, selectedDate: dateContext.selectedDate)) ?? []
+            baseline = PersonalBaseline.make(currentValue: dailyTotal(metric), historicalValues: history)
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -8,140 +8,160 @@ struct SignInView: View {
     @State private var isRequestingReset: Bool = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                SignInHeroCollage()
-                    .frame(height: 318)
-                    .padding(.top, 28)
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                SignInFullBleedHero()
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Welcome back")
-                        .noomSerifTitle(size: 42)
-                    Text("Sign in to continue your daily plan.")
-                        .noomBody()
-                }
-                .padding(.top, 2)
-
-                NoomCard(fill: Color.white.opacity(0.82), padding: 18) {
-                    VStack(spacing: 14) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Email").noomLabel()
-                            TextField("Email", text: $form.email)
-                                .textContentType(.emailAddress)
-                                .keyboardType(.emailAddress)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(NoomTheme.logoBlack)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 15)
-                                .background(NoomTheme.warmSurface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                        .stroke(NoomTheme.softLine, lineWidth: 1)
-                                }
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Password").noomLabel()
-                            HStack(spacing: 10) {
-                                Group {
-                                    if showPassword {
-                                        TextField("Password", text: $form.password)
-                                            .textInputAutocapitalization(.never)
-                                            .autocorrectionDisabled()
-                                    } else {
-                                        SecureField("Password", text: $form.password)
-                                    }
-                                }
-                                .textContentType(.password)
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(NoomTheme.logoBlack)
-
-                                Button {
-                                    showPassword.toggle()
-                                } label: {
-                                    Image(systemName: showPassword ? "eye.slash" : "eye")
-                                        .font(.system(size: 15, weight: .semibold))
-                                        .foregroundStyle(NoomTheme.muted)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(showPassword ? "Hide password" : "Show password")
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 15)
-                            .background(NoomTheme.warmSurface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .stroke(NoomTheme.softLine, lineWidth: 1)
-                            }
-                        }
-
-                        if let result = form.result {
-                            resultView(result)
-                                .padding(.top, 2)
-                        }
-
-                        if let resetStatus {
-                            passwordResetStatusView(resetStatus)
-                                .padding(.top, 2)
-                        }
-
-                        Button {
-                            dismissKeyboard()
-                            Task { await form.submit() }
-                        } label: {
-                            if form.isSubmitting {
-                                ProgressView()
-                                    .tint(.white)
-                                    .frame(maxWidth: .infinity)
-                            } else {
-                                Text("Sign in")
-                            }
-                        }
-                        .buttonStyle(NoomPrimaryButtonStyle())
-                        .disabled(!form.canSubmit)
-                        .padding(.top, 4)
-
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
                         HStack {
-                            Button {
-                                dismissKeyboard()
-                                Task { await requestPasswordReset() }
-                            } label: {
-                                if isRequestingReset {
-                                    ProgressView().tint(NoomTheme.logoBlack)
-                                } else {
-                                    Text("Forgot password?")
-                                }
-                            }
-                            .disabled(form.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isRequestingReset)
+                            NoomLogoPlate(compact: true)
                             Spacer()
-                            NavigationLink("Create account") { SignUpView() }
                         }
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(NoomTheme.logoBlack.opacity(0.62))
-                        .padding(.horizontal, 4)
+                        .padding(.horizontal, NoomTheme.horizontalPadding)
+                        .padding(.top, geometry.safeAreaInsets.top + 10)
+
+                        Spacer(minLength: max(238, geometry.size.height * 0.29))
+
+                        signInPanel
+                            .frame(width: geometry.size.width, alignment: .leading)
                     }
+                    .frame(minHeight: geometry.size.height, alignment: .top)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
-            .padding(.horizontal, NoomTheme.horizontalPadding)
-            .padding(.bottom, 42)
+            .ignoresSafeArea(edges: .top)
         }
-        .noomBackground()
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            NoomBareLogo()
-                .frame(maxWidth: .infinity)
-                .padding(.top, 6)
-                .padding(.bottom, 6)
-                .background(NoomTheme.warmSurface.opacity(0.96))
-        }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button("Done") { dismissKeyboard() }
             }
+        }
+    }
+
+    private var signInPanel: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Welcome back")
+                    .noomSerifTitle(size: 40)
+                Text("Continue your everyday plan with your Noom Band.")
+                    .noomBody()
+            }
+
+            VStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Email").noomLabel()
+                    TextField("Email", text: $form.email)
+                        .textContentType(.emailAddress)
+                        .keyboardType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(NoomTheme.logoBlack)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 15)
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(NoomTheme.softLine, lineWidth: 1)
+                        }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Password").noomLabel()
+                    HStack(spacing: 10) {
+                        Group {
+                            if showPassword {
+                                TextField("Password", text: $form.password)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                            } else {
+                                SecureField("Password", text: $form.password)
+                            }
+                        }
+                        .textContentType(.password)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(NoomTheme.logoBlack)
+
+                        Button {
+                            showPassword.toggle()
+                        } label: {
+                            Image(systemName: showPassword ? "eye.slash" : "eye")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(NoomTheme.muted)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(showPassword ? "Hide password" : "Show password")
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 15)
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(NoomTheme.softLine, lineWidth: 1)
+                    }
+                }
+
+                if let result = form.result {
+                    resultView(result)
+                        .padding(.top, 2)
+                }
+
+                if let resetStatus {
+                    passwordResetStatusView(resetStatus)
+                        .padding(.top, 2)
+                }
+
+                Button {
+                    dismissKeyboard()
+                    Task { await form.submit() }
+                } label: {
+                    if form.isSubmitting {
+                        ProgressView()
+                            .tint(.white)
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("Sign in")
+                    }
+                }
+                .buttonStyle(NoomPrimaryButtonStyle())
+                .disabled(!form.canSubmit)
+                .padding(.top, 4)
+
+                HStack {
+                    Button {
+                        dismissKeyboard()
+                        Task { await requestPasswordReset() }
+                    } label: {
+                        if isRequestingReset {
+                            ProgressView().tint(NoomTheme.logoBlack)
+                        } else {
+                            Text("Forgot password?")
+                        }
+                    }
+                    .disabled(form.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isRequestingReset)
+                    Spacer()
+                    NavigationLink("Create account") { SignUpView() }
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(NoomTheme.logoBlack.opacity(0.70))
+                .padding(.horizontal, 4)
+            }
+        }
+        .padding(.horizontal, NoomTheme.horizontalPadding)
+        .padding(.top, 30)
+        .padding(.bottom, 42)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(NoomTheme.warmSurface.opacity(0.98))
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 32, topTrailingRadius: 32))
+        .overlay(alignment: .top) {
+            Capsule()
+                .fill(NoomTheme.ink.opacity(0.12))
+                .frame(width: 44, height: 5)
+                .padding(.top, 10)
         }
     }
 
@@ -244,6 +264,28 @@ private struct SignInStatusRow: View {
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+}
+
+private struct SignInFullBleedHero: View {
+    var body: some View {
+        Image("WelcomeMorning")
+            .resizable()
+            .scaledToFill()
+            .ignoresSafeArea()
+            .overlay {
+                LinearGradient(
+                    colors: [
+                        Color.clear,
+                        NoomTheme.ink.opacity(0.10),
+                        NoomTheme.warmSurface.opacity(0.84)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            }
+            .accessibilityHidden(true)
     }
 }
 

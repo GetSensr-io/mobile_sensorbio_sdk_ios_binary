@@ -74,6 +74,10 @@ class NoomParityContractTests(unittest.TestCase):
         for filename, source in NUMERIC_DISPLAY_SOURCES.items():
             self.assertIn("MetricFormatting.humanNumber", source, filename)
 
+    def test_sign_in_uses_an_accessible_full_bleed_lifestyle_hero(self) -> None:
+        for token in ("struct SignInFullBleedHero", 'Image("WelcomeMorning")', "SignInFullBleedHero()", "ignoresSafeArea", "NoomLogoPlate", "Continue your everyday plan"):
+            self.assertIn(token, SIGNIN)
+
     def test_password_reset_button_calls_sdk_and_shows_outcome(self) -> None:
         self.assertIn("requestPasswordReset(email:", SIGNIN)
         self.assertRegex(SIGNIN, r"case \.resetSent|Reset link sent")
@@ -102,11 +106,13 @@ class NoomParityContractTests(unittest.TestCase):
         for route in (
             "sleep_detail",
             "recovery_detail",
+            "signin_preview",
             "steps_detail",
             "calories_detail",
             "hr_detail",
             "hrv_detail",
             "rr_detail",
+            "record_activity",
         ):
             self.assertIn(f'case "{route}"', CONTENT)
 
@@ -122,6 +128,13 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("populationInsightsSection", INSIGHTS_VIEW)
         self.assertIn("submitInsightsFeedback", INSIGHTS_STATE)
         self.assertIn("submitFeedback", INSIGHTS_VIEW)
+
+    def test_recording_surface_uses_sdk_owned_activity_and_spot_check_orchestration(self) -> None:
+        main_tabs = (SRC / "MainTabView.swift").read_text()
+        self.assertIn("struct RecordActivityView", main_tabs)
+        for token in ("recordDetailedBiometrics", "recordActivity", "finishCurrentRecording", "pauseRecording", "resumeRecording", "awaitActiveRecordingCompletion"):
+            self.assertIn(token, main_tabs)
+        self.assertIn("RecordActivityView()", DASHBOARD)
 
     def test_unsupported_noom_product_loop_screens_are_not_release_routable(self) -> None:
         release_content = CONTENT[CONTENT.index("#else", CONTENT.index("#if DEBUG")):CONTENT.index("#endif", CONTENT.index("#else", CONTENT.index("#if DEBUG")))]

@@ -6,73 +6,73 @@ struct HRDetailView: View {
     @State private var granularity: SB_ViewGranularity = .day
     @State private var daily: SB_HRDailyTrending?
     @State private var range: SB_HRRangeTrending?
-    @State private var isLoading: Bool = false
-    @State private var errorMessage: String? = nil
+    @State private var baseline: PersonalBaseline?
+    @State private var isLoading = false
+    @State private var errorMessage: String?
 
     var body: some View {
-        List {
+        Group {
             if isLoading {
-                Section { HStack { ProgressView(); Text("Loading\u{2026}").foregroundStyle(.secondary) } }
-            } else if let error = errorMessage {
-                Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
+                ProgressView("Loading heart rate…")
+            } else if let errorMessage {
+                ContentUnavailableView("Heart rate unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
             } else if granularity == .day, let graph = daily?.graph {
-                Section("Summary") {
-                    LabeledContent("Resting BPM", value: MetricFormatting.humanNumber(Int(graph.restingBpm)))
-                    LabeledContent("Average", value: MetricFormatting.humanNumber(Int(graph.rawAvg)))
-                    LabeledContent("Lowest", value: MetricFormatting.humanNumber(Int(graph.rawLowest)))
-                    LabeledContent("Highest", value: MetricFormatting.humanNumber(Int(graph.rawHighest)))
-                }
-                Section("By Hour") {
-                    if graph.heartRateTimeseriesPoints.isEmpty {
-                        Text("No data").foregroundStyle(.secondary)
-                    } else {
-                        ForEach(graph.heartRateTimeseriesPoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
-                            LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
-                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) bpm")
-                        }
+                BaselineMetricDetail(
+                    title: Metric.hr.title,
+                    symbol: "heart.fill",
+                    accent: .red,
+                    date: dateContext.selectedDate,
+                    value: Double(graph.restingBpm),
+                    valueText: MetricFormatting.humanNumber(Double(graph.restingBpm)),
+                    unit: "bpm",
+                    tone: .heartRate,
+                    baseline: baseline,
+                    readings: [
+                        MetricReading(label: "Resting", value: "\(MetricFormatting.humanNumber(Double(graph.restingBpm))) bpm"),
+                        MetricReading(label: "Average", value: "\(MetricFormatting.humanNumber(Double(graph.rawAvg))) bpm"),
+                        MetricReading(label: "Low", value: "\(MetricFormatting.humanNumber(Double(graph.rawLowest))) bpm"),
+                        MetricReading(label: "High", value: "\(MetricFormatting.humanNumber(Double(graph.rawHighest))) bpm")
+                    ] + graph.heartRateTimeseriesPoints.sorted { $0.timestamp < $1.timestamp }.map {
+                        MetricReading(label: MetricFormatting.dayTimeLabel(timestampMillis: $0.timestamp, timezoneOffsetMinutes: $0.timezone), value: "\(MetricFormatting.humanNumber(Double($0.value))) bpm")
                     }
-                }
-            } else if granularity != .day, let graph = range?.graph {
-                Section("Summary") {
-                    LabeledContent("Average", value: MetricFormatting.humanNumber(Int(graph.avgBpm)))
-                    LabeledContent("Lowest", value: MetricFormatting.humanNumber(Int(graph.lowest)))
-                    LabeledContent("Highest", value: MetricFormatting.humanNumber(Int(graph.highest)))
-                }
-                Section(granularity == .week ? "By Day" : granularity == .month ? "By Day" : "By Month") {
-                    if graph.bpmPoints.isEmpty {
-                        Text("No data").foregroundStyle(.secondary)
-                    } else {
+                )
+            } else if let graph = range?.graph {
+                List {
+                    Section("Range summary") {
+                        LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Double(graph.avgBpm))) bpm")
+                        LabeledContent("Low", value: "\(MetricFormatting.humanNumber(Double(graph.lowest))) bpm")
+                        LabeledContent("High", value: "\(MetricFormatting.humanNumber(Double(graph.highest))) bpm")
+                    }
+                    Section("Readings") {
                         ForEach(graph.bpmPoints.sorted { $0.date < $1.date }, id: \.date) { point in
-                            LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
-                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) bpm")
+                            LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: "\(MetricFormatting.humanNumber(Double(point.value))) bpm")
                         }
                     }
                 }
+            } else {
+                ContentUnavailableView("No heart-rate data yet", systemImage: "heart")
             }
         }
         .navigationTitle(Metric.hr.title)
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            DetailHeaderControls(granularity: $granularity)
-        }
-        .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) {
-            await load()
-        }
+        .safeAreaInset(edge: .top, spacing: 0) { DetailHeaderControls(granularity: $granularity) }
+        .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) { await load() }
     }
 
-    @MainActor
-    private func load() async {
+    @MainActor private func load() async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
         do {
             if granularity == .day {
                 daily = try await sensorBio.fetchDailyHR(date: dateContext.selectedDate)
+                let current = Double(daily?.graph?.restingBpm ?? 0)
+                let history = (try? await PersonalBaselineLoader.trailingValues(for: .restingHeartRate, selectedDate: dateContext.selectedDate)) ?? []
+                baseline = PersonalBaseline.make(currentValue: current, historicalValues: history)
             } else {
                 range = try await sensorBio.fetchRangeHR(date: dateContext.selectedDate, granularity: granularity)
+                baseline = nil
             }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        } catch { errorMessage = error.localizedDescription }
     }
 }

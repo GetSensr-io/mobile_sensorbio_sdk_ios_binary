@@ -221,6 +221,8 @@ private struct NoomQAHost: View {
                 signedOutStack()
             case "signin", "sign_in":
                 signedOutStack(initial: .signIn)
+            case "signin_preview", "sign_in_preview":
+                NavigationStack { SignInView() }
             case "signup":
                 signedOutStack(initial: .signUp)
             case "main_default":
@@ -253,6 +255,28 @@ private struct NoomQAHost: View {
                 sleepRecoveryStack(initial: .sleepDetail)
             case "recovery_detail":
                 sleepRecoveryStack(initial: .recoveryDetail)
+            case "metric_baseline_preview":
+                NavigationStack {
+                    BaselineMetricDetail(
+                        title: "Resting Heart Rate",
+                        symbol: "heart.fill",
+                        accent: .red,
+                        date: .now,
+                        value: 58,
+                        valueText: "58",
+                        unit: "bpm",
+                        tone: .heartRate,
+                        baseline: PersonalBaseline.make(currentValue: 58, historicalValues: [60, 59, 61, 58, 62, 60, 59, 61, 58, 60, 59, 61, 60, 58, 62, 59]),
+                        readings: [
+                            MetricReading(label: "Resting", value: "58 bpm"),
+                            MetricReading(label: "Average", value: "67 bpm"),
+                            MetricReading(label: "Low", value: "52 bpm"),
+                            MetricReading(label: "High", value: "98 bpm")
+                        ]
+                    )
+                }
+            case "record_activity":
+                NavigationStack { RecordActivityView() }
             case "steps_detail":
                 NavigationStack { StepsDetailView() }
             case "calories_detail":

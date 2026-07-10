@@ -18,6 +18,15 @@ struct DashboardView: View {
         NoomScreen {
             NoomTopBar(label: formattedDate(dateContext.selectedDate)) {
                 HStack(spacing: 8) {
+                    NavigationLink { RecordActivityView() } label: {
+                        Image(systemName: "record.circle")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(NoomTheme.logoBlack)
+                            .frame(width: 36, height: 36)
+                            .background(NoomTheme.softLine.opacity(0.72), in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Record activity or spot check")
                     BandBatteryBadge()
                     NavigationLink {
                         ProfileView(session: session)

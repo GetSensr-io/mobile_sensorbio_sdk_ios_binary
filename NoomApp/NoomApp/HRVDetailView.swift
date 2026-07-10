@@ -6,73 +6,73 @@ struct HRVDetailView: View {
     @State private var granularity: SB_ViewGranularity = .day
     @State private var daily: SB_HRVDailyTrending?
     @State private var range: SB_HRVRangeTrending?
-    @State private var isLoading: Bool = false
-    @State private var errorMessage: String? = nil
+    @State private var baseline: PersonalBaseline?
+    @State private var isLoading = false
+    @State private var errorMessage: String?
 
     var body: some View {
-        List {
+        Group {
             if isLoading {
-                Section { HStack { ProgressView(); Text("Loading\u{2026}").foregroundStyle(.secondary) } }
-            } else if let error = errorMessage {
-                Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
+                ProgressView("Loading HRV…")
+            } else if let errorMessage {
+                ContentUnavailableView("HRV unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
             } else if granularity == .day, let graph = daily?.graph {
-                Section("Summary") {
-                    LabeledContent("rMSSD", value: "\(MetricFormatting.humanNumber(Int(graph.rMssd))) ms")
-                    LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Int(graph.rawAvg))) ms")
-                    LabeledContent("Lowest", value: "\(MetricFormatting.humanNumber(Int(graph.rawLowest))) ms")
-                    LabeledContent("Highest", value: "\(MetricFormatting.humanNumber(Int(graph.rawHighest))) ms")
-                }
-                Section("By Hour") {
-                    if graph.rawDatetimeHrvPoints.isEmpty {
-                        Text("No data").foregroundStyle(.secondary)
-                    } else {
-                        ForEach(graph.rawDatetimeHrvPoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
-                            LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
-                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) ms")
-                        }
+                BaselineMetricDetail(
+                    title: Metric.hrv.title,
+                    symbol: "waveform.path.ecg",
+                    accent: .purple,
+                    date: dateContext.selectedDate,
+                    value: Double(graph.rMssd),
+                    valueText: MetricFormatting.humanNumber(Double(graph.rMssd)),
+                    unit: "ms",
+                    tone: .variability,
+                    baseline: baseline,
+                    readings: [
+                        MetricReading(label: "rMSSD", value: "\(MetricFormatting.humanNumber(Double(graph.rMssd))) ms"),
+                        MetricReading(label: "Average", value: "\(MetricFormatting.humanNumber(Double(graph.rawAvg))) ms"),
+                        MetricReading(label: "Low", value: "\(MetricFormatting.humanNumber(Double(graph.rawLowest))) ms"),
+                        MetricReading(label: "High", value: "\(MetricFormatting.humanNumber(Double(graph.rawHighest))) ms")
+                    ] + graph.rawDatetimeHrvPoints.sorted { $0.timestamp < $1.timestamp }.map {
+                        MetricReading(label: MetricFormatting.dayTimeLabel(timestampMillis: $0.timestamp, timezoneOffsetMinutes: $0.timezone), value: "\(MetricFormatting.humanNumber(Double($0.value))) ms")
                     }
-                }
-            } else if granularity != .day, let graph = range?.graph {
-                Section("Summary") {
-                    LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Int(graph.avg))) ms")
-                    LabeledContent("Lowest", value: "\(MetricFormatting.humanNumber(Int(graph.lowest))) ms")
-                    LabeledContent("Highest", value: "\(MetricFormatting.humanNumber(Int(graph.highest))) ms")
-                }
-                Section(granularity == .year ? "By Month" : "By Day") {
-                    if graph.hrvIndexPoints.isEmpty {
-                        Text("No data").foregroundStyle(.secondary)
-                    } else {
+                )
+            } else if let graph = range?.graph {
+                List {
+                    Section("Range summary") {
+                        LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Double(graph.avg))) ms")
+                        LabeledContent("Low", value: "\(MetricFormatting.humanNumber(Double(graph.lowest))) ms")
+                        LabeledContent("High", value: "\(MetricFormatting.humanNumber(Double(graph.highest))) ms")
+                    }
+                    Section("Readings") {
                         ForEach(graph.hrvIndexPoints.sorted { $0.date < $1.date }, id: \.date) { point in
-                            LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
-                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) ms")
+                            LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: "\(MetricFormatting.humanNumber(Double(point.value))) ms")
                         }
                     }
                 }
+            } else {
+                ContentUnavailableView("No HRV data yet", systemImage: "waveform.path.ecg")
             }
         }
         .navigationTitle(Metric.hrv.title)
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            DetailHeaderControls(granularity: $granularity)
-        }
-        .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) {
-            await load()
-        }
+        .safeAreaInset(edge: .top, spacing: 0) { DetailHeaderControls(granularity: $granularity) }
+        .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) { await load() }
     }
 
-    @MainActor
-    private func load() async {
+    @MainActor private func load() async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
         do {
             if granularity == .day {
                 daily = try await sensorBio.fetchDailyHRV(date: dateContext.selectedDate)
+                let current = Double(daily?.graph?.rMssd ?? 0)
+                let history = (try? await PersonalBaselineLoader.trailingValues(for: .hrv, selectedDate: dateContext.selectedDate)) ?? []
+                baseline = PersonalBaseline.make(currentValue: current, historicalValues: history)
             } else {
                 range = try await sensorBio.fetchRangeHRV(date: dateContext.selectedDate, granularity: granularity)
+                baseline = nil
             }
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        } catch { errorMessage = error.localizedDescription }
     }
 }
