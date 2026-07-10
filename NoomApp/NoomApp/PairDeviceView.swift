@@ -107,8 +107,8 @@ struct PairDeviceView: View {
                                 .frame(width: 34, height: 34)
                                 .background(NoomTheme.rose, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                             VStack(alignment: .leading, spacing: 3) {
-                                Text("Noom Band")
-                                    .font(.system(size: 15, weight: .semibold))
+                                Text("MAC ID · \(device.id)")
+                                    .font(.system(size: 15, weight: .semibold, design: .monospaced))
                                     .foregroundStyle(NoomTheme.logoBlack)
                                 Text("Ready to connect")
                                     .font(.system(size: 12))

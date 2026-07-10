@@ -40,6 +40,14 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
 
+    def test_signed_out_home_uses_lifestyle_carousel_with_auth_actions(self) -> None:
+        self.assertIn("struct NoomWelcomeCarousel", CONTENT)
+        self.assertIn(".tabViewStyle(.page(indexDisplayMode: .never))", CONTENT)
+        for asset in ("WelcomeMorning", "WelcomeKitchen", "WelcomeEvening"):
+            self.assertIn(f'imageName: "{asset}"', CONTENT)
+        self.assertIn('Text("Sign in")', CONTENT)
+        self.assertIn('Text("Create account")', CONTENT)
+
     def test_numeric_metrics_use_a_localized_human_number_formatter(self) -> None:
         self.assertIn("static func humanNumber(_ value: Int)", METRIC_FORMATTING)
         self.assertIn("value.formatted(.number)", METRIC_FORMATTING)

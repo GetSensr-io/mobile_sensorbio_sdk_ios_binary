@@ -7,6 +7,7 @@ DASHBOARD = (ROOT / "NoomApp/NoomApp/DashboardView.swift").read_text()
 MAIN_TAB = (ROOT / "NoomApp/NoomApp/MainTabView.swift").read_text()
 STATE = (ROOT / "NoomApp/NoomApp/NoomBandConnectionState.swift").read_text()
 PAIR = (ROOT / "NoomApp/NoomApp/PairDeviceState.swift").read_text()
+PAIR_VIEW = (ROOT / "NoomApp/NoomApp/PairDeviceView.swift").read_text()
 QA = (ROOT / "NoomApp/NoomApp/ContentView.swift").read_text()
 PROFILE = (ROOT / "NoomApp/NoomApp/ProfileView.swift").read_text()
 PRODUCT = (ROOT / "NoomApp/NoomApp/NoomProductScreens.swift").read_text()
@@ -65,6 +66,10 @@ class NoomBandStateTests(unittest.TestCase):
         ):
             self.assertIn(snippet, PAIR)
         self.assertNotIn("persistDeviceState", PAIR)
+
+    def test_discovered_bands_are_identified_by_mac_id(self):
+        self.assertIn('Text("MAC ID · \\(device.id)")', PAIR_VIEW)
+        self.assertNotIn('Text("Noom Band")\n                                    .font(.system(size: 15', PAIR_VIEW)
 
     def test_unpair_uses_v012_unpair_clear_api(self):
         self.assertIn("sensorBio.removeDeviceFromPairedDevices(device.macAddress)", PROFILE)

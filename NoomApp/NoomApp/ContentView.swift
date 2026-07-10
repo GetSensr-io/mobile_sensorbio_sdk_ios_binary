@@ -54,32 +54,17 @@ struct NoomSignedOutView: View {
     @AppStorage("envIsDev") private var envIsDev: Bool = false
 
     var body: some View {
-        NoomScreen {
-            VStack(alignment: .leading, spacing: 26) {
+        NoomScreen(bottomPadding: 24) {
+            VStack(alignment: .leading, spacing: 18) {
                 HStack {
                     NoomLogoPlate()
                     Spacer()
                     NoomPill(title: "Weight Care", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
                 }
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Build habits that fit your body today.").noomSerifTitle(size: 46)
-                    // Updated text with superscript asterisk and footnote comment
-                    Text("Noom pairs behavior change with sleep, recovery, and movement signals from Noom Band when data is available.").noomBody()
-                }
+                NoomWelcomeCarousel()
 
-                NoomCard {
-                    VStack(alignment: .leading, spacing: 14) {
-                        NoomPill(title: "Noom Band ready", color: NoomTheme.red)
-                        Text("Sleep, recovery, and movement signals help shape a calmer daily plan.").noomBody()
-                        HStack(spacing: 10) {
-                            NoomMetricTile(label: "Sleep", value: "Sync", caption: "After setup")
-                            NoomMetricTile(label: "Recovery", value: "Sync", caption: "After setup")
-                        }
-                    }
-                }
-
-                NoomCard {
+                NoomCard(fill: Color.white.opacity(0.76), padding: 16) {
                     Toggle("Use staging SDK environment", isOn: $envIsDev)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(NoomTheme.logoBlack)
@@ -108,10 +93,109 @@ struct NoomSignedOutView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        // Removed top‑center NOOM logo to keep only the left‑aligned logo in the signed‑out view.
-        // The safeAreaInset that added a centered logo at the top has been eliminated.
-        // This preserves the layout; the headline now aligns under the left‑aligned logo.
+    }
+}
 
+private struct NoomWelcomeCarousel: View {
+    @State private var selectedSlide = 0
+
+    private let slides = [
+        NoomWelcomeSlide(
+            id: 0,
+            imageName: "WelcomeMorning",
+            eyebrow: "MOVE",
+            title: "Make more room for your day.",
+            detail: "Build small routines around the life you already have."
+        ),
+        NoomWelcomeSlide(
+            id: 1,
+            imageName: "WelcomeKitchen",
+            eyebrow: "EAT",
+            title: "Food can feel simpler.",
+            detail: "Learn the patterns that help you feel steady, not restricted."
+        ),
+        NoomWelcomeSlide(
+            id: 2,
+            imageName: "WelcomeEvening",
+            eyebrow: "REST",
+            title: "End the day on your side.",
+            detail: "A calmer night can make tomorrow easier to meet."
+        )
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            TabView(selection: $selectedSlide) {
+                ForEach(slides) { slide in
+                    NoomWelcomeSlideCard(slide: slide)
+                        .tag(slide.id)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .frame(height: 420)
+
+            HStack(spacing: 7) {
+                ForEach(slides) { slide in
+                    Capsule()
+                        .fill(slide.id == selectedSlide ? NoomTheme.red : NoomTheme.softLine)
+                        .frame(width: slide.id == selectedSlide ? 24 : 7, height: 7)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .accessibilityLabel("Welcome carousel, page \(selectedSlide + 1) of \(slides.count)")
+        }
+    }
+}
+
+private struct NoomWelcomeSlide: Identifiable {
+    let id: Int
+    let imageName: String
+    let eyebrow: String
+    let title: String
+    let detail: String
+}
+
+private struct NoomWelcomeSlideCard: View {
+    let slide: NoomWelcomeSlide
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            Image(slide.imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+
+            LinearGradient(
+                colors: [.clear, NoomTheme.logoBlack.opacity(0.16), NoomTheme.logoBlack.opacity(0.82)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(slide.eyebrow)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .tracking(1.5)
+                    .foregroundStyle(NoomTheme.rose)
+                Text(slide.title)
+                    .font(.system(size: 34, weight: .regular, design: .serif))
+                    .tracking(-1.1)
+                    .foregroundStyle(.white)
+                Text(slide.detail)
+                    .font(.system(size: 15))
+                    .lineSpacing(3)
+                    .foregroundStyle(.white.opacity(0.86))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(24)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: NoomTheme.cardRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: NoomTheme.cardRadius, style: .continuous)
+                .stroke(NoomTheme.ink.opacity(0.08), lineWidth: 1)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(slide.eyebrow). \(slide.title). \(slide.detail)")
     }
 }
 
