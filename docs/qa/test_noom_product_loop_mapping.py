@@ -31,24 +31,26 @@ class NoomProductLoopMappingTests(unittest.TestCase):
         self.assertNotIn("No Recovery value was returned", DASHBOARD_VIEW)
         self.assertNotIn("fallback body score", DASHBOARD_STATE)
 
-    def test_suggested_experiment_is_real_personal_insights_and_read_only(self) -> None:
-        self.assertIn("fetchNewInsights()", DASHBOARD_STATE)
-        self.assertIn("SB_ExperimentRecommendation", DASHBOARD_VIEW)
-        self.assertIn("suggestedExperiment", DASHBOARD_VIEW)
-        self.assertIn("Read-only", DASHBOARD_VIEW)
-        self.assertIn("feature-gated", DASHBOARD_VIEW)
-        self.assertIn("No active or completed state is stored", DASHBOARD_VIEW)
-        self.assertIn("Suggested experiment", INSIGHTS)
-        self.assertIn("Read-only", INSIGHTS)
-        for forbidden in (
-            "UserDefaults",
-            "@AppStorage(\"experiment",
-            "Button(\"Start experiment",
-            "Button(\"Complete experiment",
-            "activeStartedAt",
-            "completedAt",
-        ):
-            self.assertNotIn(forbidden, DASHBOARD_VIEW + PRODUCT + INSIGHTS)
+    def test_suggested_experiment_is_persisted_and_tied_to_body_status(self) -> None:
+        self.assertIn("ProductLoopStore", DASHBOARD_STATE)
+        self.assertIn("ProductLoopAPI", DASHBOARD_STATE)
+        self.assertIn("DemoInstallIdentity", DASHBOARD_STATE)
+        self.assertIn("/demo/v1/proposals", DASHBOARD_STATE)
+        self.assertIn("ProductLoopSuggestion.eveningReset", DASHBOARD_VIEW)
+        self.assertIn("Button(\"Start experiment", DASHBOARD_VIEW)
+        self.assertIn("Button(\"Complete\")", DASHBOARD_VIEW)
+        self.assertIn("Button(\"Cancel\")", DASHBOARD_VIEW)
+        self.assertIn("Save this experiment", DASHBOARD_VIEW)
+        self.assertNotIn("UserDefaults", DASHBOARD_STATE)
+        self.assertNotIn("raw PPG", DASHBOARD_STATE)
+
+    def test_body_status_is_local_and_demo_persistence_does_not_upload_health(self) -> None:
+        self.assertNotIn("syncOvernightStatus", DASHBOARD_STATE)
+        self.assertNotIn("restingHeartRate", DASHBOARD_STATE)
+        self.assertNotIn("nocturnalHrv", DASHBOARD_STATE)
+        self.assertNotIn("sleepScore", DASHBOARD_STATE)
+        self.assertNotIn("syncOvernightStatus", DASHBOARD_VIEW)
+        self.assertIn("BodyStatusScore.make", DASHBOARD_VIEW)
 
     def test_progress_uses_recovery_sleep_history_without_gap_filling(self) -> None:
         for snippet in (

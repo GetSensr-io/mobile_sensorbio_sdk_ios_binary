@@ -8,9 +8,11 @@ const experimentStatus = v.union(
   v.literal("cancelled"),
 );
 
+// Convex holds fictional Suggested Experiment state for the demo only.
+// Sensor-derived measurements, raw PPG, account IDs, and device tokens stay out of this schema.
 export default defineSchema({
   experiments: defineTable({
-    ownerId: v.string(),
+    demoInstallId: v.string(),
     sourceInsightId: v.string(),
     experimentMethodId: v.optional(v.string()),
     title: v.string(),
@@ -25,61 +27,21 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_owner_source", ["ownerId", "sourceInsightId"])
-    .index("by_owner_status", ["ownerId", "status"]),
+    .index("by_demo_source", ["demoInstallId", "sourceInsightId"])
+    .index("by_demo_status", ["demoInstallId", "status"]),
 
   experimentEvents: defineTable({
-    ownerId: v.string(),
+    demoInstallId: v.string(),
     experimentId: v.id("experiments"),
     action: v.union(v.literal("accepted"), v.literal("completed"), v.literal("cancelled"), v.literal("adherence")),
     idempotencyKey: v.string(),
     occurredAt: v.number(),
-    note: v.optional(v.string()),
-  }).index("by_owner_idempotency", ["ownerId", "idempotencyKey"]),
-
-  progressSignals: defineTable({
-    ownerId: v.string(),
-    experimentId: v.optional(v.id("experiments")),
-    localDate: v.string(),
-    timezoneOffsetMinutes: v.number(),
-    signalType: v.union(
-      v.literal("body_status"),
-      v.literal("sleep_score"),
-      v.literal("sleep_duration"),
-      v.literal("resting_hr"),
-      v.literal("hrv"),
-      v.literal("adherence"),
-    ),
-    value: v.number(),
-    unit: v.string(),
-    coverage: v.number(),
-    source: v.union(v.literal("sensor_bio_sdk"), v.literal("experiment_adherence")),
-    algorithmVersion: v.string(),
-    sourceWindowStart: v.number(),
-    sourceWindowEnd: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_owner_date_type", ["ownerId", "localDate", "signalType"])
-    .index("by_owner_date", ["ownerId", "localDate"]),
+  }).index("by_demo_idempotency", ["demoInstallId", "idempotencyKey"]),
 
   signalPreferences: defineTable({
-    ownerId: v.string(),
+    demoInstallId: v.string(),
     dailyCheckInEnabled: v.boolean(),
     experimentReminderEnabled: v.boolean(),
-    quietHoursStartMinutes: v.optional(v.number()),
-    quietHoursEndMinutes: v.optional(v.number()),
-    timezone: v.string(),
-    consentVersion: v.string(),
-    consentAcceptedAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_owner", ["ownerId"]),
-
-  pushDevices: defineTable({
-    ownerId: v.string(),
-    token: v.string(),
-    platform: v.literal("ios"),
-    appBuild: v.string(),
-    registeredAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_owner_token", ["ownerId", "token"]),
+  }).index("by_demo", ["demoInstallId"]),
 });

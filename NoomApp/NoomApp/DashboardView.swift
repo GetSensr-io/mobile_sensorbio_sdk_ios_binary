@@ -6,6 +6,7 @@ struct DashboardView: View {
 
     @Environment(AppDateContext.self) private var dateContext
     @State private var dashboard = DashboardState()
+    @State private var productLoop = ProductLoopStore()
     @State private var postSyncRefreshTask: Task<Void, Never>?
     @State private var bandState = NoomBandConnectionState.live(
         paired: sensorBio.haveDevice,
@@ -40,7 +41,7 @@ struct DashboardView: View {
             } else if let data = dashboard.data {
                 dataStateBanner(for: data)
                 bodyStatusSection
-                suggestedExperimentSection
+                persistentExperimentSection
                 progressPreviewSection
                 dashboardMetrics(data)
                 if let insight = data.insights.first(where: { !$0.title.isEmpty || !$0.description.isEmpty }) {
@@ -60,19 +61,24 @@ struct DashboardView: View {
                     .tint(NoomTheme.red)
             }
         }
-        .task(id: dateContext.selectedDate) { await dashboard.load(date: dateContext.selectedDate) }
-        .refreshable { await dashboard.load(date: dateContext.selectedDate) }
+        .task(id: dateContext.selectedDate) { await refreshDashboard() }
+        .refreshable { await refreshDashboard() }
         .onReceive(sensorBio.$lastSyncd.dropFirst()) { _ in
             guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
             postSyncRefreshTask?.cancel()
             postSyncRefreshTask = Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 30_000_000_000)
                 guard !Task.isCancelled else { return }
-                await dashboard.load(date: dateContext.selectedDate)
+                await refreshDashboard()
             }
         }
         .onReceive(sensorBio.$haveDevice) { bandState = .live(paired: $0, connected: sensorBio.connected) }
         .onReceive(sensorBio.$connected) { bandState = .live(paired: sensorBio.haveDevice, connected: $0) }
+    }
+
+    private func refreshDashboard() async {
+        await dashboard.load(date: dateContext.selectedDate)
+        await productLoop.load()
     }
 
     @ViewBuilder
@@ -137,6 +143,65 @@ struct DashboardView: View {
         }
         if dashboard.nightlySleep == nil || data.metrics.isEmpty {
             NoomStateBanner(title: "Partial data", detail: "Body Status needs one completed sleep with resting HR, nocturnal HRV, and a sleep score.", systemImage: "chart.bar.doc.horizontal", tint: NoomTheme.mint)
+        }
+    }
+
+    @ViewBuilder
+    private var persistentExperimentSection: some View {
+        if let active = productLoop.activeExperiment {
+            experimentCard(active, label: "Active") {
+                HStack(spacing: 10) {
+                    Button("Complete") { Task { await productLoop.complete(active) } }
+                        .buttonStyle(NoomPrimaryButtonStyle())
+                    Button("Cancel") { Task { await productLoop.cancel(active) } }
+                        .buttonStyle(NoomSecondaryButtonStyle())
+                }
+            }
+        } else if let proposal = productLoop.proposedExperiment {
+            experimentCard(proposal, label: "Suggested") {
+                HStack(spacing: 10) {
+                    Button("Start experiment") { Task { await productLoop.accept(proposal) } }
+                        .buttonStyle(NoomPrimaryButtonStyle())
+                    Button("Not now") { Task { await productLoop.cancel(proposal) } }
+                        .buttonStyle(NoomSecondaryButtonStyle())
+                }
+            }
+        } else {
+            let suggestion = ProductLoopSuggestion.eveningReset
+            NoomCard(fill: Color.white.opacity(0.84)) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("Suggested experiment").noomSerifTitle(size: 26)
+                        Spacer()
+                        NoomPill(title: "3 nights", color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
+                    }
+                    Text(suggestion.title).font(.system(size: 17, weight: .semibold)).foregroundStyle(NoomTheme.logoBlack)
+                    Text(suggestion.reason).noomBody()
+                    Text(suggestion.instructions).noomBody()
+                    Button("Save this experiment") { Task { await productLoop.propose(suggestion) } }
+                        .buttonStyle(NoomPrimaryButtonStyle())
+                        .disabled(productLoop.isSaving)
+                }
+            }
+        }
+        if let error = productLoop.errorMessage {
+            NoomStateBanner(title: "Experiment sync unavailable", detail: error, systemImage: "arrow.triangle.2.circlepath", tint: NoomTheme.rose)
+        }
+    }
+
+    private func experimentCard<Actions: View>(_ experiment: ProductLoopExperiment, label: String, @ViewBuilder actions: () -> Actions) -> some View {
+        NoomCard(fill: Color.white.opacity(0.84)) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Suggested experiment").noomSerifTitle(size: 26)
+                    Spacer()
+                    NoomPill(title: label, color: NoomTheme.ink)
+                }
+                Text(experiment.title).font(.system(size: 17, weight: .semibold)).foregroundStyle(NoomTheme.logoBlack)
+                Text(experiment.reason).noomBody()
+                Text(experiment.instructions).noomBody()
+                actions().disabled(productLoop.isSaving)
+            }
         }
     }
 

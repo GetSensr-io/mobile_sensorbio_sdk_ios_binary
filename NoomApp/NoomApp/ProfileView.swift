@@ -1,5 +1,6 @@
 import SwiftUI
 import SensorBioSDK
+import UserNotifications
 
 struct ProfileView: View {
     let session: SB_Session
@@ -16,6 +17,10 @@ struct ProfileView: View {
     @State private var presentingPair: Bool = false
     @State private var unpairError: String? = nil
     @State private var now: Date = Date()
+    @AppStorage("productLoopDailyCheckInEnabled") private var dailyCheckInEnabled = false
+    @AppStorage("productLoopExperimentReminderEnabled") private var experimentReminderEnabled = false
+    @State private var notificationStatus = "Not enabled"
+    @State private var notificationError: String? = nil
 
     private var bandState: NoomBandConnectionState {
         .live(paired: haveDevice, connected: connected)
@@ -32,6 +37,21 @@ struct ProfileView: View {
                     Text("Your Noom plan").noomSerifTitle(size: 30)
                     NoomValueRowPublic(label: "Username", value: session.username)
                     NoomValueRowPublic(label: "Email", value: session.email)
+                }
+            }
+
+            NoomCard {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Experiment reminders").noomSerifTitle(size: 26)
+                    Text("Choose whether Noom may ask you to check in on an active experiment. You can change this any time.").noomBody()
+                    Toggle("Daily check-in", isOn: $dailyCheckInEnabled)
+                    Toggle("Experiment reminders", isOn: $experimentReminderEnabled)
+                    NoomDetailValueRow(label: "Notifications", value: notificationStatus, verticalPadding: 6)
+                    if let notificationError {
+                        Label(notificationError, systemImage: "exclamationmark.triangle.fill")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(NoomTheme.ink)
+                    }
                 }
             }
 
@@ -83,7 +103,16 @@ struct ProfileView: View {
         }
         .navigationTitle("Plan")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { now = Date() }
+        .onAppear {
+            now = Date()
+            Task { await refreshNotificationStatus() }
+        }
+        .onChange(of: dailyCheckInEnabled) { _, enabled in
+            Task { await updateReminderPreferences(requestPermissionIfNeeded: enabled) }
+        }
+        .onChange(of: experimentReminderEnabled) { _, enabled in
+            Task { await updateReminderPreferences(requestPermissionIfNeeded: enabled) }
+        }
         .task {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 10_000_000_000)
@@ -98,6 +127,40 @@ struct ProfileView: View {
         .onReceive(sensorBio.$percentSynced) { percentSynced = $0 }
         .sheet(isPresented: $presentingPair) {
             PairDeviceView()
+        }
+    }
+
+    private func refreshNotificationStatus() async {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        notificationStatus = switch settings.authorizationStatus {
+        case .authorized, .provisional, .ephemeral: "Enabled"
+        case .denied: "Denied"
+        case .notDetermined: "Not enabled"
+        @unknown default: "Not enabled"
+        }
+    }
+
+    private func updateReminderPreferences(requestPermissionIfNeeded: Bool) async {
+        notificationError = nil
+        if requestPermissionIfNeeded {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            if settings.authorizationStatus == .notDetermined {
+                do {
+                    _ = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
+                } catch {
+                    notificationError = "Notification permission could not be requested."
+                }
+            }
+        }
+        await refreshNotificationStatus()
+        do {
+            let payload: [String: Any] = [
+                "dailyCheckInEnabled": dailyCheckInEnabled,
+                "experimentReminderEnabled": experimentReminderEnabled
+            ]
+            let _: ProductLoopPreferenceSaved = try await ProductLoopAPI.shared.request(path: "/demo/v1/preferences", method: "PUT", body: payload)
+        } catch {
+            notificationError = ProductLoopAPI.displayError(error)
         }
     }
 

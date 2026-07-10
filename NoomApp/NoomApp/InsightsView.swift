@@ -174,7 +174,7 @@ struct InsightsView: View {
         }
         if let exp = insights.suggestedExperiment, !exp.reason.isEmpty {
             let method = exp.methodNames.first.map { " - \($0)" } ?? ""
-            summaries.append(SignalSummary(title: "Suggested experiment", status: "Read-only", detail: exp.reason + method + " Feature-gated until backend lifecycle is integrated.", tint: NoomTheme.mint))
+            summaries.append(SignalSummary(title: "Suggested experiment", status: "Read-only", detail: exp.reason + method + " Noom can save and track the related experiment from Today.", tint: NoomTheme.mint))
         }
         return summaries
     }

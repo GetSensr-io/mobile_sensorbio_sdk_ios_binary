@@ -1,6 +1,8 @@
 # Noom Product-Loop Build Plan
 
-Status: architecture contract + task-sized implementation sequence. Do not implement product code from this card.
+Status: **historical production architecture proposal; not the current TestFlight demo implementation.**
+
+> **Current demo boundary (2026-07-10):** Body Status stays local and uses processed band data only on-device. Convex stores only a fixed fictional experiment catalog, lifecycle states, and two boolean reminder preferences under an unauthenticated per-install demo ID. It receives no health values/inferences, dates, raw PPG, account identity, device identity, APNs token, or free-form client text. A future production implementation still needs the authenticated core/SDK contract described below.
 
 Program root:
 - `/Users/anton/mobile_sensorbio_sdk_ios_binary`
