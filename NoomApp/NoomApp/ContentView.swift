@@ -256,25 +256,7 @@ private struct NoomQAHost: View {
             case "recovery_detail":
                 sleepRecoveryStack(initial: .recoveryDetail)
             case "metric_baseline_preview":
-                NavigationStack {
-                    BaselineMetricDetail(
-                        title: "Resting Heart Rate",
-                        symbol: "heart.fill",
-                        accent: .red,
-                        date: .now,
-                        value: 58,
-                        valueText: "58",
-                        unit: "bpm",
-                        tone: .heartRate,
-                        baseline: PersonalBaseline.make(currentValue: 58, historicalValues: [60, 59, 61, 58, 62, 60, 59, 61, 58, 60, 59, 61, 60, 58, 62, 59]),
-                        readings: [
-                            MetricReading(label: "Resting", value: "58 bpm"),
-                            MetricReading(label: "Average", value: "67 bpm"),
-                            MetricReading(label: "Low", value: "52 bpm"),
-                            MetricReading(label: "High", value: "98 bpm")
-                        ]
-                    )
-                }
+                metricDetailStack(initial: .metricBaseline)
             case "inflammation_preview":
                 NavigationStack { InflammationSignalPreviewView() }
             case "sleep_hub_preview":
@@ -282,15 +264,15 @@ private struct NoomQAHost: View {
             case "record_activity":
                 NavigationStack { RecordActivityView() }
             case "steps_detail":
-                NavigationStack { StepsDetailView() }
+                metricDetailStack(initial: .stepsDetail)
             case "calories_detail":
-                NavigationStack { CaloriesDetailView() }
+                metricDetailStack(initial: .caloriesDetail)
             case "hr_detail":
-                NavigationStack { HRDetailView() }
+                metricDetailStack(initial: .heartRateDetail)
             case "hrv_detail":
-                NavigationStack { HRVDetailView() }
+                metricDetailStack(initial: .hrvDetail)
             case "rr_detail":
-                NavigationStack { RRDetailView() }
+                metricDetailStack(initial: .respiratoryRateDetail)
             default:
                 Text("This screen is not available.")
                     .padding()
@@ -303,16 +285,7 @@ private struct NoomQAHost: View {
         NavigationStack(path: $path) {
             NoomSignedOutView()
                 .navigationDestination(for: NoomQADestination.self) { destination in
-                    switch destination {
-                    case .signIn:
-                        SignInView()
-                    case .signUp:
-                        SignUpView()
-                    case .sleepDetail:
-                        SleepDetailView()
-                    case .recoveryDetail:
-                        RecoveryDetailView()
-                    }
+                    qaDestination(destination)
                 }
         }
         .onAppear { setInitialDestination(initial) }
@@ -322,25 +295,111 @@ private struct NoomQAHost: View {
         NavigationStack(path: $path) {
             NoomSleepRecoveryView()
                 .navigationDestination(for: NoomQADestination.self) { destination in
-                    switch destination {
-                    case .sleepDetail:
-                        SleepDetailView()
-                    case .recoveryDetail:
-                        RecoveryDetailView()
-                    case .signIn:
-                        SignInView()
-                    case .signUp:
-                        SignUpView()
-                    }
+                    qaDestination(destination)
                 }
         }
         .onAppear { setInitialDestination(initial) }
+    }
+
+    private func metricDetailStack(initial: NoomQADestination) -> some View {
+        NavigationStack(path: $path) {
+            NoomMetricPreviewHub()
+                .navigationDestination(for: NoomQADestination.self) { destination in
+                    qaDestination(destination)
+                }
+        }
+        .onAppear { setInitialDestination(initial) }
+    }
+
+    @ViewBuilder
+    private func qaDestination(_ destination: NoomQADestination) -> some View {
+        switch destination {
+        case .signIn:
+            SignInView()
+        case .signUp:
+            SignUpView()
+        case .sleepDetail:
+            SleepDetailView()
+        case .recoveryDetail:
+            RecoveryDetailView()
+        case .metricBaseline:
+            metricBaselinePreview
+        case .stepsDetail:
+            StepsDetailView()
+        case .caloriesDetail:
+            CaloriesDetailView()
+        case .heartRateDetail:
+            HRDetailView()
+        case .hrvDetail:
+            HRVDetailView()
+        case .respiratoryRateDetail:
+            RRDetailView()
+        }
+    }
+
+    private var metricBaselinePreview: some View {
+        BaselineMetricDetail(
+            title: "Resting Heart Rate",
+            symbol: "heart.fill",
+            accent: .red,
+            date: .now,
+            value: 58,
+            valueText: "58",
+            unit: "bpm",
+            tone: .heartRate,
+            baseline: PersonalBaseline.make(currentValue: 58, historicalValues: [60, 59, 61, 58, 62, 60, 59, 61, 58, 60, 59, 61, 60, 58, 62, 59]),
+            readings: [
+                MetricReading(label: "Resting", value: "58 bpm"),
+                MetricReading(label: "Average", value: "67 bpm"),
+                MetricReading(label: "Low", value: "52 bpm"),
+                MetricReading(label: "High", value: "98 bpm")
+            ]
+        )
     }
 
     private func setInitialDestination(_ destination: NoomQADestination?) {
         guard let destination, !didSetInitialDestination, path.isEmpty else { return }
         didSetInitialDestination = true
         path = [destination]
+    }
+}
+
+private struct NoomMetricPreviewHub: View {
+    private let destinations: [(title: String, value: NoomQADestination)] = [
+        ("Resting heart rate sample", .metricBaseline),
+        ("Steps", .stepsDetail),
+        ("Active calories", .caloriesDetail),
+        ("Resting heart rate", .heartRateDetail),
+        ("Heart-rate variability", .hrvDetail),
+        ("Respiratory rate", .respiratoryRateDetail)
+    ]
+
+    var body: some View {
+        NoomScreen {
+            NoomTopBar(label: "Metric previews") {
+                EmptyView()
+            }
+            NoomCard {
+                VStack(spacing: 0) {
+                    ForEach(Array(destinations.enumerated()), id: \.offset) { index, destination in
+                        NavigationLink(value: destination.value) {
+                            HStack {
+                                Text(destination.title)
+                                    .foregroundStyle(NoomTheme.logoBlack)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(NoomTheme.ink.opacity(0.55))
+                            }
+                            .frame(minHeight: 50)
+                        }
+                        if index < destinations.count - 1 {
+                            Divider()
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("Metric previews")
     }
 }
 
@@ -370,5 +429,11 @@ private enum NoomQADestination: Hashable {
     case signUp
     case sleepDetail
     case recoveryDetail
+    case metricBaseline
+    case stepsDetail
+    case caloriesDetail
+    case heartRateDetail
+    case hrvDetail
+    case respiratoryRateDetail
 }
 #endif

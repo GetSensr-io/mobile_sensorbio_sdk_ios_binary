@@ -46,6 +46,32 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
 
+    def test_qa_detail_routes_are_pushed_so_back_dismisses(self) -> None:
+        content = (SRC / "ContentView.swift").read_text()
+        expected_routes = {
+            'case "metric_baseline_preview":\n                metricDetailStack(initial: .metricBaseline)',
+            'case "steps_detail":\n                metricDetailStack(initial: .stepsDetail)',
+            'case "calories_detail":\n                metricDetailStack(initial: .caloriesDetail)',
+            'case "hr_detail":\n                metricDetailStack(initial: .heartRateDetail)',
+            'case "hrv_detail":\n                metricDetailStack(initial: .hrvDetail)',
+            'case "rr_detail":\n                metricDetailStack(initial: .respiratoryRateDetail)',
+        }
+        for route in expected_routes:
+            self.assertIn(route, content)
+
+        for root_only_detail in (
+            "NavigationStack { StepsDetailView() }",
+            "NavigationStack { CaloriesDetailView() }",
+            "NavigationStack { HRDetailView() }",
+            "NavigationStack { HRVDetailView() }",
+            "NavigationStack { RRDetailView() }",
+        ):
+            self.assertNotIn(root_only_detail, content)
+
+        self.assertIn("NavigationStack(path: $path)", content)
+        self.assertIn("setInitialDestination(initial)", content)
+        self.assertIn("NoomMetricPreviewHub", content)
+
     def test_detail_pages_have_one_explicit_accessible_back_affordance(self) -> None:
         for snippet in (
             "struct NoomDetailBackButton",
