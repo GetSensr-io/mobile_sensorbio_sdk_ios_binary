@@ -15,6 +15,7 @@ INSIGHTS_VIEW = (SRC / "InsightsView.swift").read_text()
 PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
 METRIC_FORMATTING = (SRC / "Metric.swift").read_text()
 BODY_STATUS = METRIC_FORMATTING
+SLEEP_HOME = (SRC / "MainTabView.swift").read_text()
 NUMERIC_DISPLAY_SOURCES = {
     "DashboardView.swift": DASHBOARD,
     "InsightsView.swift": INSIGHTS_VIEW,
@@ -40,6 +41,27 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("Use staging SDK environment", CONTENT)
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
+
+    def test_sleep_hub_surfaces_returned_sleep_context_and_keeps_detail_drill_ins(self) -> None:
+        for snippet in (
+            "SleepHomeState",
+            "fetchDashboardData(date:",
+            "fetchSleepDetail(endDate:",
+            "sleepHeroSummary",
+            "sleepStagesPreview",
+            "recoveryFactorsPreview",
+            "Open sleep details",
+            "Open recovery details",
+            "No sleep session yet",
+        ):
+            self.assertIn(snippet, SLEEP_HOME)
+        self.assertNotIn("Recovery: 78", SLEEP_HOME)
+        self.assertNotIn("better than 74%", SLEEP_HOME)
+
+    def test_sleep_hub_preview_route_is_debug_only(self) -> None:
+        host = CONTENT[CONTENT.index("private struct NoomQAHost"):]
+        self.assertIn('case "sleep_hub_preview"', host)
+        self.assertIn("SleepHubPreviewView", host)
 
     def test_body_status_is_a_local_score_from_three_overnight_signals(self) -> None:
         for snippet in (
@@ -92,6 +114,17 @@ class NoomParityContractTests(unittest.TestCase):
             self.assertIn(snippet, BODY_STATUS)
         for snippet in ("Inflammation signal", "coverageDescription", "methodDescription"):
             self.assertIn(snippet, DASHBOARD)
+
+    def test_inflammation_mock_preview_has_a_bounded_timeline_and_drill_in(self) -> None:
+        source = (SRC / "InflammationSignal.swift").read_text()
+        for snippet in (
+            "struct InflammationPreviewTimeline",
+            "30-day preview timeline",
+            "Open signal details",
+            "NavigationLink",
+            "allSatisfy { (1...100).contains",
+        ):
+            self.assertIn(snippet, source)
 
     def test_inflammation_preview_route_is_debug_only_and_never_a_release_fixture(self) -> None:
         host = CONTENT[CONTENT.index("private struct NoomQAHost"):]

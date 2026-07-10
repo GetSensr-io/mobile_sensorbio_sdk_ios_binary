@@ -26,6 +26,15 @@ class PersonalBaselineContracts(unittest.TestCase):
         baseline_block = source[source.index("struct PersonalBaseline"):source.index("enum BaselineMetric")]
         self.assertNotIn("population", baseline_block.lower())
 
+    def test_steps_detail_uses_step_counts_and_never_uses_energy_units(self) -> None:
+        source = (SRC / "StepsDetailView.swift").read_text()
+        self.assertIn("fetchDailyStats", source)
+        self.assertIn("physicalStats", source)
+        self.assertIn(".steps", source)
+        self.assertIn('unit: "steps"', source)
+        self.assertNotIn("unit: metric.unit", source)
+        self.assertNotIn("\\(metric.unit)", source)
+
     def test_detail_pages_share_the_baseline_first_design(self) -> None:
         design = DETAIL_PATH.read_text()
         for token in ("struct BaselineMetricDetail", "30-day personal baseline", "Typical range", "Not a medical assessment", "30-day median", "selected-day marker", "medianLine"):

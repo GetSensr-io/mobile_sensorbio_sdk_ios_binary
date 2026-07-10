@@ -1,10 +1,12 @@
+import Foundation
 import SwiftUI
 import SensorBioSDK
 
 struct StepsDetailView: View {
     @Environment(AppDateContext.self) private var dateContext
     @State private var granularity: SB_ViewGranularity = .day
-    @State private var data: SB_StepsTrending?
+    @State private var dailySteps: Int?
+    @State private var rangePoints: [StepDailyPoint] = []
     @State private var baseline: PersonalBaseline?
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -15,26 +17,26 @@ struct StepsDetailView: View {
                 ProgressView("Loading steps…")
             } else if let errorMessage {
                 ContentUnavailableView("Steps unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
-            } else if granularity == .day, let metric = data?.graph?.metrics.first {
+            } else if granularity == .day, let dailySteps {
                 BaselineMetricDetail(
                     title: Metric.steps.title,
                     symbol: "figure.walk",
                     accent: .orange,
                     date: dateContext.selectedDate,
-                    value: dailyTotal(metric),
-                    valueText: MetricFormatting.humanNumber(dailyTotal(metric)),
-                    unit: metric.unit,
+                    value: Double(dailySteps),
+                    valueText: MetricFormatting.humanNumber(dailySteps),
+                    unit: "steps",
                     tone: .activity,
                     baseline: baseline,
-                    readings: metric.timeDatapoints.sorted { $0.timestamp < $1.timestamp }.map {
-                        MetricReading(
-                            label: MetricFormatting.dayTimeLabel(timestampMillis: $0.timestamp, timezoneOffsetMinutes: $0.timezone),
-                            value: "\(MetricFormatting.humanNumber(Double($0.value))) \(metric.unit)"
-                        )
-                    }
+                    readings: [MetricReading(label: "Daily total", value: "\(MetricFormatting.humanNumber(dailySteps)) steps")]
                 )
-            } else if let metrics = data?.graph?.metrics, !metrics.isEmpty {
-                List(metrics.indices, id: \.self) { metricSection(metrics[$0]) }
+            } else if !rangePoints.isEmpty {
+                List(rangePoints) { point in
+                    LabeledContent(
+                        MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
+                        value: "\(MetricFormatting.humanNumber(point.steps)) steps"
+                    )
+                }
             } else {
                 ContentUnavailableView("No steps yet", systemImage: "figure.walk")
             }
@@ -45,31 +47,67 @@ struct StepsDetailView: View {
         .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) { await load() }
     }
 
-    private func metricSection(_ metric: SB_StepMetric) -> some View {
-        Section(metric.name.isEmpty ? "Steps" : metric.name) {
-            LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Double(metric.avgValue))) \(metric.unit)")
-            ForEach(metric.datapoints.sorted { $0.date < $1.date }, id: \.date) { point in
-                LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: "\(MetricFormatting.humanNumber(Double(point.value))) \(metric.unit)")
-            }
-        }
-    }
-
-    private func dailyTotal(_ metric: SB_StepMetric) -> Double {
-        let total = metric.timeDatapoints.reduce(0) { $0 + Double($1.value) }
-        return total > 0 ? total : Double(metric.avgValue)
-    }
-
     @MainActor private func load() async {
         isLoading = true
         errorMessage = nil
+        dailySteps = nil
+        baseline = nil
+        rangePoints = []
         defer { isLoading = false }
+
+        let days = dayCount(for: granularity)
+        let startDate = rangeStartDate(for: dateContext.selectedDate, days: days)
+
         do {
-            data = try await sensorBio.fetchSteps(date: dateContext.selectedDate, granularity: granularity)
-            guard granularity == .day, let metric = data?.graph?.metrics.first else { baseline = nil; return }
-            let history = (try? await PersonalBaselineLoader.trailingValues(for: .steps, selectedDate: dateContext.selectedDate)) ?? []
-            baseline = PersonalBaseline.make(currentValue: dailyTotal(metric), historicalValues: history)
+            let stats = try await sensorBio.fetchDailyStats(
+                startDate: packedDate(startDate),
+                days: Int32(days),
+                includeBiometrics: false,
+                includeSleep: false,
+                includeSteps: true
+            )
+            let points = stats.days.sorted { $0.date < $1.date }.map { day in
+                StepDailyPoint(date: day.date, steps: day.physicalStats.reduce(0) { $0 + Int($1.steps) })
+            }
+
+            if granularity == .day {
+                dailySteps = points.last?.steps
+                let history = (try? await PersonalBaselineLoader.trailingValues(for: .steps, selectedDate: dateContext.selectedDate)) ?? []
+                if let dailySteps {
+                    baseline = PersonalBaseline.make(currentValue: Double(dailySteps), historicalValues: history)
+                }
+            } else {
+                rangePoints = points
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
     }
+
+    private func dayCount(for granularity: SB_ViewGranularity) -> Int {
+        switch granularity {
+        case .day: return 1
+        case .week: return 7
+        case .month: return 30
+        case .year: return 365
+        @unknown default: return 1
+        }
+    }
+
+    private func rangeStartDate(for date: Date, days: Int) -> Date {
+        let calendar = Calendar.current
+        let end = calendar.startOfDay(for: date)
+        return calendar.date(byAdding: .day, value: -(days - 1), to: end) ?? end
+    }
+
+    private func packedDate(_ date: Date) -> Int32 {
+        let parts = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        return Int32((parts.year ?? 0) * 10_000 + (parts.month ?? 0) * 100 + (parts.day ?? 0))
+    }
+}
+
+private struct StepDailyPoint: Identifiable {
+    let date: Int32
+    let steps: Int
+    var id: Int32 { date }
 }

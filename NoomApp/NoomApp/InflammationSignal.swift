@@ -160,6 +160,16 @@ struct InflammationSignalPreviewView: View {
                     systemImage: "wrench.and.screwdriver",
                     tint: NoomTheme.rose
                 )
+                NavigationLink {
+                    InflammationSignalDetailView(signal: signal, historicalValues: provider.trailingValues(before: completedDate))
+                } label: {
+                    Label("Open signal details", systemImage: "chevron.right")
+                }
+                .buttonStyle(NoomSecondaryButtonStyle())
+                .accessibilityLabel("Open Inflammation signal details")
+                let history = provider.trailingValues(before: completedDate)
+                // Keep the preview fixture honest: every rendered score must fit the published 1–100 preview scale.
+                let timelineIsBounded = history.allSatisfy { (1...100).contains(Int($0)) }
                 if let status {
                     NoomCard {
                         VStack(alignment: .leading, spacing: 10) {
@@ -177,13 +187,58 @@ struct InflammationSignalPreviewView: View {
                         }
                     }
                 }
-                InflammationSignalDetailView(signal: signal, historicalValues: provider.trailingValues(before: completedDate))
-                    .frame(minHeight: 680)
+                if timelineIsBounded {
+                    InflammationPreviewTimeline(values: history, selectedScore: signal.validScore)
+                }
             }
             .padding(20)
         }
         .navigationTitle("Inflammation signal")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct InflammationPreviewTimeline: View {
+    let values: [Double]
+    let selectedScore: Int?
+
+    private var maximum: Double { 100 }
+
+    var body: some View {
+        NoomCard(fill: Color.white.opacity(0.84), padding: 18) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("30-day preview timeline").noomSerifTitle(size: 24)
+                    Spacer()
+                    Text("1–100 scale").noomLabel()
+                }
+                Text("Synthetic daily samples for layout and detail-page testing. Higher values are more favorable; this is not personal health data.")
+                    .noomBody()
+                GeometryReader { proxy in
+                    HStack(alignment: .bottom, spacing: 3) {
+                        ForEach(Array(values.enumerated()), id: \.offset) { _, value in
+                            Capsule()
+                                .fill(NoomTheme.ink.opacity(0.78))
+                                .frame(width: max(3, (proxy.size.width - CGFloat(max(values.count - 1, 0)) * 3) / CGFloat(max(values.count, 1))))
+                                .frame(height: max(12, proxy.size.height * CGFloat(value / maximum)))
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                }
+                .frame(height: 106)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("30-day preview timeline")
+                .accessibilityValue(timelineAccessibilityValue)
+                if let selectedScore {
+                    NoomDetailValueRow(label: "Latest preview", value: "\(MetricFormatting.humanNumber(selectedScore)) / 100", verticalPadding: 4)
+                }
+            }
+        }
+    }
+
+    private var timelineAccessibilityValue: String {
+        let latest = selectedScore.map { " Latest preview: \(MetricFormatting.humanNumber($0)) out of 100." } ?? ""
+        return "\(values.count) synthetic daily samples on a 1 to 100 scale." + latest
     }
 }
 #endif
