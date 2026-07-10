@@ -96,7 +96,8 @@ struct DashboardView: View {
            let status = BodyStatusScore.make(
              restingHeartRate: Int(nightlySleep.restingHr),
              nocturnalHRV: Int(nightlySleep.restingHrv),
-             sleepScore: Int(nightlySleep.sleepScore.score)
+             sleepScore: Int(nightlySleep.sleepScore.score),
+             inflammationSignal: dashboard.inflammationSignal
            ) {
             let freshness = dashboard.freshness(for: dateContext.selectedDate)
         NoomCard {
@@ -128,17 +129,26 @@ struct DashboardView: View {
                     NoomDetailValueRow(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHr))) bpm", verticalPadding: 8)
                     NoomDetailValueRow(label: "Nocturnal HRV", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHrv))) ms", verticalPadding: 8)
                     NoomDetailValueRow(label: "Sleep score", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.sleepScore.score))) / 100", verticalPadding: 8)
-                    NoomDetailValueRow(label: "Method", value: "Three overnight signals, equal weight", verticalPadding: 8)
+                    NoomDetailValueRow(label: "Inflammation signal", value: inflammationSignalValue, verticalPadding: 8)
+                    NoomDetailValueRow(label: "Coverage", value: status.coverageDescription, verticalPadding: 8)
+                    NoomDetailValueRow(label: "Method", value: status.methodDescription, verticalPadding: 8)
                 }
             }
         }
         } else {
             NoomEmptyStateCard(
                 title: "Body Status unavailable",
-                message: "Wear Noom Band overnight and sync to calculate Body Status from resting HR, nocturnal HRV, and sleep.",
+                message: "Wear Noom Band overnight and sync to calculate Body Status from available overnight signals.",
                 systemImage: "heart.text.square"
             )
         }
+    }
+
+    private var inflammationSignalValue: String {
+        guard let score = dashboard.inflammationSignal.validScore else {
+            return dashboard.inflammationSignal.status.label
+        }
+        return "\(MetricFormatting.humanNumber(score)) / 100"
     }
 
     @ViewBuilder
@@ -324,7 +334,23 @@ struct DashboardView: View {
             metricRouteTile(label: "Resting Heart Rate", metric: metricsByType[.hrDashMetric], destination: HRDetailView())
             metricRouteTile(label: "Heart Rate Variability", metric: metricsByType[.hrvDashMetric], destination: HRVDetailView())
             metricRouteTile(label: "Respiratory Rate", metric: metricsByType[.respRateDashMetric], destination: RRDetailView())
+            inflammationMetricTile
         }
+    }
+
+    private var inflammationMetricTile: some View {
+        NavigationLink {
+            InflammationSignalDetailView(signal: dashboard.inflammationSignal)
+        } label: {
+            NoomMetricTile(
+                label: "Inflammation signal",
+                value: inflammationSignalValue,
+                caption: dashboard.inflammationSignal.status.isUsable ? "Daily overnight signal" : "Source integration pending",
+                minHeight: 104
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Inflammation signal, \(inflammationSignalValue)")
     }
 
     private func metricRouteTile<Destination: View>(label: String, metric: SB_DashboardMetric? = nil, destination: Destination) -> some View {

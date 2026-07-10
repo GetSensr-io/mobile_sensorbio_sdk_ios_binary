@@ -20,6 +20,7 @@
 		61A000000000000000000001 /* NoomDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A000000000000000000002 /* NoomDesignSystem.swift */; };
 		61A000000000000000000003 /* NoomProductScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A000000000000000000004 /* NoomProductScreens.swift */; };
 		61A000000000000000000005 /* NoomBandConnectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A000000000000000000006 /* NoomBandConnectionState.swift */; };
+		61A000000000000000000007 /* InflammationSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A000000000000000000008 /* InflammationSignal.swift */; };
 		64EDE3714FA39474C381A533 /* RecoveryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D7D8B831057487AB86F81F /* RecoveryDetailView.swift */; };
 		71273BB6A7733EA277325A78 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE70B675CC58D3B140F6444D /* Assets.xcassets */; };
 		74F3EFECDF1EB57510D7AFBC /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F64D87A55A3F29264BE2DA66 /* SignUpView.swift */; };
@@ -52,6 +53,7 @@
 		61A000000000000000000002 /* NoomDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomDesignSystem.swift; sourceTree = "<group>"; };
 		61A000000000000000000004 /* NoomProductScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomProductScreens.swift; sourceTree = "<group>"; };
 		61A000000000000000000006 /* NoomBandConnectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomBandConnectionState.swift; sourceTree = "<group>"; };
+		61A000000000000000000008 /* InflammationSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InflammationSignal.swift; sourceTree = "<group>"; };
 		665D054FD505DCC598224AB5 /* PairDeviceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairDeviceState.swift; sourceTree = "<group>"; };
 		77C5F277CF2B17528EAE151B /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		8CC6C539B2D79134C0BB21CE /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -110,6 +112,7 @@
 				C0017FC704A41AEA086A290A /* Metric.swift */,
 				61A000000000000000000002 /* NoomDesignSystem.swift */,
 				61A000000000000000000006 /* NoomBandConnectionState.swift */,
+				61A000000000000000000008 /* InflammationSignal.swift */,
 				61A000000000000000000004 /* NoomProductScreens.swift */,
 				665D054FD505DCC598224AB5 /* PairDeviceState.swift */,
 				A492870FDF12B462872D50B7 /* PairDeviceView.swift */,
@@ -282,6 +285,7 @@
 				AEDB44C322B7986E9B5EA87A /* Metric.swift in Sources */,
 				61A000000000000000000001 /* NoomDesignSystem.swift in Sources */,
 				61A000000000000000000005 /* NoomBandConnectionState.swift in Sources */,
+				61A000000000000000000007 /* InflammationSignal.swift in Sources */,
 				61A000000000000000000003 /* NoomProductScreens.swift in Sources */,
 				86BE0DD7167ED318F65454B4 /* PairDeviceState.swift in Sources */,
 				8D167E08376F79E8DD0B6479 /* PairDeviceView.swift in Sources */,

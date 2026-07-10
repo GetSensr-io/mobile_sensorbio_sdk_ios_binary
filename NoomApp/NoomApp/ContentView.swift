@@ -275,6 +275,8 @@ private struct NoomQAHost: View {
                         ]
                     )
                 }
+            case "inflammation_preview":
+                NavigationStack { InflammationSignalPreviewView() }
             case "record_activity":
                 NavigationStack { RecordActivityView() }
             case "steps_detail":

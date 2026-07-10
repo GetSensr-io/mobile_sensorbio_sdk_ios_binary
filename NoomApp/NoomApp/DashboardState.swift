@@ -10,6 +10,7 @@ final class DashboardState {
     var weeklyRecovery: SB_RecoveryRangeTrending? = nil
     var weeklySleep: SB_SleepDetailAggregated? = nil
     var nightlySleep: SB_SleepDetailDay? = nil
+    var inflammationSignal: InflammationSignal = .unavailable(for: .now)
     var isLoading: Bool = false
     var errorMessage: String? = nil
     var personalInsightsError: String? = nil
@@ -25,6 +26,7 @@ final class DashboardState {
         progressError = nil
         loadedAt = nil
         networkStatus = sensorBio.networkStatus
+        inflammationSignal = .unavailable(for: date)
         defer { isLoading = false }
 
         let tzOffset = Int32(TimeZone.current.secondsFromGMT(for: date))

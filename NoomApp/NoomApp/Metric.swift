@@ -10,6 +10,7 @@ enum Metric: Hashable {
     case hr
     case hrv
     case rr
+    case inflammation
 
     var title: String {
         switch self {
@@ -20,6 +21,7 @@ enum Metric: Hashable {
         case .hr:       return "Resting Heart Rate"
         case .hrv:      return "Heart Rate Variability"
         case .rr:       return "Respiratory Rate"
+        case .inflammation: return "Inflammation signal"
             @unknown default:
                 return "?"
         }
@@ -91,18 +93,22 @@ enum MetricFormatting {
     }
 }
 
-/// A simple, transparent morning status based only on three overnight signals.
-/// It is an orientation aid, not a medical assessment or diagnosis.
+/// A transparent morning wellness orientation based on overnight signals.
+/// It is not a medical assessment, diagnosis, or treatment recommendation.
 struct BodyStatusScore: Equatable {
     let score: Int
     let restingHeartRateComponent: Int
     let nocturnalHRVComponent: Int
     let sleepComponent: Int
+    let inflammationSignalComponent: Int?
+    let availableComponentCount: Int
+    let totalComponentCount: Int = 4
 
     static func make(
         restingHeartRate: Int,
         nocturnalHRV: Int,
-        sleepScore: Int
+        sleepScore: Int,
+        inflammationSignal: InflammationSignal? = nil
     ) -> BodyStatusScore? {
         guard (25...120).contains(restingHeartRate),
               (5...200).contains(nocturnalHRV),
@@ -110,19 +116,38 @@ struct BodyStatusScore: Equatable {
             return nil
         }
 
-        // All three overnight inputs carry equal weight. These fixed ranges
-        // normalize display values; they are not a clinical interpretation.
+        // Each valid input has a 25% base weight. If an approved input is
+        // unavailable, valid inputs are renormalized and coverage is shown.
+        // These fixed display normalizers are not a clinical interpretation.
         let restingHeartRateComponent = clamp(100 - Double(restingHeartRate - 45) * 1.6)
         let nocturnalHRVComponent = clamp(Double(nocturnalHRV - 10) * 1.4)
         let sleepComponent = clamp(Double(sleepScore))
-        let score = Int((Double(restingHeartRateComponent + nocturnalHRVComponent + sleepComponent) / 3).rounded())
+        let inflammationSignalComponent = inflammationSignal?.validScore
+        let components = [
+            restingHeartRateComponent,
+            nocturnalHRVComponent,
+            sleepComponent
+        ] + (inflammationSignalComponent.map { [$0] } ?? [])
+        let score = weightedAverage(components)
 
         return BodyStatusScore(
             score: score,
             restingHeartRateComponent: restingHeartRateComponent,
             nocturnalHRVComponent: nocturnalHRVComponent,
-            sleepComponent: sleepComponent
+            sleepComponent: sleepComponent,
+            inflammationSignalComponent: inflammationSignalComponent,
+            availableComponentCount: components.count
         )
+    }
+
+    var coverageDescription: String {
+        "Based on \(availableComponentCount) of \(totalComponentCount) available signals"
+    }
+
+    var methodDescription: String {
+        availableComponentCount == totalComponentCount
+            ? "Four overnight signals, equal 25% weight"
+            : "Four equal base inputs; available signals are reweighted"
     }
 
     var stage: String {
@@ -141,6 +166,10 @@ struct BodyStatusScore: Equatable {
         case 45..<65: return "Your overnight signals suggest an easier pace."
         default: return "Your overnight signals suggest making room for rest."
         }
+    }
+
+    private static func weightedAverage(_ components: [Int]) -> Int {
+        Int((Double(components.reduce(0, +)) / Double(components.count)).rounded())
     }
 
     private static func clamp(_ value: Double) -> Int {
@@ -291,10 +320,13 @@ struct MetricReading: Identifiable {
 }
 
 enum BaselineDetailTone {
-    case activity, heartRate, variability, respiratory
+    case activity, heartRate, variability, respiratory, inflammation
 
     func comparisonCopy(_ position: PersonalBaseline.Position) -> String {
         switch (self, position) {
+        case (.inflammation, .aboveUsual): return "More favorable than your recent usual"
+        case (.inflammation, .belowUsual): return "Less favorable than your recent usual"
+        case (.inflammation, .withinUsual): return "Within your recent usual"
         case (.activity, .aboveUsual): return "Above your recent usual"
         case (.activity, .belowUsual): return "Below your recent usual"
         case (.activity, .withinUsual): return "Within your recent usual"

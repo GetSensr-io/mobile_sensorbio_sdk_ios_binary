@@ -24,7 +24,7 @@ class NoomProductLoopMappingTests(unittest.TestCase):
         self.assertIn("This Body Status is not current", DASHBOARD_VIEW)
         self.assertIn("Body Status", DASHBOARD_VIEW)
         self.assertIn("BodyStatusScore.make", DASHBOARD_VIEW)
-        for signal in ("Resting HR", "Nocturnal HRV", "Sleep score", "Three overnight signals, equal weight"):
+        for signal in ("Resting HR", "Nocturnal HRV", "Sleep score", "Inflammation signal", "coverageDescription", "methodDescription"):
             self.assertIn(signal, DASHBOARD_VIEW)
         self.assertNotIn("Recovery from Noom Band", DASHBOARD_VIEW)
         self.assertNotIn("coverageText(recovery.calibrationData)", DASHBOARD_VIEW)

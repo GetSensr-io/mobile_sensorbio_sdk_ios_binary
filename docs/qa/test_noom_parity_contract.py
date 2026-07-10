@@ -60,6 +60,46 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("Sleep score", DASHBOARD)
         self.assertNotIn("if let recovery = data.recovery", DASHBOARD)
 
+    def test_inflammation_signal_poc_has_a_provider_neutral_mock_only_contract(self) -> None:
+        source_path = SRC / "InflammationSignal.swift"
+        self.assertTrue(source_path.exists(), "Inflammation signal contract is missing")
+        if not source_path.exists():
+            return
+        source = source_path.read_text()
+        for snippet in (
+            "struct InflammationSignal",
+            "case valid",
+            "case unavailable",
+            "score: Int",
+            "completedDate: Date",
+            "algorithmVersion: String",
+            "isPreview",
+            "MockInflammationSignalProvider",
+            "#if DEBUG",
+        ):
+            self.assertIn(snippet, source)
+        self.assertNotIn("demoInstallId", source)
+        self.assertNotIn("Convex", source)
+
+    def test_body_status_v2_has_an_explicit_fourth_input_and_visible_coverage(self) -> None:
+        for snippet in (
+            "inflammationSignal",
+            "inflammationSignalComponent",
+            "availableComponentCount",
+            "totalComponentCount",
+            "weightedAverage",
+        ):
+            self.assertIn(snippet, BODY_STATUS)
+        for snippet in ("Inflammation signal", "coverageDescription", "methodDescription"):
+            self.assertIn(snippet, DASHBOARD)
+
+    def test_inflammation_preview_route_is_debug_only_and_never_a_release_fixture(self) -> None:
+        host = CONTENT[CONTENT.index("private struct NoomQAHost"):]
+        self.assertIn('case "inflammation_preview"', host)
+        self.assertIn("InflammationSignalPreviewView", host)
+        release_content = CONTENT[CONTENT.index("#else", CONTENT.index("#if DEBUG")):CONTENT.index("#endif", CONTENT.index("#else", CONTENT.index("#if DEBUG")))]
+        self.assertNotIn("InflammationSignalPreviewView", release_content)
+
     def test_signed_out_home_uses_lifestyle_carousel_with_auth_actions(self) -> None:
         self.assertIn("struct NoomWelcomeCarousel", CONTENT)
         self.assertIn(".tabViewStyle(.page(indexDisplayMode: .never))", CONTENT)
