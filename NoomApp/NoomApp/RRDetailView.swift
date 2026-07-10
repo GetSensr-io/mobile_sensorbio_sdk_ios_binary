@@ -17,7 +17,7 @@ struct RRDetailView: View {
                 Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
-                    LabeledContent("Average", value: "\(Int(graph.brpm)) brpm")
+                    LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Int(graph.brpm))) brpm")
                     LabeledContent("Lowest", value: "\(Int(graph.rawLowest)) brpm")
                     LabeledContent("Highest", value: "\(Int(graph.rawHighest)) brpm")
                 }

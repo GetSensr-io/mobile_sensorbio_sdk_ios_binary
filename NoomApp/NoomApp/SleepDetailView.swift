@@ -160,7 +160,7 @@ struct SleepDetailView: View {
 
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
             NoomMetricTile(label: "Sleep time", value: hoursMinutes(seconds: Int(detail.sleepTimeSec)), caption: "Last night", minHeight: 96)
-            NoomMetricTile(label: "Resting HR", value: "\(Int(detail.restingHr)) bpm", caption: "Overnight", minHeight: 96)
+            NoomMetricTile(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(detail.restingHr))) bpm", caption: "Overnight", minHeight: 96)
             NoomMetricTile(label: "HRV", value: "\(Int(detail.restingHrv)) ms", caption: "Recovery signal", minHeight: 96)
             NoomMetricTile(label: "Awake", value: "\(Int(detail.stages.awakePercentage))%", caption: "Sleep stage", minHeight: 96)
         }

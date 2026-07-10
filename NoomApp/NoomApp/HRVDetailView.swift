@@ -17,7 +17,7 @@ struct HRVDetailView: View {
                 Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
-                    LabeledContent("rMSSD", value: "\(Int(graph.rMssd)) ms")
+                    LabeledContent("rMSSD", value: "\(MetricFormatting.humanNumber(Int(graph.rMssd))) ms")
                     LabeledContent("Average", value: "\(Int(graph.rawAvg)) ms")
                     LabeledContent("Lowest", value: "\(Int(graph.rawLowest)) ms")
                     LabeledContent("Highest", value: "\(Int(graph.rawHighest)) ms")

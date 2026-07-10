@@ -116,7 +116,7 @@ struct RecoveryDetailView: View {
         recoveryHero(score: score, variation: Double(graph.variationPercentage))
 
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            NoomMetricTile(label: "Resting HR", value: "\(Int(graph.restingHr)) bpm", caption: "Overnight", minHeight: 96)
+            NoomMetricTile(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(graph.restingHr))) bpm", caption: "Overnight", minHeight: 96)
             NoomMetricTile(label: "Sleep", value: hoursMinutes(seconds: Int(graph.sleepTimeSeconds)), caption: "Last night", minHeight: 96)
             NoomMetricTile(label: "Variation", value: variationLabel(Double(graph.variationPercentage)), caption: "Compared with usual", minHeight: 96)
             NoomMetricTile(label: "Readiness", value: readinessLabel(score), caption: "Today", minHeight: 96)
@@ -131,8 +131,8 @@ struct RecoveryDetailView: View {
                     Spacer()
                     NoomPill(title: score >= 70 ? "Supportive" : "Go gently", color: score >= 70 ? NoomTheme.mint : NoomTheme.rose, foreground: NoomTheme.logoBlack)
                 }
-                RecoverySignalRow(label: "Recovery score", value: "\(score)", progress: Double(score) / 100, tint: NoomTheme.ink)
-                RecoverySignalRow(label: "Resting heart rate", value: "\(Int(graph.restingHr)) bpm", progress: min(max(Double(graph.restingHr) / 100, 0.12), 1), tint: Color(hex: 0x98C7B2))
+                RecoverySignalRow(label: "Recovery score", value: MetricFormatting.humanNumber(score), progress: Double(score) / 100, tint: NoomTheme.ink)
+                RecoverySignalRow(label: "Resting heart rate", value: "\(MetricFormatting.humanNumber(Int(graph.restingHr))) bpm", progress: min(max(Double(graph.restingHr) / 100, 0.12), 1), tint: Color(hex: 0x98C7B2))
                 RecoverySignalRow(label: "Sleep time", value: hoursMinutes(seconds: Int(graph.sleepTimeSeconds)), progress: min(max(Double(graph.sleepTimeSeconds) / (9 * 3600), 0.12), 1), tint: NoomTheme.red.opacity(0.84))
             }
         }
@@ -180,7 +180,7 @@ struct RecoveryDetailView: View {
                         .frame(height: 148)
                     VStack(spacing: 0) {
                         ForEach(points.sorted { $0.date < $1.date }.prefix(5), id: \.date) { point in
-                            NoomDetailValueRow(label: MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: "\(Int(point.value))", verticalPadding: 8)
+                            NoomDetailValueRow(label: MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: MetricFormatting.humanNumber(Int(point.value)), verticalPadding: 8)
                         }
                     }
                 }
@@ -188,7 +188,7 @@ struct RecoveryDetailView: View {
         }
 
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            NoomMetricTile(label: "Resting HR", value: "\(Int(graph.restingHr)) bpm", caption: "Average", minHeight: 96)
+            NoomMetricTile(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(graph.restingHr))) bpm", caption: "Average", minHeight: 96)
             NoomMetricTile(label: "Sleep", value: hoursMinutes(seconds: Int(graph.sleepTimeSeconds)), caption: "Average", minHeight: 96)
             NoomMetricTile(label: "Variation", value: variationLabel(Double(graph.variationPercentage)), caption: "Range", minHeight: 96)
             NoomMetricTile(label: "Readiness", value: readinessLabel(score), caption: granularity.displayName, minHeight: 96)
@@ -207,7 +207,7 @@ struct RecoveryDetailView: View {
                         Text("Recovery")
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                             .foregroundStyle(.white.opacity(0.68))
-                        Text("\(score)")
+                        Text(MetricFormatting.humanNumber(score))
                             .font(.system(size: 56, weight: .bold, design: .serif))
                             .tracking(-2.5)
                             .foregroundStyle(.white)

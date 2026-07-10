@@ -40,6 +40,23 @@ extension SB_ViewGranularity {
 }
 
 enum MetricFormatting {
+    /// Localized metric formatter: `1,250` on a U.S. device rather than `1250`.
+    static func humanNumber(_ value: Int) -> String {
+        value.formatted(.number)
+    }
+
+    static func humanNumber(_ value: Float, maximumFractionDigits: Int = 1) -> String {
+        guard value.isFinite else { return "—" }
+        if value.rounded() == value { return humanNumber(Int(value)) }
+        return value.formatted(.number.precision(.fractionLength(0...maximumFractionDigits)))
+    }
+
+    static func humanNumber(_ value: Double, maximumFractionDigits: Int = 1) -> String {
+        guard value.isFinite else { return "—" }
+        if value.rounded() == value { return humanNumber(Int(value)) }
+        return value.formatted(.number.precision(.fractionLength(0...maximumFractionDigits)))
+    }
+
     /// SDK time-value points encode `timestamp` as a *local epoch* — the
     /// recording's local-time digits packed as if they were UTC. To render
     /// "what time did the device say it was when this sample was taken",

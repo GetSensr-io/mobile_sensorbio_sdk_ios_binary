@@ -17,7 +17,7 @@ struct HRDetailView: View {
                 Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
-                    LabeledContent("Resting BPM", value: "\(Int(graph.restingBpm))")
+                    LabeledContent("Resting BPM", value: MetricFormatting.humanNumber(Int(graph.restingBpm)))
                     LabeledContent("Average", value: "\(Int(graph.rawAvg))")
                     LabeledContent("Lowest", value: "\(Int(graph.rawLowest))")
                     LabeledContent("Highest", value: "\(Int(graph.rawHighest))")

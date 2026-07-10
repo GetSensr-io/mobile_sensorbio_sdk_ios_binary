@@ -3,9 +3,7 @@ import SensorBioSDK
 
 struct ContentView: View {
     @State private var session: SB_Session? = sensorBio.session
-    #if DEBUG
     @AppStorage("envIsDev") private var envIsDev: Bool = false
-    #endif
 
     var body: some View {
         Group {
@@ -28,12 +26,10 @@ struct ContentView: View {
             #endif
         }
         .onReceive(sensorBio.$session) { session = $0 }
-        #if DEBUG
         .onChange(of: envIsDev) { _, newValue in
             SB_SDK.environment = newValue ? .staging : .production
             sensorBio.hydrateSession()
         }
-        #endif
     }
 
     #if DEBUG
@@ -55,9 +51,7 @@ struct ContentView: View {
 }
 
 struct NoomSignedOutView: View {
-    #if DEBUG
     @AppStorage("envIsDev") private var envIsDev: Bool = false
-    #endif
 
     var body: some View {
         NoomScreen {
@@ -85,13 +79,11 @@ struct NoomSignedOutView: View {
                     }
                 }
 
-                #if DEBUG
                 NoomCard {
                     Toggle("Use staging SDK environment", isOn: $envIsDev)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(NoomTheme.logoBlack)
                 }
-                #endif
 
                 VStack(spacing: 12) {
                     NavigationLink {

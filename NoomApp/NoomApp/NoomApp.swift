@@ -11,16 +11,11 @@ struct NoomApp: App {
     @State private var logSubscription: AnyCancellable? = NoomApp.wireSDKLogging()
 
     init() {
-        // Customer builds must never default to staging. DEBUG keeps an
-        // internal-only environment switch, defaulting to production unless a
-        // developer explicitly opted into staging on this install.
-        #if DEBUG
+        // Internal TestFlight builds retain an explicit environment switch,
+        // but every fresh install defaults to production.
         UserDefaults.standard.register(defaults: ["envIsDev": false])
         let isDev = UserDefaults.standard.bool(forKey: "envIsDev")
         SB_SDK.environment = isDev ? .staging : .production
-        #else
-        SB_SDK.environment = .production
-        #endif
         sensorBio.hydrateSession()
     }
 

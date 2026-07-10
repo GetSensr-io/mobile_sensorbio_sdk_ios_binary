@@ -216,7 +216,7 @@ struct InsightsView: View {
     }
 
     private func formatNumber(_ value: Float) -> String {
-        value.rounded() == value ? "\(Int(value))" : value.formatted(.number.precision(.fractionLength(1)))
+        MetricFormatting.humanNumber(value)
     }
 }
 

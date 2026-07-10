@@ -13,29 +13,38 @@ DASHBOARD = (SRC / "DashboardView.swift").read_text()
 INSIGHTS_STATE = (SRC / "InsightsState.swift").read_text()
 INSIGHTS_VIEW = (SRC / "InsightsView.swift").read_text()
 PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
+METRIC_FORMATTING = (SRC / "Metric.swift").read_text()
+NUMERIC_DISPLAY_SOURCES = {
+    "DashboardView.swift": DASHBOARD,
+    "InsightsView.swift": INSIGHTS_VIEW,
+    "RecoveryDetailView.swift": (SRC / "RecoveryDetailView.swift").read_text(),
+    "SleepDetailView.swift": (SRC / "SleepDetailView.swift").read_text(),
+    "HRDetailView.swift": (SRC / "HRDetailView.swift").read_text(),
+    "HRVDetailView.swift": (SRC / "HRVDetailView.swift").read_text(),
+    "RRDetailView.swift": (SRC / "RRDetailView.swift").read_text(),
+}
 
 
 class NoomParityContractTests(unittest.TestCase):
-    def test_startup_defaults_production_outside_debug_and_hydrates_session(self) -> None:
+    def test_startup_respects_environment_switch_and_defaults_to_production(self) -> None:
         self.assertIn("sensorBio.hydrateSession()", NOOM_APP)
-        debug_start = NOOM_APP.index("#if DEBUG")
-        else_start = NOOM_APP.index("#else", debug_start)
-        endif = NOOM_APP.index("#endif", else_start)
-        debug_body = NOOM_APP[debug_start:else_start]
-        release_body = NOOM_APP[else_start:endif]
-        self.assertIn("envIsDev", debug_body)
-        self.assertIn("SB_SDK.environment = .production", release_body)
-        self.assertNotIn("envIsDev", release_body)
-        self.assertNotIn('register(defaults: ["envIsDev": true])', NOOM_APP)
+        self.assertIn('UserDefaults.standard.register(defaults: ["envIsDev": false])', NOOM_APP)
+        self.assertIn('let isDev = UserDefaults.standard.bool(forKey: "envIsDev")', NOOM_APP)
+        self.assertIn("SB_SDK.environment = isDev ? .staging : .production", NOOM_APP)
+        self.assertNotIn("#if DEBUG", NOOM_APP)
 
-    def test_environment_switch_ui_is_debug_only(self) -> None:
-        self.assertIn("#if DEBUG", CONTENT)
-        self.assertIn("@AppStorage(\"envIsDev\")", CONTENT)
+    def test_environment_switch_ui_is_available_in_testflight(self) -> None:
+        self.assertIn('@AppStorage("envIsDev") private var envIsDev: Bool = false', CONTENT)
+        self.assertNotIn("#if DEBUG\n    @AppStorage", CONTENT)
         self.assertIn("Use staging SDK environment", CONTENT)
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
-        release_region = CONTENT[CONTENT.index("#else", CONTENT.index("#if DEBUG")):CONTENT.index("#endif", CONTENT.index("#else", CONTENT.index("#if DEBUG")))]
-        self.assertNotIn("envIsDev", release_region)
+
+    def test_numeric_metrics_use_a_localized_human_number_formatter(self) -> None:
+        self.assertIn("static func humanNumber(_ value: Int)", METRIC_FORMATTING)
+        self.assertIn("value.formatted(.number)", METRIC_FORMATTING)
+        for filename, source in NUMERIC_DISPLAY_SOURCES.items():
+            self.assertIn("MetricFormatting.humanNumber", source, filename)
 
     def test_password_reset_button_calls_sdk_and_shows_outcome(self) -> None:
         self.assertIn("requestPasswordReset(email:", SIGNIN)

@@ -205,7 +205,7 @@ struct DashboardView: View {
                     }
                     Text("Only returned sleep and Recovery dates are shown. Missing dates are discontinuous, and no causal score is computed.").noomBody()
                     if !recoveryPoints.isEmpty {
-                        NoomDiscontinuousPointTrend(points: recoveryPoints, valueFormatter: { "\(Int($0))" }, tint: NoomTheme.red)
+                        NoomDiscontinuousPointTrend(points: recoveryPoints, valueFormatter: { MetricFormatting.humanNumber(Int($0)) }, tint: NoomTheme.red)
                     }
                     if !sleepPoints.isEmpty {
                         VStack(spacing: 0) {
@@ -336,7 +336,7 @@ struct DashboardView: View {
         if metric.valueFloat != 0 {
             number = formatNumber(metric.valueFloat)
         } else {
-            number = "\(metric.value)"
+            number = MetricFormatting.humanNumber(metric.value)
         }
         guard let unit = metric.valueUnit, !unit.isEmpty else { return number }
         return "\(number) \(unit)"
@@ -413,7 +413,7 @@ struct DashboardView: View {
     }
 
     private func formatNumber(_ value: Float) -> String {
-        value.rounded() == value ? "\(Int(value))" : value.formatted(.number.precision(.fractionLength(1)))
+        MetricFormatting.humanNumber(value)
     }
 
     private func duration(seconds: Int) -> String {
