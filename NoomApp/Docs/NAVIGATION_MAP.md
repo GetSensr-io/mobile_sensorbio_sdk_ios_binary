@@ -1,6 +1,11 @@
 # Noom Inflammation Signal POC — Navigation Map
 
 ```text
+Sleep tab
+  ├─ Sleep & Recovery hub — latest SDK sync summary, stage preview, returned factors
+  │    ├─ Open sleep details → SleepDetailView
+  │    └─ Open recovery details → RecoveryDetailView
+
 Dashboard
   ├─ Body Status
   │    └─ Input rows

@@ -277,6 +277,8 @@ private struct NoomQAHost: View {
                 }
             case "inflammation_preview":
                 NavigationStack { InflammationSignalPreviewView() }
+            case "sleep_hub_preview":
+                NavigationStack { SleepHubPreviewView() }
             case "record_activity":
                 NavigationStack { RecordActivityView() }
             case "steps_detail":

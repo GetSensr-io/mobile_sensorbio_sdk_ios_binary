@@ -1,5 +1,13 @@
 # Noom Inflammation Signal POC — Screen States
 
+| State | Sleep hub behavior |
+|---|---|
+| Loading | Skeleton/progress state; no invented metrics |
+| Fresh nightly detail | Show returned sleep score, duration, stages, and score factors; each section has an explicit drill-in |
+| No sleep session | Explain overnight sync is required and link to band setup/reconnect |
+| Partial detail | Show only returned fields and retain drill-ins; do not use zero as a substitute |
+| Offline/stale | Label availability/freshness and preserve only SDK-returned cached data |
+
 | State | Metric detail | Body Status behavior |
 |---|---|---|
 | Valid, fresh | 0–100 value, completed date, 30-day baseline/trend | Four inputs, 25% each, `Based on 4 of 4 available signals` |
