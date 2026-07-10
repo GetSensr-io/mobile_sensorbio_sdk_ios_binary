@@ -66,8 +66,8 @@ struct CaloriesDetailView: View {
         do {
             data = try await sensorBio.fetchCalories(date: dateContext.selectedDate, granularity: granularity)
             guard granularity == .day, let metric = data?.graph?.metrics.first else { baseline = nil; return }
-            let history = (try? await PersonalBaselineLoader.trailingValues(for: .calories, selectedDate: dateContext.selectedDate)) ?? []
-            baseline = PersonalBaseline.make(currentValue: dailyTotal(metric), historicalValues: history)
+            let observations = (try? await PersonalBaselineLoader.trailingObservations(for: .calories, selectedDate: dateContext.selectedDate)) ?? []
+            baseline = PersonalBaseline.make(currentValue: dailyTotal(metric), observations: observations)
         } catch {
             errorMessage = error.localizedDescription
         }

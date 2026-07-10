@@ -29,6 +29,15 @@ The Sleep tab becomes a sync-backed daily hub rather than a directory. It surfac
 
 **Inspiration:** [Ultrahuman iOS Sleep Data Dashboard on Mobbin](https://mobbin.com/explore/screens/36e5a755-9c0d-4afb-ba4e-dff42cd39a47), used only for the score + duration + cycles information hierarchy. The implementation keeps Noom's warm canvas, editorial typography, coral sleep accent, and explicit accessible labels; it does not copy assets, copy, palette, or layout.
 
+## Interactive metric charts
+
+Recent-pattern charts use Apple Swift Charts on iOS 18+ rather than a custom Canvas sparkline. The implementation preserves real completed dates, shows readable X (date) and Y (native value/unit) labels, keeps the personal typical-range band and median reference, and supports zero-distance drag scrubbing for tap, hold, and continuous inspection. VoiceOver exposes the selected coordinates and adjustable previous/next-day navigation.
+
+Mobbin references used for hierarchy—not copied branding or assets:
+- [Oura Readiness Trend](https://mobbin.com/explore/screens/e2d94334-c086-4427-8a8c-6f76a9ac0c7a)
+- [Visible Trend Chart](https://mobbin.com/explore/screens/874e1de2-556c-4e15-ad3c-fbb397178369)
+- [Ultrahuman Health Metrics Dashboard](https://mobbin.com/explore/screens/ad181c1e-9e70-4fbc-b01a-8be0893805aa)
+
 ## Accessibility and privacy
 
 - Every score includes an accessibility label with value, completed date, quality, and Body Status coverage where applicable.

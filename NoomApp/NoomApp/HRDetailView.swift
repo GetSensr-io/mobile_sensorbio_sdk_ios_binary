@@ -67,8 +67,8 @@ struct HRDetailView: View {
             if granularity == .day {
                 daily = try await sensorBio.fetchDailyHR(date: dateContext.selectedDate)
                 let current = Double(daily?.graph?.restingBpm ?? 0)
-                let history = (try? await PersonalBaselineLoader.trailingValues(for: .restingHeartRate, selectedDate: dateContext.selectedDate)) ?? []
-                baseline = PersonalBaseline.make(currentValue: current, historicalValues: history)
+                let observations = (try? await PersonalBaselineLoader.trailingObservations(for: .restingHeartRate, selectedDate: dateContext.selectedDate)) ?? []
+                baseline = PersonalBaseline.make(currentValue: current, observations: observations)
             } else {
                 range = try await sensorBio.fetchRangeHR(date: dateContext.selectedDate, granularity: granularity)
                 baseline = nil

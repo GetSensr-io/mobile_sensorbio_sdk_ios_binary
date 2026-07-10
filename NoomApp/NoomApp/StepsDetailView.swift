@@ -72,9 +72,9 @@ struct StepsDetailView: View {
 
             if granularity == .day {
                 dailySteps = points.last?.steps
-                let history = (try? await PersonalBaselineLoader.trailingValues(for: .steps, selectedDate: dateContext.selectedDate)) ?? []
+                let observations = (try? await PersonalBaselineLoader.trailingObservations(for: .steps, selectedDate: dateContext.selectedDate)) ?? []
                 if let dailySteps {
-                    baseline = PersonalBaseline.make(currentValue: Double(dailySteps), historicalValues: history)
+                    baseline = PersonalBaseline.make(currentValue: Double(dailySteps), observations: observations)
                 }
             } else {
                 rangePoints = points

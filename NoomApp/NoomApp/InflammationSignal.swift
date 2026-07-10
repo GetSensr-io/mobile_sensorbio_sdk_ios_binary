@@ -93,7 +93,11 @@ struct InflammationSignalDetailView: View {
 
     private var baseline: PersonalBaseline? {
         guard let score = signal.validScore else { return nil }
-        return PersonalBaseline.make(currentValue: Double(score), historicalValues: historicalValues)
+        return PersonalBaseline.make(
+            currentValue: Double(score),
+            historicalValues: historicalValues,
+            selectedDate: signal.completedDate
+        )
     }
 
     var body: some View {

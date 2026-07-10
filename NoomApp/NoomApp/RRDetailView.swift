@@ -66,8 +66,8 @@ struct RRDetailView: View {
             if granularity == .day {
                 daily = try await sensorBio.fetchDailyRR(date: dateContext.selectedDate)
                 let current = Double(daily?.graph?.brpm ?? 0)
-                let history = (try? await PersonalBaselineLoader.trailingValues(for: .respiratoryRate, selectedDate: dateContext.selectedDate)) ?? []
-                baseline = PersonalBaseline.make(currentValue: current, historicalValues: history)
+                let observations = (try? await PersonalBaselineLoader.trailingObservations(for: .respiratoryRate, selectedDate: dateContext.selectedDate)) ?? []
+                baseline = PersonalBaseline.make(currentValue: current, observations: observations)
             } else {
                 range = try await sensorBio.fetchRangeRR(date: dateContext.selectedDate, granularity: granularity)
                 baseline = nil

@@ -35,6 +35,33 @@ class PersonalBaselineContracts(unittest.TestCase):
         self.assertNotIn("unit: metric.unit", source)
         self.assertNotIn("\\(metric.unit)", source)
 
+    def test_recent_pattern_uses_swift_charts_with_drag_selection_and_xy_values(self) -> None:
+        source = BASELINE_PATH.read_text()
+        for token in (
+            "import Charts",
+            "struct InteractiveBaselineChart",
+            "Chart {",
+            "AreaMark",
+            "LineMark",
+            "RuleMark",
+            "PointMark",
+            ".chartOverlay",
+            "ChartProxy",
+            "DragGesture(minimumDistance: 0)",
+            "value(atX:",
+            "X: ",
+            "Y: ",
+            ".chartXAxis",
+            ".chartYAxis",
+        ):
+            self.assertIn(token, source)
+        self.assertNotIn("private struct BaselineSparkline", source)
+
+    def test_recent_pattern_preserves_real_completed_dates_for_x_coordinates(self) -> None:
+        source = BASELINE_PATH.read_text()
+        for token in ("struct BaselineObservation", "trailingObservations", "unpackedDate", "observations:"):
+            self.assertIn(token, source)
+
     def test_detail_pages_share_the_baseline_first_design(self) -> None:
         design = DETAIL_PATH.read_text()
         for token in ("struct BaselineMetricDetail", "30-day personal baseline", "Typical range", "Not a medical assessment", "30-day median", "selected-day marker", "medianLine"):

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Charts
 import SensorBioSDK
 
 enum Metric: Hashable {
@@ -209,6 +210,12 @@ struct DetailLoadKey: Hashable {
     let granularity: SB_ViewGranularity
 }
 
+struct BaselineObservation: Identifiable, Equatable {
+    let date: Date
+    let value: Double
+    var id: Date { date }
+}
+
 /// A local personal reference built from completed days before the selected date.
 /// It intentionally does not compare someone to a cohort aggregate or a clinical target.
 struct PersonalBaseline: Equatable {
@@ -218,10 +225,29 @@ struct PersonalBaseline: Equatable {
     let lowerBound: Double
     let upperBound: Double
     let sampleCount: Int
-    let values: [Double]
+    let observations: [BaselineObservation]
+    var values: [Double] { observations.map(\.value) }
 
-    static func make(currentValue: Double, historicalValues: [Double]) -> PersonalBaseline? {
-        let values = historicalValues.filter { $0.isFinite && $0 > 0 }
+    static func make(
+        currentValue: Double,
+        historicalValues: [Double],
+        selectedDate: Date = .now
+    ) -> PersonalBaseline? {
+        let calendar = Calendar.current
+        let validValues = historicalValues.filter { $0.isFinite && $0 > 0 }
+        let observations = validValues.enumerated().compactMap { index, value -> BaselineObservation? in
+            let daysBeforeSelected = validValues.count - index
+            guard let date = calendar.date(byAdding: .day, value: -daysBeforeSelected, to: selectedDate) else { return nil }
+            return BaselineObservation(date: calendar.startOfDay(for: date), value: value)
+        }
+        return make(currentValue: currentValue, observations: observations)
+    }
+
+    static func make(currentValue: Double, observations: [BaselineObservation]) -> PersonalBaseline? {
+        let observations = observations
+            .filter { $0.value.isFinite && $0.value > 0 }
+            .sorted { $0.date < $1.date }
+        let values = observations.map(\.value)
         guard values.count >= PersonalBaselineLoader.minimumSampleCount else { return nil }
         let center = median(values)
         let medianAbsoluteDeviation = median(values.map { abs($0 - center) })
@@ -232,7 +258,7 @@ struct PersonalBaseline: Equatable {
             lowerBound: max(0, center - robustSpread),
             upperBound: center + robustSpread,
             sampleCount: values.count,
-            values: values
+            observations: observations
         )
     }
 
@@ -263,7 +289,7 @@ enum PersonalBaselineLoader {
 
     /// Loads the 30 completed calendar days before `selectedDate`; the selected
     /// day is deliberately excluded so it cannot influence its own comparison.
-    static func trailingValues(for metric: BaselineMetric, selectedDate: Date) async throws -> [Double] {
+    static func trailingObservations(for metric: BaselineMetric, selectedDate: Date) async throws -> [BaselineObservation] {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = .current
         guard let startDate = calendar.date(byAdding: .day, value: -trailingDays, to: calendar.startOfDay(for: selectedDate)) else {
@@ -276,7 +302,14 @@ enum PersonalBaselineLoader {
             includeSleep: true,
             includeSteps: true
         )
-        return stats.days.sorted { $0.date < $1.date }.compactMap { value(for: metric, day: $0) }
+        return stats.days.sorted { $0.date < $1.date }.compactMap { day in
+            guard let date = unpackedDate(day.date), let value = value(for: metric, day: day) else { return nil }
+            return BaselineObservation(date: date, value: value)
+        }
+    }
+
+    static func trailingValues(for metric: BaselineMetric, selectedDate: Date) async throws -> [Double] {
+        try await trailingObservations(for: metric, selectedDate: selectedDate).map(\.value)
     }
 
     private static func value(for metric: BaselineMetric, day: SB_DailyStats) -> Double? {
@@ -305,6 +338,17 @@ enum PersonalBaselineLoader {
 
     private static func nonZero(_ value: Double) -> Double? {
         value.isFinite && value > 0 ? value : nil
+    }
+
+    private static func unpackedDate(_ packedDate: Int32) -> Date? {
+        let raw = Int(packedDate)
+        var components = DateComponents()
+        components.calendar = Calendar(identifier: .gregorian)
+        components.timeZone = .current
+        components.year = raw / 10_000
+        components.month = (raw / 100) % 100
+        components.day = raw % 100
+        return components.date.map { Calendar.current.startOfDay(for: $0) }
     }
 
     private static func packedDate(_ date: Date) -> Int32 {
@@ -383,8 +427,14 @@ struct BaselineMetricDetail: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Your recent pattern")
                             .font(.headline)
-                        BaselineSparkline(baseline: baseline, selectedValue: value, accent: accent)
-                        Text("Shaded band marks your typical range; the filled dot is the selected day.")
+                        InteractiveBaselineChart(
+                            baseline: baseline,
+                            selectedDate: date,
+                            selectedValue: value,
+                            unit: unit,
+                            accent: accent
+                        )
+                        Text("Tap, hold, or drag across the chart to inspect the date (X) and value (Y). The shaded band is your typical range; the filled dot is the selected-day marker.")
                             .font(.footnote)
                             .foregroundStyle(Color.primary.opacity(0.68))
                     }
@@ -474,44 +524,156 @@ struct BaselineMetricDetail: View {
     }
 }
 
-private struct BaselineSparkline: View {
+private struct InteractiveBaselineChart: View {
     let baseline: PersonalBaseline
+    let selectedDate: Date
     let selectedValue: Double
+    let unit: String
     let accent: Color
 
+    @State private var selectedObservation: BaselineObservation?
+
+    private var currentObservation: BaselineObservation {
+        BaselineObservation(date: Calendar.current.startOfDay(for: selectedDate), value: selectedValue)
+    }
+
+    private var observations: [BaselineObservation] {
+        (baseline.observations + [currentObservation]).sorted { $0.date < $1.date }
+    }
+
+    private var displayedObservation: BaselineObservation { selectedObservation ?? currentObservation }
+
+    private var yDomain: ClosedRange<Double> {
+        let values = observations.map(\.value) + [baseline.lowerBound, baseline.upperBound]
+        let low = values.min() ?? 0
+        let high = values.max() ?? 1
+        let padding = max((high - low) * 0.16, max(abs(high) * 0.04, 1))
+        return max(0, low - padding)...(high + padding)
+    }
+
     var body: some View {
-        Canvas { context, size in
-            guard let sampleMin = baseline.values.min(), let sampleMax = baseline.values.max() else { return }
-            let minValue = min(sampleMin, baseline.lowerBound, selectedValue)
-            let maxValue = max(sampleMax, baseline.upperBound, selectedValue)
-            guard maxValue > minValue else { return }
-
-            func y(_ value: Double) -> CGFloat {
-                size.height - ((value - minValue) / (maxValue - minValue) * size.height)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                coordinateChip(label: "X", value: displayedObservation.date.formatted(.dateTime.month(.abbreviated).day()))
+                coordinateChip(label: "Y", value: "\(MetricFormatting.humanNumber(displayedObservation.value)) \(unit)")
             }
-            let band = CGRect(x: 0, y: y(baseline.upperBound), width: size.width, height: y(baseline.lowerBound) - y(baseline.upperBound))
-            context.fill(Path(band), with: .color(accent.opacity(0.14)))
 
-            var medianLine = Path()
-            medianLine.move(to: CGPoint(x: 0, y: y(baseline.median)))
-            medianLine.addLine(to: CGPoint(x: size.width, y: y(baseline.median)))
-            context.stroke(medianLine, with: .color(accent.opacity(0.48)), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            let medianLine = baseline.median
+            Chart {
+                ForEach(observations) { observation in
+                    AreaMark(
+                        x: .value("Date", observation.date),
+                        yStart: .value("Typical low", baseline.lowerBound),
+                        yEnd: .value("Typical high", baseline.upperBound)
+                    )
+                    .foregroundStyle(accent.opacity(0.12))
 
-            let width = size.width / CGFloat(max(baseline.values.count, 1))
-            let path = Path { path in
-                for (index, value) in baseline.values.enumerated() {
-                    let point = CGPoint(x: CGFloat(index) * width, y: y(value))
-                    if index == 0 { path.move(to: point) }
-                    else { path.addLine(to: point) }
+                    LineMark(
+                        x: .value("Date", observation.date),
+                        y: .value("Value", observation.value)
+                    )
+                    .foregroundStyle(accent)
+                    .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                    .interpolationMethod(.catmullRom)
+
+                    if observation.id == currentObservation.id {
+                        PointMark(
+                            x: .value("Selected date", observation.date),
+                            y: .value("Selected value", observation.value)
+                        )
+                        .foregroundStyle(accent)
+                        .symbolSize(82)
+                    }
+                }
+
+                RuleMark(y: .value("30-day median", medianLine))
+                    .foregroundStyle(accent.opacity(0.40))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 4]))
+
+                if let selectedObservation {
+                    RuleMark(x: .value("Inspected date", selectedObservation.date))
+                        .foregroundStyle(accent.opacity(0.55))
+                        .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
+                    PointMark(
+                        x: .value("Inspected date", selectedObservation.date),
+                        y: .value("Inspected value", selectedObservation.value)
+                    )
+                    .foregroundStyle(accent)
+                    .symbolSize(105)
                 }
             }
-            context.stroke(path, with: .color(accent), lineWidth: 2.5)
-
-            let selectedPoint = CGPoint(x: size.width, y: y(selectedValue))
-            context.fill(Path(ellipseIn: CGRect(x: selectedPoint.x - 5, y: selectedPoint.y - 5, width: 10, height: 10)), with: .color(accent))
-            context.stroke(Path(ellipseIn: CGRect(x: selectedPoint.x - 5, y: selectedPoint.y - 5, width: 10, height: 10)), with: .color(.white), lineWidth: 2)
+            .chartYScale(domain: yDomain)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day, count: 7)) { value in
+                    AxisGridLine().foregroundStyle(Color.secondary.opacity(0.12))
+                    AxisTick().foregroundStyle(Color.secondary.opacity(0.45))
+                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                    AxisGridLine().foregroundStyle(Color.secondary.opacity(0.14))
+                    AxisValueLabel()
+                }
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geometry in
+                    Rectangle()
+                        .fill(.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { gesture in
+                                    updateSelection(at: gesture.location, proxy: proxy, geometry: geometry)
+                                }
+                        )
+                }
+            }
+            .frame(height: 190)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Interactive 30-day personal baseline chart")
+            .accessibilityValue("X: \(displayedObservation.date.formatted(date: .abbreviated, time: .omitted)). Y: \(MetricFormatting.humanNumber(displayedObservation.value)) \(unit).")
+            .accessibilityHint("Swipe up or down to inspect adjacent days.")
+            .accessibilityAdjustableAction { direction in
+                moveSelection(direction)
+            }
         }
-        .frame(height: 72)
-        .accessibilityLabel("Thirty-day personal baseline trend with a shaded typical range and selected-day marker")
+    }
+
+    private func coordinateChip(label: String, value: String) -> some View {
+        HStack(spacing: 5) {
+            Text("\(label):")
+                .foregroundStyle(Color.secondary)
+            Text(value)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.primary)
+        }
+        .font(.caption.monospacedDigit())
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(accent.opacity(0.10), in: Capsule())
+        .accessibilityElement(children: .combine)
+    }
+
+    private func updateSelection(at location: CGPoint, proxy: ChartProxy, geometry: GeometryProxy) {
+        guard let plotFrame = proxy.plotFrame else { return }
+        let frame = geometry[plotFrame]
+        let x = min(max(location.x - frame.origin.x, 0), frame.width)
+        guard let date: Date = proxy.value(atX: x) else { return }
+        selectedObservation = observations.min {
+            abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date))
+        }
+    }
+
+    private func moveSelection(_ direction: AccessibilityAdjustmentDirection) {
+        let current = displayedObservation
+        guard let index = observations.firstIndex(where: { $0.id == current.id }) else { return }
+        let nextIndex: Int
+        switch direction {
+        case .increment: nextIndex = min(index + 1, observations.count - 1)
+        case .decrement: nextIndex = max(index - 1, 0)
+        @unknown default: return
+        }
+        selectedObservation = observations[nextIndex]
     }
 }

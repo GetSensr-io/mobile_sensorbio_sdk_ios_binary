@@ -67,8 +67,8 @@ struct HRVDetailView: View {
             if granularity == .day {
                 daily = try await sensorBio.fetchDailyHRV(date: dateContext.selectedDate)
                 let current = Double(daily?.graph?.rMssd ?? 0)
-                let history = (try? await PersonalBaselineLoader.trailingValues(for: .hrv, selectedDate: dateContext.selectedDate)) ?? []
-                baseline = PersonalBaseline.make(currentValue: current, historicalValues: history)
+                let observations = (try? await PersonalBaselineLoader.trailingObservations(for: .hrv, selectedDate: dateContext.selectedDate)) ?? []
+                baseline = PersonalBaseline.make(currentValue: current, observations: observations)
             } else {
                 range = try await sensorBio.fetchRangeHRV(date: dateContext.selectedDate, granularity: granularity)
                 baseline = nil
