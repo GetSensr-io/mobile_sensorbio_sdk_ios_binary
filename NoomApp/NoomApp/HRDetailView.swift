@@ -18,9 +18,9 @@ struct HRDetailView: View {
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
                     LabeledContent("Resting BPM", value: MetricFormatting.humanNumber(Int(graph.restingBpm)))
-                    LabeledContent("Average", value: "\(Int(graph.rawAvg))")
-                    LabeledContent("Lowest", value: "\(Int(graph.rawLowest))")
-                    LabeledContent("Highest", value: "\(Int(graph.rawHighest))")
+                    LabeledContent("Average", value: MetricFormatting.humanNumber(Int(graph.rawAvg)))
+                    LabeledContent("Lowest", value: MetricFormatting.humanNumber(Int(graph.rawLowest)))
+                    LabeledContent("Highest", value: MetricFormatting.humanNumber(Int(graph.rawHighest)))
                 }
                 Section("By Hour") {
                     if graph.heartRateTimeseriesPoints.isEmpty {
@@ -28,15 +28,15 @@ struct HRDetailView: View {
                     } else {
                         ForEach(graph.heartRateTimeseriesPoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
                             LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
-                                           value: "\(Int(point.value)) bpm")
+                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) bpm")
                         }
                     }
                 }
             } else if granularity != .day, let graph = range?.graph {
                 Section("Summary") {
-                    LabeledContent("Average", value: "\(Int(graph.avgBpm))")
-                    LabeledContent("Lowest", value: "\(Int(graph.lowest))")
-                    LabeledContent("Highest", value: "\(Int(graph.highest))")
+                    LabeledContent("Average", value: MetricFormatting.humanNumber(Int(graph.avgBpm)))
+                    LabeledContent("Lowest", value: MetricFormatting.humanNumber(Int(graph.lowest)))
+                    LabeledContent("Highest", value: MetricFormatting.humanNumber(Int(graph.highest)))
                 }
                 Section(granularity == .week ? "By Day" : granularity == .month ? "By Day" : "By Month") {
                     if graph.bpmPoints.isEmpty {
@@ -44,7 +44,7 @@ struct HRDetailView: View {
                     } else {
                         ForEach(graph.bpmPoints.sorted { $0.date < $1.date }, id: \.date) { point in
                             LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
-                                           value: "\(Int(point.value)) bpm")
+                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) bpm")
                         }
                     }
                 }

@@ -161,8 +161,8 @@ struct SleepDetailView: View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
             NoomMetricTile(label: "Sleep time", value: hoursMinutes(seconds: Int(detail.sleepTimeSec)), caption: "Last night", minHeight: 96)
             NoomMetricTile(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(detail.restingHr))) bpm", caption: "Overnight", minHeight: 96)
-            NoomMetricTile(label: "HRV", value: "\(Int(detail.restingHrv)) ms", caption: "Recovery signal", minHeight: 96)
-            NoomMetricTile(label: "Awake", value: "\(Int(detail.stages.awakePercentage))%", caption: "Sleep stage", minHeight: 96)
+            NoomMetricTile(label: "HRV", value: "\(MetricFormatting.humanNumber(Int(detail.restingHrv))) ms", caption: "Recovery signal", minHeight: 96)
+            NoomMetricTile(label: "Awake", value: "\(MetricFormatting.humanNumber(Int(detail.stages.awakePercentage)))%", caption: "Sleep stage", minHeight: 96)
         }
 
         if !detail.scoreFactors.isEmpty {
@@ -186,10 +186,10 @@ struct SleepDetailView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(NoomTheme.logoBlack)
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                        NoomMetricTile(label: "Heart rate", value: "\(Int(bio.hrGraph.avg)) bpm", caption: "Average", minHeight: 88)
-                        NoomMetricTile(label: "HRV", value: "\(Int(bio.hrvGraph.avg)) ms", caption: "Average", minHeight: 88)
-                        NoomMetricTile(label: "Resp rate", value: "\(Int(bio.respGraph.avg)) brpm", caption: "Average", minHeight: 88)
-                        NoomMetricTile(label: "SpO\u{2082}", value: "\(Int(bio.spo2Graph.avg))%", caption: "Average", minHeight: 88)
+                        NoomMetricTile(label: "Heart rate", value: "\(MetricFormatting.humanNumber(Int(bio.hrGraph.avg))) bpm", caption: "Average", minHeight: 88)
+                        NoomMetricTile(label: "HRV", value: "\(MetricFormatting.humanNumber(Int(bio.hrvGraph.avg))) ms", caption: "Average", minHeight: 88)
+                        NoomMetricTile(label: "Resp rate", value: "\(MetricFormatting.humanNumber(Int(bio.respGraph.avg))) brpm", caption: "Average", minHeight: 88)
+                        NoomMetricTile(label: "SpO\u{2082}", value: "\(MetricFormatting.humanNumber(Int(bio.spo2Graph.avg)))%", caption: "Average", minHeight: 88)
                     }
                 }
             }
@@ -205,7 +205,7 @@ struct SleepDetailView: View {
                     Text("Sleep balance")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(NoomTheme.logoBlack)
-                    NoomDetailValueRow(label: "Circadian score", value: "\(Int(acc.circadianScore))", verticalPadding: 8)
+                    NoomDetailValueRow(label: "Circadian score", value: MetricFormatting.humanNumber(Int(acc.circadianScore)), verticalPadding: 8)
                     NoomDetailValueRow(label: "Sleep debt", value: hoursMinutes(minutes: Int(acc.sleepDebtNetMins)), verticalPadding: 8)
                     NoomDetailValueRow(label: "Recommended", value: hoursMinutes(minutes: Int(acc.current.recommendedMins)), verticalPadding: 8)
                     NoomDetailValueRow(label: "Achieved", value: hoursMinutes(minutes: Int(acc.current.achievedMins)), verticalPadding: 8)
@@ -378,7 +378,7 @@ struct SleepDetailView: View {
         if isMinuteUnit {
             return hoursMinutes(minutes: Int(wrapper.value))
         }
-        let num = "\(Int(wrapper.value))"
+        let num = MetricFormatting.humanNumber(Int(wrapper.value))
         return wrapper.unit.isEmpty ? num : "\(num) \(wrapper.unit)"
     }
 

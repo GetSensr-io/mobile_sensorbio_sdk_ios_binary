@@ -18,8 +18,8 @@ struct RRDetailView: View {
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
                     LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Int(graph.brpm))) brpm")
-                    LabeledContent("Lowest", value: "\(Int(graph.rawLowest)) brpm")
-                    LabeledContent("Highest", value: "\(Int(graph.rawHighest)) brpm")
+                    LabeledContent("Lowest", value: "\(MetricFormatting.humanNumber(Int(graph.rawLowest))) brpm")
+                    LabeledContent("Highest", value: "\(MetricFormatting.humanNumber(Int(graph.rawHighest))) brpm")
                 }
                 Section("By Hour") {
                     if graph.rawDatetimePoints.isEmpty {
@@ -27,15 +27,15 @@ struct RRDetailView: View {
                     } else {
                         ForEach(graph.rawDatetimePoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
                             LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
-                                           value: "\(Int(point.value)) brpm")
+                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) brpm")
                         }
                     }
                 }
             } else if granularity != .day, let graph = range?.graph {
                 Section("Summary") {
-                    LabeledContent("Average", value: "\(Int(graph.avgBrpm)) brpm")
-                    LabeledContent("Lowest", value: "\(Int(graph.lowest)) brpm")
-                    LabeledContent("Highest", value: "\(Int(graph.highest)) brpm")
+                    LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Int(graph.avgBrpm))) brpm")
+                    LabeledContent("Lowest", value: "\(MetricFormatting.humanNumber(Int(graph.lowest))) brpm")
+                    LabeledContent("Highest", value: "\(MetricFormatting.humanNumber(Int(graph.highest))) brpm")
                 }
                 Section(granularity == .year ? "By Month" : "By Day") {
                     if graph.brpmPoints.isEmpty {
@@ -43,7 +43,7 @@ struct RRDetailView: View {
                     } else {
                         ForEach(graph.brpmPoints.sorted { $0.date < $1.date }, id: \.date) { point in
                             LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
-                                           value: "\(Int(point.value)) brpm")
+                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) brpm")
                         }
                     }
                 }

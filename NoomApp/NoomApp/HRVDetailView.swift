@@ -18,9 +18,9 @@ struct HRVDetailView: View {
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
                     LabeledContent("rMSSD", value: "\(MetricFormatting.humanNumber(Int(graph.rMssd))) ms")
-                    LabeledContent("Average", value: "\(Int(graph.rawAvg)) ms")
-                    LabeledContent("Lowest", value: "\(Int(graph.rawLowest)) ms")
-                    LabeledContent("Highest", value: "\(Int(graph.rawHighest)) ms")
+                    LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Int(graph.rawAvg))) ms")
+                    LabeledContent("Lowest", value: "\(MetricFormatting.humanNumber(Int(graph.rawLowest))) ms")
+                    LabeledContent("Highest", value: "\(MetricFormatting.humanNumber(Int(graph.rawHighest))) ms")
                 }
                 Section("By Hour") {
                     if graph.rawDatetimeHrvPoints.isEmpty {
@@ -28,15 +28,15 @@ struct HRVDetailView: View {
                     } else {
                         ForEach(graph.rawDatetimeHrvPoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
                             LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
-                                           value: "\(Int(point.value)) ms")
+                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) ms")
                         }
                     }
                 }
             } else if granularity != .day, let graph = range?.graph {
                 Section("Summary") {
-                    LabeledContent("Average", value: "\(Int(graph.avg)) ms")
-                    LabeledContent("Lowest", value: "\(Int(graph.lowest)) ms")
-                    LabeledContent("Highest", value: "\(Int(graph.highest)) ms")
+                    LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Int(graph.avg))) ms")
+                    LabeledContent("Lowest", value: "\(MetricFormatting.humanNumber(Int(graph.lowest))) ms")
+                    LabeledContent("Highest", value: "\(MetricFormatting.humanNumber(Int(graph.highest))) ms")
                 }
                 Section(granularity == .year ? "By Month" : "By Day") {
                     if graph.hrvIndexPoints.isEmpty {
@@ -44,7 +44,7 @@ struct HRVDetailView: View {
                     } else {
                         ForEach(graph.hrvIndexPoints.sorted { $0.date < $1.date }, id: \.date) { point in
                             LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
-                                           value: "\(Int(point.value)) ms")
+                                           value: "\(MetricFormatting.humanNumber(Int(point.value))) ms")
                         }
                     }
                 }
