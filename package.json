@@ -1,0 +1,16 @@
+{
+  "name": "sensor-bio-product-loop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:backend": "tsx --test tests/**/*.test.ts",
+    "typecheck:backend": "tsc --project convex/tsconfig.json",
+    "convex:deploy": "convex deploy --typecheck enable"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "convex": "^1.35.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

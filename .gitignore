@@ -19,3 +19,7 @@ NoomApp/*.xcworkspace/
 NoomApp/build/
 NoomApp/qa-artifacts/
 docs/mockups/noom-mobile-mockups/screenshots/
+
+# Node / Convex local dependencies
+node_modules/
+.env.local
