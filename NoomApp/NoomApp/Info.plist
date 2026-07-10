@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>8</string>
+	<string>9</string>
 	<key>ProductLoopEndpoint</key>
 	<string>https://stoic-mink-37.convex.site</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
