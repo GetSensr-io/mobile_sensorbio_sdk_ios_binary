@@ -4,7 +4,7 @@ Customer-facing binary distribution of the Sensr-Bio iOS SDK. This repository co
 
 - **`SensorBio/`** — the three `.xcframework` files + the binary podspec that wires them into your app
 - **`SDK_INTERFACE.md`** — the public API reference
-- **`ExampleApp/`** — a reference SwiftUI integration you can build + run
+- **`NoomApp/`** — a reference SwiftUI integration you can build + run
 
 ## What ships
 
@@ -104,7 +104,7 @@ See **[`SDK_INTERFACE.md`](./SDK_INTERFACE.md)** for the full public surface.
 
 ## Reference integration
 
-**[`ExampleApp/`](./ExampleApp)** is a minimal SwiftUI app demonstrating the integration pattern. From inside that directory: `pod install`, then open `ExampleApp.xcworkspace`. It hits a dev backend and pairs against any Sensr-Bio wearable.
+**[`NoomApp/`](./NoomApp)** is a minimal SwiftUI app demonstrating the integration pattern. From inside that directory: `pod install`, then open `NoomApp.xcworkspace`. It hits a dev backend and pairs against a Noom Band.
 
 ## Updating
 

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Noom Mobile White Label Mockups</title>
+  <style>
+    @font-face {
+      font-family: "Untitled Sans";
+      src: url("assets/fonts/untitled-sans-web-regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Untitled Sans";
+      src: url("assets/fonts/untitled-sans-web-medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Untitled Sans";
+      src: url("assets/fonts/untitled-sans-web-bold.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Untitled Serif";
+      src: url("assets/fonts/untitled-serif-web-regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Untitled Serif";
+      src: url("assets/fonts/untitled-serif-web-medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "BrownLLWeb";
+      src: url("assets/fonts/BrownLLWeb-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "BrownLLWeb";
+      src: url("assets/fonts/BrownLLWeb-Bold.woff2") format("woff2");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --noom-red: #FB513B;
+      --warm: #F6F4EE;
+      --noom-black: #191717;
+      --ink: #191717;
+      --ink-2: #1D3A44;
+      --muted: #5C6668;
+      --soft-line: #DED8CE;
+      --card: #FFFDF8;
+      --card-2: #FDF8EF;
+      --mint: #DDEDE3;
+      --sage: #668B74;
+      --blue: #DAE9EC;
+      --rose: #FFE1DA;
+      --gold: #F2D69A;
+      --lav: #ECE5F4;
+      --shadow: 0 26px 70px rgba(29, 58, 68, .16);
+      --font-sans: "Untitled Sans", "Untitled Sans Web Regular", "DM Sans", Helvetica, Arial, sans-serif;
+      --font-serif: "Untitled Serif", "Untitled Serif Web Regular", "Source Serif Pro", Georgia, serif;
+      --font-label: "BrownLLWeb", "Untitled Sans", Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-weight: 400;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(251, 81, 59, .13), transparent 29%),
+        radial-gradient(circle at 92% 8%, rgba(29, 58, 68, .11), transparent 24%),
+        linear-gradient(180deg, #FBF7EF 0%, var(--warm) 44%, #EFEADF 100%);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page { max-width: 1500px; margin: 0 auto; padding: 44px 28px 64px; }
+    .cover {
+      display: grid;
+      grid-template-columns: minmax(300px, .86fr) minmax(320px, 1fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 38px;
+      padding: 36px;
+      border-radius: 38px;
+      background: rgba(255, 253, 248, .78);
+      border: 1px solid rgba(29, 58, 68, .13);
+      box-shadow: 0 20px 80px rgba(29, 58, 68, .09);
+    }
+    .noom-logo-plate { display: inline-flex; align-items: center; justify-content: center; width: max-content; padding: 10px 13px; border-radius: 16px; background: #fff; border: 1px solid rgba(25, 23, 23, .10); box-shadow: 0 10px 22px rgba(25, 23, 23, .06); }
+    .logo-img { display: block; width: 118px; height: auto; }
+    .cover .noom-logo-plate { margin-bottom: 24px; padding: 13px 17px; border-radius: 20px; }
+    .cover .logo-img { width: 152px; }
+    h1 { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: clamp(46px, 6.1vw, 86px); line-height: 1.01; letter-spacing: -.047em; max-width: 840px; }
+    .cover p { margin: 20px 0 0; color: var(--muted); font-size: 18px; line-height: 1.46; max-width: 680px; }
+    .token-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .token { min-height: 136px; border-radius: 25px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(29,58,68,.14); }
+    .token strong { font-family: var(--font-label); font-size: 13px; font-weight: 700; letter-spacing: .01em; }
+    .token span { font-size: 12px; line-height: 1.35; color: rgba(25,23,23,.68); }
+    .t-red { background: var(--noom-red); color: white; }
+    .t-red span { color: rgba(255,255,255,.86); }
+    .t-warm { background: var(--warm); }
+    .t-ink { background: var(--ink); color: white; }
+    .t-ink span { color: rgba(255,255,255,.76); }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 390px); gap: 36px; justify-content: center; align-items: start; }
+    .mock-card { display: flex; flex-direction: column; gap: 14px; }
+    .mock-title { padding: 0 8px; }
+    .mock-title h2 { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 22px; letter-spacing: -.035em; }
+    .mock-title p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.34; }
+
+    .phone { width: 390px; height: 844px; border-radius: 54px; padding: 14px; background: #172F37; box-shadow: var(--shadow); position: relative; }
+    .phone::before { content: ""; position: absolute; top: 15px; left: 50%; width: 126px; height: 34px; transform: translateX(-50%); border-radius: 0 0 18px 18px; background: #172F37; z-index: 4; }
+    .screen { height: 100%; border-radius: 42px; overflow: hidden; background: var(--warm); position: relative; }
+    .screen-inner { height: 100%; padding: 52px 20px 18px; display: flex; flex-direction: column; gap: 13px; position: relative; }
+    .status { position: absolute; top: 18px; left: 23px; right: 23px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; z-index: 5; }
+    .bars { display: flex; gap: 4px; align-items: end; }
+    .bars i { display: block; width: 4px; border-radius: 9px; background: var(--ink); }
+    .bars i:nth-child(1) { height: 6px; opacity: .55; }
+    .bars i:nth-child(2) { height: 9px; opacity: .72; }
+    .bars i:nth-child(3) { height: 12px; }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; min-height: 38px; }
+    .screen-logo { width: 78px; }
+    .topbar .noom-logo-plate { padding: 7px 9px; border-radius: 12px; box-shadow: 0 6px 16px rgba(25,23,23,.05); }
+    .tiny { font-family: var(--font-label); font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: .005em; }
+    .avatar { width: 34px; height: 34px; border-radius: 999px; background: var(--ink); color: white; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+    .pill { min-height: 32px; border-radius: 999px; padding: 8px 12px; background: rgba(25, 23, 23, .07); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-label); font-size: 12px; font-weight: 700; letter-spacing: .005em; white-space: nowrap; }
+    .pill.red { background: var(--noom-red); color: white; }
+    .pill.mint { background: var(--mint); color: var(--ink); }
+    .pill.dark { background: var(--ink); color: white; }
+    .pill.rose { background: var(--rose); color: var(--ink); }
+
+    .hero-card, .card { border-radius: 30px; background: var(--card); border: 1px solid rgba(29, 58, 68, .10); box-shadow: 0 12px 30px rgba(29, 58, 68, .06); }
+    .hero-card { padding: 22px; }
+    .card { padding: 16px; }
+    .screen h2 { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 35px; line-height: 1.02; letter-spacing: -.047em; }
+    .screen h2.serif { font-family: var(--font-serif); letter-spacing: -.047em; font-weight: 400; }
+    .screen h3 { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 24px; line-height: 1.05; letter-spacing: -.038em; }
+    .screen h4 { font-family: var(--font-sans); font-weight: 500; }
+    .screen p, .lede { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.42; font-weight: 400; }
+    .lede { font-size: 14px; line-height: 1.44; }
+
+    .hero-score { display: grid; grid-template-columns: 132px 1fr; gap: 18px; align-items: center; }
+    .ring { width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--noom-red) 0deg 274deg, #ECE7DC 274deg 360deg); position: relative; }
+    .ring::after { content: ""; position: absolute; inset: 11px; border-radius: 50%; background: var(--card); }
+    .ring .num { position: relative; z-index: 1; font-size: 43px; line-height: 1; letter-spacing: -.07em; font-weight: 700; }
+    .score-copy h3 { font-size: 27px; }
+    .driver-list { display: grid; gap: 9px; margin-top: 14px; }
+    .driver { display: grid; grid-template-columns: 75px 1fr auto; gap: 10px; align-items: center; font-size: 12px; font-weight: 700; }
+    .bar { height: 6px; border-radius: 99px; background: #ECE7DC; overflow: hidden; }
+    .fill { height: 100%; border-radius: inherit; background: var(--ink); }
+    .fill.red { background: var(--noom-red); }
+    .fill.green { background: var(--sage); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .metric { border-radius: 22px; padding: 14px 12px; background: rgba(255,255,255,.60); border: 1px solid rgba(29,58,68,.08); min-height: 112px; }
+    .metric strong { display: block; font-size: 22px; letter-spacing: -.05em; margin-top: 18px; }
+    .metric span { font-size: 11px; color: var(--muted); font-weight: 700; }
+    .nav { margin-top: auto; height: 68px; border-radius: 26px; background: rgba(255,253,248,.93); border: 1px solid rgba(29,58,68,.10); display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; box-shadow: 0 -8px 26px rgba(29,58,68,.06); }
+    .nav span { text-align: center; font-size: 11px; color: var(--muted); font-weight: 700; }
+    .nav span.active { color: var(--noom-red); }
+
+    .band-scene { height: 228px; border-radius: 34px; background: radial-gradient(circle at center, rgba(251,81,59,.17), transparent 33%), linear-gradient(135deg, rgba(29,58,68,.06), rgba(251,81,59,.08)); display: grid; place-items: center; position: relative; overflow: hidden; }
+    .orbit-ring { position: absolute; border: 1px solid rgba(29,58,68,.14); border-radius: 50%; }
+    .orbit-ring.r1 { width: 108px; height: 108px; }
+    .orbit-ring.r2 { width: 168px; height: 168px; }
+    .orbit-ring.r3 { width: 230px; height: 230px; }
+    .band { width: 84px; height: 118px; border-radius: 34px; background: var(--ink); box-shadow: inset 0 0 0 10px rgba(255,255,255,.08), 0 18px 44px rgba(29,58,68,.25); position: relative; z-index: 2; }
+    .band::after { content: ""; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 19px; height: 19px; border-radius: 50%; background: var(--noom-red); box-shadow: 0 0 0 9px rgba(251,81,59,.18); }
+    .steps { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; padding: 13px; border-radius: 18px; background: rgba(255,255,255,.65); border: 1px solid rgba(29,58,68,.09); }
+    .step b { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: white; font-size: 12px; }
+    .step h4 { margin: 1px 0 3px; font-size: 14px; letter-spacing: -.02em; }
+    .step p { margin: 0; font-size: 12px; line-height: 1.35; color: var(--muted); }
+    .cta { height: 52px; border-radius: 999px; background: var(--noom-red); color: white; display: grid; place-items: center; font-family: var(--font-label); font-weight: 700; letter-spacing: .005em; margin-top: 4px; box-shadow: 0 13px 24px rgba(251,81,59,.22); }
+
+    .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .prompt { border-radius: 22px; padding: 14px; min-height: 105px; background: rgba(246,244,238,.74); border: 1px solid rgba(29,58,68,.08); }
+    .prompt strong { display: block; font-size: 22px; letter-spacing: -.05em; margin-top: 12px; }
+    .prompt span { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .check-card { background: var(--ink); color: white; border-color: transparent; }
+    .check-card p, .check-card .tiny { color: rgba(255,255,255,.72); }
+    .slider-row { display: grid; gap: 9px; margin-top: 12px; }
+    .slider { background: rgba(255,255,255,.11); border-radius: 18px; padding: 12px; }
+    .slider-top { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; }
+    .slider-track { height: 7px; border-radius: 999px; background: rgba(255,255,255,.18); margin-top: 10px; overflow: hidden; }
+    .slider-track i { display: block; height: 100%; background: var(--noom-red); border-radius: inherit; }
+
+    .moon { width: 118px; height: 118px; border-radius: 50%; background: radial-gradient(circle at 62% 38%, var(--card) 0 31%, transparent 32%), var(--ink); margin: 0 auto 8px; box-shadow: 0 22px 44px rgba(29,58,68,.16); }
+    .sleep-stage { height: 18px; display: grid; grid-template-columns: 22% 18% 32% 28%; overflow: hidden; border-radius: 999px; margin: 14px 0; }
+    .sleep-stage i:nth-child(1) { background: var(--ink); }
+    .sleep-stage i:nth-child(2) { background: var(--ink-2); }
+    .sleep-stage i:nth-child(3) { background: var(--noom-red); }
+    .sleep-stage i:nth-child(4) { background: var(--gold); }
+    .sleep-list { display: grid; gap: 8px; }
+    .sleep-row { display: flex; justify-content: space-between; font-size: 13px; padding: 10px 0; border-top: 1px solid rgba(29,58,68,.09); }
+    .sleep-row span { color: var(--muted); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mini-card { border-radius: 21px; padding: 14px; background: rgba(246,244,238,.72); border: 1px solid rgba(29,58,68,.08); }
+    .mini-card strong { display: block; font-size: 19px; letter-spacing: -.04em; margin-top: 7px; }
+    .mini-card span { color: var(--muted); font-size: 11px; font-weight: 700; }
+
+    .trend-chart { height: 132px; display: flex; align-items: end; gap: 8px; padding: 14px 4px 0; }
+    .trend-chart i { flex: 1; border-radius: 999px 999px 6px 6px; background: linear-gradient(180deg, var(--noom-red), rgba(251,81,59,.30)); min-height: 22px; }
+    .signal-list { display: grid; gap: 10px; }
+    .signal { background: rgba(255,255,255,.68); border: 1px solid rgba(29,58,68,.08); border-radius: 20px; padding: 13px; }
+    .signal-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .signal strong { font-size: 15px; letter-spacing: -.02em; }
+    .signal p { font-size: 12px; margin-top: 6px; }
+
+    .coach-hero { background: linear-gradient(160deg, var(--ink), #2F5864); color: white; padding: 23px; border-radius: 34px; min-height: 244px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 18px 48px rgba(29,58,68,.18); }
+    .coach-hero p { color: rgba(255,255,255,.74); }
+    .action-stack { display: grid; gap: 10px; }
+    .action { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 13px; border-radius: 20px; background: rgba(255,255,255,.68); border: 1px solid rgba(29,58,68,.08); }
+    .icon { width: 44px; height: 44px; border-radius: 16px; background: var(--rose); color: var(--noom-red); display: grid; place-items: center; font-weight: 700; }
+    .action h4 { margin: 0; font-size: 14px; letter-spacing: -.02em; }
+    .action p { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.32; }
+
+    @media (max-width: 1320px) { .grid { grid-template-columns: repeat(2, 390px); } .cover { grid-template-columns: 1fr; } }
+    @media (max-width: 860px) { .page { padding: 24px 14px 42px; } .cover { padding: 24px; } .token-grid { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr; } .mock-card { align-items: center; } .mock-title { width: min(390px, 100%); } .phone { width: min(390px, calc(100vw - 28px)); } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="cover">
+      <div>
+        <span class="noom-logo-plate"><img class="logo-img" src="assets/noom-logo-brandfetch.svg" alt="Noom official logo"></span>
+        <h1>Weight care mockups for Noom.</h1>
+        <p>Six iPhone-style screens that extend Noom weight care into calm body signals, GLP-1 check-ins, Noom Band setup, and behavior-change coaching. The UI is fully Noom branded and uses official Brandfetch logo artwork.</p>
+      </div>
+      <div class="token-grid" aria-label="Brand tokens">
+        <div class="token t-red"><strong>Noom red</strong><span>#FB513B for action, momentum, and primary emphasis.</span></div>
+        <div class="token t-warm"><strong>Warm surface</strong><span>#F6F4EE for a low-pressure health canvas.</span></div>
+        <div class="token t-ink"><strong>Deep teal ink</strong><span>#1D3A44 for text, structure, and clinical calm.</span></div>
+      </div>
+    </section>
+
+    <section class="grid" aria-label="Noom mobile mockups">
+      <article class="mock-card">
+        <div class="mock-title"><h2>Today / Weight Care Plan</h2><p>Body state, habit action, and Noom weight care context in one view.</p></div>
+        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="bars"><i></i><i></i><i></i></span></div><div class="screen-inner">
+          <div class="topbar"><div><div class="tiny">Today, July 8</div><span class="noom-logo-plate"><img class="logo-img screen-logo" src="assets/noom-logo-brandfetch.svg" alt="Noom official logo"></span></div><div class="avatar">A</div></div>
+          <div class="hero-card hero-score">
+            <div class="ring"><div class="num">76</div></div>
+            <div class="score-copy"><h3>Your body state today</h3><p>Steady. Your signals support a normal routine with one focused habit step.</p><span class="pill mint">Noom Band synced</span></div>
+          </div>
+          <div class="card"><div class="tiny">What is driving this</div><div class="driver-list">
+            <div class="driver"><span>Sleep</span><div class="bar"><div class="fill green" style="width:82%"></div></div><span>Good</span></div>
+            <div class="driver"><span>HRV</span><div class="bar"><div class="fill" style="width:66%"></div></div><span>Usual</span></div>
+            <div class="driver"><span>RHR</span><div class="bar"><div class="fill red" style="width:54%"></div></div><span>Higher</span></div>
+          </div></div>
+          <div class="metrics">
+            <div class="metric"><span>Weight trend</span><strong>0.7 lb</strong><span>7 day change</span></div>
+            <div class="metric"><span>Appetite</span><strong>Low</strong><span>Check in later</span></div>
+            <div class="metric"><span>Activity</span><strong>6.4k</strong><span>Steps so far</span></div>
+          </div>
+          <div class="card"><span class="pill red">Next habit action</span><p>Take a 10 minute walk after lunch and add protein to your next meal. Keep it simple and repeatable.</p></div>
+          <div class="nav"><span class="active">Today</span><span>Plan</span><span>Signals</span><span>Coach</span></div>
+        </div></div></div>
+      </article>
+
+      <article class="mock-card">
+        <div class="mock-title"><h2>Noom Band Setup</h2><p>Guided pairing with white-label device naming and reassuring setup copy.</p></div>
+        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="bars"><i></i><i></i><i></i></span></div><div class="screen-inner">
+          <div class="topbar"><span class="pill">Setup</span><span class="noom-logo-plate"><img class="logo-img screen-logo" src="assets/noom-logo-brandfetch.svg" alt="Noom official logo"></span></div>
+          <div><h2>Connect your Noom Band</h2><p class="lede">Noom uses your band to personalize daily guidance with sleep, recovery, and movement signals.</p></div>
+          <div class="band-scene"><div class="orbit-ring r1"></div><div class="orbit-ring r2"></div><div class="orbit-ring r3"></div><div class="band"></div></div>
+          <div class="steps">
+            <div class="step"><b>1</b><div><h4>Keep it nearby</h4><p>Place your Noom Band near your phone and make sure it has charge.</p></div></div>
+            <div class="step"><b>2</b><div><h4>Confirm the blink</h4><p>When the band blinks, press the button to confirm it is yours.</p></div></div>
+            <div class="step"><b>3</b><div><h4>Let it sync</h4><p>Your first body state appears after Noom Band finishes the first sync.</p></div></div>
+          </div>
+          <div class="cta">Find my Noom Band</div>
+        </div></div></div>
+      </article>
+
+      <article class="mock-card">
+        <div class="mock-title"><h2>GLP-1 Check-in</h2><p>Medication-adjacent support with safe prompts and care-team ready notes.</p></div>
+        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="bars"><i></i><i></i><i></i></span></div><div class="screen-inner">
+          <div class="topbar"><span class="pill rose">GLP-1 support</span><span class="noom-logo-plate"><img class="logo-img screen-logo" src="assets/noom-logo-brandfetch.svg" alt="Noom official logo"></span></div>
+          <div class="card check-card"><div class="tiny">2 minute check-in</div><h2>How does your body feel today?</h2><p>Track appetite, fullness, nausea, and energy so your Noom plan can adapt. Share notes with your care team when useful.</p></div>
+          <div class="prompt-grid">
+            <div class="prompt"><span>Appetite</span><strong>Low</strong><span>Less hunger than usual</span></div>
+            <div class="prompt"><span>Fullness</span><strong>Early</strong><span>Stopped at half plate</span></div>
+            <div class="prompt"><span>Energy</span><strong>7/10</strong><span>Stable morning</span></div>
+            <div class="prompt"><span>Nausea</span><strong>Mild</strong><span>Note for coach</span></div>
+          </div>
+          <div class="card"><h3>Care-team note</h3><p>Small breakfast, mild nausea after coffee, easier fullness at lunch. No dosing guidance is shown here.</p></div>
+          <div class="cta">Save check-in</div>
+          <div class="nav"><span>Today</span><span class="active">Plan</span><span>Signals</span><span>Coach</span></div>
+        </div></div></div>
+      </article>
+
+      <article class="mock-card">
+        <div class="mock-title"><h2>Sleep & Recovery</h2><p>Explains how sleep affects hunger, cravings, and movement readiness.</p></div>
+        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="bars"><i></i><i></i><i></i></span></div><div class="screen-inner">
+          <div class="topbar"><span class="pill">Recovery</span><span class="noom-logo-plate"><img class="logo-img screen-logo" src="assets/noom-logo-brandfetch.svg" alt="Noom official logo"></span></div>
+          <div class="hero-card"><div class="moon"></div><h2 class="serif">Sleep gave you a solid base.</h2><p class="lede">A steady night can make appetite cues easier to read and movement feel more approachable.</p><div class="sleep-stage"><i></i><i></i><i></i><i></i></div><div class="sleep-list"><div class="sleep-row"><span>Total sleep</span><strong>7h 12m</strong></div><div class="sleep-row"><span>Efficiency</span><strong>88%</strong></div><div class="sleep-row"><span>Recovery</span><strong>Steady</strong></div></div></div>
+          <div class="card"><span class="pill red">What to try tonight</span><p>Start your wind-down 20 minutes earlier. Better sleep consistency can support hunger, cravings, and tomorrow's choices.</p></div>
+          <div class="split"><div class="mini-card"><span>Cravings risk</span><strong>Lower</strong><span>Based on sleep trend</span></div><div class="mini-card"><span>Movement</span><strong>Normal</strong><span>Keep it moderate</span></div></div>
+          <div class="nav"><span>Today</span><span>Plan</span><span class="active">Signals</span><span>Coach</span></div>
+        </div></div></div>
+      </article>
+
+      <article class="mock-card">
+        <div class="mock-title"><h2>Progress Signals</h2><p>Weight trend plus supportive signals without diagnostic language.</p></div>
+        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="bars"><i></i><i></i><i></i></span></div><div class="screen-inner">
+          <div class="topbar"><span class="pill dark">Progress</span><span class="noom-logo-plate"><img class="logo-img screen-logo" src="assets/noom-logo-brandfetch.svg" alt="Noom official logo"></span></div>
+          <div class="hero-card"><div class="tiny">Weight care trend</div><h2>Progress is more than one number.</h2><p>Your weekly trend is moving gradually. Noom also watches appetite, sleep, activity, and resting signals for context.</p><div class="trend-chart"><i style="height:70%"></i><i style="height:64%"></i><i style="height:58%"></i><i style="height:52%"></i><i style="height:46%"></i><i style="height:42%"></i><i style="height:38%"></i></div></div>
+          <div class="signal-list">
+            <div class="signal"><div class="signal-top"><strong>Weight trend</strong><span class="pill mint">Down 0.7 lb</span></div><p>Gradual weekly change, shown as a trend instead of a daily judgment.</p></div>
+            <div class="signal"><div class="signal-top"><strong>Appetite and fullness</strong><span class="pill">Stable</span></div><p>Check-ins help your coach match meals to satiety and energy.</p></div>
+            <div class="signal"><div class="signal-top"><strong>HRV, RHR, sleep</strong><span class="pill">Supportive</span></div><p>These signals add context for coaching, not diagnosis.</p></div>
+          </div>
+          <div class="nav"><span>Today</span><span>Plan</span><span class="active">Signals</span><span>Coach</span></div>
+        </div></div></div>
+      </article>
+
+      <article class="mock-card">
+        <div class="mock-title"><h2>Coach Plan</h2><p>Noom behavior-change loop for nutrition, activity, and sleep.</p></div>
+        <div class="phone"><div class="screen"><div class="status"><span>9:41</span><span class="bars"><i></i><i></i><i></i></span></div><div class="screen-inner">
+          <div class="topbar"><span class="pill red">Coach plan</span><span class="noom-logo-plate"><img class="logo-img screen-logo" src="assets/noom-logo-brandfetch.svg" alt="Noom official logo"></span></div>
+          <div class="coach-hero"><div><div class="tiny" style="color:rgba(255,255,255,.72)">For today</div><h2>Choose the reset that fits your signals.</h2><p class="lede">Recovery is steady and appetite is lower than usual. Keep effort moderate and protect protein.</p></div><span class="pill" style="background:rgba(255,255,255,.14);color:white">12 minute plan</span></div>
+          <div class="action-stack">
+            <div class="action"><div class="icon">1</div><div><h4>Protein first</h4><p>Build one simple meal around protein, color, and a satisfying carb.</p></div></div>
+            <div class="action"><div class="icon">2</div><div><h4>Walk after lunch</h4><p>Easy pace for 10 minutes. Stop before it feels like a workout.</p></div></div>
+            <div class="action"><div class="icon">3</div><div><h4>Plan your wind-down</h4><p>Pick the first 20 minutes of your bedtime routine now.</p></div></div>
+          </div>
+          <div class="cta">Start today's plan</div>
+          <div class="nav"><span>Today</span><span>Plan</span><span>Signals</span><span class="active">Coach</span></div>
+        </div></div></div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

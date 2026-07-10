@@ -1,0 +1,301 @@
+import SwiftUI
+
+enum NoomTheme {
+    static let red = Color(hex: 0xFB513B)
+    static let warmSurface = Color(hex: 0xF6F4EE)
+    static let ink = Color(hex: 0x1D3A44)
+    static let logoBlack = Color(hex: 0x191717)
+    static let card = Color(hex: 0xFFFDF8)
+    static let softLine = Color(hex: 0xDED8CE)
+    static let muted = Color(hex: 0x5C6668)
+    static let mint = Color(hex: 0xDDEDE3)
+    static let rose = Color(hex: 0xFFE1DA)
+    static let gold = Color(hex: 0xF2D69A)
+
+    static let horizontalPadding: CGFloat = 20
+    static let cardRadius: CGFloat = 28
+}
+
+extension Color {
+    init(hex: UInt, alpha: Double = 1) {
+        self.init(
+            .sRGB,
+            red: Double((hex >> 16) & 0xff) / 255,
+            green: Double((hex >> 8) & 0xff) / 255,
+            blue: Double(hex & 0xff) / 255,
+            opacity: alpha
+        )
+    }
+}
+
+extension Text {
+    func noomSerifTitle(size: CGFloat = 34) -> some View {
+        self.font(.system(size: size, weight: .regular, design: .serif))
+            .tracking(-1.5)
+            .foregroundStyle(NoomTheme.logoBlack)
+    }
+
+    func noomBody() -> some View {
+        self.font(.system(size: 15, weight: .regular, design: .default))
+            .lineSpacing(3)
+            .foregroundStyle(NoomTheme.muted)
+    }
+
+    func noomLabel() -> some View {
+        self.font(.system(size: 12, weight: .bold, design: .rounded))
+            .foregroundStyle(NoomTheme.muted)
+    }
+}
+
+struct NoomBackground: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(
+                ZStack {
+                    NoomTheme.warmSurface.ignoresSafeArea()
+                    RadialGradient(
+                        colors: [NoomTheme.red.opacity(0.16), .clear],
+                        center: .topLeading,
+                        startRadius: 0,
+                        endRadius: 280
+                    )
+                    .ignoresSafeArea()
+                }
+            )
+            .scrollContentBackground(.hidden)
+    }
+}
+
+extension View {
+    func noomBackground() -> some View { modifier(NoomBackground()) }
+}
+
+struct NoomLogoPlate: View {
+    var compact: Bool = false
+
+    var body: some View {
+        Image("NoomLogoBrandfetch")
+            .resizable()
+            .scaledToFit()
+            .frame(width: compact ? 78 : 112, height: compact ? 18 : 25)
+            .padding(.horizontal, compact ? 10 : 14)
+            .padding(.vertical, compact ? 8 : 10)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: compact ? 12 : 16, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: compact ? 12 : 16, style: .continuous)
+                    .stroke(NoomTheme.logoBlack.opacity(0.08), lineWidth: 1)
+            }
+            .shadow(color: NoomTheme.ink.opacity(0.07), radius: 12, x: 0, y: 6)
+            .accessibilityLabel("Noom")
+    }
+}
+
+struct NoomBareLogo: View {
+    var compact: Bool = false
+
+    var body: some View {
+        Image("NoomLogoBrandfetch")
+            .resizable()
+            .scaledToFit()
+            .frame(width: compact ? 78 : 118, height: compact ? 18 : 27)
+            .accessibilityLabel("Noom")
+    }
+}
+
+struct NoomPill: View {
+    let title: String
+    var color: Color = NoomTheme.ink
+    var foreground: Color = .white
+
+    var body: some View {
+        Text(title)
+            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .foregroundStyle(foreground)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(color, in: Capsule())
+    }
+}
+
+struct NoomCard<Content: View>: View {
+    var fill: Color = NoomTheme.card
+    var padding: CGFloat = 18
+    var content: Content
+
+    init(fill: Color = NoomTheme.card, padding: CGFloat = 18, @ViewBuilder content: () -> Content) {
+        self.fill = fill
+        self.padding = padding
+        self.content = content()
+    }
+
+    var body: some View {
+        content
+            .padding(padding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(fill, in: RoundedRectangle(cornerRadius: NoomTheme.cardRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: NoomTheme.cardRadius, style: .continuous)
+                    .stroke(NoomTheme.ink.opacity(0.08), lineWidth: 1)
+            }
+            .shadow(color: NoomTheme.ink.opacity(0.06), radius: 20, x: 0, y: 10)
+    }
+}
+
+struct NoomPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 15, weight: .bold, design: .rounded))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(isEnabled ? NoomTheme.red : NoomTheme.softLine, in: Capsule())
+            .shadow(color: NoomTheme.red.opacity(configuration.isPressed || !isEnabled ? 0.08 : 0.22), radius: 16, x: 0, y: 10)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+    }
+}
+
+struct NoomEmptyStateCard: View {
+    var title: String
+    var message: String
+    var systemImage: String = "sparkles"
+
+    var body: some View {
+        NoomCard(fill: NoomTheme.card) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(NoomTheme.red)
+                    .frame(width: 36, height: 36)
+                    .background(NoomTheme.rose, in: Circle())
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(NoomTheme.logoBlack)
+                    Text(message)
+                        .noomBody()
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+}
+
+struct NoomMetricTile: View {
+    let label: String
+    let value: String
+    let caption: String
+    var minHeight: CGFloat = 112
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label).noomLabel()
+            Spacer(minLength: 4)
+            Text(value)
+                .font(.system(size: 24, weight: .bold, design: .default))
+                .tracking(-1)
+                .foregroundStyle(NoomTheme.logoBlack)
+            Text(caption).noomLabel()
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .leading)
+        .background(Color.white.opacity(0.58), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(NoomTheme.ink.opacity(0.08), lineWidth: 1)
+        }
+    }
+}
+
+struct NoomSignalRow: View {
+    let label: String
+    let value: String
+    var progress: Double
+    var tint: Color = NoomTheme.ink
+
+    var body: some View {
+        GridRow {
+            Text(label)
+                .font(.system(size: 13, weight: .bold, design: .default))
+                .foregroundStyle(NoomTheme.logoBlack)
+            ProgressView(value: min(max(progress, 0), 1))
+                .tint(tint)
+            Text(value)
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(NoomTheme.muted)
+        }
+    }
+}
+
+struct NoomScreen<Content: View>: View {
+    var spacing: CGFloat
+    var bottomPadding: CGFloat
+    var content: Content
+
+    init(spacing: CGFloat = 14, bottomPadding: CGFloat = 96, @ViewBuilder content: () -> Content) {
+        self.spacing = spacing
+        self.bottomPadding = bottomPadding
+        self.content = content()
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: spacing) {
+                content
+            }
+            .padding(.horizontal, NoomTheme.horizontalPadding)
+            .padding(.top, 18)
+            .padding(.bottom, bottomPadding)
+        }
+        .safeAreaPadding(.bottom, 56)
+        .noomBackground()
+    }
+}
+
+struct NoomTopBar<Trailing: View>: View {
+    let label: String
+    var trailing: Trailing
+
+    init(label: String, @ViewBuilder trailing: () -> Trailing) {
+        self.label = label
+        self.trailing = trailing()
+    }
+
+    var body: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(label).noomLabel()
+                NoomLogoPlate(compact: true)
+            }
+            Spacer()
+            trailing
+        }
+    }
+}
+
+struct NoomBandIllustration: View {
+    var body: some View {
+        ZStack {
+            Circle().stroke(NoomTheme.ink.opacity(0.14), lineWidth: 1).frame(width: 108, height: 108)
+            Circle().stroke(NoomTheme.ink.opacity(0.12), lineWidth: 1).frame(width: 168, height: 168)
+            Circle().stroke(NoomTheme.ink.opacity(0.10), lineWidth: 1).frame(width: 228, height: 228)
+            RoundedRectangle(cornerRadius: 34, style: .continuous)
+                .fill(NoomTheme.ink)
+                .frame(width: 86, height: 120)
+                .shadow(color: NoomTheme.ink.opacity(0.25), radius: 22, x: 0, y: 16)
+                .overlay(alignment: .top) {
+                    Circle()
+                        .fill(NoomTheme.red)
+                        .frame(width: 20, height: 20)
+                        .padding(.top, 22)
+                        .shadow(color: NoomTheme.red.opacity(0.35), radius: 10)
+                }
+        }
+        .frame(maxWidth: .infinity, minHeight: 190)
+        .background(
+            LinearGradient(colors: [NoomTheme.ink.opacity(0.06), NoomTheme.red.opacity(0.10)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 34, style: .continuous)
+        )
+    }
+}

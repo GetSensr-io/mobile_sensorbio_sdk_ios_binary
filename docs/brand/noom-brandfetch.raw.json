@@ -1,0 +1,177 @@
+{
+  "claimed": false,
+  "colors": [
+    {
+      "brightness": 116,
+      "hex": "#FB513B",
+      "type": "accent"
+    },
+    {
+      "brightness": 244,
+      "hex": "#F6F4EE",
+      "type": "light"
+    },
+    {
+      "brightness": 53,
+      "hex": "#1D3A44",
+      "type": "dark"
+    }
+  ],
+  "company": {
+    "employees": 1001,
+    "financialIdentifiers": {
+      "isin": [],
+      "ticker": []
+    },
+    "foundedYear": null,
+    "industries": [
+      {
+        "emoji": "⛑",
+        "id": "90",
+        "name": "Nutrition Diets and Fitness",
+        "parent": {
+          "emoji": "⛑",
+          "id": "77",
+          "name": "Health",
+          "slug": "health"
+        },
+        "score": 1,
+        "slug": "nutrition-diets-and-fitness"
+      },
+      {
+        "emoji": "⛑",
+        "id": "77",
+        "name": "Health",
+        "parent": null,
+        "score": 1,
+        "slug": "health"
+      }
+    ],
+    "kind": "PRIVATELY_HELD",
+    "location": {
+      "city": "New York",
+      "country": "United States",
+      "countryCode": "US",
+      "region": "Americas",
+      "state": "New York",
+      "subregion": "Northern America"
+    }
+  },
+  "description": "We're a consumer-led digital health company that helps people live healthier, happier lives.",
+  "domain": "noom.com",
+  "fonts": [
+    {
+      "name": "Untitled Sans Web Regular",
+      "origin": "custom",
+      "originId": null,
+      "type": "body",
+      "weights": []
+    },
+    {
+      "name": "Untitled Serif Web Regular",
+      "origin": "custom",
+      "originId": "Untitled Serif Web Regular",
+      "type": "title",
+      "weights": []
+    }
+  ],
+  "id": "id8j69r4Jm",
+  "images": [
+    {
+      "formats": [
+        {
+          "background": null,
+          "format": "jpeg",
+          "height": 256,
+          "size": 44812,
+          "src": "https://cdn.brandfetch.io/id8j69r4Jm/w/1265/h/256/idrHAttuKN.jpeg?c=1bxu9k3zjvo9600ztpa87cveybpqHggSGwB",
+          "width": 1265
+        }
+      ],
+      "tags": [],
+      "type": "banner"
+    }
+  ],
+  "isNsfw": false,
+  "links": [
+    {
+      "name": "facebook",
+      "url": "https://facebook.com/noom"
+    },
+    {
+      "name": "linkedin",
+      "url": "https://linkedin.com/company/noom"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/noom"
+    }
+  ],
+  "logos": [
+    {
+      "formats": [
+        {
+          "background": null,
+          "format": "jpeg",
+          "height": 400,
+          "size": 8167,
+          "src": "https://cdn.brandfetch.io/id8j69r4Jm/w/400/h/400/theme/dark/icon.jpeg?c=1bxu9k3zjvo9600ztpa87cveybpqHggSGwB",
+          "width": 400
+        }
+      ],
+      "tags": [],
+      "theme": "dark",
+      "type": "icon"
+    },
+    {
+      "formats": [
+        {
+          "background": "transparent",
+          "format": "svg",
+          "height": null,
+          "size": 1361,
+          "src": "https://cdn.brandfetch.io/id8j69r4Jm/theme/light/logo.svg?c=1bxu9k3zjvo9600ztpa87cveybpqHggSGwB",
+          "width": null
+        },
+        {
+          "background": "transparent",
+          "format": "png",
+          "height": 179,
+          "size": 12887,
+          "src": "https://cdn.brandfetch.io/id8j69r4Jm/w/800/h/179/theme/light/logo.png?c=1bxu9k3zjvo9600ztpa87cveybpqHggSGwB",
+          "width": 800
+        }
+      ],
+      "tags": [],
+      "theme": "light",
+      "type": "logo"
+    },
+    {
+      "formats": [
+        {
+          "background": "transparent",
+          "format": "svg",
+          "height": null,
+          "size": 1292,
+          "src": "https://cdn.brandfetch.io/id8j69r4Jm/theme/dark/logo.svg?c=1bxu9k3zjvo9600ztpa87cveybpqHggSGwB",
+          "width": null
+        },
+        {
+          "background": "transparent",
+          "format": "png",
+          "height": 179,
+          "size": 13080,
+          "src": "https://cdn.brandfetch.io/id8j69r4Jm/w/800/h/179/theme/dark/logo.png?c=1bxu9k3zjvo9600ztpa87cveybpqHggSGwB",
+          "width": 800
+        }
+      ],
+      "tags": [],
+      "theme": "dark",
+      "type": "logo"
+    }
+  ],
+  "longDescription": "Noom is an American-based health and wellness company that offers a unique, personalized approach to weight loss and overall wellness. Founded in 2008 by Artem Petakov and Saeju Jeong, Noom has its headquarters in New York City, United States. Noom's main product is a mobile application that provides users with a comprehensive weight loss program. The app utilizes artificial intelligence and behavioral psychology to create personalized plans that focus on developing healthier habits and lifestyle changes. Users can track their meals, exercise, and receive personalized coaching from a team of registered dietitians and certified health coaches. The app also offers educational content, quizzes, and challenges to keep users engaged and motivated on their wellness journey. On a global scale, Noom operates primarily through its mobile application, reaching millions of users worldwide. The company has gained a strong following due to its evidence-based approach and emphasis on behavior change rather than quick fixes or fad diets. Noom has expanded its services to countries across North America, Europe, Asia, and Australia, making it a truly global player in the health and wellness market. As of now, Noom does not have any noteworthy subsidiaries, joint ventures, or major partnerships that have been publicly announced. In terms of market position, Noom has established itself as a leader in the digital health and wellness industry. The company has experienced significant growth in recent years, fueled by positive customer reviews and word-of-mouth recommendations. While exact figures for global sales are not publicly available, Noom's success can be seen in its continued expansion and popularity among consumers. Noom has been recognized for its achievements and impact in the health and wellness space. In 2019, the company was ranked #1 in the health and fitness category on the Google Play Store, showcasing its positive user feedback and high ratings. This recognition has further solidified Noom's position as a trusted and effective weight loss solution. As of the latest updates, Noom continues to expand its user base and enhance its app features. The company remains committed to providing a science-backed, personalized approach to weight loss and overall wellness. With ongoing updates and improvements, Noom is well-positioned to maintain its growth trajectory and further establish itself as a leader in the global health and wellness market.",
+  "name": "Noom",
+  "qualityScore": 0.9600756727112258,
+  "urn": "urn:brandfetch:brand:id8j69r4Jm"
+}

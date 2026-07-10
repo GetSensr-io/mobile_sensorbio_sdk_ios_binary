@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Truthful product-loop guards for Noom Body State -> experiment -> progress."""
+from pathlib import Path
+import unittest
+
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "NoomApp/NoomApp"
+DASHBOARD_STATE = (SRC / "DashboardState.swift").read_text()
+DASHBOARD_VIEW = (SRC / "DashboardView.swift").read_text()
+PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
+INSIGHTS = (SRC / "InsightsView.swift").read_text()
+MAIN = (SRC / "MainTabView.swift").read_text()
+CONTENT = (SRC / "ContentView.swift").read_text()
+
+
+class NoomProductLoopMappingTests(unittest.TestCase):
+    def test_body_state_is_recovery_backed_with_freshness_and_coverage(self) -> None:
+        self.assertIn("fetchDashboardData(date: date, tzOffset: tzOffset)", DASHBOARD_STATE)
+        self.assertIn("enum NoomDataFreshness", DASHBOARD_STATE)
+        self.assertIn("sensorBio.lastSyncd", DASHBOARD_STATE)
+        self.assertIn("Stale today", DASHBOARD_VIEW)
+        self.assertIn("This Body State is not current", DASHBOARD_VIEW)
+        self.assertIn("Body State", DASHBOARD_VIEW)
+        self.assertIn("Recovery from Noom Band", DASHBOARD_VIEW)
+        self.assertIn("coverageText(recovery.calibrationData)", DASHBOARD_VIEW)
+        self.assertIn("segmentsUsed", DASHBOARD_VIEW)
+        self.assertIn("totalSegments", DASHBOARD_VIEW)
+        self.assertIn("No Recovery value was returned", DASHBOARD_VIEW)
+        self.assertNotIn("fallback body score", DASHBOARD_STATE)
+
+    def test_suggested_experiment_is_real_personal_insights_and_read_only(self) -> None:
+        self.assertIn("fetchNewInsights()", DASHBOARD_STATE)
+        self.assertIn("SB_ExperimentRecommendation", DASHBOARD_VIEW)
+        self.assertIn("suggestedExperiment", DASHBOARD_VIEW)
+        self.assertIn("Read-only", DASHBOARD_VIEW)
+        self.assertIn("feature-gated", DASHBOARD_VIEW)
+        self.assertIn("No active or completed state is stored", DASHBOARD_VIEW)
+        self.assertIn("Suggested experiment", INSIGHTS)
+        self.assertIn("Read-only", INSIGHTS)
+        for forbidden in (
+            "UserDefaults",
+            "@AppStorage(\"experiment",
+            "Button(\"Start experiment",
+            "Button(\"Complete experiment",
+            "activeStartedAt",
+            "completedAt",
+        ):
+            self.assertNotIn(forbidden, DASHBOARD_VIEW + PRODUCT + INSIGHTS)
+
+    def test_progress_uses_recovery_sleep_history_without_gap_filling(self) -> None:
+        for snippet in (
+            "fetchRangeRecovery(date: date, granularity: .week)",
+            "fetchSleepAggregation(date: date, granularity: .week)",
+            "recoveryScoreSection?.scorePoints",
+            "sleepTimePoints",
+            "SB_DateValuePoint",
+            "Missing dates are left blank",
+            "Threshold for a fuller read is 5 of 7 days",
+            "NoomDiscontinuousPointTrend",
+        ):
+            self.assertIn(snippet, DASHBOARD_VIEW + PRODUCT + DASHBOARD_STATE)
+        self.assertNotIn("interpolate", DASHBOARD_VIEW + PRODUCT)
+        self.assertNotIn("compositeScore", DASHBOARD_VIEW + PRODUCT)
+        self.assertIn("does not create a composite score", PRODUCT)
+
+    def test_navigation_keeps_example_capabilities_and_adds_clean_progress_shell(self) -> None:
+        self.assertIn("NoomProgressSignalsView()", MAIN)
+        self.assertIn('Label("Progress", systemImage: "chart.xyaxis.line")', MAIN)
+        self.assertIn('case "progress", "progress_signals"', CONTENT)
+        for view in (
+            "RecoveryDetailView()",
+            "SleepDetailView()",
+            "StepsDetailView()",
+            "CaloriesDetailView()",
+            "HRDetailView()",
+            "HRVDetailView()",
+            "RRDetailView()",
+        ):
+            self.assertIn(view, DASHBOARD_VIEW + CONTENT)
+
+    def test_unsupported_simulations_are_removed_from_app_routes(self) -> None:
+        for forbidden in (
+            "NoomGLP1CheckInView",
+            "NoomCoachPlanView",
+            'case "glp1"',
+            'case "coach_plan"',
+            "Appetite and fullness",
+            "Down 0.7 lb",
+            "Start today's plan",
+            "Save check-in",
+            "Energy\", value: \"7/10",
+        ):
+            self.assertNotIn(forbidden, PRODUCT + CONTENT)
+
+
+if __name__ == "__main__":
+    unittest.main()

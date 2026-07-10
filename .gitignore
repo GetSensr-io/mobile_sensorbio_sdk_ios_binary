@@ -6,10 +6,16 @@
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
 
-# CocoaPods — ExampleApp regenerates Pods/ on `pod install`; don't commit it.
+# CocoaPods — NoomApp regenerates Pods/ on `pod install`; don't commit it.
 # Podfile.lock IS committed so customers run against the same resolution.
-ExampleApp/Pods/
-ExampleApp/*.xcworkspace/
+NoomApp/Pods/
+NoomApp/*.xcworkspace/
 
 # Local agent worktrees / files
 .claude/
+.kanban-backend/
+
+# Generated Xcode build output and local QA evidence
+NoomApp/build/
+NoomApp/qa-artifacts/
+docs/mockups/noom-mobile-mockups/screenshots/
