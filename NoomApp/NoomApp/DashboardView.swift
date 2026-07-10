@@ -16,7 +16,10 @@ struct DashboardView: View {
     var body: some View {
         @Bindable var ctx = dateContext
         NoomScreen {
-            NoomTopBar(label: formattedDate(dateContext.selectedDate)) {
+            HStack(alignment: .center, spacing: 12) {
+                NoomLogoPlate(compact: true)
+                    .accessibilityLabel("Noom")
+                Spacer()
                 HStack(spacing: 8) {
                     NavigationLink { RecordActivityView() } label: {
                         Image(systemName: "record.circle")

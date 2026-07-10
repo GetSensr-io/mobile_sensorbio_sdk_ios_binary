@@ -42,6 +42,13 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
 
+    def test_dashboard_logo_sits_top_left_on_the_today_header_row(self) -> None:
+        header = DASHBOARD[DASHBOARD.index("NoomScreen {"):DASHBOARD.index("if dashboard.isLoading")]
+        self.assertIn("NoomLogoPlate(compact: true)", header)
+        self.assertIn("Spacer()", header)
+        self.assertNotIn("NoomTopBar(label:", header)
+        self.assertNotIn("Text(\"Today\")", header)
+
     def test_sleep_hub_surfaces_returned_sleep_context_and_keeps_detail_drill_ins(self) -> None:
         for snippet in (
             "SleepHomeState",
