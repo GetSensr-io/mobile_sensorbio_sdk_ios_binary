@@ -91,6 +91,63 @@ enum MetricFormatting {
     }
 }
 
+/// A simple, transparent morning status based only on three overnight signals.
+/// It is an orientation aid, not a medical assessment or diagnosis.
+struct BodyStatusScore: Equatable {
+    let score: Int
+    let restingHeartRateComponent: Int
+    let nocturnalHRVComponent: Int
+    let sleepComponent: Int
+
+    static func make(
+        restingHeartRate: Int,
+        nocturnalHRV: Int,
+        sleepScore: Int
+    ) -> BodyStatusScore? {
+        guard (25...120).contains(restingHeartRate),
+              (5...200).contains(nocturnalHRV),
+              (0...100).contains(sleepScore) else {
+            return nil
+        }
+
+        // All three overnight inputs carry equal weight. These fixed ranges
+        // normalize display values; they are not a clinical interpretation.
+        let restingHeartRateComponent = clamp(100 - Double(restingHeartRate - 45) * 1.6)
+        let nocturnalHRVComponent = clamp(Double(nocturnalHRV - 10) * 1.4)
+        let sleepComponent = clamp(Double(sleepScore))
+        let score = Int((Double(restingHeartRateComponent + nocturnalHRVComponent + sleepComponent) / 3).rounded())
+
+        return BodyStatusScore(
+            score: score,
+            restingHeartRateComponent: restingHeartRateComponent,
+            nocturnalHRVComponent: nocturnalHRVComponent,
+            sleepComponent: sleepComponent
+        )
+    }
+
+    var stage: String {
+        switch score {
+        case 80...: return "Strong"
+        case 65..<80: return "Steady"
+        case 45..<65: return "Building"
+        default: return "Rest"
+        }
+    }
+
+    var summary: String {
+        switch score {
+        case 80...: return "Your overnight signals look supportive today."
+        case 65..<80: return "Your overnight signals look steady today."
+        case 45..<65: return "Your overnight signals suggest an easier pace."
+        default: return "Your overnight signals suggest making room for rest."
+        }
+    }
+
+    private static func clamp(_ value: Double) -> Int {
+        Int(min(max(value, 0), 100).rounded())
+    }
+}
+
 struct DetailHeaderControls: View {
     @Environment(AppDateContext.self) private var dateContext
     @Binding var granularity: SB_ViewGranularity

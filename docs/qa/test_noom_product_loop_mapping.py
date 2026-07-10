@@ -14,18 +14,21 @@ CONTENT = (SRC / "ContentView.swift").read_text()
 
 
 class NoomProductLoopMappingTests(unittest.TestCase):
-    def test_body_state_is_recovery_backed_with_freshness_and_coverage(self) -> None:
+    def test_body_status_is_nightly_sleep_backed_with_freshness(self) -> None:
         self.assertIn("fetchDashboardData(date: date, tzOffset: tzOffset)", DASHBOARD_STATE)
+        self.assertIn("fetchSleepDetail(endDate: endDate, endTimestamp:", DASHBOARD_STATE)
+        self.assertIn("nightlySleep", DASHBOARD_STATE)
         self.assertIn("enum NoomDataFreshness", DASHBOARD_STATE)
         self.assertIn("sensorBio.lastSyncd", DASHBOARD_STATE)
         self.assertIn("Stale today", DASHBOARD_VIEW)
-        self.assertIn("This Body State is not current", DASHBOARD_VIEW)
-        self.assertIn("Body State", DASHBOARD_VIEW)
-        self.assertIn("Recovery from Noom Band", DASHBOARD_VIEW)
-        self.assertIn("coverageText(recovery.calibrationData)", DASHBOARD_VIEW)
-        self.assertIn("segmentsUsed", DASHBOARD_VIEW)
-        self.assertIn("totalSegments", DASHBOARD_VIEW)
-        self.assertIn("No Recovery value was returned", DASHBOARD_VIEW)
+        self.assertIn("This Body Status is not current", DASHBOARD_VIEW)
+        self.assertIn("Body Status", DASHBOARD_VIEW)
+        self.assertIn("BodyStatusScore.make", DASHBOARD_VIEW)
+        for signal in ("Resting HR", "Nocturnal HRV", "Sleep score", "Three overnight signals, equal weight"):
+            self.assertIn(signal, DASHBOARD_VIEW)
+        self.assertNotIn("Recovery from Noom Band", DASHBOARD_VIEW)
+        self.assertNotIn("coverageText(recovery.calibrationData)", DASHBOARD_VIEW)
+        self.assertNotIn("No Recovery value was returned", DASHBOARD_VIEW)
         self.assertNotIn("fallback body score", DASHBOARD_STATE)
 
     def test_suggested_experiment_is_real_personal_insights_and_read_only(self) -> None:

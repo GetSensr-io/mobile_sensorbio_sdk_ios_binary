@@ -39,7 +39,7 @@ struct DashboardView: View {
                 loadingCard
             } else if let data = dashboard.data {
                 dataStateBanner(for: data)
-                bodyStateSection(data)
+                bodyStatusSection
                 suggestedExperimentSection
                 progressPreviewSection
                 dashboardMetrics(data)
@@ -76,57 +76,53 @@ struct DashboardView: View {
     }
 
     @ViewBuilder
-    private func bodyStateSection(_ data: SB_DashboardData) -> some View {
-        if let recovery = data.recovery {
-            NavigationLink { RecoveryDetailView() } label: { bodyStateCard(recovery) }
-                .buttonStyle(.plain)
-        } else {
-            NoomEmptyStateCard(
-                title: "Body State unavailable",
-                message: "No Recovery value was returned for this date. The app does not create a fallback body score.",
-                systemImage: "heart.text.square"
-            )
-        }
-    }
-
-    private func bodyStateCard(_ recovery: SB_DashboardItemRecovery) -> some View {
-        let freshness = dashboard.freshness(for: dateContext.selectedDate)
-        return NoomCard {
+    private var bodyStatusSection: some View {
+        if let nightlySleep = dashboard.nightlySleep,
+           let status = BodyStatusScore.make(
+             restingHeartRate: Int(nightlySleep.restingHr),
+             nocturnalHRV: Int(nightlySleep.restingHrv),
+             sleepScore: Int(nightlySleep.sleepScore.score)
+           ) {
+            let freshness = dashboard.freshness(for: dateContext.selectedDate)
+        NoomCard {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top, spacing: 18) {
                     ZStack {
                         Circle().stroke(NoomTheme.softLine.opacity(0.72), lineWidth: 14)
                         Circle()
-                            .trim(from: 0, to: min(max(CGFloat(recovery.item.value) / 100, 0), 1))
+                            .trim(from: 0, to: CGFloat(status.score) / 100)
                             .stroke(freshness.isStaleCurrentDay ? NoomTheme.muted : NoomTheme.red, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                             .rotationEffect(.degrees(-90))
-                        Text(formatNumber(recovery.item.value))
+                        Text(MetricFormatting.humanNumber(status.score))
                             .font(.system(size: 40, weight: .bold))
                             .foregroundStyle(NoomTheme.logoBlack)
                     }
                     .frame(width: 128, height: 128)
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Body State").noomSerifTitle(size: 30)
-                        if !recovery.message.isEmpty {
-                            Text(recovery.message).noomBody()
-                        } else {
-                            Text("No backend message returned for this Recovery value.").noomBody()
-                        }
+                        Text("Body Status").noomSerifTitle(size: 30)
+                        Text(status.summary).noomBody()
                         HStack(spacing: 8) {
-                            NoomPill(title: recoveryStageLabel(recovery.stage), color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
+                            NoomPill(title: status.stage, color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
                             NoomPill(title: freshnessPillTitle(freshness), color: freshnessPillColor(freshness), foreground: NoomTheme.logoBlack)
                         }
                     }
                 }
 
                 VStack(spacing: 0) {
-                    NoomDetailValueRow(label: "Date", value: dateLabel(dateContext.selectedDate), verticalPadding: 8)
-                    NoomDetailValueRow(label: "Source", value: "Recovery from Noom Band", verticalPadding: 8)
-                    NoomDetailValueRow(label: "Freshness", value: freshnessDetail(freshness), verticalPadding: 8)
-                    NoomDetailValueRow(label: "Coverage", value: coverageText(recovery.calibrationData), verticalPadding: 8)
+                    NoomDetailValueRow(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHr))) bpm", verticalPadding: 8)
+                    NoomDetailValueRow(label: "Nocturnal HRV", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHrv))) ms", verticalPadding: 8)
+                    NoomDetailValueRow(label: "Sleep score", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.sleepScore.score))) / 100", verticalPadding: 8)
+                    NoomDetailValueRow(label: "Method", value: "Three overnight signals, equal weight", verticalPadding: 8)
                 }
             }
+        }
+        } else {
+            NoomEmptyStateCard(
+                title: "Body Status unavailable",
+                message: "Wear Noom Band overnight and sync to calculate Body Status from resting HR, nocturnal HRV, and sleep.",
+                systemImage: "heart.text.square"
+            )
         }
     }
 
@@ -137,10 +133,10 @@ struct DashboardView: View {
             NoomStateBanner(title: "Offline", detail: "Showing only data returned by the local SDK cache. Today is not labeled current without a fresh sync.", systemImage: "wifi.slash", tint: NoomTheme.rose)
         }
         if freshness.isStaleCurrentDay {
-            NoomStateBanner(title: "Stale today", detail: "Last Noom Band sync was not today. This Body State is not current.", systemImage: "clock.badge.exclamationmark", tint: NoomTheme.rose)
+            NoomStateBanner(title: "Stale today", detail: "Last Noom Band sync was not today. This Body Status is not current.", systemImage: "clock.badge.exclamationmark", tint: NoomTheme.rose)
         }
-        if data.recovery == nil || data.sleep == nil || data.metrics.isEmpty {
-            NoomStateBanner(title: "Partial data", detail: "Only returned SDK sections are shown. Missing sleep, Recovery, or metric dates stay blank.", systemImage: "chart.bar.doc.horizontal", tint: NoomTheme.mint)
+        if dashboard.nightlySleep == nil || data.metrics.isEmpty {
+            NoomStateBanner(title: "Partial data", detail: "Body Status needs one completed sleep with resting HR, nocturnal HRV, and a sleep score.", systemImage: "chart.bar.doc.horizontal", tint: NoomTheme.mint)
         }
     }
 

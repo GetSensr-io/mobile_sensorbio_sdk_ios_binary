@@ -14,6 +14,7 @@ INSIGHTS_STATE = (SRC / "InsightsState.swift").read_text()
 INSIGHTS_VIEW = (SRC / "InsightsView.swift").read_text()
 PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
 METRIC_FORMATTING = (SRC / "Metric.swift").read_text()
+BODY_STATUS = METRIC_FORMATTING
 NUMERIC_DISPLAY_SOURCES = {
     "DashboardView.swift": DASHBOARD,
     "InsightsView.swift": INSIGHTS_VIEW,
@@ -40,6 +41,25 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
 
+    def test_body_status_is_a_local_score_from_three_overnight_signals(self) -> None:
+        for snippet in (
+            "struct BodyStatusScore",
+            "static func make(",
+            "restingHeartRate",
+            "nocturnalHRV",
+            "sleepScore",
+            "restingHeartRateComponent",
+            "nocturnalHRVComponent",
+            "sleepComponent",
+        ):
+            self.assertIn(snippet, BODY_STATUS)
+        self.assertIn("dashboard.nightlySleep", DASHBOARD)
+        self.assertIn("bodyStatusSection", DASHBOARD)
+        self.assertIn("Resting HR", DASHBOARD)
+        self.assertIn("Nocturnal HRV", DASHBOARD)
+        self.assertIn("Sleep score", DASHBOARD)
+        self.assertNotIn("if let recovery = data.recovery", DASHBOARD)
+
     def test_signed_out_home_uses_lifestyle_carousel_with_auth_actions(self) -> None:
         self.assertIn("struct NoomWelcomeCarousel", CONTENT)
         self.assertIn(".tabViewStyle(.page(indexDisplayMode: .never))", CONTENT)
@@ -61,7 +81,6 @@ class NoomParityContractTests(unittest.TestCase):
 
     def test_dashboard_exposes_every_exampleapp_metric_route(self) -> None:
         for view in (
-            "RecoveryDetailView()",
             "SleepDetailView()",
             "StepsDetailView()",
             "CaloriesDetailView()",

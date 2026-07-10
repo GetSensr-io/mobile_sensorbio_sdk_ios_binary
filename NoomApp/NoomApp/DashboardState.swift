@@ -8,6 +8,7 @@ final class DashboardState {
     var personalInsights: SB_NewInsights? = nil
     var weeklyRecovery: SB_RecoveryRangeTrending? = nil
     var weeklySleep: SB_SleepDetailAggregated? = nil
+    var nightlySleep: SB_SleepDetailDay? = nil
     var isLoading: Bool = false
     var errorMessage: String? = nil
     var personalInsightsError: String? = nil
@@ -33,6 +34,16 @@ final class DashboardState {
         } catch {
             data = nil
             errorMessage = error.localizedDescription
+        }
+
+        nightlySleep = nil
+        if let sleepSession = data?.sleeps.first {
+            do {
+                let endDate = Date(timeIntervalSince1970: TimeInterval(sleepSession.endTimestamp) / 1000)
+                nightlySleep = try await sensorBio.fetchSleepDetail(endDate: endDate, endTimestamp: Int64(sleepSession.endTimestamp))
+            } catch {
+                nightlySleep = nil
+            }
         }
 
         do {
