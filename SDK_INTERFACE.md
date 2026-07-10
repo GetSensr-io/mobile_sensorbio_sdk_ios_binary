@@ -391,13 +391,13 @@ The pairing flow uses the typed `SB_DiscoveredDevice` payload:
 ```swift
 sensorBio.deviceDiscovered
     .sink { (device: SB_DiscoveredDevice) in
-        print("found", device.macAddress, device.name, device.rssi)
+        print("found", device.id, device.name, device.deviceType)
     }
     .store(in: &cancellables)
 
 sensorBio.startScan()
-// …user picks one…
-sensorBio.connect(macAddress, pairing: true)
+// …user picks `selected` from the discovered devices…
+sensorBio.connect(selected.id, pairing: true)
 
 sensorBio.pairingConnection
     .sink { mac in print("paired", mac) }
@@ -864,7 +864,7 @@ final class HomeViewModel: ObservableObject {
 
     func discoverAndPair() {
         sensorBio.deviceDiscovered
-            .sink { (d: SB_DiscoveredDevice) in print("found", d.macAddress) }
+            .sink { (d: SB_DiscoveredDevice) in print("found", d.id) }
             .store(in: &bag)
         sensorBio.startScan()
     }

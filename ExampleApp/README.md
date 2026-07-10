@@ -7,7 +7,7 @@ This is what you'd build in your own app, modulo the UI. The pieces that matter:
 - **`project.yml`** — xcodegen spec. iOS 18 deployment target, Swift 6.1, `CLANG_CXX_LANGUAGE_STANDARD = c++17`, `FX_PLATFORM_UNIX=1` preprocessor define.
 - **`Podfile`** — single `pod 'SensorBioSDK', :path => '..'` line that vendors the 3 xcframeworks and transitively brings the third-party pods. (Customer apps use `:git`/`:tag` instead of `:path` — see `../README.md`.)
 - **`ExampleApp/Info.plist`** — BLE permission strings + `bluetooth-central` background mode.
-- **`ExampleApp/ExampleAppApp.swift`** — `@main` with the required init pattern: `SensorBioSDK.environment` → `bootstrapKeychain()` → `runDefaultsMigratorIfNeeded()` → `registerBGTasks()`.
+- **`ExampleApp/SDKExampleApp.swift`** — `@main` entry point: sets `SB_SDK.environment` (Staging/Prod, persisted via `UserDefaults`) on init and routes the SDK's `SB_SDK.log` Combine stream to `os.Logger`.
 - **`ExampleApp/ContentView.swift`** — minimal sign-in form; exercises the `signIn` RPC path through gRPC-Core.
 
 ## Building

@@ -125,20 +125,19 @@ final class PairDeviceState {
         }
     }
 
-    /// Persists the freshly-paired device to the SDK's devices
-    /// dictionary so `sensorBio.haveDevice` + `pairedDevice` flip on.
-    /// Dict shape lifted from `wvDevice.getGblDevicesDictionary()` —
-    /// SDK reads `macAddress` / `name` / `deviceType` (Int raw).
+    /// Persists the freshly-paired device via the SDK. `persistPairedDevice`
+    /// serializes the identity, flips `sensorBio.haveDevice` + `pairedDevice`
+    /// on, and registers the device with the BLE layer — the SDK owns
+    /// paired-device persistence end-to-end (no app-built devices dictionary).
     @MainActor
     func finish() {
         sensorBio.setAskForDeviceResponse(false)
         guard let device = selectedDevice else { return }
-        let entry: [String: Any] = [
-            "macAddress": device.id,
-            "name": device.name,
-            "deviceType": device.deviceType.rawValue
-        ]
-        sensorBio.persistDeviceState([device.id: entry])
+        sensorBio.persistPairedDevice(
+            macAddress: device.id,
+            name: device.name,
+            type: device.deviceType
+        )
         sensorBio.disconnect()
     }
 

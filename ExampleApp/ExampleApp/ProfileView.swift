@@ -96,11 +96,9 @@ struct ProfileView: View {
         return formatter.localizedString(for: lastSyncd, relativeTo: now)
     }
 
-    /// Two-step unpair surfaced as a Phase 6.14d.1 leak: the SDK
-    /// requires both `removeDeviceFromPairedDevices(_:)` (drops the
-    /// BLE-SDK paired list) AND `persistDeviceState([:])` (clears the
-    /// app-side device dict so `pairedDevice` / `haveDevice` flip).
-    /// A single `sensorBio.unpair()` API is slated as a follow-up.
+    /// `removeDeviceFromPairedDevices(_:)` clears the paired device on an
+    /// explicit unpair — it drops the BLE-SDK paired list and wipes the
+    /// SDK-owned paired snapshot so `pairedDevice` / `haveDevice` flip off.
     private func unpair() {
         unpairError = nil
         guard let device = pairedDevice else {
@@ -108,7 +106,6 @@ struct ProfileView: View {
             return
         }
         sensorBio.removeDeviceFromPairedDevices(device.macAddress)
-        sensorBio.persistDeviceState([:])
     }
 
     private func signOut() async {
@@ -123,7 +120,6 @@ struct ProfileView: View {
         // optionally unpair via a parameter.
         if let device = pairedDevice {
             sensorBio.removeDeviceFromPairedDevices(device.macAddress)
-            sensorBio.persistDeviceState([:])
         }
         do {
             try await sensorBio.signOut()
