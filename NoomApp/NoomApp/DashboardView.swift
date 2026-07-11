@@ -115,14 +115,6 @@ struct DashboardView: View {
            ) {
             let freshness = dashboard.freshness(for: dateContext.selectedDate)
             VStack(spacing: 12) {
-                if dashboard.inflammationSignal.isPreview {
-                    NoomStateBanner(
-                        title: "Sample inflammation input",
-                        detail: "Synthetic POC data — not personal health data. Body Status includes this sample as one of four equal inputs.",
-                        systemImage: "wrench.and.screwdriver",
-                        tint: NoomTheme.rose
-                    )
-                }
                 NoomCard {
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(alignment: .top, spacing: 18) {

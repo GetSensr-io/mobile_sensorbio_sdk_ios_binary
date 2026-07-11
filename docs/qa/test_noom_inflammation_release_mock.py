@@ -28,9 +28,9 @@ class InflammationReleaseMockContractTests(unittest.TestCase):
             STATE,
         )
 
-    def test_sample_is_disclosed_on_dashboard_tile_body_status_and_detail(self) -> None:
-        self.assertIn('title: "Sample inflammation input"', DASHBOARD)
-        self.assertIn("Synthetic POC data — not personal health data", DASHBOARD)
+    def test_sample_is_quiet_on_dashboard_but_disclosed_on_tile_and_detail(self) -> None:
+        self.assertNotIn('title: "Sample inflammation input"', DASHBOARD)
+        self.assertNotIn("Synthetic POC data — not personal health data", DASHBOARD)
         self.assertIn('"Sample overnight input"', DASHBOARD)
         self.assertIn(
             "historicalValues: MockInflammationSignalProvider().trailingValues",
