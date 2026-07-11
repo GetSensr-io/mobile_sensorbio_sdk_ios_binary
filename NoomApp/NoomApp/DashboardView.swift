@@ -192,50 +192,59 @@ struct DashboardView: View {
                         .buttonStyle(NoomSecondaryButtonStyle())
                 }
             }
-        } else if let proposal = productLoop.proposedExperiment {
-            experimentCard(proposal, label: "Suggested", onDismiss: {
-                Task { await productLoop.cancel(proposal) }
-            }) {
-                HStack(spacing: 10) {
-                    Button("Start experiment") { Task { await productLoop.accept(proposal) } }
-                        .buttonStyle(NoomPrimaryButtonStyle())
-                    Button("Not now") { Task { await productLoop.cancel(proposal) } }
-                        .buttonStyle(NoomSecondaryButtonStyle())
-                }
-            }
         } else {
             let suggestion = ProductLoopSuggestion.prelogLunch
             if dismissedNoomExperimentKey != experimentDismissalKey(suggestion) {
-                NoomCard(fill: Color.white.opacity(0.84)) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(alignment: .center, spacing: 8) {
-                            Text("Suggested experiment").noomSerifTitle(size: 26)
-                            Spacer()
-                            NoomPill(title: "3 days", color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
-                            experimentDismissButton {
-                                dismissExperiment {
-                                    dismissedNoomExperimentKey = experimentDismissalKey(suggestion)
-                                }
-                            }
-                        }
-                        Text(suggestion.title).font(.system(size: 17, weight: .semibold)).foregroundStyle(NoomTheme.logoBlack)
-                        Text(suggestion.reason).noomBody()
-                        Text(suggestion.instructions).noomBody()
-                        Button("Save this experiment") { Task { await productLoop.propose(suggestion) } }
-                            .buttonStyle(NoomPrimaryButtonStyle())
-                            .disabled(productLoop.isSaving)
-                    }
-                }
-                .offset(x: experimentDragOffset)
-                .opacity(max(0.35, 1 - abs(experimentDragOffset) / 280))
-                .gesture(experimentDismissGesture {
-                    dismissedNoomExperimentKey = experimentDismissalKey(suggestion)
-                })
+                persistentSuggestionCard(suggestion, proposal: productLoop.proposedExperiment)
             }
         }
-        if let error = productLoop.errorMessage {
-            NoomStateBanner(title: "Experiment sync unavailable", detail: error, systemImage: "arrow.triangle.2.circlepath", tint: NoomTheme.rose)
+    }
+
+    private func persistentSuggestionCard(_ suggestion: ProductLoopSuggestion, proposal: ProductLoopExperiment?) -> some View {
+        NoomCard(fill: Color.white.opacity(0.84)) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .center, spacing: 8) {
+                    Text("Suggested experiment").noomSerifTitle(size: 24)
+                    Spacer(minLength: 8)
+                    NoomPill(title: "3 days", color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
+                    experimentDismissButton {
+                        dismissExperiment {
+                            dismissedNoomExperimentKey = experimentDismissalKey(suggestion)
+                            if let proposal { Task { await productLoop.cancel(proposal) } }
+                        }
+                    }
+                }
+                Text(suggestion.title)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(NoomTheme.logoBlack)
+                Text(suggestion.reason).noomBody()
+                Text(suggestion.instructions).noomBody()
+                if let error = productLoop.errorMessage {
+                    Label(error, systemImage: "exclamationmark.circle.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(NoomTheme.logoBlack)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(NoomTheme.rose.opacity(0.42), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                Button {
+                    Task { await productLoop.start(suggestion) }
+                } label: {
+                    HStack(spacing: 8) {
+                        if productLoop.isSaving { ProgressView().tint(.white) }
+                        Text(productLoop.isSaving ? "Starting…" : "Start experiment")
+                    }
+                }
+                .buttonStyle(NoomPrimaryButtonStyle())
+                .disabled(productLoop.isSaving)
+            }
         }
+        .offset(x: experimentDragOffset)
+        .opacity(max(0.35, 1 - abs(experimentDragOffset) / 280))
+        .simultaneousGesture(experimentDismissGesture {
+            dismissedNoomExperimentKey = experimentDismissalKey(suggestion)
+            if let proposal { Task { await productLoop.cancel(proposal) } }
+        })
     }
 
     private func experimentCard<Actions: View>(
@@ -255,12 +264,20 @@ struct DashboardView: View {
                 Text(experiment.title).font(.system(size: 17, weight: .semibold)).foregroundStyle(NoomTheme.logoBlack)
                 Text(experiment.reason).noomBody()
                 Text(experiment.instructions).noomBody()
+                if let error = productLoop.errorMessage {
+                    Label(error, systemImage: "exclamationmark.circle.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(NoomTheme.logoBlack)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(NoomTheme.rose.opacity(0.42), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
                 actions().disabled(productLoop.isSaving)
             }
         }
         .offset(x: experimentDragOffset)
         .opacity(max(0.35, 1 - abs(experimentDragOffset) / 280))
-        .gesture(experimentDismissGesture(action: onDismiss))
+        .simultaneousGesture(experimentDismissGesture(action: onDismiss))
     }
 
     private func experimentDismissButton(action: @escaping () -> Void) -> some View {
@@ -278,9 +295,14 @@ struct DashboardView: View {
     private func experimentDismissGesture(action: @escaping () -> Void) -> some Gesture {
         DragGesture(minimumDistance: 20)
             .onChanged { value in
+                guard abs(value.translation.width) > abs(value.translation.height) else { return }
                 experimentDragOffset = value.translation.width
             }
             .onEnded { value in
+                guard abs(value.translation.width) > abs(value.translation.height) else {
+                    withAnimation(.snappy) { experimentDragOffset = 0 }
+                    return
+                }
                 if abs(value.translation.width) > 100 {
                     dismissExperiment(action)
                 } else {

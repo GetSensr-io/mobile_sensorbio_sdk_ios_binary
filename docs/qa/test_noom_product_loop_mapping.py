@@ -34,20 +34,25 @@ class NoomProductLoopMappingTests(unittest.TestCase):
         self.assertNotIn("No Recovery value was returned", DASHBOARD_VIEW)
         self.assertNotIn("fallback body score", DASHBOARD_STATE)
 
-    def test_suggested_experiment_is_persisted_and_tied_to_body_status(self) -> None:
+    def test_suggested_experiment_has_one_stable_start_path(self) -> None:
         self.assertIn("ProductLoopStore", DASHBOARD_STATE)
         self.assertIn("ProductLoopAPI", DASHBOARD_STATE)
         self.assertIn("DemoInstallIdentity", DASHBOARD_STATE)
         self.assertIn("/demo/v1/proposals", DASHBOARD_STATE)
+        self.assertIn("func start(_ suggestion: ProductLoopSuggestion)", DASHBOARD_STATE)
         self.assertIn("ProductLoopSuggestion.prelogLunch", DASHBOARD_VIEW)
         self.assertIn("Pre-log tomorrow's lunch", DASHBOARD_STATE + CONVEX_PRODUCT_LOOP)
         self.assertIn('"prelog-lunch-v1"', DASHBOARD_STATE + CONVEX_PRODUCT_LOOP)
         self.assertIn('proposal.sourceInsightId === "prelog-lunch-v1"', CONVEX_PRODUCT_LOOP)
         self.assertNotIn("three-night demo", DASHBOARD_STATE + CONVEX_PRODUCT_LOOP)
-        self.assertIn("Button(\"Start experiment", DASHBOARD_VIEW)
-        self.assertIn("Button(\"Complete\")", DASHBOARD_VIEW)
-        self.assertIn("Button(\"Cancel\")", DASHBOARD_VIEW)
-        self.assertIn("Save this experiment", DASHBOARD_VIEW)
+        self.assertIn('"Start experiment"', DASHBOARD_VIEW)
+        self.assertIn('"Starting…"', DASHBOARD_VIEW)
+        self.assertIn('Button("Complete")', DASHBOARD_VIEW)
+        self.assertIn('Button("Cancel")', DASHBOARD_VIEW)
+        self.assertNotIn("Save this experiment", DASHBOARD_VIEW)
+        self.assertNotIn('Button("Not now")', DASHBOARD_VIEW)
+        self.assertNotIn('title: "Experiment sync unavailable"', DASHBOARD_VIEW)
+        self.assertIn("Couldn’t update this experiment. Try again.", DASHBOARD_STATE)
         self.assertNotIn("UserDefaults", DASHBOARD_STATE)
         self.assertNotIn("raw PPG", DASHBOARD_STATE)
 
@@ -57,6 +62,8 @@ class NoomProductLoopMappingTests(unittest.TestCase):
             'Image(systemName: "xmark")',
             '.accessibilityLabel("Dismiss experiment")',
             "DragGesture(minimumDistance: 20)",
+            "abs(value.translation.width) > abs(value.translation.height)",
+            ".simultaneousGesture(experimentDismissGesture",
             "dismissExperiment(",
         ):
             self.assertIn(snippet, DASHBOARD_VIEW)

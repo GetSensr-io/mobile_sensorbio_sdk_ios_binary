@@ -7,3 +7,7 @@ export function allowedTransition(from: ExperimentStatus, to: ExperimentStatus):
     (from === "active" && (to === "completed" || to === "cancelled"))
   );
 }
+
+export function shouldReuseProposal(status: ExperimentStatus): boolean {
+  return status === "proposed" || status === "active";
+}

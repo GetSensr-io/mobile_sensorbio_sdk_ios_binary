@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { internalMutation, internalQuery, type MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import { allowedTransition } from "./productLoopRules";
+import { allowedTransition, shouldReuseProposal } from "./productLoopRules";
 
 const now = () => Date.now();
 
@@ -37,11 +37,14 @@ export const createProposal = internalMutation({
   },
   handler: async (ctx, args) => {
     const catalogEntry = demoCatalog[args.demoCatalogId];
-    const existing = await ctx.db
+    const priorRecords = await ctx.db
       .query("experiments")
       .withIndex("by_demo_source", (q) => q.eq("demoInstallId", args.demoInstallId).eq("sourceInsightId", catalogEntry.sourceInsightId))
-      .first();
-    if (existing) return existing;
+      .collect();
+    const reusable = priorRecords
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .find((experiment) => shouldReuseProposal(experiment.status));
+    if (reusable) return reusable;
 
     const timestamp = now();
     const id = await ctx.db.insert("experiments", {

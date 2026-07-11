@@ -226,14 +226,27 @@ final class ProductLoopStore {
         }
     }
 
-    func propose(_ suggestion: ProductLoopSuggestion) async {
-        guard activeExperiment == nil, proposedExperiment == nil else { return }
+    func start(_ suggestion: ProductLoopSuggestion) async {
+        guard activeExperiment == nil else { return }
         await save {
-            let payload: [String: Any] = [
-                "demoCatalogId": suggestion.demoCatalogId
-            ]
-            let experiment: ProductLoopExperiment = try await ProductLoopAPI.shared.request(path: "/demo/v1/proposals", method: "POST", body: payload)
-            self.current = ProductLoopCurrent(active: nil, proposals: [experiment])
+            let experiment: ProductLoopExperiment
+            if let proposed = self.proposedExperiment {
+                experiment = proposed
+            } else {
+                let payload: [String: Any] = ["demoCatalogId": suggestion.demoCatalogId]
+                experiment = try await ProductLoopAPI.shared.request(path: "/demo/v1/proposals", method: "POST", body: payload)
+            }
+
+            if experiment.status == "active" {
+                self.current = ProductLoopCurrent(active: experiment, proposals: [])
+                return
+            }
+            guard experiment.status == "proposed" else { throw ProductLoopAPIError.unavailable }
+
+            let payload: [String: Any] = ["experimentId": experiment.id, "idempotencyKey": UUID().uuidString]
+            let active: ProductLoopExperiment = try await ProductLoopAPI.shared.request(path: "/demo/v1/experiments/accept", method: "POST", body: payload)
+            guard active.status == "active" else { throw ProductLoopAPIError.unavailable }
+            self.current = ProductLoopCurrent(active: active, proposals: [])
         }
     }
 
@@ -380,7 +393,7 @@ actor ProductLoopAPI {
     }
 
     nonisolated static func displayError(_ error: Error) -> String {
-        (error as? LocalizedError)?.errorDescription ?? "Suggested Experiments are temporarily unavailable."
+        "Couldn’t update this experiment. Try again."
     }
 }
 
