@@ -1,4 +1,5 @@
 import SwiftUI
+import Charts
 import SensorBioSDK
 
 struct InsightsView: View {
@@ -13,11 +14,11 @@ struct InsightsView: View {
             if state.isLoadingPersonal && state.personal == nil {
                 loadingCard("Loading signals")
             } else if state.personalError != nil, state.personal == nil {
-                noSignalsCard
+                personalInsightUnavailableCard
             } else if let insights = state.personal {
                 personalCards(insights)
             } else {
-                noSignalsCard
+                personalInsightUnavailableCard
             }
 
             populationInsightsSection
@@ -115,25 +116,72 @@ struct InsightsView: View {
 
     @ViewBuilder
     private func populationHistogramCard(_ histogram: SB_PopulationInsightsHistogram) -> some View {
+        let yAxisMaximum = histogramYAxisMaximum(histogram.histogramData)
+
         VStack(alignment: .leading, spacing: 8) {
             if !histogram.insightText.isEmpty { Text(histogram.insightText).noomBody() }
-            HStack(alignment: .bottom, spacing: 5) {
+            Chart {
                 ForEach(Array(histogram.histogramData.enumerated()), id: \.offset) { _, pair in
-                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(NoomTheme.red.opacity(0.36))
-                        .frame(height: CGFloat(max(6, min(120, pair.yValue * 120))))
+                    BarMark(
+                        xStart: .value("Range start", pair.xStartValue),
+                        xEnd: .value("Range end", pair.xEndValue),
+                        y: .value("Population", max(0, pair.yValue))
+                    )
+                        .foregroundStyle(NoomTheme.red.opacity(0.42))
+                        .cornerRadius(4)
                         .accessibilityLabel("Population bucket \(formatNumber(pair.xStartValue)) to \(formatNumber(pair.xEndValue))")
+                        .accessibilityValue(formatNumber(pair.yValue))
+                }
+
+                RuleMark(x: .value("Your value", histogram.userXValue))
+                    .foregroundStyle(NoomTheme.logoBlack)
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 4]))
+                    .annotation(position: .top, alignment: .center) {
+                        Text("You")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundStyle(NoomTheme.logoBlack)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 4)
+                            .background(NoomTheme.mint, in: Capsule())
+                    }
+            }
+            .chartYScale(domain: 0...yAxisMaximum)
+            .chartXAxis {
+                AxisMarks(values: .automatic(desiredCount: 4)) {
+                    AxisGridLine().foregroundStyle(NoomTheme.ink.opacity(0.08))
+                    AxisTick().foregroundStyle(NoomTheme.ink.opacity(0.25))
+                    AxisValueLabel()
                 }
             }
-            .frame(height: 124, alignment: .bottom)
+            .chartYAxis {
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) {
+                    AxisGridLine().foregroundStyle(NoomTheme.ink.opacity(0.08))
+                    AxisTick().foregroundStyle(NoomTheme.ink.opacity(0.25))
+                    AxisValueLabel()
+                }
+            }
+            .frame(height: 190)
             Text("Your value: \(formatNumber(histogram.userXValue))").noomLabel()
         }
+    }
+
+    private func histogramYAxisMaximum(_ data: [SB_HistogramPair]) -> Float {
+        let maximum = data
+            .map(\.yValue)
+            .filter { $0.isFinite && $0 > 0 }
+            .max() ?? 0
+        return maximum > 0 ? maximum * 1.12 : 1
     }
 
     @ViewBuilder
     private func personalCards(_ insights: SB_NewInsights) -> some View {
         if insights.predictions.isEmpty && insights.recommendations.isEmpty && insights.positiveInfluencers.isEmpty && insights.negativeInfluencers.isEmpty && insights.suggestedExperiment == nil {
-            NoomSignalCardPublic(title: "No signals yet", status: "Soon", detail: "Keep wearing Noom Band. Trends appear after enough context is available.", tint: NoomTheme.rose)
+            NoomSignalCardPublic(
+                title: "No new personal insight",
+                status: "Synced",
+                detail: "Your health signals remain available. There isn't a new personalized recommendation right now.",
+                tint: NoomTheme.mint
+            )
         } else {
             ForEach(recommendationSummaries(insights), id: \.title) { item in
                 NoomSignalCardPublic(title: item.title, status: item.status, detail: item.detail, tint: item.tint)
@@ -190,18 +238,19 @@ struct InsightsView: View {
     }
 
     private func loadingCard(_ text: String) -> some View {
-        NoomCard {
-            HStack(spacing: 12) {
-                ProgressView().tint(NoomTheme.red)
-                Text(text).noomBody()
-            }
-        }
+        NoomLoadingExperience(
+            title: text,
+            detail: "Looking for a useful pattern—not just another number.",
+            systemImage: "sparkles",
+            accent: NoomTheme.red,
+            compact: true
+        )
     }
 
-    private var noSignalsCard: some View {
+    private var personalInsightUnavailableCard: some View {
         NoomEmptyStateCard(
-            title: "Signals are still warming up",
-            message: "Keep wearing Noom Band. Personalized insights appear after Noom has enough sleep, recovery, and movement context.",
+            title: "No new personal insight",
+            message: "Your health signals remain available. Personalized recommendations will appear here when the insights service returns an update.",
             systemImage: "chart.line.uptrend.xyaxis"
         )
     }

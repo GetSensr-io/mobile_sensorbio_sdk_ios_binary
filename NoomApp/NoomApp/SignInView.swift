@@ -9,6 +9,8 @@ struct SignInView: View {
 
     var body: some View {
         GeometryReader { geometry in
+            let heroHeight = min(max(geometry.size.height * 0.22, 180), 260)
+            let panelMinimumHeight = max(0, geometry.size.height - heroHeight + geometry.safeAreaInsets.bottom)
             ZStack(alignment: .top) {
                 SignInFullBleedHero()
 
@@ -21,16 +23,16 @@ struct SignInView: View {
                         .padding(.horizontal, NoomTheme.horizontalPadding)
                         .padding(.top, geometry.safeAreaInsets.top + 10)
 
-                        Spacer(minLength: max(238, geometry.size.height * 0.29))
+                        Spacer(minLength: heroHeight)
 
-                        signInPanel
+                        signInPanel(minHeight: panelMinimumHeight)
                             .frame(width: geometry.size.width, alignment: .leading)
                     }
                     .frame(minHeight: geometry.size.height, alignment: .top)
                 }
                 .scrollDismissesKeyboard(.interactively)
             }
-            .ignoresSafeArea(edges: .top)
+            .ignoresSafeArea(.container, edges: [.top, .bottom])
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -42,7 +44,7 @@ struct SignInView: View {
         }
     }
 
-    private var signInPanel: some View {
+    private func signInPanel(minHeight: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Welcome back")
@@ -131,20 +133,16 @@ struct SignInView: View {
                 .disabled(!form.canSubmit)
                 .padding(.top, 4)
 
-                HStack {
-                    Button {
-                        dismissKeyboard()
-                        Task { await requestPasswordReset() }
-                    } label: {
-                        if isRequestingReset {
-                            ProgressView().tint(NoomTheme.logoBlack)
-                        } else {
-                            Text("Forgot password?")
-                        }
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        passwordResetButton
+                        Spacer()
+                        createAccountLink
                     }
-                    .disabled(form.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isRequestingReset)
-                    Spacer()
-                    NavigationLink("Create account") { SignUpView() }
+                    VStack(alignment: .leading, spacing: 16) {
+                        passwordResetButton
+                        createAccountLink
+                    }
                 }
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(NoomTheme.logoBlack.opacity(0.70))
@@ -154,7 +152,7 @@ struct SignInView: View {
         .padding(.horizontal, NoomTheme.horizontalPadding)
         .padding(.top, 30)
         .padding(.bottom, 42)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .topLeading)
         .background(NoomTheme.warmSurface.opacity(0.98))
         .clipShape(UnevenRoundedRectangle(topLeadingRadius: 32, topTrailingRadius: 32))
         .overlay(alignment: .top) {
@@ -163,6 +161,24 @@ struct SignInView: View {
                 .frame(width: 44, height: 5)
                 .padding(.top, 10)
         }
+    }
+
+    private var passwordResetButton: some View {
+        Button {
+            dismissKeyboard()
+            Task { await requestPasswordReset() }
+        } label: {
+            if isRequestingReset {
+                ProgressView().tint(NoomTheme.logoBlack)
+            } else {
+                Text("Forgot password?")
+            }
+        }
+        .disabled(form.email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isRequestingReset)
+    }
+
+    private var createAccountLink: some View {
+        NavigationLink("Create account") { SignUpView() }
     }
 
     private func dismissKeyboard() {

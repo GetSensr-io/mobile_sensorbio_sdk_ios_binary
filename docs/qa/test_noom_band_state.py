@@ -37,8 +37,8 @@ class NoomBandStateTests(unittest.TestCase):
     def test_band_status_is_compact_and_adjacent_to_the_profile_control(self):
         self.assertNotIn(".safeAreaInset(edge: .top", MAIN_TAB)
         self.assertIn("struct BandBatteryBadge", MAIN_TAB)
-        self.assertIn("BandBatteryBadge()", DASHBOARD)
-        badge = DASHBOARD.index("BandBatteryBadge()")
+        self.assertIn("BandBatteryBadge(", DASHBOARD)
+        badge = DASHBOARD.index("BandBatteryBadge(")
         profile = DASHBOARD.index("NavigationLink {", badge)
         self.assertLess(badge, profile)
         self.assertIn("Text(battery.map { \"\\($0)%\" }", MAIN_TAB)
@@ -75,7 +75,10 @@ class NoomBandStateTests(unittest.TestCase):
             "sensorBio.connect(device.id, pairing: true)",
             "sensorBio.pairingConnection",
             "sensorBio.setAskForDeviceResponse(true)",
-            "sensorBio.persistPairedDevice(macAddress: device.id, name: device.name, type: device.deviceType)",
+            "sensorBio.persistPairedDevice(",
+            "macAddress: device.id",
+            "name: device.name",
+            "type: device.deviceType",
             "sensorBio.disconnect()",
         ):
             self.assertIn(snippet, PAIR)

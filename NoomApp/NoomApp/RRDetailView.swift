@@ -13,7 +13,13 @@ struct RRDetailView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView("Loading respiratory rate…")
+                NoomLoadingExperience(
+                    title: "Following your overnight breathing",
+                    detail: "Preparing your respiratory-rate pattern.",
+                    systemImage: "lungs.fill",
+                    accent: NoomTheme.metricBlue
+                )
+                .padding(NoomTheme.horizontalPadding)
             } else if let errorMessage {
                 ContentUnavailableView("Respiratory rate unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
             } else if granularity == .day, let graph = daily?.graph {

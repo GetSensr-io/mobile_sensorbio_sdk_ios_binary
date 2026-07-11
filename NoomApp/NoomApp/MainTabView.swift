@@ -2,6 +2,25 @@ import SwiftUI
 import Foundation
 import Observation
 import SensorBioSDK
+import Combine
+
+enum NoomSleepHistory {
+    private static func recordedSleepKey(for userID: String?) -> String? {
+        guard let userID, !userID.isEmpty else { return nil }
+        let account = Data(userID.utf8).base64EncodedString()
+        return "noomHasRecordedSleep.\(account)"
+    }
+
+    static func hasRecordedSleep(for userID: String?) -> Bool {
+        guard let key = recordedSleepKey(for: userID) else { return false }
+        return UserDefaults.standard.bool(forKey: key)
+    }
+
+    static func recordSleep(for userID: String?) {
+        guard let key = recordedSleepKey(for: userID) else { return }
+        UserDefaults.standard.set(true, forKey: key)
+    }
+}
 
 struct MainTabView: View {
     let session: SB_Session
@@ -21,7 +40,7 @@ struct MainTabView: View {
             NavigationStack { NoomProgressSignalsView() }
                 .tabItem { Label("Progress", systemImage: "chart.xyaxis.line") }
 
-            NavigationStack { SleepHomeView() }
+            NavigationStack { SleepHomeView(userID: session.userId) }
                 .tabItem { Label("Sleep", systemImage: "moon.fill") }
         }
         .tint(NoomTheme.red)
@@ -31,10 +50,15 @@ struct MainTabView: View {
 }
 
 struct SleepHomeView: View {
+    let userID: String
     @Environment(AppDateContext.self) private var dateContext
     @State private var state = SleepHomeState()
+    @State private var haveDevice = sensorBio.haveDevice
+    @State private var connected = sensorBio.connected
+    @State private var postSyncReloadTask: Task<Void, Never>?
 
     var body: some View {
+        @Bindable var ctx = dateContext
         NoomScreen {
             NoomTopBar(label: "Sleep & Recovery") {
                 NoomPill(
@@ -43,6 +67,8 @@ struct SleepHomeView: View {
                     foreground: NoomTheme.logoBlack
                 )
             }
+
+            NoomDayNavigator(selection: $ctx.selectedDate)
 
             Text("Last night, in context").noomSerifTitle(size: 36)
             Text("Your latest Noom Band sleep and recovery signals, with the details one tap away.").noomBody()
@@ -60,32 +86,68 @@ struct SleepHomeView: View {
         }
         .navigationTitle("Sleep")
         .navigationBarTitleDisplayMode(.inline)
-        .task(id: dateContext.selectedDate) { await state.load(date: dateContext.selectedDate) }
-        .refreshable { await state.load(date: dateContext.selectedDate) }
+        .task(id: dateContext.selectedDate) { await state.load(date: dateContext.selectedDate, userID: userID) }
+        .refreshable { await state.load(date: dateContext.selectedDate, userID: userID, forceRemote: true) }
+        .onReceive(sensorBio.$haveDevice) { haveDevice = $0 }
+        .onReceive(sensorBio.$connected) { connected = $0 }
+        .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
+            schedulePostSyncReload()
+        }
+        .onReceive(sensorBio.syncCompleted) { result in
+            guard result?.acknowledge == true else {
+                postSyncReloadTask?.cancel()
+                return
+            }
+            schedulePostSyncReload()
+        }
+        .onDisappear { postSyncReloadTask?.cancel() }
+    }
+
+    private func schedulePostSyncReload() {
+        postSyncReloadTask?.cancel()
+        postSyncReloadTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+            await state.load(date: dateContext.selectedDate, userID: userID, forceRemote: true)
+        }
     }
 
     private var loadingCard: some View {
-        NoomCard(fill: Color.white.opacity(0.82)) {
-            HStack(spacing: 12) {
-                ProgressView().tint(NoomTheme.red)
-                Text("Loading your overnight signals").noomBody()
-            }
-        }
+        NoomLoadingExperience(
+            title: "Waking up your sleep story",
+            detail: "Gathering last night's stages and recovery signals.",
+            systemImage: "moon.stars.fill",
+            accent: NoomTheme.metricPurple
+        )
     }
 
     private var noSessionCard: some View {
         VStack(spacing: 12) {
-            NoomEmptyStateCard(
-                title: "No sleep session yet",
-                message: state.errorMessage ?? "Wear Noom Band overnight and sync to see your sleep and recovery summary.",
-                systemImage: "moon.zzz.fill"
-            )
-            NavigationLink { NoomBandSetupEntryView() } label: {
-                Label(sensorBio.haveDevice ? "Reconnect Noom Band" : "Set up Noom Band", systemImage: "antenna.radiowaves.left.and.right")
-                    .frame(maxWidth: .infinity)
+            if shouldShowFirstNight {
+                NoomFirstNightCard(bandReady: bandReadyForTonight)
+            } else {
+                NoomEmptyStateCard(
+                    title: state.errorMessage == nil ? "No sleep session for this date" : "Sleep unavailable",
+                    message: state.errorMessage ?? "No completed sleep was returned for the selected date. Try another day or sync Noom Band again.",
+                    systemImage: state.errorMessage == nil ? "moon.zzz.fill" : "exclamationmark.triangle.fill"
+                )
             }
-            .buttonStyle(NoomSecondaryButtonStyle())
+            if !bandReadyForTonight {
+                NavigationLink { NoomBandSetupEntryView() } label: {
+                    Label(haveDevice ? "Bring Noom Band online" : "Set up Noom Band", systemImage: "antenna.radiowaves.left.and.right")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(NoomSecondaryButtonStyle())
+            }
         }
+    }
+
+    private var bandReadyForTonight: Bool { haveDevice && connected }
+
+    private var shouldShowFirstNight: Bool {
+        Calendar.current.isDateInToday(dateContext.selectedDate) &&
+        !NoomSleepHistory.hasRecordedSleep(for: userID) &&
+        state.errorMessage == nil
     }
 
     private func sleepHeroSummary(_ detail: SB_SleepDetailDay) -> some View {
@@ -236,6 +298,84 @@ struct SleepHomeView: View {
     }
 }
 
+/// Friendly first-use state shared by Today, Sleep, and Sleep detail.
+/// It explains the short path to value instead of presenting an empty score.
+struct NoomFirstNightCard: View {
+    var title: String = "Tonight is night one"
+    var message: String? = nil
+    var bandReady: Bool = sensorBio.haveDevice && sensorBio.connected
+
+    private let steps = [
+        FirstNightStep(icon: "watch.analog", title: "Wear your band", detail: "Keep it snug overnight"),
+        FirstNightStep(icon: "sunrise.fill", title: "Wake & sync", detail: "Noom updates automatically"),
+        FirstNightStep(icon: "sparkles", title: "Meet your sleep story", detail: "See sleep and Body Status")
+    ]
+
+    var body: some View {
+        NoomCard(fill: Color.white.opacity(0.88), padding: 20) {
+            VStack(alignment: .leading, spacing: 18) {
+                HStack(alignment: .top, spacing: 16) {
+                    ZStack {
+                        Circle().fill(NoomTheme.metricPurple.opacity(0.16))
+                        Image(systemName: "moon.stars.fill")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(NoomTheme.metricPurple)
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(NoomTheme.red)
+                            .offset(x: 25, y: -23)
+                    }
+                    .frame(width: 72, height: 72)
+
+                    VStack(alignment: .leading, spacing: 7) {
+                        NoomPill(
+                            title: bandReady ? "Band ready" : "One night to begin",
+                            color: bandReady ? NoomTheme.mint : NoomTheme.rose,
+                            foreground: NoomTheme.logoBlack
+                        )
+                        Text(title).noomSerifTitle(size: 28)
+                        Text(message ?? "No score yet—and that’s expected. One comfortable night gives Noom the first signals for your morning story.")
+                            .noomBody()
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                VStack(spacing: 10) {
+                    ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle().fill(index == 0 ? NoomTheme.rose : NoomTheme.mint.opacity(0.72))
+                                Image(systemName: step.icon)
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundStyle(NoomTheme.logoBlack)
+                            }
+                            .frame(width: 38, height: 38)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(step.title)
+                                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                                    .foregroundStyle(NoomTheme.logoBlack)
+                                Text(step.detail).noomBody()
+                            }
+                            Spacer(minLength: 0)
+                            Text("\(index + 1)")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundStyle(NoomTheme.muted)
+                        }
+                    }
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+}
+
+private struct FirstNightStep {
+    let icon: String
+    let title: String
+    let detail: String
+}
+
 @MainActor
 @Observable
 final class SleepHomeState {
@@ -262,27 +402,43 @@ final class SleepHomeState {
         isFresh ? "Synced today" : "Sync needed"
     }
 
-    func load(date: Date) async {
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
+    private var activeRequestID: UUID?
 
-        let tzOffset = Int32(TimeZone.current.secondsFromGMT(for: date))
-        do {
-            let dashboard = try await sensorBio.fetchDashboardData(date: date, tzOffset: tzOffset)
-            if let session = dashboard.sleeps.first {
-                let endDate = Date(timeIntervalSince1970: TimeInterval(session.endTimestamp) / 1000)
-                dailySleep = try await sensorBio.fetchSleepDetail(endDate: endDate, endTimestamp: Int64(session.endTimestamp))
-            } else {
-                dailySleep = nil
-                errorMessage = "No overnight session was returned for this day."
-            }
-        } catch {
-            dailySleep = nil
-            errorMessage = "Connect and sync Noom Band to load your sleep summary."
+    @MainActor
+    func load(date: Date, userID: String, forceRemote: Bool = false) async {
+        let requestID = UUID()
+        activeRequestID = requestID
+        isLoading = true
+        defer {
+            if activeRequestID == requestID { isLoading = false }
         }
 
-        dailyRecovery = try? await sensorBio.fetchDailyRecovery(date: date)
+        var nextSleep: SB_SleepDetailDay?
+        var nextRecovery: SB_DailyRecoveryTrending?
+        var nextError: String?
+        let tzOffset = Int32(TimeZone.current.secondsFromGMT(for: date))
+
+        do {
+            let dashboard = try await sensorBio.fetchDashboardData(date: date, tzOffset: tzOffset, forceRemote: forceRemote)
+            if let session = dashboard.sleeps.first {
+                NoomSleepHistory.recordSleep(for: userID)
+                let endDate = Date(timeIntervalSince1970: TimeInterval(session.endTimestamp) / 1000)
+                nextSleep = try await sensorBio.fetchSleepDetail(endDate: endDate, endTimestamp: Int64(session.endTimestamp), forceRemote: forceRemote)
+            }
+        } catch is CancellationError {
+            return
+        } catch {
+            nextError = "Connect and sync Noom Band to load your sleep summary."
+        }
+
+        if !Task.isCancelled {
+            nextRecovery = try? await sensorBio.fetchDailyRecovery(date: date, forceRemote: forceRemote)
+        }
+
+        guard activeRequestID == requestID, !Task.isCancelled else { return }
+        dailySleep = nextSleep
+        dailyRecovery = nextRecovery
+        errorMessage = nextError
     }
 }
 
@@ -340,6 +496,31 @@ private struct SleepHubStageBand: View {
 }
 
 #if DEBUG
+struct NoomFirstNightPreviewView: View {
+    let title: String
+
+    var body: some View {
+        NoomScreen {
+            NoomTopBar(label: title) {
+                NoomPill(title: "Preview", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
+            }
+            NoomDayNavigator(selection: .constant(Date()))
+            NoomFirstNightCard(bandReady: true)
+            NoomDashboardMetricTile(
+                label: "Sleep",
+                value: "—",
+                unit: nil,
+                caption: "Your sleep story starts tonight",
+                systemImage: "moon.stars.fill",
+                accent: NoomTheme.metricPurple,
+                minHeight: 132,
+                prominent: true
+            )
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
 struct SleepHubPreviewView: View {
     var body: some View {
         NoomScreen {
@@ -396,47 +577,106 @@ struct SleepHubPreviewView: View {
 }
 #endif
 
-/// Compact band status shown beside the dashboard profile control.
+/// Compact, always-visible Band status beside the dashboard profile control.
+/// Mobbin Fitbit pattern: keep sync feedback in the dashboard header. Apple HIG:
+/// use determinate progress when an accurate percentage exists and keep its
+/// location stable while the operation is active.
 struct BandBatteryBadge: View {
+    let isApplyingSyncUpdate: Bool
+    let showsSyncUpdated: Bool
+    let syncRefreshFailed: Bool
+
     @State private var haveDevice: Bool = sensorBio.haveDevice
     @State private var connected: Bool = sensorBio.connected
     @State private var battery: Int? = sensorBio.batteryLevel
     @State private var charging: Bool? = sensorBio.charging
+    @State private var syncing: Bool = sensorBio.deviceSyncing
+    @State private var percentSynced: Int = sensorBio.percentSynced
 
     var body: some View {
         Group {
             if haveDevice {
-                HStack(spacing: 5) {
-                    Image(systemName: batteryIcon())
-                    if connected {
-                        Text(battery.map { "\($0)%" } ?? "Live")
-                        if charging == true {
-                            Image(systemName: "bolt.fill")
-                        }
-                    } else {
-                        Image(systemName: "antenna.radiowaves.left.and.right.slash")
-                        Text("Offline")
-                    }
-                }
-                .font(.system(size: 12, weight: .bold, design: .rounded))
-                .foregroundStyle(connected ? NoomTheme.logoBlack : NoomTheme.muted)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 7)
-                .background(
-                    connected ? NoomTheme.red.opacity(0.12) : NoomTheme.softLine.opacity(0.72),
-                    in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-                )
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel(accessibilityStatus)
+                statusContent
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(connected ? NoomTheme.logoBlack : NoomTheme.muted)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 7)
+                    .background(statusBackground, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(accessibilityStatus)
+                    .animation(.snappy, value: syncing)
+                    .animation(.snappy, value: isApplyingSyncUpdate)
+                    .animation(.snappy, value: showsSyncUpdated)
+                    .animation(.snappy, value: syncRefreshFailed)
             }
         }
         .onReceive(sensorBio.$haveDevice) { haveDevice = $0 }
         .onReceive(sensorBio.$connected) { connected = $0 }
         .onReceive(sensorBio.$batteryLevel) { battery = $0 }
         .onReceive(sensorBio.$charging) { charging = $0 }
+        .onReceive(sensorBio.$deviceSyncing) { syncing = $0 }
+        .onReceive(sensorBio.$percentSynced) { percentSynced = $0 }
+    }
+
+    @ViewBuilder
+    private var statusContent: some View {
+        if syncing {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 5) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .symbolEffect(.rotate, options: .repeat(.continuous), isActive: syncing)
+                    Text("\(clampedProgress)%")
+                        .monospacedDigit()
+                }
+                ProgressView(value: Double(clampedProgress), total: 100)
+                    .progressViewStyle(.linear)
+                    .tint(NoomTheme.red)
+            }
+            .frame(width: 64)
+        } else if isApplyingSyncUpdate {
+            HStack(spacing: 5) {
+                ProgressView().controlSize(.mini).tint(NoomTheme.red)
+                Text("Updating")
+            }
+        } else if showsSyncUpdated {
+            HStack(spacing: 5) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(NoomTheme.metricGreen)
+                Text("Updated")
+            }
+        } else if syncRefreshFailed {
+            HStack(spacing: 5) {
+                Image(systemName: "exclamationmark.arrow.triangle.2.circlepath")
+                Text("Retry")
+            }
+        } else {
+            HStack(spacing: 5) {
+                Image(systemName: batteryIcon())
+                if connected {
+                    Text(battery.map { "\($0)%" } ?? "Live")
+                    if charging == true { Image(systemName: "bolt.fill") }
+                } else {
+                    Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                    Text("Offline")
+                }
+            }
+        }
+    }
+
+    private var clampedProgress: Int { min(max(percentSynced, 0), 100) }
+
+    private var statusBackground: Color {
+        if syncing || isApplyingSyncUpdate { return NoomTheme.mint.opacity(0.78) }
+        if showsSyncUpdated { return NoomTheme.mint.opacity(0.52) }
+        if syncRefreshFailed { return NoomTheme.rose.opacity(0.82) }
+        return connected ? NoomTheme.red.opacity(0.12) : NoomTheme.softLine.opacity(0.72)
     }
 
     private var accessibilityStatus: String {
+        if syncing { return "Noom Band syncing, \(clampedProgress) percent" }
+        if isApplyingSyncUpdate { return "Sync finished. Updating today's dashboard" }
+        if showsSyncUpdated { return "Dashboard updated with the latest Noom Band data" }
+        if syncRefreshFailed { return "Dashboard update failed. Sync again to retry" }
         guard connected else { return "Noom Band not connected" }
         if let battery { return "Noom Band battery \(battery) percent" }
         return "Noom Band connected"

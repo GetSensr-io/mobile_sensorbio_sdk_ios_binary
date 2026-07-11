@@ -32,19 +32,21 @@ NUMERIC_DISPLAY_SOURCES = {
 
 
 class NoomParityContractTests(unittest.TestCase):
-    def test_startup_respects_environment_switch_and_defaults_to_production(self) -> None:
+    def test_release_startup_is_locked_to_production(self) -> None:
         self.assertIn("sensorBio.hydrateSession()", NOOM_APP)
-        self.assertIn('UserDefaults.standard.register(defaults: ["envIsDev": false])', NOOM_APP)
-        self.assertIn('let isDev = UserDefaults.standard.bool(forKey: "envIsDev")', NOOM_APP)
-        self.assertIn("SB_SDK.environment = isDev ? .staging : .production", NOOM_APP)
-        self.assertNotIn("#if DEBUG", NOOM_APP)
+        self.assertIn("#if DEBUG", NOOM_APP)
+        self.assertIn('UserDefaults.standard.removeObject(forKey: "envIsDev")', NOOM_APP)
+        self.assertIn("SB_SDK.environment = .production", NOOM_APP)
+        release_branch = NOOM_APP.split("#else", 1)[1].split("#endif", 1)[0]
+        self.assertNotIn(".staging", release_branch)
 
-    def test_environment_switch_ui_is_available_in_testflight(self) -> None:
-        self.assertIn('@AppStorage("envIsDev") private var envIsDev: Bool = false', CONTENT)
-        self.assertNotIn("#if DEBUG\n    @AppStorage", CONTENT)
+    def test_environment_switch_ui_is_debug_only(self) -> None:
+        self.assertIn('#if DEBUG\n    @AppStorage("envIsDev")', CONTENT)
         self.assertIn("Use staging SDK environment", CONTENT)
         self.assertIn("SB_SDK.environment = newValue ? .staging : .production", CONTENT)
         self.assertIn("sensorBio.hydrateSession()", CONTENT)
+        toggle = CONTENT.split('Toggle("Use staging SDK environment"', 1)[0]
+        self.assertIn("#if DEBUG", toggle[-500:])
 
     def test_qa_metric_details_use_disclosed_unit_correct_samples_without_sdk_auth(self) -> None:
         content = (SRC / "ContentView.swift").read_text()
@@ -149,7 +151,7 @@ class NoomParityContractTests(unittest.TestCase):
             "recoveryFactorsPreview",
             "Open sleep details",
             "Open recovery details",
-            "No sleep session yet",
+            "Tonight is night one",
         ):
             self.assertIn(snippet, SLEEP_HOME)
         self.assertNotIn("Recovery: 78", SLEEP_HOME)

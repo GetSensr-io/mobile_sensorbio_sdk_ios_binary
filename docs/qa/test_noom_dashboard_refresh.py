@@ -54,7 +54,11 @@ class DashboardRefreshContractTests(unittest.TestCase):
             ".onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded))", 1
         )[1].split(".onReceive", 1)[0]
         self.assertNotIn("Task.sleep", sleep_handler)
-        self.assertIn("await refreshDashboard(force: true)", sleep_handler)
+        self.assertIn("refreshAfterSync()", sleep_handler)
+        refresh_handler = DASHBOARD.split("private func refreshAfterSync(", 1)[1].split("private func markSyncRefreshFailed", 1)[0]
+        immediate = refresh_handler.split("await refreshDashboard(force: true)", 1)[0]
+        self.assertNotIn("Task.sleep", immediate)
+        self.assertIn("await refreshDashboard(force: true)", refresh_handler)
 
     def test_tab_bar_has_an_opaque_background_that_hides_scrolling_content(self) -> None:
         self.assertIn(".toolbarBackground(.visible, for: .tabBar)", MAIN_TAB)

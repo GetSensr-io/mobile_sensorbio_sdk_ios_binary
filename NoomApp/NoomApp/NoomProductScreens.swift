@@ -128,25 +128,43 @@ final class NoomProgressState {
     var isLoading = false
     var errorMessage: String? = nil
 
+    private var activeRequestID: UUID?
+
     @MainActor
     func load(date: Date) async {
+        let requestID = UUID()
+        activeRequestID = requestID
+        let requestUserID = sensorBio.session?.userId
         isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
+        defer {
+            if activeRequestID == requestID { isLoading = false }
+        }
+
+        var nextRecovery: SB_RecoveryRangeTrending?
+        var nextSleep: SB_SleepDetailAggregated?
+        var nextError: String?
 
         do {
-            recoveryRange = try await sensorBio.fetchRangeRecovery(date: date, granularity: .week)
+            nextRecovery = try await sensorBio.fetchRangeRecovery(date: date, granularity: .week)
+        } catch is CancellationError {
+            return
         } catch {
-            recoveryRange = nil
-            errorMessage = error.localizedDescription
+            nextError = error.localizedDescription
         }
 
         do {
-            sleepRange = try await sensorBio.fetchSleepAggregation(date: date, granularity: .week)
+            nextSleep = try await sensorBio.fetchSleepAggregation(date: date, granularity: .week)
+        } catch is CancellationError {
+            return
         } catch {
-            sleepRange = nil
-            if errorMessage == nil { errorMessage = error.localizedDescription }
+            if nextError == nil { nextError = error.localizedDescription }
         }
+
+        guard activeRequestID == requestID, !Task.isCancelled else { return }
+        recoveryRange = nextRecovery
+        sleepRange = nextSleep
+        errorMessage = nextError
+        if nextSleep?.sleepTimePoints.isEmpty == false { NoomSleepHistory.recordSleep(for: requestUserID) }
     }
 }
 
@@ -163,10 +181,13 @@ struct NoomProgressSignalsView: View {
     }
 
     var body: some View {
+        @Bindable var ctx = dateContext
         NoomScreen(spacing: 12, bottomPadding: 112) {
             NoomTopBar(label: "Progress") {
                 NoomPill(title: "Real data", color: NoomTheme.ink)
             }
+
+            NoomDayNavigator(selection: $ctx.selectedDate)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Sleep & Recovery progress").noomSerifTitle(size: 34)
@@ -197,12 +218,12 @@ struct NoomProgressSignalsView: View {
     }
 
     private var loadingCard: some View {
-        NoomCard {
-            HStack(spacing: 12) {
-                ProgressView().tint(NoomTheme.red)
-                Text("Loading real history").noomBody()
-            }
-        }
+        NoomLoadingExperience(
+            title: "Connecting the dots",
+            detail: "Gathering your real history while keeping missing days honest.",
+            systemImage: "chart.xyaxis.line",
+            accent: NoomTheme.metricGreen
+        )
     }
 
     private var coverageCard: some View {

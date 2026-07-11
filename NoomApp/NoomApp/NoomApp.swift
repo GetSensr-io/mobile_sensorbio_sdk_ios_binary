@@ -11,11 +11,17 @@ struct NoomApp: App {
     @State private var logSubscription: AnyCancellable? = NoomApp.wireSDKLogging()
 
     init() {
-        // Internal TestFlight builds retain an explicit environment switch,
-        // but every fresh install defaults to production.
+        #if DEBUG
+        // Local QA can switch environments without changing source.
         UserDefaults.standard.register(defaults: ["envIsDev": false])
         let isDev = UserDefaults.standard.bool(forKey: "envIsDev")
         SB_SDK.environment = isDev ? .staging : .production
+        #else
+        // Distributed builds are locked to production. Never persist a staging
+        // override into TestFlight or App Store authentication/health flows.
+        UserDefaults.standard.removeObject(forKey: "envIsDev")
+        SB_SDK.environment = .production
+        #endif
         sensorBio.hydrateSession()
     }
 

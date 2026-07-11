@@ -16,8 +16,9 @@ CONVEX_PRODUCT_LOOP = (ROOT / "convex/productLoop.ts").read_text()
 
 class NoomProductLoopMappingTests(unittest.TestCase):
     def test_body_status_is_nightly_sleep_backed_with_freshness(self) -> None:
-        self.assertIn("fetchDashboardData(date: date, tzOffset: tzOffset)", DASHBOARD_STATE)
-        self.assertIn("fetchSleepDetail(endDate: endDate, endTimestamp:", DASHBOARD_STATE)
+        self.assertIn("fetchDashboardData(date: date, tzOffset: tzOffset, forceRemote: forceRemote)", DASHBOARD_STATE)
+        self.assertIn("fetchSleepDetail(\n", DASHBOARD_STATE)
+        self.assertIn("endTimestamp: Int64(sleepSession.endTimestamp)", DASHBOARD_STATE)
         self.assertIn("nightlySleep", DASHBOARD_STATE)
         self.assertIn("enum NoomDataFreshness", DASHBOARD_STATE)
         self.assertIn("sensorBio.lastSyncd", DASHBOARD_STATE)

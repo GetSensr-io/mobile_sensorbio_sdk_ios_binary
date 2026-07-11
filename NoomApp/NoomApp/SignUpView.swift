@@ -86,6 +86,7 @@ struct SignUpView: View {
             .padding(.horizontal, NoomTheme.horizontalPadding)
             .padding(.bottom, 92)
         }
+        .scrollDismissesKeyboard(.interactively)
         .noomBackground()
         .navigationTitle("Create Account")
         .navigationBarTitleDisplayMode(.inline)

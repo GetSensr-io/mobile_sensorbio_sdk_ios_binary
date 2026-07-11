@@ -184,8 +184,8 @@ struct DetailHeaderControls: View {
 
     var body: some View {
         @Bindable var ctx = dateContext
-        VStack(spacing: 10) {
-            DatePicker("Date", selection: $ctx.selectedDate, in: ...Date(), displayedComponents: .date)
+        VStack(spacing: 12) {
+            NoomDayNavigator(selection: $ctx.selectedDate)
             Picker("Range", selection: $granularity) {
                 Text("Day").tag(SB_ViewGranularity.day)
                 Text("Week").tag(SB_ViewGranularity.week)

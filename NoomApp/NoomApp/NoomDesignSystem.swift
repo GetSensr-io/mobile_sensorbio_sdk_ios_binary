@@ -200,6 +200,80 @@ struct NoomPrimaryButtonStyle: ButtonStyle {
     }
 }
 
+struct NoomLoadingExperience: View {
+    let title: String
+    let detail: String
+    var systemImage: String = "sparkles"
+    var accent: Color = NoomTheme.red
+    var compact: Bool = false
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isBreathing = false
+
+    var body: some View {
+        NoomCard(fill: Color.white.opacity(0.88), padding: compact ? 16 : 20) {
+            VStack(alignment: .leading, spacing: compact ? 14 : 18) {
+                HStack(alignment: .top, spacing: 14) {
+                    ZStack {
+                        Circle().fill(accent.opacity(0.16))
+                        Image(systemName: systemImage)
+                            .font(.system(size: compact ? 20 : 25, weight: .semibold))
+                            .foregroundStyle(accent)
+                            .scaleEffect(isBreathing && !reduceMotion ? 1.08 : 0.94)
+                    }
+                    .frame(width: compact ? 48 : 58, height: compact ? 48 : 58)
+
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(title)
+                            .font(.system(size: compact ? 17 : 20, weight: .bold, design: .rounded))
+                            .foregroundStyle(NoomTheme.logoBlack)
+                        Text(detail)
+                            .noomBody()
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                NoomLoadingSkeleton(accent: accent, compact: compact, isBreathing: isBreathing)
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title). \(detail)")
+        .accessibilityValue("Loading")
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 1.05).repeatForever(autoreverses: true)) {
+                isBreathing = true
+            }
+        }
+    }
+}
+
+private struct NoomLoadingSkeleton: View {
+    let accent: Color
+    let compact: Bool
+    let isBreathing: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(accent.opacity(isBreathing ? 0.20 : 0.10))
+                .frame(height: compact ? 12 : 15)
+            HStack(spacing: 10) {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(NoomTheme.softLine.opacity(isBreathing ? 0.62 : 0.36))
+                    .frame(height: compact ? 42 : 58)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(accent.opacity(isBreathing ? 0.15 : 0.08))
+                    .frame(height: compact ? 42 : 58)
+            }
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(NoomTheme.softLine.opacity(isBreathing ? 0.50 : 0.28))
+                .frame(width: compact ? 160 : 220, height: 11)
+        }
+        .animation(.easeInOut(duration: 1.05), value: isBreathing)
+    }
+}
+
 struct NoomEmptyStateCard: View {
     var title: String
     var message: String

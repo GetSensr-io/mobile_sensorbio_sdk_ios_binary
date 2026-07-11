@@ -9,6 +9,11 @@ struct DashboardView: View {
 
     @Environment(AppDateContext.self) private var dateContext
     @State private var postSyncRefreshTask: Task<Void, Never>?
+    @State private var activeSyncRefreshID: UUID?
+    @State private var lastSyncRefreshStartedAt: Date?
+    @State private var isApplyingSyncUpdate = false
+    @State private var showsSyncUpdated = false
+    @State private var syncRefreshFailed = false
     @State private var experimentDragOffset: CGFloat = 0
     @AppStorage("dismissedNoomExperimentKey") private var dismissedNoomExperimentKey = ""
     @State private var bandState = NoomBandConnectionState.live(
@@ -33,7 +38,11 @@ struct DashboardView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Record activity or spot check")
-                    BandBatteryBadge()
+                    BandBatteryBadge(
+                        isApplyingSyncUpdate: isApplyingSyncUpdate,
+                        showsSyncUpdated: showsSyncUpdated,
+                        syncRefreshFailed: syncRefreshFailed
+                    )
                     NavigationLink {
                         ProfileView(session: session)
                     } label: {
@@ -80,20 +89,17 @@ struct DashboardView: View {
         .task(id: dateContext.selectedDate) { await refreshDashboard() }
         .refreshable { await refreshDashboard(force: true) }
         .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
-            guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
-            postSyncRefreshTask?.cancel()
-            postSyncRefreshTask = Task { @MainActor in
-                await refreshDashboard(force: true)
+            refreshAfterSync()
+        }
+        .onReceive(sensorBio.syncCompleted) { result in
+            guard result?.acknowledge == true else {
+                markSyncRefreshFailed()
+                return
             }
+            refreshAfterSync(bypassThrottle: true)
         }
         .onReceive(sensorBio.$lastSyncd.dropFirst()) { _ in
-            guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
-            postSyncRefreshTask?.cancel()
-            postSyncRefreshTask = Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 30_000_000_000)
-                guard !Task.isCancelled else { return }
-                await refreshDashboard(force: true)
-            }
+            refreshAfterSync()
         }
         .onReceive(sensorBio.$haveDevice) { bandState = .live(paired: $0, connected: sensorBio.connected) }
         .onReceive(sensorBio.$connected) { bandState = .live(paired: sensorBio.haveDevice, connected: $0) }
@@ -102,6 +108,55 @@ struct DashboardView: View {
     private func refreshDashboard(force: Bool = false) async {
         await dashboard.load(date: dateContext.selectedDate, force: force)
         await productLoop.load()
+    }
+
+    /// BLE sync is SDK-owned. Once it reports completion, bypass both the
+    /// app's one-minute dedupe and the SDK v0.13 cache immediately. A quiet
+    /// follow-up catches sleep/recovery scores that finish server-side moments
+    /// after the packet upload without making the user pull to refresh.
+    private func refreshAfterSync(bypassThrottle: Bool = false) {
+        guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
+        let now = Date()
+        if !bypassThrottle,
+           let lastSyncRefreshStartedAt,
+           now.timeIntervalSince(lastSyncRefreshStartedAt) < 5 {
+            return
+        }
+        lastSyncRefreshStartedAt = now
+        let refreshID = UUID()
+        activeSyncRefreshID = refreshID
+        isApplyingSyncUpdate = true
+        showsSyncUpdated = false
+        syncRefreshFailed = false
+        postSyncRefreshTask?.cancel()
+        postSyncRefreshTask = Task { @MainActor in
+            await refreshDashboard(force: true)
+            guard activeSyncRefreshID == refreshID, !Task.isCancelled else { return }
+            isApplyingSyncUpdate = false
+            guard dashboard.errorMessage == nil else {
+                syncRefreshFailed = true
+                return
+            }
+            showsSyncUpdated = true
+
+            do { try await Task.sleep(nanoseconds: 2_400_000_000) }
+            catch { return }
+            guard activeSyncRefreshID == refreshID else { return }
+            showsSyncUpdated = false
+
+            do { try await Task.sleep(nanoseconds: 9_600_000_000) }
+            catch { return }
+            guard activeSyncRefreshID == refreshID else { return }
+            await refreshDashboard(force: true)
+        }
+    }
+
+    private func markSyncRefreshFailed() {
+        postSyncRefreshTask?.cancel()
+        activeSyncRefreshID = UUID()
+        isApplyingSyncUpdate = false
+        showsSyncUpdated = false
+        syncRefreshFailed = true
     }
 
     @ViewBuilder
@@ -150,12 +205,28 @@ struct DashboardView: View {
                 }
             }
         } else {
-            NoomEmptyStateCard(
-                title: "Body Status unavailable",
-                message: "Wear Noom Band overnight and sync to calculate Body Status from available overnight signals.",
-                systemImage: "heart.text.square"
-            )
+            if shouldShowFirstBodyStatus {
+                NoomFirstNightCard(
+                    title: "Your first Body Status starts tonight",
+                    message: "Wear Noom Band overnight. After your morning sync, sleep, resting heart rate, HRV, and your available overnight signal come together here.",
+                    bandReady: bandState.isLiveReady
+                )
+            } else {
+                NoomEmptyStateCard(
+                    title: "Body Status unavailable",
+                    message: dashboard.errorMessage ?? (Calendar.current.isDateInToday(dateContext.selectedDate)
+                        ? "No completed overnight session was returned for today. Your last useful dashboard values remain available while Noom checks again."
+                        : "No completed overnight session was returned for this date."),
+                    systemImage: "heart.text.square"
+                )
+            }
         }
+    }
+
+    private var shouldShowFirstBodyStatus: Bool {
+        Calendar.current.isDateInToday(dateContext.selectedDate) &&
+        !NoomSleepHistory.hasRecordedSleep(for: session.userId) &&
+        dashboard.errorMessage == nil
     }
 
     private var inflammationSignalValue: String {
@@ -174,8 +245,8 @@ struct DashboardView: View {
         if freshness.isStaleCurrentDay {
             NoomStateBanner(title: "Stale today", detail: "Last Noom Band sync was not today. This Body Status is not current.", systemImage: "clock.badge.exclamationmark", tint: NoomTheme.rose)
         }
-        if dashboard.nightlySleep == nil || data.metrics.isEmpty {
-            NoomStateBanner(title: "Partial data", detail: "Body Status needs one completed sleep with resting HR, nocturnal HRV, and a sleep score.", systemImage: "chart.bar.doc.horizontal", tint: NoomTheme.mint)
+        if dashboard.nightlySleep != nil && data.metrics.isEmpty {
+            NoomStateBanner(title: "Still filling in", detail: "Your overnight story is here. A few daytime metrics are still on their way.", systemImage: "chart.bar.doc.horizontal", tint: NoomTheme.mint)
         }
     }
 
@@ -424,9 +495,9 @@ struct DashboardView: View {
             } else {
                 NoomDashboardMetricTile(
                     label: "Sleep",
-                    value: "Open",
+                    value: "—",
                     unit: nil,
-                    caption: "View sleep details",
+                    caption: "Your sleep story starts tonight",
                     systemImage: "moon.stars.fill",
                     accent: NoomTheme.metricPurple,
                     minHeight: 132,
@@ -474,14 +545,25 @@ struct DashboardView: View {
         NavigationLink { destination } label: {
             NoomDashboardMetricTile(
                 label: label,
-                value: metric.map(dashboardMetricNumber) ?? "Open",
+                value: metric.map(dashboardMetricNumber) ?? "—",
                 unit: metric.flatMap(dashboardMetricUnit),
-                caption: metric.map(metricFooter).flatMap { $0.isEmpty ? nil : $0 } ?? "View details",
+                caption: metric.map(metricFooter).flatMap { $0.isEmpty ? nil : $0 } ?? missingMetricCaption(for: label),
                 systemImage: dashboardMetricIcon(for: label),
                 accent: dashboardMetricAccent(for: label)
             )
         }
         .buttonStyle(.plain)
+    }
+
+    private func missingMetricCaption(for label: String) -> String {
+        switch label {
+        case "Steps": return "Take a few steps to get rolling"
+        case "Active Calories": return "Move a little to light this up"
+        case "Resting Heart Rate": return "One overnight read unlocks this"
+        case "Heart Rate Variability": return "Your overnight rhythm will land here"
+        case "Respiratory Rate": return "Wear Noom Band tonight to unlock"
+        default: return "Your next sync will fill this in"
+        }
     }
 
     private func insightCard(_ insight: SB_DashboardInsight) -> some View {
@@ -512,12 +594,12 @@ struct DashboardView: View {
     }
 
     private var loadingCard: some View {
-        NoomCard {
-            HStack(spacing: 12) {
-                ProgressView().tint(NoomTheme.red)
-                Text("Loading today's data").noomBody()
-            }
-        }
+        NoomLoadingExperience(
+            title: "Bringing today into focus",
+            detail: "Gathering sleep, movement, and overnight signals without clearing your last useful view.",
+            systemImage: "sun.max.fill",
+            accent: NoomTheme.red
+        )
     }
 
     private var noDataCard: some View {
@@ -725,7 +807,7 @@ struct NoomDayNavigator: View {
                     .background(Color.white.opacity(0.84), in: Circle())
                     .overlay { Circle().stroke(NoomTheme.ink.opacity(0.08), lineWidth: 1) }
                 }
-                .accessibilityLabel("Choose dashboard date")
+                .accessibilityLabel("Choose date")
 
                 Button(action: nextDay) {
                     Image(systemName: "chevron.right")

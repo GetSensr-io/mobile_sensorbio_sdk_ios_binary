@@ -12,7 +12,13 @@ struct CaloriesDetailView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView("Loading active calories…")
+                NoomLoadingExperience(
+                    title: "Warming up your movement story",
+                    detail: "Gathering active energy across your selected time.",
+                    systemImage: "flame.fill",
+                    accent: NoomTheme.metricAmber
+                )
+                .padding(NoomTheme.horizontalPadding)
             } else if let errorMessage {
                 ContentUnavailableView("Active calories unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
             } else if granularity == .day, let metric = data?.graph?.metrics.first {

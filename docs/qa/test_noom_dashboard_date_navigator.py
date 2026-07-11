@@ -28,7 +28,7 @@ class NoomDashboardDateNavigatorTests(unittest.TestCase):
             'DatePicker("Choose date", selection: $selection',
             "displayedComponents: .date",
             ".datePickerStyle(.graphical)",
-            '.accessibilityLabel("Choose dashboard date")',
+            '.accessibilityLabel("Choose date")',
         ):
             self.assertIn(snippet, DASHBOARD)
 

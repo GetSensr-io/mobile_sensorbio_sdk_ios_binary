@@ -14,7 +14,13 @@ struct StepsDetailView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView("Loading steps…")
+                NoomLoadingExperience(
+                    title: "Counting up your day",
+                    detail: "Bringing your movement into focus.",
+                    systemImage: "figure.walk",
+                    accent: NoomTheme.metricGreen
+                )
+                .padding(NoomTheme.horizontalPadding)
             } else if let errorMessage {
                 ContentUnavailableView("Steps unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
             } else if granularity == .day, let dailySteps {

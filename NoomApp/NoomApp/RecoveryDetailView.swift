@@ -1,5 +1,6 @@
 import SwiftUI
 import SensorBioSDK
+import Combine
 
 struct RecoveryDetailView: View {
     @Environment(AppDateContext.self) private var dateContext
@@ -8,6 +9,8 @@ struct RecoveryDetailView: View {
     @State private var range: SB_RecoveryRangeTrending?
     @State private var isLoading: Bool = false
     @State private var errorMessage: String? = nil
+    @State private var activeRequestID: UUID?
+    @State private var postSyncReloadTask: Task<Void, Never>?
 
     var body: some View {
         ScrollView {
@@ -42,6 +45,26 @@ struct RecoveryDetailView: View {
         .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) {
             if !isQAPreview { await load() }
         }
+        .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
+            if !isQAPreview { schedulePostSyncReload() }
+        }
+        .onReceive(sensorBio.syncCompleted) { result in
+            guard result?.acknowledge == true, !isQAPreview else {
+                postSyncReloadTask?.cancel()
+                return
+            }
+            schedulePostSyncReload()
+        }
+        .onDisappear { postSyncReloadTask?.cancel() }
+    }
+
+    private func schedulePostSyncReload() {
+        postSyncReloadTask?.cancel()
+        postSyncReloadTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+            await load(forceRemote: true)
+        }
     }
 
     private var isQAPreview: Bool {
@@ -62,14 +85,12 @@ struct RecoveryDetailView: View {
     }
 
     private var loadingCard: some View {
-        NoomCard(fill: Color.white.opacity(0.82)) {
-            HStack(spacing: 10) {
-                ProgressView().tint(NoomTheme.red)
-                Text("Loading...")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(NoomTheme.muted)
-            }
-        }
+        NoomLoadingExperience(
+            title: "Reading your recovery signals",
+            detail: "Bringing your overnight factors and recent pattern together.",
+            systemImage: "sparkles",
+            accent: NoomTheme.metricGreen
+        )
     }
 
     @ViewBuilder
@@ -297,19 +318,34 @@ struct RecoveryDetailView: View {
     }
 
     @MainActor
-    private func load() async {
+    private func load(forceRemote: Bool = false) async {
+        let requestID = UUID()
+        activeRequestID = requestID
         isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
+        defer {
+            if activeRequestID == requestID { isLoading = false }
+        }
+
+        var nextDaily: SB_DailyRecoveryTrending?
+        var nextRange: SB_RecoveryRangeTrending?
+        var nextError: String?
+
         do {
             if granularity == .day {
-                daily = try await sensorBio.fetchDailyRecovery(date: dateContext.selectedDate)
+                nextDaily = try await sensorBio.fetchDailyRecovery(date: dateContext.selectedDate, forceRemote: forceRemote)
             } else {
-                range = try await sensorBio.fetchRangeRecovery(date: dateContext.selectedDate, granularity: granularity)
+                nextRange = try await sensorBio.fetchRangeRecovery(date: dateContext.selectedDate, granularity: granularity, forceRemote: forceRemote)
             }
+        } catch is CancellationError {
+            return
         } catch {
-            errorMessage = "Recovery data will appear after your next check-in."
+            nextError = "Recovery data will appear after your next check-in."
         }
+
+        guard activeRequestID == requestID, !Task.isCancelled else { return }
+        daily = nextDaily
+        range = nextRange
+        errorMessage = nextError
     }
 }
 

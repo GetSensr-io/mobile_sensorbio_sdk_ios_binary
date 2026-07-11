@@ -13,7 +13,13 @@ struct HRVDetailView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView("Loading HRV…")
+                NoomLoadingExperience(
+                    title: "Finding your recovery rhythm",
+                    detail: "Bringing your heart-rate variability into focus.",
+                    systemImage: "waveform.path.ecg",
+                    accent: NoomTheme.metricPurple
+                )
+                .padding(NoomTheme.horizontalPadding)
             } else if let errorMessage {
                 ContentUnavailableView("HRV unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
             } else if granularity == .day, let graph = daily?.graph {

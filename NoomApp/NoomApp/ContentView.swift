@@ -3,7 +3,9 @@ import SensorBioSDK
 
 struct ContentView: View {
     @State private var session: SB_Session? = sensorBio.session
+    #if DEBUG
     @AppStorage("envIsDev") private var envIsDev: Bool = false
+    #endif
 
     var body: some View {
         Group {
@@ -26,10 +28,12 @@ struct ContentView: View {
             #endif
         }
         .onReceive(sensorBio.$session) { session = $0 }
+        #if DEBUG
         .onChange(of: envIsDev) { _, newValue in
             SB_SDK.environment = newValue ? .staging : .production
             sensorBio.hydrateSession()
         }
+        #endif
     }
 
     #if DEBUG
@@ -51,43 +55,50 @@ struct ContentView: View {
 }
 
 struct NoomSignedOutView: View {
+    #if DEBUG
     @AppStorage("envIsDev") private var envIsDev: Bool = false
+    #endif
 
     var body: some View {
-        NoomScreen(bottomPadding: 24) {
-            VStack(alignment: .leading, spacing: 18) {
-                HStack {
-                    NoomLogoPlate()
-                    Spacer()
-                    NoomPill(title: "Weight Care", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
-                }
-
-                NoomWelcomeCarousel()
-
-                NoomCard(fill: Color.white.opacity(0.76), padding: 16) {
-                    Toggle("Use staging SDK environment", isOn: $envIsDev)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        .foregroundStyle(NoomTheme.logoBlack)
-                }
-
-                VStack(spacing: 12) {
-                    NavigationLink {
-                        SignInView()
-                    } label: {
-                        Text("Sign in")
+        GeometryReader { geometry in
+            let adaptiveCarouselHeight = min(500, max(320, geometry.size.height * 0.52))
+            NoomScreen(bottomPadding: 24) {
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack {
+                        NoomLogoPlate(compact: true)
+                        Spacer()
+                        NoomPill(title: "Weight Care", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
                     }
-                    .buttonStyle(NoomPrimaryButtonStyle())
 
-                    NavigationLink {
-                        SignUpView()
-                    } label: {
-                        Text("Create account")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                    NoomWelcomeCarousel(height: adaptiveCarouselHeight)
+
+                    #if DEBUG
+                    NoomCard(fill: Color.white.opacity(0.76), padding: 16) {
+                        Toggle("Use staging SDK environment", isOn: $envIsDev)
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
                             .foregroundStyle(NoomTheme.logoBlack)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.white, in: Capsule())
-                            .overlay { Capsule().stroke(NoomTheme.ink.opacity(0.10), lineWidth: 1) }
+                    }
+                    #endif
+
+                    VStack(spacing: 12) {
+                        NavigationLink {
+                            SignInView()
+                        } label: {
+                            Text("Sign in")
+                        }
+                        .buttonStyle(NoomPrimaryButtonStyle())
+
+                        NavigationLink {
+                            SignUpView()
+                        } label: {
+                            Text("Create account")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundStyle(NoomTheme.logoBlack)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.white, in: Capsule())
+                                .overlay { Capsule().stroke(NoomTheme.ink.opacity(0.10), lineWidth: 1) }
+                        }
                     }
                 }
             }
@@ -98,6 +109,7 @@ struct NoomSignedOutView: View {
 
 private struct NoomWelcomeCarousel: View {
     @State private var selectedSlide = 0
+    let height: CGFloat
 
     private let slides = [
         NoomWelcomeSlide(
@@ -132,7 +144,7 @@ private struct NoomWelcomeCarousel: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 420)
+            .frame(height: height)
 
             HStack(spacing: 7) {
                 ForEach(slides) { slide in
@@ -159,35 +171,38 @@ private struct NoomWelcomeSlideCard: View {
     let slide: NoomWelcomeSlide
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            Image(slide.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+        GeometryReader { proxy in
+            ZStack(alignment: .bottomLeading) {
+                Image(slide.imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .clipped()
 
-            LinearGradient(
-                colors: [.clear, NoomTheme.logoBlack.opacity(0.16), NoomTheme.logoBlack.opacity(0.82)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+                LinearGradient(
+                    colors: [.clear, NoomTheme.logoBlack.opacity(0.16), NoomTheme.logoBlack.opacity(0.82)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text(slide.eyebrow)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .tracking(1.5)
-                    .foregroundStyle(NoomTheme.rose)
-                Text(slide.title)
-                    .font(.system(size: 34, weight: .regular, design: .serif))
-                    .tracking(-1.1)
-                    .foregroundStyle(.white)
-                Text(slide.detail)
-                    .font(.system(size: 15))
-                    .lineSpacing(3)
-                    .foregroundStyle(.white.opacity(0.86))
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(slide.eyebrow)
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .tracking(1.5)
+                        .foregroundStyle(NoomTheme.rose)
+                    Text(slide.title)
+                        .font(.system(size: 34, weight: .regular, design: .serif))
+                        .tracking(-1.1)
+                        .foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(slide.detail)
+                        .font(.system(size: 15))
+                        .lineSpacing(3)
+                        .foregroundStyle(.white.opacity(0.86))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(24)
             }
-            .padding(24)
         }
         .clipShape(RoundedRectangle(cornerRadius: NoomTheme.cardRadius, style: .continuous))
         .overlay {
@@ -237,6 +252,14 @@ private struct NoomQAHost: View {
                 }
             case "dashboard_metric_tiles_preview":
                 NavigationStack { DashboardMetricTilesPreviewView() }
+            case "loading_metric_preview":
+                NavigationStack { NoomLoadingPreviewView(kind: .metric) }
+            case "loading_dashboard_preview":
+                NavigationStack { NoomLoadingPreviewView(kind: .dashboard) }
+            case "loading_sleep_preview":
+                NavigationStack { NoomLoadingPreviewView(kind: .sleep) }
+            case "date_navigator_preview":
+                NavigationStack { NoomDateNavigatorPreviewView() }
             case "insights_empty", "insights_default":
                 NavigationStack { InsightsView() }
             case "pair_setup":
@@ -271,6 +294,10 @@ private struct NoomQAHost: View {
                 inflammationDetailPreview
             case "sleep_hub_preview":
                 NavigationStack { SleepHubPreviewView() }
+            case "sleep_empty_preview":
+                NavigationStack { NoomFirstNightPreviewView(title: "Sleep") }
+            case "dashboard_no_sleep_preview":
+                NavigationStack { NoomFirstNightPreviewView(title: "Dashboard") }
             case "record_activity":
                 NavigationStack { RecordActivityView() }
             case "steps_detail":
@@ -522,6 +549,54 @@ private struct NoomQAMetricPreview {
             MetricReading(label: "Source", value: "Synthetic preview")
         ]
     )
+}
+
+private struct NoomDateNavigatorPreviewView: View {
+    @State private var granularity: SB_ViewGranularity = .day
+
+    var body: some View {
+        VStack(spacing: 0) {
+            DetailHeaderControls(granularity: $granularity)
+            Spacer()
+        }
+        .noomBackground()
+        .navigationTitle("Sleep & Recovery")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct NoomLoadingPreviewView: View {
+    enum Kind { case metric, dashboard, sleep }
+    let kind: Kind
+
+    var body: some View {
+        NoomScreen {
+            NoomTopBar(label: topLabel) { NoomPill(title: "Loading", color: NoomTheme.rose, foreground: NoomTheme.logoBlack) }
+            NoomLoadingExperience(
+                title: title,
+                detail: detail,
+                systemImage: systemImage,
+                accent: accent
+            )
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private var topLabel: String {
+        switch kind { case .metric: return "Resting Heart Rate"; case .dashboard: return "Dashboard"; case .sleep: return "Sleep" }
+    }
+    private var title: String {
+        switch kind { case .metric: return "Listening for your rhythm"; case .dashboard: return "Bringing today into focus"; case .sleep: return "Waking up your sleep story" }
+    }
+    private var detail: String {
+        switch kind { case .metric: return "Shaping your resting heart-rate story now."; case .dashboard: return "Gathering sleep, movement, and overnight signals."; case .sleep: return "Gathering last night's stages and recovery signals." }
+    }
+    private var systemImage: String {
+        switch kind { case .metric: return "heart.fill"; case .dashboard: return "sun.max.fill"; case .sleep: return "moon.stars.fill" }
+    }
+    private var accent: Color {
+        switch kind { case .metric, .dashboard: return NoomTheme.red; case .sleep: return NoomTheme.metricPurple }
+    }
 }
 
 private struct NoomMetricPreviewHub: View {
