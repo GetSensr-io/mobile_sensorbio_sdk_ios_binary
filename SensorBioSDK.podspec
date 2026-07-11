@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SensorBioSDK'
-  s.version          = '0.12.0'
+  s.version          = '0.13.0'
   s.summary          = 'Sensr-Bio SDK for iOS — binary distribution.'
   s.description      = <<~DESC
     Customer-facing iOS SDK for the Sensr-Bio biometric platform. This is

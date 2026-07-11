@@ -11236,11 +11236,11 @@ extension SensorBioSDK.SB_SDK {
   public func fetchSpotCheckDetails(id: Swift.String) async throws -> SensorBioSDK.SB_SpotCheckDetails?
 }
 extension SensorBioSDK.SB_SDK {
-  public func fetchSteps(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_StepsTrending
-  public func fetchCalories(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_CaloriesTrending
-  public func fetchDailyActivityDetail(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_DailyActivityDetail
-  public func fetchDailyRecovery(date: Foundation.Date) async throws -> SensorBioSDK.SB_DailyRecoveryTrending
-  public func fetchRangeRecovery(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_RecoveryRangeTrending
+  public func fetchSteps(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_StepsTrending
+  public func fetchCalories(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_CaloriesTrending
+  public func fetchDailyActivityDetail(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_DailyActivityDetail
+  public func fetchDailyRecovery(date: Foundation.Date, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_DailyRecoveryTrending
+  public func fetchRangeRecovery(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_RecoveryRangeTrending
   public func cachedSteps(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_StepsTrending?
   public func cachedCalories(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_CaloriesTrending?
   public func cachedDailyActivityDetail(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_DailyActivityDetail?
@@ -11273,14 +11273,14 @@ extension SensorBioSDK.SB_SDK {
   public func generateTemporaryAuthToken() async throws -> Swift.String?
 }
 extension SensorBioSDK.SB_SDK {
-  public func fetchDailyHR(date: Foundation.Date) async throws -> SensorBioSDK.SB_HRDailyTrending
-  public func fetchRangeHR(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_HRRangeTrending
-  public func fetchDailyHRV(date: Foundation.Date) async throws -> SensorBioSDK.SB_HRVDailyTrending
-  public func fetchRangeHRV(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_HRVRangeTrending
-  public func fetchDailyRR(date: Foundation.Date) async throws -> SensorBioSDK.SB_RRDailyTrending
-  public func fetchRangeRR(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_RRRangeTrending
-  public func fetchDailySpO2(date: Foundation.Date) async throws -> SensorBioSDK.SB_SpO2DailyTrending
-  public func fetchRangeSpO2(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_SpO2RangeTrending
+  public func fetchDailyHR(date: Foundation.Date, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_HRDailyTrending
+  public func fetchRangeHR(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_HRRangeTrending
+  public func fetchDailyHRV(date: Foundation.Date, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_HRVDailyTrending
+  public func fetchRangeHRV(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_HRVRangeTrending
+  public func fetchDailyRR(date: Foundation.Date, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_RRDailyTrending
+  public func fetchRangeRR(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_RRRangeTrending
+  public func fetchDailySpO2(date: Foundation.Date, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SpO2DailyTrending
+  public func fetchRangeSpO2(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SpO2RangeTrending
   public func cachedDailyHR(for date: Foundation.Date) -> SensorBioSDK.SB_HRDailyTrending?
   public func cachedRangeHR(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_HRRangeTrending?
   public func cachedDailyHRV(for date: Foundation.Date) -> SensorBioSDK.SB_HRVDailyTrending?
@@ -11294,7 +11294,7 @@ extension SensorBioSDK.SB_SDK {
   public func fetchDailyStats(startDate: Swift.Int32, days: Swift.Int32, includeBiometrics: Swift.Bool, includeSleep: Swift.Bool, includeSteps: Swift.Bool) async throws -> SensorBioSDK.SB_DailyStatsResponse
 }
 extension SensorBioSDK.SB_SDK {
-  public func fetchDashboardData(date: Foundation.Date, tzOffset: Swift.Int32) async throws -> SensorBioSDK.SB_DashboardData
+  public func fetchDashboardData(date: Foundation.Date, tzOffset: Swift.Int32, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_DashboardData
   public func cachedDashboardData(for date: Foundation.Date) -> SensorBioSDK.SB_DashboardData?
 }
 extension SensorBioSDK.SB_SDK {
@@ -11376,8 +11376,8 @@ extension SensorBioSDK.SB_SDK {
   public func refreshGlobalState() async throws -> SensorBioSDK.SB_OrgMembership
 }
 extension SensorBioSDK.SB_SDK {
-  public func fetchSleepDetail(endDate: Foundation.Date, endTimestamp: Swift.Int64) async throws -> SensorBioSDK.SB_SleepDetailDay
-  public func fetchSleepAggregation(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) async throws -> SensorBioSDK.SB_SleepDetailAggregated
+  public func fetchSleepDetail(endDate: Foundation.Date, endTimestamp: Swift.Int64, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SleepDetailDay
+  public func fetchSleepAggregation(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SleepDetailAggregated
   public func cachedSleepDetail(endDate: Foundation.Date, endTimestamp: Swift.Int64) -> SensorBioSDK.SB_SleepDetailDay?
   public func cachedSleepAggregation(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_SleepDetailAggregated?
 }
