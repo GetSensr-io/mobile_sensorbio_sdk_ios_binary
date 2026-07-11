@@ -14,6 +14,12 @@ struct InsightsView: View {
 
             if state.isLoadingPersonal && state.personal == nil {
                 loadingCard("Loading signals")
+            } else if let error = state.personalError, state.personal == nil {
+                NoomEmptyStateCard(
+                    title: "Personal insights unavailable",
+                    message: error,
+                    systemImage: "exclamationmark.arrow.triangle.2.circlepath"
+                )
             } else if let insights = state.personal,
                       !recommendationSummaries(insights).isEmpty {
                 personalCards(insights)
@@ -56,6 +62,7 @@ struct InsightsView: View {
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(metric.metricType == state.selectedPopulationMetric?.metricType ? NoomTheme.rose : Color.white.opacity(0.68), in: Capsule())
+                                .accessibilityAddTraits(metric.metricType == state.selectedPopulationMetric?.metricType ? .isSelected : [])
                             }
                         }
                     }
@@ -73,6 +80,7 @@ struct InsightsView: View {
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(age.ageStart == state.selectedAgeGroup?.ageStart && age.ageEnd == state.selectedAgeGroup?.ageEnd ? NoomTheme.rose : Color.white.opacity(0.68), in: Capsule())
+                                .accessibilityAddTraits(age.ageStart == state.selectedAgeGroup?.ageStart && age.ageEnd == state.selectedAgeGroup?.ageEnd ? .isSelected : [])
                             }
                         }
                     }
@@ -88,6 +96,7 @@ struct InsightsView: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(gender == state.selectedGender ? NoomTheme.rose : Color.white.opacity(0.68), in: Capsule())
+                            .accessibilityAddTraits(gender == state.selectedGender ? .isSelected : [])
                         }
                     }
                 }
@@ -119,7 +128,11 @@ struct InsightsView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Signal profile").noomLabel()
                             if !radar.insightText.isEmpty { Text(radar.insightText).noomBody() }
-                            PopulationRadarChartView(points: radarData)
+                            if radarData.count >= 3 {
+                                PopulationRadarChartView(points: radarData)
+                            } else {
+                                PopulationRadarFallbackView(points: radarData)
+                            }
                             if !radar.populationRadarText.isEmpty { Text(radar.populationRadarText).noomBody() }
                         }
                     }
@@ -155,7 +168,7 @@ struct InsightsView: View {
             guard pair.xStartValue.isFinite,
                   pair.xEndValue.isFinite,
                   pair.yValue.isFinite,
-                  pair.xEndValue >= pair.xStartValue,
+                  pair.xEndValue > pair.xStartValue,
                   pair.yValue >= 0 else { return nil }
             return PopulationHistogramDatum(
                 id: index,
@@ -172,17 +185,12 @@ struct InsightsView: View {
             $0.relativePair.userValue.isFinite &&
             $0.relativePair.populationValue.isFinite
         }
-        let maximum = valid.flatMap { [$0.relativePair.userValue, $0.relativePair.populationValue] }
-            .filter { $0 > 0 }
-            .max() ?? 1
-        let scale = maximum > 1 ? maximum : 1
-
         return valid.enumerated().map { index, point in
             PopulationRadarDatum(
                 id: index,
                 label: point.metricName,
-                userRelative: min(1, max(0, point.relativePair.userValue / scale)),
-                populationRelative: min(1, max(0, point.relativePair.populationValue / scale)),
+                userRelative: min(1, max(0, point.relativePair.userValue)),
+                populationRelative: min(1, max(0, point.relativePair.populationValue)),
                 userActual: point.actualPair.userValue.isFinite ? point.actualPair.userValue : nil,
                 populationActual: point.actualPair.populationValue.isFinite ? point.actualPair.populationValue : nil
             )
@@ -285,12 +293,16 @@ private struct PopulationHistogramChartView: View {
     }
 
     private var xAxisDomain: ClosedRange<Float> {
-        var values = data.flatMap { [$0.lowerBound, $0.upperBound] }
-        if let userValue { values.append(userValue) }
+        let values = data.flatMap { [$0.lowerBound, $0.upperBound] }
         let lower = values.min() ?? 0
         let upper = values.max() ?? 1
         let padding = max((upper - lower) * 0.05, 1)
         return (lower - padding)...(upper + padding)
+    }
+
+    private var visibleUserValue: Float? {
+        guard let userValue, xAxisDomain.contains(userValue) else { return nil }
+        return userValue
     }
 
     var body: some View {
@@ -309,8 +321,8 @@ private struct PopulationHistogramChartView: View {
                     .accessibilityValue(MetricFormatting.humanNumber(bucket.population))
                 }
 
-                if let userValue {
-                    RuleMark(x: .value("Your value", userValue))
+                if let visibleUserValue {
+                    RuleMark(x: .value("Your value", visibleUserValue))
                         .foregroundStyle(NoomTheme.logoBlack)
                         .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 4]))
                         .annotation(position: .top, alignment: .center) {
@@ -344,7 +356,14 @@ private struct PopulationHistogramChartView: View {
             .frame(height: 220)
 
             if let userValue {
-                Text("Your value: \(MetricFormatting.humanNumber(userValue))").noomLabel()
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("Your value: \(MetricFormatting.humanNumber(userValue))").noomLabel()
+                    if visibleUserValue == nil {
+                        Text("Outside the displayed population range")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(NoomTheme.ink.opacity(0.68))
+                    }
+                }
             }
         }
         .accessibilityElement(children: .contain)
@@ -359,6 +378,36 @@ private struct PopulationRadarDatum: Identifiable {
     let populationRelative: Float
     let userActual: Float?
     let populationActual: Float?
+}
+
+private struct PopulationRadarFallbackView: View {
+    let points: [PopulationRadarDatum]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Comparison values").noomLabel()
+            ForEach(points) { point in
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    Text(point.label)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundStyle(NoomTheme.logoBlack)
+                    Spacer()
+                    Text("You \(displayValue(point.userActual, relative: point.userRelative)) • Population \(displayValue(point.populationActual, relative: point.populationRelative))")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundStyle(NoomTheme.ink.opacity(0.74))
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+        }
+        .padding(12)
+        .background(Color.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .accessibilityElement(children: .contain)
+    }
+
+    private func displayValue(_ actual: Float?, relative: Float) -> String {
+        actual.map { MetricFormatting.humanNumber($0) }
+            ?? "\(MetricFormatting.humanNumber(relative * 100))%"
+    }
 }
 
 private struct PopulationRadarChartView: View {

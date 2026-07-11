@@ -30,7 +30,7 @@ final class InsightsState {
         } catch SB_InsightError.notEnoughSessions {
             personal = nil
         } catch {
-            personalError = error.localizedDescription
+            personalError = personalErrorMessage(for: error)
         }
     }
 
@@ -40,12 +40,16 @@ final class InsightsState {
         do {
             let filters = try await sensorBio.fetchPopulationInsightsMetricList()
             populationFilters = filters
-            if selectedPopulationMetric == nil {
-                selectedPopulationMetric = filters.metrics.first
-            }
-            if selectedAgeGroup == nil {
-                selectedAgeGroup = filters.ageGroups.first
-            }
+            let previousMetric = selectedPopulationMetric
+            selectedPopulationMetric = previousMetric.flatMap { selected in
+                filters.metrics.first(where: { $0.metricType == selected.metricType })
+            } ?? filters.metrics.first
+            let previousAgeGroup = selectedAgeGroup
+            selectedAgeGroup = previousAgeGroup.flatMap { selected in
+                filters.ageGroups.first(where: {
+                    $0.ageStart == selected.ageStart && $0.ageEnd == selected.ageEnd
+                })
+            } ?? filters.ageGroups.first
             if filters.metrics.isEmpty || filters.ageGroups.isEmpty {
                 populationError = "Population comparison filters are not available yet."
             }
@@ -97,9 +101,24 @@ final class InsightsState {
     @MainActor
     func retryPopulation() async {
         populationFilters = nil
-        selectedPopulationMetric = nil
-        selectedAgeGroup = nil
         await loadPopulation()
+    }
+
+    func personalErrorMessage(for error: Error) -> String {
+        guard let authError = error as? SB_AuthError else {
+            return "Personal insights are temporarily unavailable. Pull to refresh or try again later."
+        }
+
+        switch authError {
+        case .missingAuthToken:
+            return "Sign in to load personal insights."
+        case .tokenRefreshFailed, .refreshTokenExpired:
+            return "Your sign-in has expired. Open Profile, sign out, and sign back in before trying again."
+        case .unexpectedNilResponse:
+            return "Personal insights did not return a complete response. Please try again."
+        @unknown default:
+            return "Personal insights are temporarily unavailable. Please try again."
+        }
     }
 
     func populationErrorMessage(for error: Error) -> String {

@@ -21,7 +21,7 @@ class InsightsFeedbackContractTests(unittest.TestCase):
             "xStartValue.isFinite",
             "xEndValue.isFinite",
             "yValue.isFinite",
-            "xEndValue >= pair.xStartValue",
+            "xEndValue > pair.xStartValue",
             ".chartXScale(domain: xAxisDomain)",
             ".chartXAxisLabel",
             ".chartYAxisLabel",
@@ -39,6 +39,32 @@ class InsightsFeedbackContractTests(unittest.TestCase):
             'legendItem(title: "Population"',
         ):
             self.assertIn(token, INSIGHTS)
+
+    def test_partial_radar_payload_uses_a_nonblank_fallback(self) -> None:
+        self.assertIn("radarData.count >= 3", INSIGHTS)
+        self.assertIn("PopulationRadarFallbackView", INSIGHTS)
+
+    def test_radar_clamps_each_sdk_percentile_without_global_rescaling(self) -> None:
+        radar_start = INSIGHTS.index("private func radarRelativePoints")
+        radar_end = INSIGHTS.index("private func personalCards", radar_start)
+        radar_source = INSIGHTS[radar_start:radar_end]
+        self.assertIn("min(1, max(0, point.relativePair.userValue))", radar_source)
+        self.assertIn("min(1, max(0, point.relativePair.populationValue))", radar_source)
+        self.assertNotIn("let scale", radar_source)
+
+    def test_out_of_range_user_value_does_not_expand_histogram_domain(self) -> None:
+        chart_start = INSIGHTS.index("private struct PopulationHistogramChartView")
+        chart_end = INSIGHTS.index("private struct PopulationRadarDatum", chart_start)
+        chart_source = INSIGHTS[chart_start:chart_end]
+        self.assertIn("visibleUserValue", chart_source)
+        self.assertIn("xAxisDomain.contains(userValue)", chart_source)
+        domain_start = chart_source.index("private var xAxisDomain")
+        domain_end = chart_source.index("var body", domain_start)
+        self.assertNotIn("values.append(userValue)", chart_source[domain_start:domain_end])
+
+    def test_population_filter_controls_expose_selected_state(self) -> None:
+        self.assertGreaterEqual(INSIGHTS.count(".accessibilityAddTraits("), 3)
+        self.assertIn(".isSelected", INSIGHTS)
 
     def test_population_graph_has_a_deterministic_debug_preview(self) -> None:
         self.assertIn("PopulationInsightsGraphPreviewView", INSIGHTS)
@@ -64,6 +90,21 @@ class InsightsFeedbackContractTests(unittest.TestCase):
         self.assertNotIn('title: "Signals are still warming up"', INSIGHTS)
         self.assertNotIn('title: "No new personal insight"', INSIGHTS)
         self.assertNotIn("personalInsightUnavailableCard", INSIGHTS)
+
+    def test_personal_service_failure_remains_visible_without_raw_sdk_text(self) -> None:
+        state = (ROOT / "NoomApp/NoomApp/InsightsState.swift").read_text()
+        self.assertIn('title: "Personal insights unavailable"', INSIGHTS)
+        self.assertIn("personalErrorMessage", state)
+        self.assertNotIn("personalError = error.localizedDescription", state)
+
+    def test_population_retry_preserves_valid_filter_selections(self) -> None:
+        state = (ROOT / "NoomApp/NoomApp/InsightsState.swift").read_text()
+        retry_start = state.index("func retryPopulation() async")
+        retry_end = state.index("func populationErrorMessage", retry_start)
+        retry_source = state[retry_start:retry_end]
+        self.assertNotIn("selectedPopulationMetric = nil", retry_source)
+        self.assertNotIn("selectedAgeGroup = nil", retry_source)
+        self.assertIn("first(where:", state)
 
 
 if __name__ == "__main__":
