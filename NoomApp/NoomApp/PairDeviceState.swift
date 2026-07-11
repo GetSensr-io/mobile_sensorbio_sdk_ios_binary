@@ -131,13 +131,19 @@ final class PairDeviceState {
         }
     }
 
-    /// Persists the freshly paired device through the v0.12 SDK-owned paired
-    /// device store so `pairedDevice` and `haveDevice` update consistently.
+    /// Persists the freshly paired device via the SDK. `persistPairedDevice`
+    /// serializes the identity, updates `haveDevice` / `pairedDevice`, and
+    /// registers the device with the BLE layer. The SDK owns paired-device
+    /// persistence end-to-end; the app never rebuilds its device dictionary.
     @MainActor
     func finish() {
         sensorBio.setAskForDeviceResponse(false)
         guard let device = selectedDevice else { return }
-        sensorBio.persistPairedDevice(macAddress: device.id, name: device.name, type: device.deviceType)
+        sensorBio.persistPairedDevice(
+            macAddress: device.id,
+            name: device.name,
+            type: device.deviceType
+        )
         sensorBio.disconnect()
     }
 

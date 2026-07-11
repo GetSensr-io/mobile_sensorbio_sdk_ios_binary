@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.12.0'
+    :tag => 'v0.13.0'
 end
 
 post_install do |installer|
@@ -532,22 +532,30 @@ Sync runs automatically once a paired device connects. No customer-side method c
 
 Every method below is `async throws` on the `SB_SDK` facade. All return typed `SB_*` domain models; authentication is automatic once the user is signed in. Outcome-style methods (e.g. `signIn`, `updateGoals`) return discriminated enums rather than raw errors for common business cases.
 
-**Caching (dashboard + detail reads).** These reads are disk-cache-backed. Past dates are served offline-first from the on-disk cache; today is always fetched fresh from the server, but the response is still cached and — on a network failure — the last cached payload is returned, so a cold relaunch with no connectivity shows stale "today" instead of a blank screen. Each cache-backed read also has a synchronous, no-network peek that returns the last cached value (or `nil`) for stale-while-revalidate rendering: `cachedDashboardData(for:)`, `cachedDailyHR(for:)` / `cachedRangeHR(for:granularity:)` (and the HRV / RR / SpO2 equivalents), `cachedSteps(for:granularity:)`, `cachedCalories(for:granularity:)`, `cachedDailyActivityDetail(for:granularity:)`, `cachedDailyRecovery(for:)` / `cachedRangeRecovery(for:granularity:)`, `cachedSleepDetail(endDate:endTimestamp:)`, and `cachedSleepAggregation(for:granularity:)`.
+**Caching (dashboard + detail reads).** These reads are disk-cache-backed. The policy has three cases:
+
+- **Today** (any granularity) is always fetched fresh so the latest server data wins. The response is still cached, and on a network failure the last cached payload is returned — a cold relaunch with no connectivity shows stale "today" instead of a blank screen.
+- **A past date** is served straight from the on-disk cache with no network call — *but only once that cache is final*, i.e. it was written after the date's own calendar day ended. An entry cached while the date was still "today" is provisional (the day was still accumulating — a late device sync, a sleep the server scores hours later), so the first time you open that day *after it has passed* the SDK refetches once to finalize it, then serves from cache thereafter. This is transparent to the caller: keep calling `fetch…` on load and the SDK decides whether a network hit is needed.
+- **`forceRemote: true`** (pull-to-refresh) always fetches, regardless of the above.
+
+Each cache-backed read also has a synchronous, no-network peek that returns the last cached value (or `nil`) for stale-while-revalidate rendering — these always return whatever is on disk (provisional included) so the UI can paint instantly while the finalizing `fetch…` runs: `cachedDashboardData(for:)`, `cachedDailyHR(for:)` / `cachedRangeHR(for:granularity:)` (and the HRV / RR / SpO2 equivalents), `cachedSteps(for:granularity:)`, `cachedCalories(for:granularity:)`, `cachedDailyActivityDetail(for:granularity:)`, `cachedDailyRecovery(for:)` / `cachedRangeRecovery(for:granularity:)`, `cachedSleepDetail(endDate:endTimestamp:)`, and `cachedSleepAggregation(for:granularity:)`.
+
+> **`forceRemote` (pull-to-refresh).** Every cache-backed `fetch…` read takes a trailing `forceRemote: Bool = false`. When `true`, every cache shortcut is bypassed and the read always hits the network (still writing the fresh result to the cache, and still falling back to the cached payload on a network failure). Pass `forceRemote: true` from a user-initiated refresh. This is the escape hatch for data that changes after the fact — a device synced days later, or sleep/recovery **scores** the server finishes processing asynchronously after upload — on top of the automatic provisional-cache refetch described above.
 
 ### 6.1 Dashboard
 
 ```swift
-public func fetchDashboardData(date: Date, tzOffset: Int32) async throws -> SB_DashboardData
+public func fetchDashboardData(date: Date, tzOffset: Int32, forceRemote: Bool = false) async throws -> SB_DashboardData
 ```
 
 ### 6.2 Activity reads
 
 ```swift
-public func fetchSteps(date: Date, granularity: SB_ViewGranularity)        async throws -> SB_StepsTrending
-public func fetchCalories(date: Date, granularity: SB_ViewGranularity)     async throws -> SB_CaloriesTrending
-public func fetchDailyActivityDetail(date: Date, granularity: SB_ViewGranularity) async throws -> SB_DailyActivityDetail
-public func fetchDailyRecovery(date: Date)                                 async throws -> SB_DailyRecoveryTrending
-public func fetchRangeRecovery(date: Date, granularity: SB_ViewGranularity) async throws -> SB_RecoveryRangeTrending
+public func fetchSteps(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)        async throws -> SB_StepsTrending
+public func fetchCalories(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)     async throws -> SB_CaloriesTrending
+public func fetchDailyActivityDetail(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false) async throws -> SB_DailyActivityDetail
+public func fetchDailyRecovery(date: Date, forceRemote: Bool = false)                                 async throws -> SB_DailyRecoveryTrending
+public func fetchRangeRecovery(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false) async throws -> SB_RecoveryRangeTrending
 ```
 
 `fetchDailyActivityDetail` returns the activity **score** plus a per-metric breakdown — steps, calories burned, distance, and active time — each carrying chart datapoints. The metrics reuse `SB_StepMetric` (switch on `metricType`: `.steps` / `.caloriesBurned` / `.distance` / `.totalDuration`):
@@ -612,23 +620,23 @@ public struct SB_RecoveryScoreFactor: Codable, Equatable, Sendable {
 ### 6.3 Biometric reads — HR / HRV / RR · SpO2 🚧 WIP
 
 ```swift
-public func fetchDailyHR(date: Date)                                       async throws -> SB_HRDailyTrending
-public func fetchRangeHR(date: Date, granularity: SB_ViewGranularity)      async throws -> SB_HRRangeTrending
-public func fetchDailyHRV(date: Date)                                      async throws -> SB_HRVDailyTrending
-public func fetchRangeHRV(date: Date, granularity: SB_ViewGranularity)     async throws -> SB_HRVRangeTrending
-public func fetchDailyRR(date: Date)                                       async throws -> SB_RRDailyTrending
-public func fetchRangeRR(date: Date, granularity: SB_ViewGranularity)      async throws -> SB_RRRangeTrending
+public func fetchDailyHR(date: Date, forceRemote: Bool = false)                                       async throws -> SB_HRDailyTrending
+public func fetchRangeHR(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)      async throws -> SB_HRRangeTrending
+public func fetchDailyHRV(date: Date, forceRemote: Bool = false)                                      async throws -> SB_HRVDailyTrending
+public func fetchRangeHRV(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)     async throws -> SB_HRVRangeTrending
+public func fetchDailyRR(date: Date, forceRemote: Bool = false)                                       async throws -> SB_RRDailyTrending
+public func fetchRangeRR(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)      async throws -> SB_RRRangeTrending
 
 // 🚧 WIP
-public func fetchDailySpO2(date: Date)                                     async throws -> SB_SpO2DailyTrending
-public func fetchRangeSpO2(date: Date, granularity: SB_ViewGranularity)    async throws -> SB_SpO2RangeTrending
+public func fetchDailySpO2(date: Date, forceRemote: Bool = false)                                     async throws -> SB_SpO2DailyTrending
+public func fetchRangeSpO2(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)    async throws -> SB_SpO2RangeTrending
 ```
 
 ### 6.4 Sleep reads
 
 ```swift
-public func fetchSleepDetail(endDate: Date, endTimestamp: Date)                     async throws -> SB_SleepDetailDay
-public func fetchSleepAggregation(date: Date, granularity: SB_ViewGranularity)      async throws -> SB_SleepDetailAggregated
+public func fetchSleepDetail(endDate: Date, endTimestamp: Int64, forceRemote: Bool = false)                     async throws -> SB_SleepDetailDay
+public func fetchSleepAggregation(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)      async throws -> SB_SleepDetailAggregated
 ```
 
 ### 6.5 Insights — personal + population + feedback
