@@ -34,12 +34,12 @@ function id(value: unknown): string {
 
 // The demo API accepts only a fixed catalog identifier. It must not accept
 // titles, reasons, dates, or any state derived from a person's band data.
-const demoCatalogIds = new Set(["evening-reset-v1"]);
+const demoCatalogIds = new Set(["prelog-lunch-v1"]);
 
-function demoCatalogId(data: Record<string, unknown>): "evening-reset-v1" {
+function demoCatalogId(data: Record<string, unknown>): "prelog-lunch-v1" {
   const key = id(data.demoCatalogId);
   if (!demoCatalogIds.has(key)) throw new Error("Unknown demo catalog entry");
-  return "evening-reset-v1";
+  return "prelog-lunch-v1";
 }
 
 function validIdempotencyKey(value: unknown): string {

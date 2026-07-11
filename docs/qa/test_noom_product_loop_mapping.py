@@ -11,6 +11,7 @@ PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
 INSIGHTS = (SRC / "InsightsView.swift").read_text()
 MAIN = (SRC / "MainTabView.swift").read_text()
 CONTENT = (SRC / "ContentView.swift").read_text()
+CONVEX_PRODUCT_LOOP = (ROOT / "convex/productLoop.ts").read_text()
 
 
 class NoomProductLoopMappingTests(unittest.TestCase):
@@ -24,8 +25,10 @@ class NoomProductLoopMappingTests(unittest.TestCase):
         self.assertIn("This Body Status is not current", DASHBOARD_VIEW)
         self.assertIn("Body Status", DASHBOARD_VIEW)
         self.assertIn("BodyStatusScore.make", DASHBOARD_VIEW)
-        for signal in ("Resting HR", "Nocturnal HRV", "Sleep score", "Inflammation signal", "coverageDescription", "methodDescription"):
+        for signal in ("Resting HR", "Nocturnal HRV", "Sleep score", "Inflammation signal"):
             self.assertIn(signal, DASHBOARD_VIEW)
+        self.assertNotIn('NoomDetailValueRow(label: "Coverage"', DASHBOARD_VIEW)
+        self.assertNotIn('NoomDetailValueRow(label: "Method"', DASHBOARD_VIEW)
         self.assertNotIn("Recovery from Noom Band", DASHBOARD_VIEW)
         self.assertNotIn("coverageText(recovery.calibrationData)", DASHBOARD_VIEW)
         self.assertNotIn("No Recovery value was returned", DASHBOARD_VIEW)
@@ -36,13 +39,27 @@ class NoomProductLoopMappingTests(unittest.TestCase):
         self.assertIn("ProductLoopAPI", DASHBOARD_STATE)
         self.assertIn("DemoInstallIdentity", DASHBOARD_STATE)
         self.assertIn("/demo/v1/proposals", DASHBOARD_STATE)
-        self.assertIn("ProductLoopSuggestion.eveningReset", DASHBOARD_VIEW)
+        self.assertIn("ProductLoopSuggestion.prelogLunch", DASHBOARD_VIEW)
+        self.assertIn("Pre-log tomorrow's lunch", DASHBOARD_STATE + CONVEX_PRODUCT_LOOP)
+        self.assertIn('"prelog-lunch-v1"', DASHBOARD_STATE + CONVEX_PRODUCT_LOOP)
+        self.assertIn('proposal.sourceInsightId === "prelog-lunch-v1"', CONVEX_PRODUCT_LOOP)
+        self.assertNotIn("three-night demo", DASHBOARD_STATE + CONVEX_PRODUCT_LOOP)
         self.assertIn("Button(\"Start experiment", DASHBOARD_VIEW)
         self.assertIn("Button(\"Complete\")", DASHBOARD_VIEW)
         self.assertIn("Button(\"Cancel\")", DASHBOARD_VIEW)
         self.assertIn("Save this experiment", DASHBOARD_VIEW)
         self.assertNotIn("UserDefaults", DASHBOARD_STATE)
         self.assertNotIn("raw PPG", DASHBOARD_STATE)
+
+    def test_experiments_can_be_closed_or_swiped_away(self) -> None:
+        for snippet in (
+            '@AppStorage("dismissedNoomExperimentKey")',
+            'Image(systemName: "xmark")',
+            '.accessibilityLabel("Dismiss experiment")',
+            "DragGesture(minimumDistance: 20)",
+            "dismissExperiment(",
+        ):
+            self.assertIn(snippet, DASHBOARD_VIEW)
 
     def test_body_status_is_local_and_demo_persistence_does_not_upload_health(self) -> None:
         self.assertNotIn("syncOvernightStatus", DASHBOARD_STATE)

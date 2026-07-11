@@ -200,7 +200,7 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertNotIn("demoInstallId", source)
         self.assertNotIn("Convex", source)
 
-    def test_body_status_v2_has_an_explicit_fourth_input_and_visible_coverage(self) -> None:
+    def test_body_status_v2_has_an_explicit_fourth_input_without_internal_method_rows(self) -> None:
         for snippet in (
             "inflammationSignal",
             "inflammationSignalComponent",
@@ -209,8 +209,11 @@ class NoomParityContractTests(unittest.TestCase):
             "weightedAverage",
         ):
             self.assertIn(snippet, BODY_STATUS)
-        for snippet in ("Inflammation signal", "coverageDescription", "methodDescription"):
-            self.assertIn(snippet, DASHBOARD)
+        self.assertIn("Inflammation signal", DASHBOARD)
+        self.assertNotIn('NoomDetailValueRow(label: "Coverage"', DASHBOARD)
+        self.assertNotIn('NoomDetailValueRow(label: "Method"', DASHBOARD)
+        inflammation = (SRC / "InflammationSignal.swift").read_text()
+        self.assertNotIn('NoomDetailValueRow(label: "Method"', inflammation)
 
     def test_inflammation_mock_preview_has_a_bounded_timeline_and_drill_in(self) -> None:
         source = (SRC / "InflammationSignal.swift").read_text()

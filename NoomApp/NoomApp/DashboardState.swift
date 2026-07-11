@@ -17,7 +17,7 @@ struct DashboardSnapshot {
 
 @Observable
 final class DashboardState {
-    static let automaticRefreshInterval: TimeInterval = 300
+    static let automaticRefreshInterval: TimeInterval = 60
 
     private(set) var snapshot: DashboardSnapshot?
     var isLoading: Bool = false
@@ -193,11 +193,11 @@ struct ProductLoopSuggestion {
     let instructions: String
     let expectedDurationDays: Int
 
-    static let eveningReset = ProductLoopSuggestion(
-        demoCatalogId: "evening-reset-v1",
-        title: "Try an evening reset",
-        reason: "This three-night demo helps you see how a small, repeatable routine can be tracked over time.",
-        instructions: "For three nights, choose a wind-down time, silence nonessential notifications, and keep the last hour before bed low intensity.",
+    static let prelogLunch = ProductLoopSuggestion(
+        demoCatalogId: "prelog-lunch-v1",
+        title: "Pre-log tomorrow's lunch",
+        reason: "Planning one meal in Noom before the day starts makes the choice concrete while keeping it easy to change.",
+        instructions: "For three days, open Noom after dinner and pre-log tomorrow's lunch. Adjust the entry later if your plan changes.",
         expectedDurationDays: 3
     )
 }

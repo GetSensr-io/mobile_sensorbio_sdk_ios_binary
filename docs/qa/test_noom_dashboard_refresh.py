@@ -38,12 +38,23 @@ class DashboardRefreshContractTests(unittest.TestCase):
             self.assertNotIn(destructive_assignment, load_body)
 
     def test_automatic_tab_return_refreshes_are_deduplicated(self) -> None:
-        self.assertIn("static let automaticRefreshInterval: TimeInterval = 300", STATE)
+        self.assertIn("static let automaticRefreshInterval: TimeInterval = 60", STATE)
         self.assertIn("func load(date: Date, force: Bool = false) async", STATE)
         self.assertIn("guard !force, let currentSnapshot = snapshotForSameDay(as: date)", STATE)
         self.assertIn("Date().timeIntervalSince(currentSnapshot.loadedAt) < Self.automaticRefreshInterval", STATE)
         self.assertIn(".refreshable { await refreshDashboard(force: true) }", DASHBOARD)
         self.assertIn("await refreshDashboard(force: true)", DASHBOARD)
+
+    def test_processed_sleep_forces_an_immediate_today_refresh(self) -> None:
+        self.assertIn(
+            ".onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded))",
+            DASHBOARD,
+        )
+        sleep_handler = DASHBOARD.split(
+            ".onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded))", 1
+        )[1].split(".onReceive", 1)[0]
+        self.assertNotIn("Task.sleep", sleep_handler)
+        self.assertIn("await refreshDashboard(force: true)", sleep_handler)
 
     def test_tab_bar_has_an_opaque_background_that_hides_scrolling_content(self) -> None:
         self.assertIn(".toolbarBackground(.visible, for: .tabBar)", MAIN_TAB)

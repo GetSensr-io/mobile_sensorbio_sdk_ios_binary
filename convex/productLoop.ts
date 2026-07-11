@@ -6,12 +6,12 @@ import { allowedTransition } from "./productLoopRules";
 const now = () => Date.now();
 
 const demoCatalog = {
-  "evening-reset-v1": {
-    sourceInsightId: "evening-reset-v1",
-    experimentMethodId: "demo-evening-reset",
-    title: "Try an evening reset",
-    reason: "This three-night demo helps you see how a small, repeatable routine can be tracked over time.",
-    instructions: "For three nights, choose a wind-down time, silence nonessential notifications, and keep the last hour before bed low intensity.",
+  "prelog-lunch-v1": {
+    sourceInsightId: "prelog-lunch-v1",
+    experimentMethodId: "noom-prelog-lunch",
+    title: "Pre-log tomorrow's lunch",
+    reason: "Planning one meal in Noom before the day starts makes the choice concrete while keeping it easy to change.",
+    instructions: "For three days, open Noom after dinner and pre-log tomorrow's lunch. Adjust the entry later if your plan changes.",
     expectedDurationDays: 3,
   },
 } as const;
@@ -25,14 +25,15 @@ export const getCurrent = internalQuery({
       ctx.db.query("signalPreferences").withIndex("by_demo", (q) => q.eq("demoInstallId", args.demoInstallId)).first(),
     ]);
 
-    return { active, proposals, preferences };
+    const currentProposals = proposals.filter((proposal) => proposal.sourceInsightId === "prelog-lunch-v1");
+    return { active, proposals: currentProposals, preferences };
   },
 });
 
 export const createProposal = internalMutation({
   args: {
     demoInstallId: v.string(),
-    demoCatalogId: v.literal("evening-reset-v1"),
+    demoCatalogId: v.literal("prelog-lunch-v1"),
   },
   handler: async (ctx, args) => {
     const catalogEntry = demoCatalog[args.demoCatalogId];

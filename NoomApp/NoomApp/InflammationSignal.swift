@@ -190,7 +190,6 @@ struct InflammationSignalPreviewView: View {
                             NoomDetailValueRow(label: "Nocturnal HRV", value: "\(MetricFormatting.humanNumber(status.nocturnalHRVComponent)) / 100", verticalPadding: 8)
                             NoomDetailValueRow(label: "Sleep", value: "\(MetricFormatting.humanNumber(status.sleepComponent)) / 100", verticalPadding: 8)
                             NoomDetailValueRow(label: "Inflammation signal", value: "\(MetricFormatting.humanNumber(status.inflammationSignalComponent ?? 0)) / 100", verticalPadding: 8)
-                            NoomDetailValueRow(label: "Method", value: status.methodDescription, verticalPadding: 8)
                         }
                     }
                 }

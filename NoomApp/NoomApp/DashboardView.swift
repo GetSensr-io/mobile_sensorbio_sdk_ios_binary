@@ -1,5 +1,6 @@
 import SwiftUI
 import SensorBioSDK
+import Combine
 
 struct DashboardView: View {
     let session: SB_Session
@@ -8,6 +9,8 @@ struct DashboardView: View {
 
     @Environment(AppDateContext.self) private var dateContext
     @State private var postSyncRefreshTask: Task<Void, Never>?
+    @State private var experimentDragOffset: CGFloat = 0
+    @AppStorage("dismissedNoomExperimentKey") private var dismissedNoomExperimentKey = ""
     @State private var bandState = NoomBandConnectionState.live(
         paired: sensorBio.haveDevice,
         connected: sensorBio.connected
@@ -48,6 +51,15 @@ struct DashboardView: View {
                 }
             }
 
+            NoomDayNavigator(selection: $ctx.selectedDate)
+
+            if !bandState.isLiveReady {
+                NavigationLink { NoomBandSetupEntryView() } label: {
+                    NoomBandConnectionBanner(state: bandState)
+                }
+                .buttonStyle(.plain)
+            }
+
             if dashboard.isLoading && dashboard.data == nil {
                 loadingCard
             } else if let data = dashboard.data {
@@ -59,22 +71,21 @@ struct DashboardView: View {
                 if let insight = data.insights.first(where: { !$0.title.isEmpty || !$0.description.isEmpty }) {
                     insightCard(insight)
                 }
-                deviceCard
+                if bandState.isLiveReady { deviceCard }
             } else {
                 noDataCard
             }
         }
-        .navigationTitle("Today")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                DatePicker("Date", selection: $ctx.selectedDate, in: ...Date(), displayedComponents: .date)
-                    .labelsHidden()
-                    .tint(NoomTheme.red)
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .task(id: dateContext.selectedDate) { await refreshDashboard() }
         .refreshable { await refreshDashboard(force: true) }
+        .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
+            guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
+            postSyncRefreshTask?.cancel()
+            postSyncRefreshTask = Task { @MainActor in
+                await refreshDashboard(force: true)
+            }
+        }
         .onReceive(sensorBio.$lastSyncd.dropFirst()) { _ in
             guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
             postSyncRefreshTask?.cancel()
@@ -142,8 +153,6 @@ struct DashboardView: View {
                             NoomDetailValueRow(label: "Nocturnal HRV", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHrv))) ms", verticalPadding: 8)
                             NoomDetailValueRow(label: "Sleep score", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.sleepScore.score))) / 100", verticalPadding: 8)
                             NoomDetailValueRow(label: "Inflammation signal", value: inflammationSignalValue, verticalPadding: 8)
-                            NoomDetailValueRow(label: "Coverage", value: status.coverageDescription, verticalPadding: 8)
-                            NoomDetailValueRow(label: "Method", value: status.methodDescription, verticalPadding: 8)
                         }
                     }
                 }
@@ -181,7 +190,9 @@ struct DashboardView: View {
     @ViewBuilder
     private var persistentExperimentSection: some View {
         if let active = productLoop.activeExperiment {
-            experimentCard(active, label: "Active") {
+            experimentCard(active, label: "Active", onDismiss: {
+                Task { await productLoop.cancel(active) }
+            }) {
                 HStack(spacing: 10) {
                     Button("Complete") { Task { await productLoop.complete(active) } }
                         .buttonStyle(NoomPrimaryButtonStyle())
@@ -190,7 +201,9 @@ struct DashboardView: View {
                 }
             }
         } else if let proposal = productLoop.proposedExperiment {
-            experimentCard(proposal, label: "Suggested") {
+            experimentCard(proposal, label: "Suggested", onDismiss: {
+                Task { await productLoop.cancel(proposal) }
+            }) {
                 HStack(spacing: 10) {
                     Button("Start experiment") { Task { await productLoop.accept(proposal) } }
                         .buttonStyle(NoomPrimaryButtonStyle())
@@ -199,21 +212,33 @@ struct DashboardView: View {
                 }
             }
         } else {
-            let suggestion = ProductLoopSuggestion.eveningReset
-            NoomCard(fill: Color.white.opacity(0.84)) {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text("Suggested experiment").noomSerifTitle(size: 26)
-                        Spacer()
-                        NoomPill(title: "3 nights", color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
+            let suggestion = ProductLoopSuggestion.prelogLunch
+            if dismissedNoomExperimentKey != experimentDismissalKey(suggestion) {
+                NoomCard(fill: Color.white.opacity(0.84)) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .center, spacing: 8) {
+                            Text("Suggested experiment").noomSerifTitle(size: 26)
+                            Spacer()
+                            NoomPill(title: "3 days", color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
+                            experimentDismissButton {
+                                dismissExperiment {
+                                    dismissedNoomExperimentKey = experimentDismissalKey(suggestion)
+                                }
+                            }
+                        }
+                        Text(suggestion.title).font(.system(size: 17, weight: .semibold)).foregroundStyle(NoomTheme.logoBlack)
+                        Text(suggestion.reason).noomBody()
+                        Text(suggestion.instructions).noomBody()
+                        Button("Save this experiment") { Task { await productLoop.propose(suggestion) } }
+                            .buttonStyle(NoomPrimaryButtonStyle())
+                            .disabled(productLoop.isSaving)
                     }
-                    Text(suggestion.title).font(.system(size: 17, weight: .semibold)).foregroundStyle(NoomTheme.logoBlack)
-                    Text(suggestion.reason).noomBody()
-                    Text(suggestion.instructions).noomBody()
-                    Button("Save this experiment") { Task { await productLoop.propose(suggestion) } }
-                        .buttonStyle(NoomPrimaryButtonStyle())
-                        .disabled(productLoop.isSaving)
                 }
+                .offset(x: experimentDragOffset)
+                .opacity(max(0.35, 1 - abs(experimentDragOffset) / 280))
+                .gesture(experimentDismissGesture {
+                    dismissedNoomExperimentKey = experimentDismissalKey(suggestion)
+                })
             }
         }
         if let error = productLoop.errorMessage {
@@ -221,13 +246,19 @@ struct DashboardView: View {
         }
     }
 
-    private func experimentCard<Actions: View>(_ experiment: ProductLoopExperiment, label: String, @ViewBuilder actions: () -> Actions) -> some View {
+    private func experimentCard<Actions: View>(
+        _ experiment: ProductLoopExperiment,
+        label: String,
+        onDismiss: @escaping () -> Void,
+        @ViewBuilder actions: () -> Actions
+    ) -> some View {
         NoomCard(fill: Color.white.opacity(0.84)) {
             VStack(alignment: .leading, spacing: 12) {
-                HStack(alignment: .firstTextBaseline) {
+                HStack(alignment: .center, spacing: 8) {
                     Text("Suggested experiment").noomSerifTitle(size: 26)
                     Spacer()
                     NoomPill(title: label, color: NoomTheme.ink)
+                    experimentDismissButton { dismissExperiment(onDismiss) }
                 }
                 Text(experiment.title).font(.system(size: 17, weight: .semibold)).foregroundStyle(NoomTheme.logoBlack)
                 Text(experiment.reason).noomBody()
@@ -235,6 +266,50 @@ struct DashboardView: View {
                 actions().disabled(productLoop.isSaving)
             }
         }
+        .offset(x: experimentDragOffset)
+        .opacity(max(0.35, 1 - abs(experimentDragOffset) / 280))
+        .gesture(experimentDismissGesture(action: onDismiss))
+    }
+
+    private func experimentDismissButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: "xmark")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(NoomTheme.logoBlack)
+                .frame(width: 32, height: 32)
+                .background(NoomTheme.softLine.opacity(0.74), in: Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Dismiss experiment")
+    }
+
+    private func experimentDismissGesture(action: @escaping () -> Void) -> some Gesture {
+        DragGesture(minimumDistance: 20)
+            .onChanged { value in
+                experimentDragOffset = value.translation.width
+            }
+            .onEnded { value in
+                if abs(value.translation.width) > 100 {
+                    dismissExperiment(action)
+                } else {
+                    withAnimation(.snappy) { experimentDragOffset = 0 }
+                }
+            }
+    }
+
+    private func dismissExperiment(_ action: @escaping () -> Void) {
+        let destination: CGFloat = experimentDragOffset < 0 ? -520 : 520
+        withAnimation(.snappy) { experimentDragOffset = destination }
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 220_000_000)
+            action()
+            experimentDragOffset = 0
+        }
+    }
+
+    private func experimentDismissalKey(_ suggestion: ProductLoopSuggestion) -> String {
+        let start = Calendar.current.startOfDay(for: dateContext.selectedDate)
+        return "\(suggestion.demoCatalogId)-\(Int(start.timeIntervalSince1970))"
     }
 
     @ViewBuilder
@@ -428,7 +503,7 @@ struct DashboardView: View {
                 Button("Try again") { Task { await dashboard.load(date: dateContext.selectedDate) } }
                     .buttonStyle(NoomPrimaryButtonStyle())
             }
-            deviceCard
+            if bandState.isLiveReady { deviceCard }
         }
     }
 
@@ -545,6 +620,140 @@ struct DashboardView: View {
 
     private func dateLabel(_ date: Date) -> String {
         date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day().year())
+    }
+}
+
+// Mobbin reference: Oura iOS User Dashboard date hierarchy and compact day navigation.
+// https://mobbin.com/explore/screens/c659bd1e-9301-4281-a238-422ceaff9e71
+struct NoomDayNavigator: View {
+    @Binding var selection: Date
+    @State private var showsCalendar = false
+
+    private var isToday: Bool { Calendar.current.isDateInToday(selection) }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(isToday ? "Today" : selection.formatted(.dateTime.weekday(.wide)))
+                    .noomSerifTitle(size: 30)
+                Text(selection.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day().year()))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(NoomTheme.muted)
+            }
+
+            Spacer(minLength: 6)
+
+            HStack(spacing: 4) {
+                Button(action: previousDay) {
+                    Image(systemName: "chevron.left")
+                        .frame(width: 38, height: 38)
+                }
+                .accessibilityLabel("Previous day")
+
+                Button { showsCalendar = true } label: {
+                    Image(systemName: "calendar")
+                    .font(.system(size: 14, weight: .bold))
+                    .frame(width: 38, height: 38)
+                    .background(Color.white.opacity(0.84), in: Circle())
+                    .overlay { Circle().stroke(NoomTheme.ink.opacity(0.08), lineWidth: 1) }
+                }
+                .accessibilityLabel("Choose dashboard date")
+
+                Button(action: nextDay) {
+                    Image(systemName: "chevron.right")
+                        .frame(width: 38, height: 38)
+                }
+                .disabled(Calendar.current.isDateInToday(selection))
+                .accessibilityLabel("Next day")
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(NoomTheme.logoBlack)
+        }
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 24)
+                .onEnded { value in
+                    if value.translation.width > 50 {
+                        previousDay()
+                    } else if value.translation.width < -50 && !isToday {
+                        nextDay()
+                    }
+                }
+        )
+        .sheet(isPresented: $showsCalendar) {
+            NavigationStack {
+                DatePicker("Choose date", selection: $selection, in: ...Date(), displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .tint(NoomTheme.red)
+                    .padding()
+                    .navigationTitle("Choose a day")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { showsCalendar = false }
+                        }
+                    }
+            }
+            .presentationDetents([.medium])
+        }
+    }
+
+    private func previousDay() {
+        guard let day = Calendar.current.date(byAdding: .day, value: -1, to: selection) else { return }
+        withAnimation(.snappy) { selection = day }
+    }
+
+    private func nextDay() {
+        guard !isToday,
+              let day = Calendar.current.date(byAdding: .day, value: 1, to: selection) else { return }
+        withAnimation(.snappy) { selection = min(day, Date()) }
+    }
+}
+
+struct NoomBandConnectionBanner: View {
+    let state: NoomBandConnectionState
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: state == .connecting ? "arrow.triangle.2.circlepath" : "wave.3.right.circle.fill")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(NoomTheme.logoBlack)
+                .frame(width: 42, height: 42)
+                .background(NoomTheme.rose, in: Circle())
+
+            VStack(alignment: .leading, spacing: 3) {
+                switch state {
+                case .neverPaired:
+                    Text("Connect your Noom Band")
+                    Text("Add sleep, movement, and overnight context to Today.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.72))
+                case .pairedDisconnected, .error:
+                    Text("Reconnect your Noom Band")
+                    Text("Your band is paired but offline. Reconnect to sync the latest data.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.72))
+                case .connecting:
+                    Text("Connecting your Noom Band")
+                    Text("Keep the band nearby while Noom restores the connection.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.72))
+                case .connected:
+                    EmptyView()
+                }
+            }
+            .font(.system(size: 15, weight: .bold))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(.white.opacity(0.72))
+        }
+        .padding(14)
+        .background(NoomTheme.ink, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(state.callToAction)
     }
 }
 

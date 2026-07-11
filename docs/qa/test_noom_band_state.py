@@ -43,6 +43,20 @@ class NoomBandStateTests(unittest.TestCase):
         self.assertLess(badge, profile)
         self.assertIn("Text(battery.map { \"\\($0)%\" }", MAIN_TAB)
 
+    def test_disconnected_band_has_an_actionable_top_of_today_banner(self):
+        for snippet in (
+            "if !bandState.isLiveReady",
+            "NoomBandConnectionBanner(state: bandState)",
+            "struct NoomBandConnectionBanner",
+            'Text("Connect your Noom Band")',
+            'Text("Reconnect your Noom Band")',
+            "NoomBandSetupEntryView()",
+        ):
+            self.assertIn(snippet, DASHBOARD)
+        banner = DASHBOARD.index("NoomBandConnectionBanner(state: bandState)")
+        data = DASHBOARD.index("if dashboard.isLoading")
+        self.assertLess(banner, data)
+
     def test_sign_out_uses_sdk_only_after_success_and_no_manual_device_wipe(self):
         sdk_call = PROFILE.index("try await sensorBio.signOut()")
         session_clear = PROFILE.index("sensorBio.session = nil")
