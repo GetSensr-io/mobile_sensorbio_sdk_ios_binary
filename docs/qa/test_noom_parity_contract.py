@@ -22,7 +22,6 @@ RECOVERY_DETAIL = (SRC / "RecoveryDetailView.swift").read_text()
 INFLAMMATION_DETAIL = (SRC / "InflammationSignal.swift").read_text()
 NUMERIC_DISPLAY_SOURCES = {
     "DashboardView.swift": DASHBOARD,
-    "InsightsView.swift": INSIGHTS_VIEW,
     "RecoveryDetailView.swift": (SRC / "RecoveryDetailView.swift").read_text(),
     "SleepDetailView.swift": (SRC / "SleepDetailView.swift").read_text(),
     "HRDetailView.swift": (SRC / "HRDetailView.swift").read_text(),
@@ -291,16 +290,18 @@ class NoomParityContractTests(unittest.TestCase):
         ):
             self.assertIn(f'case "{route}"', CONTENT)
 
-    def test_population_insights_are_loaded_and_rendered(self) -> None:
+    def test_population_insights_card_and_unauthorized_sdk_calls_are_removed(self) -> None:
         for snippet in (
             "fetchPopulationInsightsMetricList()",
             "fetchPopulationInsights(",
             "selectedPopulationMetric",
             "selectedAgeGroup",
             "selectedGender",
+            "populationInsightsSection",
+            'Text("Population insights")',
+            'title: "Population insight unavailable"',
         ):
-            self.assertIn(snippet, INSIGHTS_STATE)
-        self.assertIn("populationInsightsSection", INSIGHTS_VIEW)
+            self.assertNotIn(snippet, INSIGHTS_STATE + INSIGHTS_VIEW)
         self.assertIn("submitInsightsFeedback", INSIGHTS_STATE)
         self.assertIn("submitFeedback", INSIGHTS_VIEW)
 

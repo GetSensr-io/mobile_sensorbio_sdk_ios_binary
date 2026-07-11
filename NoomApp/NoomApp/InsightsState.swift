@@ -8,14 +8,6 @@ final class InsightsState {
     var personalError: String?
     var isLoadingPersonal = false
 
-    var populationFilters: SB_PopulationInsightsFilterList?
-    var selectedPopulationMetric: SB_PopulationInsightMetric?
-    var selectedAgeGroup: SB_PopulationAgeGroup?
-    var selectedGender: SB_PopulationGender = .all
-    var populationHistogram: SB_PopulationInsightsHistogram?
-    var populationRadarChart: SB_PopulationInsightsRadarChart?
-    var populationError: String?
-    var isLoadingPopulation = false
     var feedbackMessage: String?
 
     @MainActor
@@ -32,45 +24,6 @@ final class InsightsState {
         }
     }
 
-    @MainActor
-    func loadFilters() async {
-        populationError = nil
-        do {
-            let filters = try await sensorBio.fetchPopulationInsightsMetricList()
-            populationFilters = filters
-            if selectedPopulationMetric == nil {
-                selectedPopulationMetric = filters.metrics.first
-            }
-            if selectedAgeGroup == nil {
-                selectedAgeGroup = filters.ageGroups.first
-            }
-        } catch {
-            populationError = error.localizedDescription
-        }
-    }
-
-    @MainActor
-    func loadPopulation() async {
-        if populationFilters == nil {
-            await loadFilters()
-        }
-        guard let metric = selectedPopulationMetric, let ageGroup = selectedAgeGroup else { return }
-        isLoadingPopulation = true
-        populationError = nil
-        defer { isLoadingPopulation = false }
-        do {
-            let result = try await sensorBio.fetchPopulationInsights(
-                ageStart: ageGroup.ageStart,
-                ageEnd: ageGroup.ageEnd,
-                gender: selectedGender,
-                metricType: metric.metricType
-            )
-            populationHistogram = result.histogram
-            populationRadarChart = result.radarChart
-        } catch {
-            populationError = error.localizedDescription
-        }
-    }
 
     @MainActor
     func submitFeedback(_ feedback: SB_InsightFeedback) async {

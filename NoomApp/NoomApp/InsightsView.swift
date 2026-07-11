@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import SensorBioSDK
 
 struct InsightsView: View {
@@ -20,157 +19,15 @@ struct InsightsView: View {
             } else {
                 personalInsightUnavailableCard
             }
-
-            populationInsightsSection
         }
         .navigationTitle("Insights")
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await state.loadPersonal()
-            await state.loadFilters()
-            await state.loadPopulation()
         }
         .refreshable {
             await state.loadPersonal()
-            await state.loadFilters()
-            await state.loadPopulation()
         }
-    }
-
-    @ViewBuilder
-    private var populationInsightsSection: some View {
-        NoomCard {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Population insights").noomSerifTitle(size: 28)
-                Text("Compare your available signals with population distributions returned by the SDK.").noomBody()
-
-                if let filters = state.populationFilters, !filters.metrics.isEmpty, !filters.ageGroups.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(filters.metrics.indices, id: \.self) { index in
-                                let metric = filters.metrics[index]
-                                Button(metric.metricName.isEmpty ? "Metric \(index + 1)" : metric.metricName) {
-                                    state.selectedPopulationMetric = metric
-                                    Task { await state.loadPopulation() }
-                                }
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundStyle(NoomTheme.logoBlack)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(metric.metricType == state.selectedPopulationMetric?.metricType ? NoomTheme.rose : Color.white.opacity(0.68), in: Capsule())
-                            }
-                        }
-                    }
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(filters.ageGroups.indices, id: \.self) { index in
-                                let age = filters.ageGroups[index]
-                                Button("\(age.ageStart)-\(age.ageEnd)") {
-                                    state.selectedAgeGroup = age
-                                    Task { await state.loadPopulation() }
-                                }
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundStyle(NoomTheme.logoBlack)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(age.ageStart == state.selectedAgeGroup?.ageStart && age.ageEnd == state.selectedAgeGroup?.ageEnd ? NoomTheme.rose : Color.white.opacity(0.68), in: Capsule())
-                            }
-                        }
-                    }
-
-                    HStack(spacing: 8) {
-                        ForEach([SB_PopulationGender.all, .male, .female], id: \.rawValue) { gender in
-                            Button(populationGenderLabel(gender)) {
-                                state.selectedGender = gender
-                                Task { await state.loadPopulation() }
-                            }
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundStyle(NoomTheme.logoBlack)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(gender == state.selectedGender ? NoomTheme.rose : Color.white.opacity(0.68), in: Capsule())
-                        }
-                    }
-                }
-
-                if state.isLoadingPopulation {
-                    loadingCard("Loading population insight")
-                } else if let error = state.populationError {
-                    NoomEmptyStateCard(title: "Population insight unavailable", message: error, systemImage: "chart.bar.xaxis")
-                } else if let histogram = state.populationHistogram {
-                    populationHistogramCard(histogram)
-                } else {
-                    NoomEmptyStateCard(title: "No population insight yet", message: "Choose an available metric and age range to load comparison data.", systemImage: "person.3.fill")
-                }
-
-                if let radar = state.populationRadarChart, !radar.insightText.isEmpty || !radar.populationRadarText.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        if !radar.insightText.isEmpty { Text(radar.insightText).noomBody() }
-                        if !radar.populationRadarText.isEmpty { Text(radar.populationRadarText).noomBody() }
-                    }
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func populationHistogramCard(_ histogram: SB_PopulationInsightsHistogram) -> some View {
-        let yAxisMaximum = histogramYAxisMaximum(histogram.histogramData)
-
-        VStack(alignment: .leading, spacing: 8) {
-            if !histogram.insightText.isEmpty { Text(histogram.insightText).noomBody() }
-            Chart {
-                ForEach(Array(histogram.histogramData.enumerated()), id: \.offset) { _, pair in
-                    BarMark(
-                        xStart: .value("Range start", pair.xStartValue),
-                        xEnd: .value("Range end", pair.xEndValue),
-                        y: .value("Population", max(0, pair.yValue))
-                    )
-                        .foregroundStyle(NoomTheme.red.opacity(0.42))
-                        .cornerRadius(4)
-                        .accessibilityLabel("Population bucket \(formatNumber(pair.xStartValue)) to \(formatNumber(pair.xEndValue))")
-                        .accessibilityValue(formatNumber(pair.yValue))
-                }
-
-                RuleMark(x: .value("Your value", histogram.userXValue))
-                    .foregroundStyle(NoomTheme.logoBlack)
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 4]))
-                    .annotation(position: .top, alignment: .center) {
-                        Text("You")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                            .foregroundStyle(NoomTheme.logoBlack)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 4)
-                            .background(NoomTheme.mint, in: Capsule())
-                    }
-            }
-            .chartYScale(domain: 0...yAxisMaximum)
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) {
-                    AxisGridLine().foregroundStyle(NoomTheme.ink.opacity(0.08))
-                    AxisTick().foregroundStyle(NoomTheme.ink.opacity(0.25))
-                    AxisValueLabel()
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) {
-                    AxisGridLine().foregroundStyle(NoomTheme.ink.opacity(0.08))
-                    AxisTick().foregroundStyle(NoomTheme.ink.opacity(0.25))
-                    AxisValueLabel()
-                }
-            }
-            .frame(height: 190)
-            Text("Your value: \(formatNumber(histogram.userXValue))").noomLabel()
-        }
-    }
-
-    private func histogramYAxisMaximum(_ data: [SB_HistogramPair]) -> Float {
-        let maximum = data
-            .map(\.yValue)
-            .filter { $0.isFinite && $0 > 0 }
-            .max() ?? 0
-        return maximum > 0 ? maximum * 1.12 : 1
     }
 
     @ViewBuilder
@@ -255,18 +112,6 @@ struct InsightsView: View {
         )
     }
 
-    private func populationGenderLabel(_ gender: SB_PopulationGender) -> String {
-        switch gender {
-        case .all: return "All"
-        case .male: return "Male"
-        case .female: return "Female"
-        @unknown default: return "All"
-        }
-    }
-
-    private func formatNumber(_ value: Float) -> String {
-        MetricFormatting.humanNumber(value)
-    }
 }
 
 struct NoomSignalCardPublic: View {
