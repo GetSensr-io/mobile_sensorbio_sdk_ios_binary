@@ -262,6 +262,8 @@ private struct NoomQAHost: View {
                 NavigationStack { NoomDateNavigatorPreviewView() }
             case "insights_empty", "insights_default":
                 NavigationStack { InsightsView() }
+            case "population_insights_preview":
+                NavigationStack { PopulationInsightsGraphPreviewView() }
             case "pair_setup":
                 NavigationStack { NoomBandSetupEntryView() }
             case "pair_scanning":

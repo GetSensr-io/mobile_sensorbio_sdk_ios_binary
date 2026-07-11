@@ -22,6 +22,7 @@ RECOVERY_DETAIL = (SRC / "RecoveryDetailView.swift").read_text()
 INFLAMMATION_DETAIL = (SRC / "InflammationSignal.swift").read_text()
 NUMERIC_DISPLAY_SOURCES = {
     "DashboardView.swift": DASHBOARD,
+    "InsightsView.swift": INSIGHTS_VIEW,
     "RecoveryDetailView.swift": (SRC / "RecoveryDetailView.swift").read_text(),
     "SleepDetailView.swift": (SRC / "SleepDetailView.swift").read_text(),
     "HRDetailView.swift": (SRC / "HRDetailView.swift").read_text(),
@@ -287,21 +288,28 @@ class NoomParityContractTests(unittest.TestCase):
             "hrv_detail",
             "rr_detail",
             "record_activity",
+            "population_insights_preview",
         ):
             self.assertIn(f'case "{route}"', CONTENT)
 
-    def test_population_insights_card_and_unauthorized_sdk_calls_are_removed(self) -> None:
+    def test_population_insights_are_loaded_rendered_and_recoverable(self) -> None:
         for snippet in (
             "fetchPopulationInsightsMetricList()",
             "fetchPopulationInsights(",
             "selectedPopulationMetric",
             "selectedAgeGroup",
             "selectedGender",
+        ):
+            self.assertIn(snippet, INSIGHTS_STATE)
+        for snippet in (
             "populationInsightsSection",
             'Text("Population insights")',
-            'title: "Population insight unavailable"',
+            'Button("Try again")',
         ):
-            self.assertNotIn(snippet, INSIGHTS_STATE + INSIGHTS_VIEW)
+            self.assertIn(snippet, INSIGHTS_VIEW)
+        self.assertIn("populationErrorMessage", INSIGHTS_STATE)
+        self.assertIn(".tokenRefreshFailed", INSIGHTS_STATE)
+        self.assertNotIn("populationError = error.localizedDescription", INSIGHTS_STATE)
         self.assertIn("submitInsightsFeedback", INSIGHTS_STATE)
         self.assertIn("submitFeedback", INSIGHTS_VIEW)
 
