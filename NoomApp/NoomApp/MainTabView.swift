@@ -32,7 +32,7 @@ struct MainTabView: View {
             NavigationStack {
                 DashboardView(session: session, dashboard: dashboard, productLoop: productLoop)
             }
-                .tabItem { Label("Today", systemImage: "circle.grid.2x2.fill") }
+                .tabItem { Label("Home", systemImage: "circle.grid.2x2.fill") }
 
             NavigationStack { InsightsView() }
                 .tabItem { Label("Insights", systemImage: "sparkles") }

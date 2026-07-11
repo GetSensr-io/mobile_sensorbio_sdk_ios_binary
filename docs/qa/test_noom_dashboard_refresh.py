@@ -65,6 +65,10 @@ class DashboardRefreshContractTests(unittest.TestCase):
         self.assertIn(".toolbarBackground(.visible, for: .tabBar)", MAIN_TAB)
         self.assertIn(".toolbarBackground(NoomTheme.warmSurface, for: .tabBar)", MAIN_TAB)
 
+    def test_primary_dashboard_tab_is_named_home(self) -> None:
+        self.assertIn('Label("Home", systemImage: "circle.grid.2x2.fill")', MAIN_TAB)
+        self.assertNotIn('Label("Today", systemImage: "circle.grid.2x2.fill")', MAIN_TAB)
+
 
 if __name__ == "__main__":
     unittest.main()
