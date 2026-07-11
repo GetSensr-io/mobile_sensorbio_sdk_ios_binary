@@ -103,41 +103,51 @@ struct DashboardView: View {
              inflammationSignal: dashboard.inflammationSignal
            ) {
             let freshness = dashboard.freshness(for: dateContext.selectedDate)
-        NoomCard {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .top, spacing: 18) {
-                    ZStack {
-                        Circle().stroke(NoomTheme.softLine.opacity(0.72), lineWidth: 14)
-                        Circle()
-                            .trim(from: 0, to: CGFloat(status.score) / 100)
-                            .stroke(freshness.isStaleCurrentDay ? NoomTheme.muted : NoomTheme.red, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                        Text(MetricFormatting.humanNumber(status.score))
-                            .font(.system(size: 40, weight: .bold))
-                            .foregroundStyle(NoomTheme.logoBlack)
-                    }
-                    .frame(width: 128, height: 128)
+            VStack(spacing: 12) {
+                if dashboard.inflammationSignal.isPreview {
+                    NoomStateBanner(
+                        title: "Sample inflammation input",
+                        detail: "Synthetic POC data — not personal health data. Body Status includes this sample as one of four equal inputs.",
+                        systemImage: "wrench.and.screwdriver",
+                        tint: NoomTheme.rose
+                    )
+                }
+                NoomCard {
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(alignment: .top, spacing: 18) {
+                            ZStack {
+                                Circle().stroke(NoomTheme.softLine.opacity(0.72), lineWidth: 14)
+                                Circle()
+                                    .trim(from: 0, to: CGFloat(status.score) / 100)
+                                    .stroke(freshness.isStaleCurrentDay ? NoomTheme.muted : NoomTheme.red, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                                    .rotationEffect(.degrees(-90))
+                                Text(MetricFormatting.humanNumber(status.score))
+                                    .font(.system(size: 40, weight: .bold))
+                                    .foregroundStyle(NoomTheme.logoBlack)
+                            }
+                            .frame(width: 128, height: 128)
 
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Body Status").noomSerifTitle(size: 30)
-                        Text(status.summary).noomBody()
-                        HStack(spacing: 8) {
-                            NoomPill(title: status.stage, color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
-                            NoomPill(title: freshnessPillTitle(freshness), color: freshnessPillColor(freshness), foreground: NoomTheme.logoBlack)
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Body Status").noomSerifTitle(size: 30)
+                                Text(status.summary).noomBody()
+                                HStack(spacing: 8) {
+                                    NoomPill(title: status.stage, color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
+                                    NoomPill(title: freshnessPillTitle(freshness), color: freshnessPillColor(freshness), foreground: NoomTheme.logoBlack)
+                                }
+                            }
+                        }
+
+                        VStack(spacing: 0) {
+                            NoomDetailValueRow(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHr))) bpm", verticalPadding: 8)
+                            NoomDetailValueRow(label: "Nocturnal HRV", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHrv))) ms", verticalPadding: 8)
+                            NoomDetailValueRow(label: "Sleep score", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.sleepScore.score))) / 100", verticalPadding: 8)
+                            NoomDetailValueRow(label: "Inflammation signal", value: inflammationSignalValue, verticalPadding: 8)
+                            NoomDetailValueRow(label: "Coverage", value: status.coverageDescription, verticalPadding: 8)
+                            NoomDetailValueRow(label: "Method", value: status.methodDescription, verticalPadding: 8)
                         }
                     }
                 }
-
-                VStack(spacing: 0) {
-                    NoomDetailValueRow(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHr))) bpm", verticalPadding: 8)
-                    NoomDetailValueRow(label: "Nocturnal HRV", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHrv))) ms", verticalPadding: 8)
-                    NoomDetailValueRow(label: "Sleep score", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.sleepScore.score))) / 100", verticalPadding: 8)
-                    NoomDetailValueRow(label: "Inflammation signal", value: inflammationSignalValue, verticalPadding: 8)
-                    NoomDetailValueRow(label: "Coverage", value: status.coverageDescription, verticalPadding: 8)
-                    NoomDetailValueRow(label: "Method", value: status.methodDescription, verticalPadding: 8)
-                }
             }
-        }
         } else {
             NoomEmptyStateCard(
                 title: "Body Status unavailable",
@@ -343,17 +353,20 @@ struct DashboardView: View {
 
     private var inflammationMetricTile: some View {
         NavigationLink {
-            InflammationSignalDetailView(signal: dashboard.inflammationSignal)
+            InflammationSignalDetailView(
+                signal: dashboard.inflammationSignal,
+                historicalValues: MockInflammationSignalProvider().trailingValues(before: dashboard.inflammationSignal.completedDate)
+            )
         } label: {
             NoomMetricTile(
                 label: "Inflammation signal",
                 value: inflammationSignalValue,
-                caption: dashboard.inflammationSignal.status.isUsable ? "Daily overnight signal" : "Source integration pending",
+                caption: dashboard.inflammationSignal.isPreview ? "Sample overnight input" : (dashboard.inflammationSignal.status.isUsable ? "Daily overnight signal" : "Source integration pending"),
                 minHeight: 104
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Inflammation signal, \(inflammationSignalValue)")
+        .accessibilityLabel("Inflammation signal, \(inflammationSignalValue)\(dashboard.inflammationSignal.isPreview ? ", sample data, not personal health data" : "")")
     }
 
     private func metricRouteTile<Destination: View>(label: String, metric: SB_DashboardMetric? = nil, destination: Destination) -> some View {

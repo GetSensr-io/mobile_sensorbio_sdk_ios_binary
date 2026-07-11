@@ -265,6 +265,8 @@ private struct NoomQAHost: View {
                 metricDetailStack(initial: .metricBaseline)
             case "inflammation_preview":
                 NavigationStack { InflammationSignalPreviewView() }
+            case "inflammation_detail_preview":
+                inflammationDetailPreview
             case "sleep_hub_preview":
                 NavigationStack { SleepHubPreviewView() }
             case "record_activity":
@@ -357,6 +359,17 @@ private struct NoomQAHost: View {
             readings: metric.readings,
             previewDisclosure: "Synthetic development data. Not a personal health result."
         )
+    }
+
+    private var inflammationDetailPreview: some View {
+        let provider = MockInflammationSignalProvider()
+        let completedDate = Calendar.current.date(byAdding: .day, value: -1, to: .now) ?? .now
+        return NavigationStack {
+            InflammationSignalDetailView(
+                signal: MockInflammationSignalProvider().signal(for: completedDate),
+                historicalValues: provider.trailingValues(before: completedDate)
+            )
+        }
     }
 
     private var metricBaselinePreview: some View {

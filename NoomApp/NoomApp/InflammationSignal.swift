@@ -3,7 +3,8 @@ import SwiftUI
 
 /// Provider-neutral daily wellness-context input. This POC deliberately has no
 /// network or demo-backend path; a real source must implement the documented
-/// authenticated/SDK contract before it can supply values to release builds.
+/// authenticated/SDK contract before it can supply personal values. Until then,
+/// TestFlight uses a prominently disclosed local synthetic fixture.
 enum InflammationSignalStatus: Equatable {
     case valid
     case unavailable
@@ -66,16 +67,15 @@ struct UnavailableInflammationSignalProvider: InflammationSignalProviding {
     }
 }
 
-#if DEBUG
-/// Debug-only synthetic data for layout and deterministic formula QA. It is
-/// never routed through the release app or presented as personal health data.
+/// Local synthetic POC data for deterministic formula and TestFlight UI QA.
+/// Every consuming surface must disclose that it is sample—not personal data.
 struct MockInflammationSignalProvider: InflammationSignalProviding {
     func signal(for completedDate: Date) -> InflammationSignal {
         InflammationSignal(
             score: 74,
             completedDate: completedDate,
             generatedAt: completedDate,
-            algorithmVersion: "preview-v1",
+            algorithmVersion: "sample-poc-v1",
             status: .valid,
             isPreview: true
         )
@@ -85,7 +85,6 @@ struct MockInflammationSignalProvider: InflammationSignalProviding {
         [69, 70, 72, 71, 73, 74, 70, 72, 71, 75, 73, 72, 74, 70, 71, 73, 72, 74, 75, 71, 72, 70, 73, 74, 72, 71, 73, 75, 74, 72]
     }
 }
-#endif
 
 struct InflammationSignalDetailView: View {
     let signal: InflammationSignal
@@ -113,7 +112,10 @@ struct InflammationSignalDetailView: View {
                     unit: "/ 100",
                     tone: .inflammation,
                     baseline: baseline,
-                    readings: detailReadings
+                    readings: detailReadings,
+                    previewDisclosure: signal.isPreview
+                        ? "Synthetic POC data. This is not personal health data. It is shown so the proposed experience and four-input Body Status formula can be tested before source integration."
+                        : nil
                 )
             } else {
                 ContentUnavailableView(

@@ -25,6 +25,7 @@ final class DashboardState {
     var personalInsightsError: String? = nil
     var progressError: String? = nil
     private var activeRequestID: UUID?
+    private let inflammationSignalProvider = MockInflammationSignalProvider()
 
     var data: SB_DashboardData? { snapshot?.data }
     var personalInsights: SB_NewInsights? { snapshot?.personalInsights }
@@ -127,7 +128,7 @@ final class DashboardState {
             weeklyRecovery: nextWeeklyRecovery,
             weeklySleep: nextWeeklySleep,
             nightlySleep: nextNightlySleep,
-            inflammationSignal: previousSnapshot?.inflammationSignal ?? .unavailable(for: date),
+            inflammationSignal: inflammationSignalProvider.signal(for: date),
             loadedAt: Date(),
             networkStatus: sensorBio.networkStatus
         )
