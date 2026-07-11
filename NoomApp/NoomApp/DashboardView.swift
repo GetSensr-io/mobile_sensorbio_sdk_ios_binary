@@ -13,7 +13,7 @@ struct DashboardView: View {
     @State private var lastSyncRefreshStartedAt: Date?
     @State private var isApplyingSyncUpdate = false
     @State private var showsSyncUpdated = false
-    @State private var syncRefreshFailed = false
+    @State private var syncIssue: NoomBandSyncIssue?
     @State private var experimentDragOffset: CGFloat = 0
     @AppStorage("dismissedNoomExperimentKey") private var dismissedNoomExperimentKey = ""
     @State private var bandState = NoomBandConnectionState.live(
@@ -41,7 +41,7 @@ struct DashboardView: View {
                     BandBatteryBadge(
                         isApplyingSyncUpdate: isApplyingSyncUpdate,
                         showsSyncUpdated: showsSyncUpdated,
-                        syncRefreshFailed: syncRefreshFailed
+                        syncIssue: syncIssue
                     )
                     NavigationLink {
                         ProfileView(session: session)
@@ -87,7 +87,7 @@ struct DashboardView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .task(id: dateContext.selectedDate) { await refreshDashboard() }
-        .refreshable { await refreshDashboard(force: true) }
+        .refreshable { await refreshDashboardFromUser() }
         .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
             refreshAfterSync()
         }
@@ -101,6 +101,12 @@ struct DashboardView: View {
         .onReceive(sensorBio.$lastSyncd.dropFirst()) { _ in
             refreshAfterSync()
         }
+        .onReceive(sensorBio.$deviceSyncing) { isSyncing in
+            if isSyncing {
+                syncIssue = nil
+                showsSyncUpdated = false
+            }
+        }
         .onReceive(sensorBio.$haveDevice) { bandState = .live(paired: $0, connected: sensorBio.connected) }
         .onReceive(sensorBio.$connected) { bandState = .live(paired: sensorBio.haveDevice, connected: $0) }
     }
@@ -108,6 +114,13 @@ struct DashboardView: View {
     private func refreshDashboard(force: Bool = false) async {
         await dashboard.load(date: dateContext.selectedDate, force: force)
         await productLoop.load()
+    }
+
+    private func refreshDashboardFromUser() async {
+        await refreshDashboard(force: true)
+        if syncIssue == .dashboardRefresh, dashboard.errorMessage == nil {
+            syncIssue = nil
+        }
     }
 
     /// BLE sync is SDK-owned. Once it reports completion, bypass both the
@@ -127,14 +140,14 @@ struct DashboardView: View {
         activeSyncRefreshID = refreshID
         isApplyingSyncUpdate = true
         showsSyncUpdated = false
-        syncRefreshFailed = false
+        syncIssue = nil
         postSyncRefreshTask?.cancel()
         postSyncRefreshTask = Task { @MainActor in
             await refreshDashboard(force: true)
             guard activeSyncRefreshID == refreshID, !Task.isCancelled else { return }
             isApplyingSyncUpdate = false
             guard dashboard.errorMessage == nil else {
-                syncRefreshFailed = true
+                syncIssue = .dashboardRefresh
                 return
             }
             showsSyncUpdated = true
@@ -156,7 +169,7 @@ struct DashboardView: View {
         activeSyncRefreshID = UUID()
         isApplyingSyncUpdate = false
         showsSyncUpdated = false
-        syncRefreshFailed = true
+        syncIssue = .deviceUpload
     }
 
     @ViewBuilder

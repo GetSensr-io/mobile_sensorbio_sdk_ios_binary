@@ -42,8 +42,9 @@ class DashboardRefreshContractTests(unittest.TestCase):
         self.assertIn("func load(date: Date, force: Bool = false) async", STATE)
         self.assertIn("guard !force, let currentSnapshot = snapshotForSameDay(as: date)", STATE)
         self.assertIn("Date().timeIntervalSince(currentSnapshot.loadedAt) < Self.automaticRefreshInterval", STATE)
-        self.assertIn(".refreshable { await refreshDashboard(force: true) }", DASHBOARD)
-        self.assertIn("await refreshDashboard(force: true)", DASHBOARD)
+        self.assertIn(".refreshable { await refreshDashboardFromUser() }", DASHBOARD)
+        manual = DASHBOARD.split("private func refreshDashboardFromUser()", 1)[1].split("private func refreshAfterSync", 1)[0]
+        self.assertIn("await refreshDashboard(force: true)", manual)
 
     def test_processed_sleep_forces_an_immediate_today_refresh(self) -> None:
         self.assertIn(

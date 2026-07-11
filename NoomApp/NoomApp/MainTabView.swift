@@ -581,10 +581,15 @@ struct SleepHubPreviewView: View {
 /// Mobbin Fitbit pattern: keep sync feedback in the dashboard header. Apple HIG:
 /// use determinate progress when an accurate percentage exists and keep its
 /// location stable while the operation is active.
+enum NoomBandSyncIssue: Equatable {
+    case deviceUpload
+    case dashboardRefresh
+}
+
 struct BandBatteryBadge: View {
     let isApplyingSyncUpdate: Bool
     let showsSyncUpdated: Bool
-    let syncRefreshFailed: Bool
+    let syncIssue: NoomBandSyncIssue?
 
     @State private var haveDevice: Bool = sensorBio.haveDevice
     @State private var connected: Bool = sensorBio.connected
@@ -607,7 +612,7 @@ struct BandBatteryBadge: View {
                     .animation(.snappy, value: syncing)
                     .animation(.snappy, value: isApplyingSyncUpdate)
                     .animation(.snappy, value: showsSyncUpdated)
-                    .animation(.snappy, value: syncRefreshFailed)
+                    .animation(.snappy, value: syncIssue)
             }
         }
         .onReceive(sensorBio.$haveDevice) { haveDevice = $0 }
@@ -644,20 +649,25 @@ struct BandBatteryBadge: View {
                     .foregroundStyle(NoomTheme.metricGreen)
                 Text("Updated")
             }
-        } else if syncRefreshFailed {
-            HStack(spacing: 5) {
-                Image(systemName: "exclamationmark.arrow.triangle.2.circlepath")
-                Text("Retry")
-            }
         } else {
-            HStack(spacing: 5) {
-                Image(systemName: batteryIcon())
-                if connected {
-                    Text(battery.map { "\($0)%" } ?? "Live")
-                    if charging == true { Image(systemName: "bolt.fill") }
-                } else {
-                    Image(systemName: "antenna.radiowaves.left.and.right.slash")
-                    Text("Offline")
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 5) {
+                    Image(systemName: batteryIcon())
+                    if connected {
+                        Text(battery.map { "\($0)%" } ?? "Live")
+                        if charging == true { Image(systemName: "bolt.fill") }
+                    } else {
+                        Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                        Text("Offline")
+                    }
+                }
+                if let issue = syncIssue {
+                    HStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                        Text(issue == .deviceUpload ? "Sync issue" : "Data issue")
+                    }
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .foregroundStyle(NoomTheme.red)
                 }
             }
         }
@@ -668,7 +678,7 @@ struct BandBatteryBadge: View {
     private var statusBackground: Color {
         if syncing || isApplyingSyncUpdate { return NoomTheme.mint.opacity(0.78) }
         if showsSyncUpdated { return NoomTheme.mint.opacity(0.52) }
-        if syncRefreshFailed { return NoomTheme.rose.opacity(0.82) }
+        if syncIssue != nil { return NoomTheme.rose.opacity(0.82) }
         return connected ? NoomTheme.red.opacity(0.12) : NoomTheme.softLine.opacity(0.72)
     }
 
@@ -676,10 +686,19 @@ struct BandBatteryBadge: View {
         if syncing { return "Noom Band syncing, \(clampedProgress) percent" }
         if isApplyingSyncUpdate { return "Sync finished. Updating today's dashboard" }
         if showsSyncUpdated { return "Dashboard updated with the latest Noom Band data" }
-        if syncRefreshFailed { return "Dashboard update failed. Sync again to retry" }
-        guard connected else { return "Noom Band not connected" }
-        if let battery { return "Noom Band battery \(battery) percent" }
-        return "Noom Band connected"
+        let connectionStatus: String
+        if connected, let battery {
+            connectionStatus = "Noom Band connected, battery \(battery) percent"
+        } else if connected {
+            connectionStatus = "Noom Band connected"
+        } else {
+            connectionStatus = "Noom Band not connected"
+        }
+        guard let syncIssue else { return connectionStatus }
+        let issueStatus = syncIssue == .deviceUpload
+            ? "Latest data sync failed"
+            : "Latest dashboard update failed"
+        return "\(connectionStatus). \(issueStatus)"
     }
 
     private func batteryIcon() -> String {

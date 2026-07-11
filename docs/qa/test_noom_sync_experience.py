@@ -39,11 +39,13 @@ class NoomSyncExperienceContracts(unittest.TestCase):
             '.frame(width: 64)',
             'Text("Updating")',
             'Text("Updated")',
-            'Text("Retry")',
+            'Text(issue == .deviceUpload ? "Sync issue" : "Data issue")',
+            'Latest data sync failed',
+            'Latest dashboard update failed',
             'Noom Band syncing, \\(clampedProgress) percent',
-            'Dashboard update failed. Sync again to retry',
         ):
             self.assertIn(snippet, badge)
+        self.assertNotIn('Text("Retry")', badge)
         self.assertIn("BandBatteryBadge(", DASHBOARD)
         self.assertIn("isApplyingSyncUpdate: isApplyingSyncUpdate", DASHBOARD)
 
@@ -62,6 +64,18 @@ class NoomSyncExperienceContracts(unittest.TestCase):
         self.assertIn("activeSyncRefreshID == refreshID", handler)
         self.assertIn("guard dashboard.errorMessage == nil", handler)
         self.assertIn("if !bypassThrottle", handler)
+
+    def test_sync_issue_is_cause_specific_and_not_sticky(self) -> None:
+        self.assertIn("syncIssue = .deviceUpload", DASHBOARD)
+        self.assertIn("syncIssue = .dashboardRefresh", DASHBOARD)
+        self.assertIn(".refreshable { await refreshDashboardFromUser() }", DASHBOARD)
+        manual = DASHBOARD.split("private func refreshDashboardFromUser()", 1)[1].split("private func refreshAfterSync", 1)[0]
+        self.assertIn("if syncIssue == .dashboardRefresh, dashboard.errorMessage == nil", manual)
+        self.assertIn("syncIssue = nil", manual)
+        self.assertIn(".onReceive(sensorBio.$deviceSyncing)", DASHBOARD)
+        new_cycle = DASHBOARD.split(".onReceive(sensorBio.$deviceSyncing)", 1)[1].split(".onReceive", 1)[0]
+        self.assertIn("if isSyncing", new_cycle)
+        self.assertIn("syncIssue = nil", new_cycle)
 
     def test_background_sync_matches_sdk_v013_contract(self) -> None:
         self.assertIn("bluetooth-central", INFO.get("UIBackgroundModes", []))
