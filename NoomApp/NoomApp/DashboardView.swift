@@ -3,10 +3,10 @@ import SensorBioSDK
 
 struct DashboardView: View {
     let session: SB_Session
+    let dashboard: DashboardState
+    let productLoop: ProductLoopStore
 
     @Environment(AppDateContext.self) private var dateContext
-    @State private var dashboard = DashboardState()
-    @State private var productLoop = ProductLoopStore()
     @State private var postSyncRefreshTask: Task<Void, Never>?
     @State private var bandState = NoomBandConnectionState.live(
         paired: sensorBio.haveDevice,
@@ -74,22 +74,22 @@ struct DashboardView: View {
             }
         }
         .task(id: dateContext.selectedDate) { await refreshDashboard() }
-        .refreshable { await refreshDashboard() }
+        .refreshable { await refreshDashboard(force: true) }
         .onReceive(sensorBio.$lastSyncd.dropFirst()) { _ in
             guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
             postSyncRefreshTask?.cancel()
             postSyncRefreshTask = Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 30_000_000_000)
                 guard !Task.isCancelled else { return }
-                await refreshDashboard()
+                await refreshDashboard(force: true)
             }
         }
         .onReceive(sensorBio.$haveDevice) { bandState = .live(paired: $0, connected: sensorBio.connected) }
         .onReceive(sensorBio.$connected) { bandState = .live(paired: sensorBio.haveDevice, connected: $0) }
     }
 
-    private func refreshDashboard() async {
-        await dashboard.load(date: dateContext.selectedDate)
+    private func refreshDashboard(force: Bool = false) async {
+        await dashboard.load(date: dateContext.selectedDate, force: force)
         await productLoop.load()
     }
 

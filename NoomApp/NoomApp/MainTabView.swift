@@ -5,10 +5,14 @@ import SensorBioSDK
 
 struct MainTabView: View {
     let session: SB_Session
+    @State private var dashboard = DashboardState()
+    @State private var productLoop = ProductLoopStore()
 
     var body: some View {
         TabView {
-            NavigationStack { DashboardView(session: session) }
+            NavigationStack {
+                DashboardView(session: session, dashboard: dashboard, productLoop: productLoop)
+            }
                 .tabItem { Label("Today", systemImage: "circle.grid.2x2.fill") }
 
             NavigationStack { InsightsView() }
@@ -21,6 +25,8 @@ struct MainTabView: View {
                 .tabItem { Label("Sleep", systemImage: "moon.fill") }
         }
         .tint(NoomTheme.red)
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(NoomTheme.warmSurface, for: .tabBar)
     }
 }
 

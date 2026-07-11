@@ -3,76 +3,139 @@ import Observation
 import Security
 import SensorBioSDK
 
+struct DashboardSnapshot {
+    let date: Date
+    let data: SB_DashboardData
+    let personalInsights: SB_NewInsights?
+    let weeklyRecovery: SB_RecoveryRangeTrending?
+    let weeklySleep: SB_SleepDetailAggregated?
+    let nightlySleep: SB_SleepDetailDay?
+    let inflammationSignal: InflammationSignal
+    let loadedAt: Date
+    let networkStatus: SB_NetworkStatus
+}
+
 @Observable
 final class DashboardState {
-    var data: SB_DashboardData? = nil
-    var personalInsights: SB_NewInsights? = nil
-    var weeklyRecovery: SB_RecoveryRangeTrending? = nil
-    var weeklySleep: SB_SleepDetailAggregated? = nil
-    var nightlySleep: SB_SleepDetailDay? = nil
-    var inflammationSignal: InflammationSignal = .unavailable(for: .now)
+    static let automaticRefreshInterval: TimeInterval = 300
+
+    private(set) var snapshot: DashboardSnapshot?
     var isLoading: Bool = false
     var errorMessage: String? = nil
     var personalInsightsError: String? = nil
     var progressError: String? = nil
-    var loadedAt: Date? = nil
-    var networkStatus: SB_NetworkStatus = sensorBio.networkStatus
+    private var activeRequestID: UUID?
+
+    var data: SB_DashboardData? { snapshot?.data }
+    var personalInsights: SB_NewInsights? { snapshot?.personalInsights }
+    var weeklyRecovery: SB_RecoveryRangeTrending? { snapshot?.weeklyRecovery }
+    var weeklySleep: SB_SleepDetailAggregated? { snapshot?.weeklySleep }
+    var nightlySleep: SB_SleepDetailDay? { snapshot?.nightlySleep }
+    var inflammationSignal: InflammationSignal {
+        snapshot?.inflammationSignal ?? .unavailable(for: snapshot?.date ?? .now)
+    }
+    var loadedAt: Date? { snapshot?.loadedAt }
+    var networkStatus: SB_NetworkStatus { snapshot?.networkStatus ?? sensorBio.networkStatus }
 
     @MainActor
-    func load(date: Date) async {
+    func load(date: Date, force: Bool = false) async {
+        guard !force, let currentSnapshot = snapshotForSameDay(as: date) else {
+            await performLoad(date: date)
+            return
+        }
+        guard Date().timeIntervalSince(currentSnapshot.loadedAt) < Self.automaticRefreshInterval else {
+            await performLoad(date: date)
+            return
+        }
+    }
+
+    @MainActor
+    private func performLoad(date: Date) async {
+        let requestID = UUID()
+        activeRequestID = requestID
+        let previousSnapshot = snapshotForSameDay(as: date)
+        if previousSnapshot == nil {
+            snapshot = nil
+        }
         isLoading = true
         errorMessage = nil
         personalInsightsError = nil
         progressError = nil
-        loadedAt = nil
-        networkStatus = sensorBio.networkStatus
-        inflammationSignal = .unavailable(for: date)
-        defer { isLoading = false }
+        defer {
+            if activeRequestID == requestID {
+                isLoading = false
+            }
+        }
 
         let tzOffset = Int32(TimeZone.current.secondsFromGMT(for: date))
+        let nextData: SB_DashboardData
 
         do {
-            data = try await sensorBio.fetchDashboardData(date: date, tzOffset: tzOffset)
-            loadedAt = Date()
+            nextData = try await sensorBio.fetchDashboardData(date: date, tzOffset: tzOffset)
         } catch {
-            data = nil
+            guard activeRequestID == requestID else { return }
             errorMessage = error.localizedDescription
+            return
         }
 
-        nightlySleep = nil
-        if let sleepSession = data?.sleeps.first {
+        var nextNightlySleep = previousSnapshot?.nightlySleep
+        if let sleepSession = nextData.sleeps.first {
             do {
                 let endDate = Date(timeIntervalSince1970: TimeInterval(sleepSession.endTimestamp) / 1000)
-                nightlySleep = try await sensorBio.fetchSleepDetail(endDate: endDate, endTimestamp: Int64(sleepSession.endTimestamp))
+                nextNightlySleep = try await sensorBio.fetchSleepDetail(endDate: endDate, endTimestamp: Int64(sleepSession.endTimestamp))
             } catch {
-                nightlySleep = nil
+                // Keep the last complete same-day sleep detail during a transient refresh failure.
             }
+        } else {
+            nextNightlySleep = nil
         }
 
+        var nextPersonalInsights = previousSnapshot?.personalInsights
+        var nextPersonalInsightsError: String?
         do {
-            personalInsights = try await sensorBio.fetchNewInsights()
+            nextPersonalInsights = try await sensorBio.fetchNewInsights()
         } catch SB_InsightError.notEnoughSessions {
-            personalInsights = nil
+            nextPersonalInsights = nil
         } catch {
-            personalInsights = nil
-            personalInsightsError = error.localizedDescription
+            nextPersonalInsightsError = error.localizedDescription
         }
 
+        var nextWeeklyRecovery = previousSnapshot?.weeklyRecovery
+        var nextProgressError: String?
         do {
-            weeklyRecovery = try await sensorBio.fetchRangeRecovery(date: date, granularity: .week)
+            nextWeeklyRecovery = try await sensorBio.fetchRangeRecovery(date: date, granularity: .week)
         } catch {
-            weeklyRecovery = nil
-            progressError = error.localizedDescription
+            nextProgressError = error.localizedDescription
         }
 
+        var nextWeeklySleep = previousSnapshot?.weeklySleep
         do {
-            weeklySleep = try await sensorBio.fetchSleepAggregation(date: date, granularity: .week)
+            nextWeeklySleep = try await sensorBio.fetchSleepAggregation(date: date, granularity: .week)
         } catch {
-            weeklySleep = nil
-            if progressError == nil {
-                progressError = error.localizedDescription
+            if nextProgressError == nil {
+                nextProgressError = error.localizedDescription
             }
         }
+
+        guard activeRequestID == requestID, !Task.isCancelled else { return }
+        personalInsightsError = nextPersonalInsightsError
+        progressError = nextProgressError
+        snapshot = DashboardSnapshot(
+            date: date,
+            data: nextData,
+            personalInsights: nextPersonalInsights,
+            weeklyRecovery: nextWeeklyRecovery,
+            weeklySleep: nextWeeklySleep,
+            nightlySleep: nextNightlySleep,
+            inflammationSignal: previousSnapshot?.inflammationSignal ?? .unavailable(for: date),
+            loadedAt: Date(),
+            networkStatus: sensorBio.networkStatus
+        )
+    }
+
+    private func snapshotForSameDay(as date: Date, calendar: Calendar = .current) -> DashboardSnapshot? {
+        guard let snapshot, calendar.isDate(snapshot.date, inSameDayAs: date) else { return nil }
+        return snapshot
     }
 
     func freshness(for selectedDate: Date, calendar: Calendar = .current) -> NoomDataFreshness {

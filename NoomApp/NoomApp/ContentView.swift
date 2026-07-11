@@ -228,7 +228,13 @@ private struct NoomQAHost: View {
             case "main_default":
                 MainTabView(session: session)
             case "dashboard_empty", "dashboard_default":
-                NavigationStack { DashboardView(session: session) }
+                NavigationStack {
+                    DashboardView(
+                        session: session,
+                        dashboard: DashboardState(),
+                        productLoop: ProductLoopStore()
+                    )
+                }
             case "insights_empty", "insights_default":
                 NavigationStack { InsightsView() }
             case "pair_setup":
