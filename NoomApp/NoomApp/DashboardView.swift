@@ -409,28 +409,38 @@ struct DashboardView: View {
 
     @ViewBuilder
     private func dashboardMetrics(_ data: SB_DashboardData) -> some View {
-        if let sleep = data.sleep {
-            NavigationLink { SleepDetailView() } label: {
-                NoomCard {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Sleep").noomLabel()
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(formatNumber(sleep.item.value)).noomSerifTitle(size: 34)
-                            Spacer()
-                            if sleep.durationSeconds > 0 {
-                                Text(duration(seconds: sleep.durationSeconds)).noomBody()
-                            }
-                        }
-                    }
-                }
+        NavigationLink { SleepDetailView() } label: {
+            if let sleep = data.sleep {
+                NoomDashboardMetricTile(
+                    label: "Sleep",
+                    value: formatNumber(sleep.item.value),
+                    unit: "/100",
+                    caption: sleep.durationSeconds > 0 ? "\(duration(seconds: sleep.durationSeconds)) asleep" : "View sleep details",
+                    systemImage: "moon.stars.fill",
+                    accent: NoomTheme.metricPurple,
+                    minHeight: 132,
+                    prominent: true
+                )
+            } else {
+                NoomDashboardMetricTile(
+                    label: "Sleep",
+                    value: "Open",
+                    unit: nil,
+                    caption: "View sleep details",
+                    systemImage: "moon.stars.fill",
+                    accent: NoomTheme.metricPurple,
+                    minHeight: 132,
+                    prominent: true
+                )
             }
-            .buttonStyle(.plain)
-        } else {
-            metricRouteTile(label: "Sleep", metric: nil, destination: SleepDetailView())
         }
+        .buttonStyle(.plain)
 
         let metricsByType = Dictionary(grouping: data.metrics, by: \.metricType).compactMapValues(\.first)
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+        LazyVGrid(
+            columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible())],
+            spacing: 12
+        ) {
             metricRouteTile(label: "Steps", metric: metricsByType[.stepDashMetric], destination: StepsDetailView())
             metricRouteTile(label: "Active Calories", metric: metricsByType[.calorieDashMetric], destination: CaloriesDetailView())
             metricRouteTile(label: "Resting Heart Rate", metric: metricsByType[.hrDashMetric], destination: HRDetailView())
@@ -447,11 +457,13 @@ struct DashboardView: View {
                 historicalValues: MockInflammationSignalProvider().trailingValues(before: dashboard.inflammationSignal.completedDate)
             )
         } label: {
-            NoomMetricTile(
-                label: "Inflammation signal",
-                value: inflammationSignalValue,
+            NoomDashboardMetricTile(
+                label: "Inflammation Signal",
+                value: dashboard.inflammationSignal.validScore.map(MetricFormatting.humanNumber) ?? dashboard.inflammationSignal.status.label,
+                unit: dashboard.inflammationSignal.validScore == nil ? nil : "/100",
                 caption: dashboard.inflammationSignal.isPreview ? "Sample overnight input" : (dashboard.inflammationSignal.status.isUsable ? "Daily overnight signal" : "Source integration pending"),
-                minHeight: 104
+                systemImage: "waveform.path.ecg.rectangle",
+                accent: NoomTheme.red
             )
         }
         .buttonStyle(.plain)
@@ -460,11 +472,13 @@ struct DashboardView: View {
 
     private func metricRouteTile<Destination: View>(label: String, metric: SB_DashboardMetric? = nil, destination: Destination) -> some View {
         NavigationLink { destination } label: {
-            NoomMetricTile(
+            NoomDashboardMetricTile(
                 label: label,
-                value: metric.map(metricValue) ?? "Open",
-                caption: metric.map(metricFooter).flatMap { $0.isEmpty ? nil : $0 } ?? "Details",
-                minHeight: 104
+                value: metric.map(dashboardMetricNumber) ?? "Open",
+                unit: metric.flatMap(dashboardMetricUnit),
+                caption: metric.map(metricFooter).flatMap { $0.isEmpty ? nil : $0 } ?? "View details",
+                systemImage: dashboardMetricIcon(for: label),
+                accent: dashboardMetricAccent(for: label)
             )
         }
         .buttonStyle(.plain)
@@ -532,23 +546,63 @@ struct DashboardView: View {
         return dashboard.errorMessage == nil ? "Wear Noom Band and sync to see available sleep, Recovery, and movement data." : "We couldn't load this day. Try again."
     }
 
-    private func metricValue(_ metric: SB_DashboardMetric) -> String {
-        let number: String
+    private func dashboardMetricNumber(_ metric: SB_DashboardMetric) -> String {
         if metric.valueFloat != 0 {
-            number = formatNumber(metric.valueFloat)
-        } else {
-            number = MetricFormatting.humanNumber(metric.value)
+            return formatNumber(metric.valueFloat)
         }
-        guard let unit = metric.valueUnit, !unit.isEmpty else { return number }
-        return "\(number) \(unit)"
+        return MetricFormatting.humanNumber(metric.value)
+    }
+
+    private func dashboardMetricUnit(_ metric: SB_DashboardMetric) -> String? {
+        guard let rawUnit = metric.valueUnit?.trimmingCharacters(in: .whitespacesAndNewlines), !rawUnit.isEmpty else {
+            return nil
+        }
+        switch rawUnit.lowercased() {
+        case "bpm": return "bpm"
+        case "ms": return "ms"
+        case "/min", "brpm": return "/min"
+        case "kcal": return "kcal"
+        default: return rawUnit
+        }
     }
 
     private func metricFooter(_ metric: SB_DashboardMetric) -> String {
         switch metric.footer {
-        case .avgValue(let value): return "Average \(formatNumber(value))"
-        case .improvementVsBaseline(let value): return "\(formatNumber(value)) vs baseline"
-        case .unset: return ""
-        @unknown default: return ""
+        case .avgValue(let value):
+            return "Average \(formatNumber(value))"
+        case .improvementVsBaseline(let value):
+            guard abs(value) >= 0.05 else { return "At baseline" }
+            let sign = value > 0 ? "+" : ""
+            if let unit = dashboardMetricUnit(metric) {
+                return "\(sign)\(formatNumber(value)) \(unit) vs baseline"
+            }
+            return "\(sign)\(formatNumber(value)) vs baseline"
+        case .unset:
+            return ""
+        @unknown default:
+            return ""
+        }
+    }
+
+    private func dashboardMetricIcon(for label: String) -> String {
+        switch label {
+        case "Steps": return "figure.walk"
+        case "Active Calories": return "flame.fill"
+        case "Resting Heart Rate": return "heart.fill"
+        case "Heart Rate Variability": return "waveform.path.ecg"
+        case "Respiratory Rate": return "lungs.fill"
+        default: return "chart.xyaxis.line"
+        }
+    }
+
+    private func dashboardMetricAccent(for label: String) -> Color {
+        switch label {
+        case "Steps": return NoomTheme.metricGreen
+        case "Active Calories": return NoomTheme.metricAmber
+        case "Resting Heart Rate": return NoomTheme.red
+        case "Heart Rate Variability": return NoomTheme.metricPurple
+        case "Respiratory Rate": return NoomTheme.metricBlue
+        default: return NoomTheme.ink
         }
     }
 

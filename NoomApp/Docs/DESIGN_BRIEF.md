@@ -23,6 +23,14 @@ When valid inputs are missing, renormalize available components only and visibly
 
 Mobbin reference: [Oura iOS Readiness Trend](https://mobbin.com/explore/screens/e2d94334-c086-4427-8a8c-6f76a9ac0c7a). Translate its quiet score-plus-trend hierarchy into Noom tokens; do not copy Oura assets, copy, or UI.
 
+### Today metric-tile visual system
+
+Mobbin references reviewed on 2026-07-10:
+- [Oura iOS User Dashboard](https://mobbin.com/explore/screens/c659bd1e-9301-4281-a238-422ceaff9e71): dominant numeric hierarchy, restrained context cues, and generous grouping space.
+- [Ultrahuman iOS Health Metrics Dashboard](https://mobbin.com/explore/screens/ad181c1e-9e70-4fbc-b01a-8be0893805aa): smaller baseline-aligned units, consistent marker cards, and lightweight trend context.
+
+NoomPlus translates those durable patterns into its warm Noom surface rather than copying dark palettes, assets, or proprietary layouts. Every Today metric uses one SF Rounded numeric family with monospaced digits; units are separate, smaller, normalized (`bpm`, `ms`, `/min`, `/100`), and baseline aligned. Labels, values, captions, and tap affordances occupy fixed roles. Sleep uses the same component and type family as the two-column grid, differentiated only by full-width prominence. Metric cards use a subtle Noom-tinted icon well, a quiet context footer, continuous 22-point corners, 12-point grid gutters, and a visible chevron while preserving the existing real SDK values and destinations.
+
 ## Sleep hub redesign
 
 The Sleep tab becomes a sync-backed daily hub rather than a directory. It surfaces: (1) a concise sleep score and duration, (2) a compact stage preview, (3) recovery drivers from returned score factors, and (4) clear drill-ins for full Sleep and Recovery detail. It uses only SDK-returned data; it does not invent a recovery score, stage history, baseline, or coaching diagnosis.

@@ -235,6 +235,8 @@ private struct NoomQAHost: View {
                         productLoop: ProductLoopStore()
                     )
                 }
+            case "dashboard_metric_tiles_preview":
+                NavigationStack { DashboardMetricTilesPreviewView() }
             case "insights_empty", "insights_default":
                 NavigationStack { InsightsView() }
             case "pair_setup":
@@ -397,6 +399,45 @@ private struct NoomQAHost: View {
         guard let destination, !didSetInitialDestination, path.isEmpty else { return }
         didSetInitialDestination = true
         path = [destination]
+    }
+}
+
+private struct DashboardMetricTilesPreviewView: View {
+    var body: some View {
+        NoomScreen(spacing: 12, bottomPadding: 32) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Today")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundStyle(NoomTheme.logoBlack)
+                Text("Friday, July 10")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(NoomTheme.muted)
+            }
+
+            NoomDashboardMetricTile(
+                label: "Sleep",
+                value: "76",
+                unit: "/100",
+                caption: "6h 25m asleep",
+                systemImage: "moon.stars.fill",
+                accent: NoomTheme.metricPurple,
+                minHeight: 132,
+                prominent: true
+            )
+
+            LazyVGrid(
+                columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible())],
+                spacing: 12
+            ) {
+                NoomDashboardMetricTile(label: "Steps", value: "3,350", unit: nil, caption: "Average 2,709", systemImage: "figure.walk", accent: NoomTheme.metricGreen)
+                NoomDashboardMetricTile(label: "Active Calories", value: "164", unit: "kcal", caption: "Average 337", systemImage: "flame.fill", accent: NoomTheme.metricAmber)
+                NoomDashboardMetricTile(label: "Resting Heart Rate", value: "56", unit: "bpm", caption: "At baseline", systemImage: "heart.fill", accent: NoomTheme.red)
+                NoomDashboardMetricTile(label: "Heart Rate Variability", value: "77", unit: "ms", caption: "+19 ms vs baseline", systemImage: "waveform.path.ecg", accent: NoomTheme.metricPurple)
+                NoomDashboardMetricTile(label: "Respiratory Rate", value: "14", unit: "/min", caption: "+0.2 /min vs baseline", systemImage: "lungs.fill", accent: NoomTheme.metricBlue)
+                NoomDashboardMetricTile(label: "Inflammation Signal", value: "74", unit: "/100", caption: "Sample overnight input", systemImage: "waveform.path.ecg.rectangle", accent: NoomTheme.red)
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 

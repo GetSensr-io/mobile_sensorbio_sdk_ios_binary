@@ -11,6 +11,10 @@ enum NoomTheme {
     static let mint = Color(hex: 0xDDEDE3)
     static let rose = Color(hex: 0xFFE1DA)
     static let gold = Color(hex: 0xF2D69A)
+    static let metricGreen = Color(hex: 0x4F9B7C)
+    static let metricBlue = Color(hex: 0x5B8EAD)
+    static let metricPurple = Color(hex: 0x7768AE)
+    static let metricAmber = Color(hex: 0xD99035)
 
     static let horizontalPadding: CGFloat = 20
     static let cardRadius: CGFloat = 28
@@ -219,6 +223,105 @@ struct NoomEmptyStateCard: View {
                 }
             }
         }
+    }
+}
+
+struct NoomDashboardMetricTile: View {
+    let label: String
+    let value: String
+    let unit: String?
+    let caption: String
+    let systemImage: String
+    var accent: Color = NoomTheme.red
+    var minHeight: CGFloat = 148
+    var prominent: Bool = false
+
+    init(
+        label: String,
+        value: String,
+        unit: String? = nil,
+        caption: String,
+        systemImage: String = "chart.xyaxis.line",
+        accent: Color = NoomTheme.red,
+        minHeight: CGFloat = 148,
+        prominent: Bool = false
+    ) {
+        self.label = label
+        self.value = value
+        self.unit = unit
+        self.caption = caption
+        self.systemImage = systemImage
+        self.accent = accent
+        self.minHeight = minHeight
+        self.prominent = prominent
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                Text(label)
+                    .font(.system(size: prominent ? 15 : 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(NoomTheme.muted)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.86)
+                    .frame(maxWidth: .infinity, minHeight: prominent ? 28 : 34, alignment: .topLeading)
+                Image(systemName: systemImage)
+                    .font(.system(size: prominent ? 17 : 15, weight: .semibold))
+                    .foregroundStyle(NoomTheme.logoBlack)
+                    .frame(width: prominent ? 38 : 34, height: prominent ? 38 : 34)
+                    .background(accent.opacity(0.56), in: Circle())
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text(value)
+                    .font(.system(size: prominent ? 42 : 30, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .tracking(-0.8)
+                    .foregroundStyle(NoomTheme.logoBlack)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.72)
+                if let unit, !unit.isEmpty {
+                    Text(unit)
+                        .font(.system(size: prominent ? 16 : 13, weight: .semibold, design: .rounded))
+                        .foregroundStyle(NoomTheme.muted)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            HStack(spacing: 7) {
+                Circle()
+                    .fill(accent)
+                    .frame(width: 6, height: 6)
+                Text(caption)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(NoomTheme.ink.opacity(0.78))
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .minimumScaleFactor(0.78)
+                Spacer(minLength: 2)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(NoomTheme.muted.opacity(0.72))
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [Color.white.opacity(0.94), accent.opacity(0.10)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(NoomTheme.ink.opacity(0.08), lineWidth: 1)
+        }
+        .shadow(color: NoomTheme.ink.opacity(0.055), radius: 12, x: 0, y: 7)
+        .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }
 

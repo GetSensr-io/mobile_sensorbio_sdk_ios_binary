@@ -10,6 +10,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "NoomApp/NoomApp"
 DASHBOARD = (SRC / "DashboardView.swift").read_text()
+CONTENT = (SRC / "ContentView.swift").read_text()
 
 
 class MetricRouteContracts(unittest.TestCase):
@@ -44,6 +45,44 @@ class MetricRouteContracts(unittest.TestCase):
         self.assertIn(".steps", source)
         self.assertNotIn("kcal", source)
         self.assertNotIn("calorie", source)
+
+    def test_dashboard_tiles_share_one_numeric_type_and_separate_units(self) -> None:
+        design = (SRC / "NoomDesignSystem.swift").read_text()
+        self.assertIn("struct NoomDashboardMetricTile", design)
+        self.assertIn("let unit: String?", design)
+        self.assertIn("design: .rounded", design)
+        self.assertIn(".monospacedDigit()", design)
+        self.assertIn("Text(unit)", design)
+        self.assertIn("Image(systemName: systemImage)", design)
+        self.assertIn('Image(systemName: "chevron.right")', design)
+        self.assertIn("lineLimit(2)", design)
+        caption_layout = design.split("Text(caption)", 1)[1].split('Image(systemName: "chevron.right")', 1)[0]
+        self.assertIn(".lineLimit(2)", caption_layout)
+        self.assertIn(".fixedSize(horizontal: false, vertical: true)", caption_layout)
+
+    def test_sleep_and_grid_metrics_use_the_same_tile_component(self) -> None:
+        metrics_section = DASHBOARD.split("private func dashboardMetrics", 1)[1].split("private func insightCard", 1)[0]
+        self.assertGreaterEqual(metrics_section.count("NoomDashboardMetricTile("), 3)
+        self.assertNotIn("noomSerifTitle", metrics_section)
+        self.assertIn('label: "Sleep"', metrics_section)
+        self.assertIn('unit: "/100"', metrics_section)
+        self.assertIn('systemImage: "moon.stars.fill"', metrics_section)
+        self.assertIn("dashboardMetricUnit", metrics_section)
+        self.assertIn("spacing: 12", metrics_section)
+
+    def test_dashboard_units_and_baseline_copy_are_normalized(self) -> None:
+        self.assertIn('case "bpm": return "bpm"', DASHBOARD)
+        self.assertIn('case "ms": return "ms"', DASHBOARD)
+        self.assertIn('case "/min", "brpm": return "/min"', DASHBOARD)
+        self.assertIn('return "At baseline"', DASHBOARD)
+        self.assertIn('return "\\(sign)\\(formatNumber(value)) \\(unit) vs baseline"', DASHBOARD)
+
+    def test_debug_dashboard_tile_preview_uses_the_production_component(self) -> None:
+        self.assertIn('case "dashboard_metric_tiles_preview":', CONTENT)
+        self.assertIn("struct DashboardMetricTilesPreviewView", CONTENT)
+        self.assertGreaterEqual(CONTENT.count("NoomDashboardMetricTile("), 7)
+        self.assertIn('label: "Sleep"', CONTENT)
+        self.assertIn('label: "Inflammation Signal"', CONTENT)
 
 
 if __name__ == "__main__":
