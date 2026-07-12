@@ -55,28 +55,56 @@ struct ContentView: View {
 }
 
 struct NoomSignedOutView: View {
+    let initialSlide: Int
+
     #if DEBUG
     @AppStorage("envIsDev") private var envIsDev: Bool = false
+
+    private var isQAPreview: Bool {
+        ProcessInfo.processInfo.environment["NOOM_QA_ROUTE"] != nil
+    }
     #endif
+
+    init(initialSlide: Int = 0) {
+        self.initialSlide = initialSlide
+    }
 
     var body: some View {
         GeometryReader { geometry in
-            let adaptiveCarouselHeight = min(500, max(320, geometry.size.height * 0.52))
-            NoomScreen(bottomPadding: 24) {
-                VStack(alignment: .leading, spacing: 18) {
+            let fullBleedHeight = geometry.size.height + geometry.safeAreaInsets.top + geometry.safeAreaInsets.bottom
+            ZStack {
+                NoomWelcomeCarousel(
+                    height: fullBleedHeight,
+                    initialSlide: initialSlide,
+                    copyBottomInset: max(236, geometry.safeAreaInsets.bottom + 218),
+                    pagerBottomInset: max(176, geometry.safeAreaInsets.bottom + 158)
+                )
+                .frame(width: geometry.size.width, height: fullBleedHeight)
+                .offset(y: -geometry.safeAreaInsets.top)
+                .ignoresSafeArea()
+
+                VStack(spacing: 0) {
                     HStack {
                         NoomLogoPlate(compact: true)
                         Spacer()
                         NoomPill(title: "Weight Care", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.top, geometry.safeAreaInsets.top + 12)
 
-                    NoomWelcomeCarousel(height: adaptiveCarouselHeight)
+                    Spacer(minLength: 0)
 
                     #if DEBUG
-                    NoomCard(fill: Color.white.opacity(0.76), padding: 16) {
+                    if !isQAPreview {
                         Toggle("Use staging SDK environment", isOn: $envIsDev)
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            .foregroundStyle(NoomTheme.logoBlack)
+                            .toggleStyle(.switch)
+                            .tint(NoomTheme.red)
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(.black.opacity(0.34), in: Capsule())
+                            .padding(.bottom, 10)
                     }
                     #endif
 
@@ -87,6 +115,7 @@ struct NoomSignedOutView: View {
                             Text("Sign in")
                         }
                         .buttonStyle(NoomPrimaryButtonStyle())
+                        .shadow(color: NoomTheme.red.opacity(0.24), radius: 18, y: 8)
 
                         NavigationLink {
                             SignUpView()
@@ -96,20 +125,35 @@ struct NoomSignedOutView: View {
                                 .foregroundStyle(NoomTheme.logoBlack)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(Color.white, in: Capsule())
-                                .overlay { Capsule().stroke(NoomTheme.ink.opacity(0.10), lineWidth: 1) }
+                                .background(Color.white.opacity(0.92), in: Capsule())
+                                .overlay { Capsule().stroke(Color.white.opacity(0.74), lineWidth: 1) }
                         }
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, geometry.safeAreaInsets.bottom + 12)
                 }
             }
+            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
         }
+        .background(NoomTheme.logoBlack)
         .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 private struct NoomWelcomeCarousel: View {
-    @State private var selectedSlide = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Namespace private var pagerAnimation
+    @State private var selectedSlide: Int
     let height: CGFloat
+    let copyBottomInset: CGFloat
+    let pagerBottomInset: CGFloat
+
+    init(height: CGFloat, initialSlide: Int, copyBottomInset: CGFloat, pagerBottomInset: CGFloat) {
+        self.height = height
+        self.copyBottomInset = copyBottomInset
+        self.pagerBottomInset = pagerBottomInset
+        _selectedSlide = State(initialValue: min(max(initialSlide, 0), 2))
+    }
 
     private let slides = [
         NoomWelcomeSlide(
@@ -136,10 +180,16 @@ private struct NoomWelcomeCarousel: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        ZStack(alignment: .bottom) {
             TabView(selection: $selectedSlide) {
                 ForEach(slides) { slide in
-                    NoomWelcomeSlideCard(slide: slide)
+                    NoomWelcomeSlideCard(
+                        slide: slide,
+                        isSelected: slide.id == selectedSlide,
+                        reduceMotion: reduceMotion,
+                        horizontalOffset: slide.id < selectedSlide ? -18 : (slide.id > selectedSlide ? 18 : 0),
+                        copyBottomInset: copyBottomInset
+                    )
                         .tag(slide.id)
                 }
             }
@@ -148,14 +198,36 @@ private struct NoomWelcomeCarousel: View {
 
             HStack(spacing: 7) {
                 ForEach(slides) { slide in
-                    Capsule()
-                        .fill(slide.id == selectedSlide ? NoomTheme.red : NoomTheme.softLine)
-                        .frame(width: slide.id == selectedSlide ? 24 : 7, height: 7)
+                    Button {
+                        withAnimation(reduceMotion ? nil : .interactiveSpring(response: 0.48, dampingFraction: 0.86, blendDuration: 0.12)) {
+                            selectedSlide = slide.id
+                        }
+                    } label: {
+                        ZStack {
+                            if slide.id == selectedSlide {
+                                Capsule()
+                                    .fill(Color.white)
+                                    .frame(width: 28, height: 7)
+                                    .matchedGeometryEffect(id: "welcome-page", in: pagerAnimation)
+                            } else {
+                                Circle()
+                                    .fill(Color.white.opacity(0.42))
+                                    .frame(width: 7, height: 7)
+                            }
+                        }
+                        .frame(width: 28, height: 24)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Show welcome page \(slide.id + 1) of \(slides.count)")
+                    .accessibilityAddTraits(slide.id == selectedSlide ? .isSelected : [])
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.bottom, pagerBottomInset)
             .accessibilityLabel("Welcome carousel, page \(selectedSlide + 1) of \(slides.count)")
         }
+        .animation(reduceMotion ? nil : .interactiveSpring(response: 0.58, dampingFraction: 0.88, blendDuration: 0.15), value: selectedSlide)
     }
 }
 
@@ -169,6 +241,10 @@ private struct NoomWelcomeSlide: Identifiable {
 
 private struct NoomWelcomeSlideCard: View {
     let slide: NoomWelcomeSlide
+    let isSelected: Bool
+    let reduceMotion: Bool
+    let horizontalOffset: CGFloat
+    let copyBottomInset: CGFloat
 
     var body: some View {
         GeometryReader { proxy in
@@ -178,9 +254,18 @@ private struct NoomWelcomeSlideCard: View {
                     .scaledToFill()
                     .frame(width: proxy.size.width, height: proxy.size.height)
                     .clipped()
+                    .scaleEffect(reduceMotion ? 1 : (isSelected ? 1 : 1.055))
+                    .offset(x: reduceMotion ? 0 : horizontalOffset)
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.85), value: isSelected)
+                    .accessibilityHidden(true)
 
                 LinearGradient(
-                    colors: [.clear, NoomTheme.logoBlack.opacity(0.16), NoomTheme.logoBlack.opacity(0.82)],
+                    stops: [
+                        .init(color: NoomTheme.logoBlack.opacity(0.22), location: 0),
+                        .init(color: .clear, location: 0.32),
+                        .init(color: NoomTheme.logoBlack.opacity(0.18), location: 0.54),
+                        .init(color: NoomTheme.logoBlack.opacity(0.94), location: 1)
+                    ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -201,16 +286,19 @@ private struct NoomWelcomeSlideCard: View {
                         .foregroundStyle(.white.opacity(0.86))
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(24)
+                .padding(.horizontal, 24)
+                .padding(.bottom, copyBottomInset)
+                .opacity(reduceMotion || isSelected ? 1 : 0.28)
+                .offset(y: reduceMotion || isSelected ? 0 : 18)
+                .animation(
+                    reduceMotion ? nil : .interactiveSpring(response: 0.62, dampingFraction: 0.88, blendDuration: 0.1).delay(0.06),
+                    value: isSelected
+                )
             }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: NoomTheme.cardRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: NoomTheme.cardRadius, style: .continuous)
-                .stroke(NoomTheme.ink.opacity(0.08), lineWidth: 1)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(slide.eyebrow). \(slide.title). \(slide.detail)")
+        .accessibilityHidden(!isSelected)
     }
 }
 
@@ -234,6 +322,10 @@ private struct NoomQAHost: View {
             switch route {
             case "signedout_home":
                 signedOutStack()
+            case "signedout_home_slide_2":
+                signedOutStack(initialSlide: 1)
+            case "signedout_home_slide_3":
+                signedOutStack(initialSlide: 2)
             case "signin", "sign_in":
                 signedOutStack(initial: .signIn)
             case "signin_preview", "sign_in_preview":
@@ -336,9 +428,9 @@ private struct NoomQAHost: View {
         .environment(dateContext)
     }
 
-    private func signedOutStack(initial: NoomQADestination? = nil) -> some View {
+    private func signedOutStack(initial: NoomQADestination? = nil, initialSlide: Int = 0) -> some View {
         NavigationStack(path: $path) {
-            NoomSignedOutView()
+            NoomSignedOutView(initialSlide: initialSlide)
                 .navigationDestination(for: NoomQADestination.self) { destination in
                     qaDestination(destination)
                 }

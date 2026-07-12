@@ -23,6 +23,14 @@ When valid inputs are missing, renormalize available components only and visibly
 
 Mobbin reference: [Oura iOS Readiness Trend](https://mobbin.com/explore/screens/e2d94334-c086-4427-8a8c-6f76a9ac0c7a). Translate its quiet score-plus-trend hierarchy into Noom tokens; do not copy Oura assets, copy, or UI.
 
+### Full-bleed welcome
+
+Mobbin references reviewed on 2026-07-12:
+- [Vrbo iOS full-screen onboarding](https://mobbin.com/explore/screens/769774d5-519e-4360-b60a-9338ad2b0862): edge-to-edge lifestyle imagery with copy and navigation layered over the photograph.
+- [Life360 iOS onboarding](https://mobbin.com/explore/screens/4de3adbc-c29e-46d1-92f5-97bb9b6b39d6): a single prominent action and restrained visual hierarchy over a full-screen image.
+
+NoomPlus translates those patterns into its own warm editorial system: every welcome image bleeds beneath the status and home-indicator regions; the logo, Weight Care pill, page indicator, and authentication actions remain inside safe-area-aware overlays. Swiping keeps native paging while the outgoing and incoming images subtly scale and drift, the copy settles vertically, and the active page indicator morphs between positions. Reduce Motion disables those decorative transforms while preserving paging and every action. The image remains decorative to VoiceOver; each page is exposed as one concise combined message and each page indicator is a labeled selectable button.
+
 ### Population histogram axes
 
 The same Oura chart reference was re-reviewed on 2026-07-11 for restrained axis density and clear marker hierarchy. Population histograms use one shared Swift Charts component for every SDK metric, including HRV, resting HR, respiratory rate, and total sleep. The horizontal domain is derived from finite buckets with positive population; zero-population tail buckets do not stretch a real distribution into an unreadable sliver. The domain receives modest bin-aware padding and readable “nice” ticks. If every bucket is empty, the validated bucket extent remains the safe fallback. A personal value never silently widens the distribution: it is drawn only when it falls in the displayed range and remains available in text otherwise.
