@@ -252,6 +252,8 @@ private struct NoomQAHost: View {
                 }
             case "dashboard_metric_tiles_preview":
                 NavigationStack { DashboardMetricTilesPreviewView() }
+            case "dashboard_empty_tiles_preview":
+                NavigationStack { DashboardEmptyMetricTilesPreviewView() }
             case "loading_metric_preview":
                 NavigationStack { NoomLoadingPreviewView(kind: .metric) }
             case "loading_dashboard_preview":
@@ -469,6 +471,45 @@ private struct DashboardMetricTilesPreviewView: View {
                 NoomDashboardMetricTile(label: "Resting Heart Rate", value: "56", unit: "bpm", caption: "At baseline", systemImage: "heart.fill", accent: NoomTheme.red)
                 NoomDashboardMetricTile(label: "Heart Rate Variability", value: "77", unit: "ms", caption: "+19 ms vs baseline", systemImage: "waveform.path.ecg", accent: NoomTheme.metricPurple)
                 NoomDashboardMetricTile(label: "Respiratory Rate", value: "14", unit: "/min", caption: "+0.2 /min vs baseline", systemImage: "lungs.fill", accent: NoomTheme.metricBlue)
+                NoomDashboardMetricTile(label: "Inflammation Signal", value: "74", unit: "/100", caption: "Sample overnight input", systemImage: "waveform.path.ecg.rectangle", accent: NoomTheme.red)
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+private struct DashboardEmptyMetricTilesPreviewView: View {
+    var body: some View {
+        NoomScreen(spacing: 12, bottomPadding: 32) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Today")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundStyle(NoomTheme.logoBlack)
+                Text("Waiting for your first readings")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(NoomTheme.muted)
+            }
+
+            NoomDashboardMetricTile(
+                label: "Sleep",
+                value: "—",
+                unit: nil,
+                caption: "Waiting for today's sleep data",
+                systemImage: "moon.stars.fill",
+                accent: NoomTheme.metricPurple,
+                minHeight: 132,
+                prominent: true
+            )
+
+            LazyVGrid(
+                columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible())],
+                spacing: 12
+            ) {
+                NoomDashboardMetricTile(label: "Steps", value: "—", unit: nil, caption: "Take a few steps to get rolling", systemImage: "figure.walk", accent: NoomTheme.metricGreen)
+                NoomDashboardMetricTile(label: "Active Calories", value: "—", unit: nil, caption: "Move a little to light this up", systemImage: "flame.fill", accent: NoomTheme.metricAmber)
+                NoomDashboardMetricTile(label: "Resting Heart Rate", value: "—", unit: nil, caption: "One overnight read unlocks this", systemImage: "heart.fill", accent: NoomTheme.red)
+                NoomDashboardMetricTile(label: "Heart Rate Variability", value: "—", unit: nil, caption: "Your overnight rhythm will land here", systemImage: "waveform.path.ecg", accent: NoomTheme.metricPurple)
+                NoomDashboardMetricTile(label: "Respiratory Rate", value: "—", unit: nil, caption: "Wear Noom Band tonight to unlock", systemImage: "lungs.fill", accent: NoomTheme.metricBlue)
                 NoomDashboardMetricTile(label: "Inflammation Signal", value: "74", unit: "/100", caption: "Sample overnight input", systemImage: "waveform.path.ecg.rectangle", accent: NoomTheme.red)
             }
         }

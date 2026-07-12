@@ -92,11 +92,37 @@ class NoomSyncExperienceContracts(unittest.TestCase):
         self.assertNotIn('value: "Open"', metrics)
         self.assertNotIn('?? "Open"', metrics)
         for snippet in (
-            'caption: "Your sleep story starts tonight"',
+            'if let sleep = data.sleep, sleep.item.value.isFinite, sleep.item.value > 0',
+            'caption: missingSleepCaption',
             'value: "—"',
         ):
             self.assertIn(snippet, metrics)
+        self.assertIn('dashboardMetricHasData', DASHBOARD)
+        self.assertIn('value: availableMetric.flatMap(dashboardMetricNumber) ?? "—"', DASHBOARD)
+        self.assertIn('return "Waiting for today\'s sleep data"', DASHBOARD)
+        self.assertIn('return "No sleep data for this day"', DASHBOARD)
+        availability = DASHBOARD.split("private func dashboardMetricHasData", 1)[1].split("private func dashboardMetricNumber", 1)[0]
+        self.assertIn("dashboardMetricNumber(metric) != nil", availability)
+        formatter = DASHBOARD.split("private func dashboardMetricNumber", 1)[1].split("private func dashboardMetricUnit", 1)[0]
+        self.assertIn("-> String?", formatter)
+        self.assertIn("metric.valueFloat.isFinite && metric.valueFloat > 0", formatter)
+        self.assertIn("guard metric.valueFloat == 0, metric.value > 0 else", formatter)
         self.assertIn('missingMetricCaption(for: label)', DASHBOARD)
+
+    def test_home_progress_requires_three_unique_days(self) -> None:
+        progress = DASHBOARD.split("private var progressPreviewSection", 1)[1].split("private func dashboardMetrics", 1)[0]
+        self.assertIn("Set(recoveryPoints.map(\\.date) + sleepPoints.map(\\.date))", progress)
+        self.assertIn("if coveredDays.count >= 3", progress)
+        self.assertIn('Text("Progress")', progress)
+        self.assertNotIn('Text("Progress from real history")', progress)
+        self.assertNotIn('NoomStateBanner(title: "Progress unavailable"', progress)
+
+    def test_empty_home_visual_fixture_matches_missing_data_rules(self) -> None:
+        self.assertIn('case "dashboard_empty_tiles_preview"', CONTENT)
+        fixture = CONTENT.split("private struct DashboardEmptyMetricTilesPreviewView", 1)[1].split("private struct NoomQAMetricPreview", 1)[0]
+        self.assertGreaterEqual(fixture.count('value: "—"'), 6)
+        self.assertIn('caption: "Waiting for today\'s sleep data"', fixture)
+        self.assertNotIn('Text("Progress")', fixture)
 
     def test_no_sleep_states_are_a_guided_first_night_experience(self) -> None:
         for snippet in (

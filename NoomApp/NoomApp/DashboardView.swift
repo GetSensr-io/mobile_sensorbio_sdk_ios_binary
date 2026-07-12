@@ -462,13 +462,14 @@ struct DashboardView: View {
     private var progressPreviewSection: some View {
         let recoveryPoints = dashboard.weeklyRecovery?.graph?.recoveryScoreSection?.scorePoints.sorted { $0.date < $1.date } ?? []
         let sleepPoints = dashboard.weeklySleep?.sleepTimePoints.sorted { $0.date < $1.date } ?? []
-        if !recoveryPoints.isEmpty || !sleepPoints.isEmpty {
+        let coveredDays = Set(recoveryPoints.map(\.date) + sleepPoints.map(\.date))
+        if coveredDays.count >= 3 {
             NoomCard(fill: Color.white.opacity(0.84), padding: 18) {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(alignment: .firstTextBaseline) {
-                        Text("Progress from real history").noomSerifTitle(size: 26)
+                        Text("Progress").noomSerifTitle(size: 26)
                         Spacer()
-                        NoomPill(title: progressCoverageTitle(recoveryPoints: recoveryPoints, sleepPoints: sleepPoints), color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
+                        NoomPill(title: progressCoverageTitle(coveredDayCount: coveredDays.count), color: NoomTheme.mint, foreground: NoomTheme.logoBlack)
                     }
                     Text("Only returned sleep and Recovery dates are shown. Missing dates are discontinuous, and no causal score is computed.").noomBody()
                     if !recoveryPoints.isEmpty {
@@ -487,15 +488,13 @@ struct DashboardView: View {
                     .buttonStyle(NoomSecondaryButtonStyle())
                 }
             }
-        } else if dashboard.progressError != nil {
-            NoomStateBanner(title: "Progress unavailable", detail: "Recovery and sleep history did not load. The app does not fill gaps with sample data.", systemImage: "chart.xyaxis.line", tint: NoomTheme.rose)
         }
     }
 
     @ViewBuilder
     private func dashboardMetrics(_ data: SB_DashboardData) -> some View {
         NavigationLink { SleepDetailView() } label: {
-            if let sleep = data.sleep {
+            if let sleep = data.sleep, sleep.item.value.isFinite, sleep.item.value > 0 {
                 NoomDashboardMetricTile(
                     label: "Sleep",
                     value: formatNumber(sleep.item.value),
@@ -511,7 +510,7 @@ struct DashboardView: View {
                     label: "Sleep",
                     value: "—",
                     unit: nil,
-                    caption: "Your sleep story starts tonight",
+                    caption: missingSleepCaption,
                     systemImage: "moon.stars.fill",
                     accent: NoomTheme.metricPurple,
                     minHeight: 132,
@@ -556,17 +555,25 @@ struct DashboardView: View {
     }
 
     private func metricRouteTile<Destination: View>(label: String, metric: SB_DashboardMetric? = nil, destination: Destination) -> some View {
-        NavigationLink { destination } label: {
+        let availableMetric = metric.flatMap { dashboardMetricHasData($0) ? $0 : nil }
+        return NavigationLink { destination } label: {
             NoomDashboardMetricTile(
                 label: label,
-                value: metric.map(dashboardMetricNumber) ?? "—",
-                unit: metric.flatMap(dashboardMetricUnit),
-                caption: metric.map(metricFooter).flatMap { $0.isEmpty ? nil : $0 } ?? missingMetricCaption(for: label),
+                value: availableMetric.flatMap(dashboardMetricNumber) ?? "—",
+                unit: availableMetric.flatMap(dashboardMetricUnit),
+                caption: availableMetric.map(metricFooter).flatMap { $0.isEmpty ? nil : $0 } ?? missingMetricCaption(for: label),
                 systemImage: dashboardMetricIcon(for: label),
                 accent: dashboardMetricAccent(for: label)
             )
         }
         .buttonStyle(.plain)
+    }
+
+    private var missingSleepCaption: String {
+        if Calendar.current.isDateInToday(dateContext.selectedDate) {
+            return "Waiting for today's sleep data"
+        }
+        return "No sleep data for this day"
     }
 
     private func missingMetricCaption(for label: String) -> String {
@@ -642,10 +649,15 @@ struct DashboardView: View {
         return dashboard.errorMessage == nil ? "Wear Noom Band and sync to see available sleep, Recovery, and movement data." : "We couldn't load this day. Try again."
     }
 
-    private func dashboardMetricNumber(_ metric: SB_DashboardMetric) -> String {
-        if metric.valueFloat != 0 {
+    private func dashboardMetricHasData(_ metric: SB_DashboardMetric) -> Bool {
+        dashboardMetricNumber(metric) != nil
+    }
+
+    private func dashboardMetricNumber(_ metric: SB_DashboardMetric) -> String? {
+        if metric.valueFloat.isFinite && metric.valueFloat > 0 {
             return formatNumber(metric.valueFloat)
         }
+        guard metric.valueFloat == 0, metric.value > 0 else { return nil }
         return MetricFormatting.humanNumber(metric.value)
     }
 
@@ -754,8 +766,7 @@ struct DashboardView: View {
         return nil
     }
 
-    private func progressCoverageTitle(recoveryPoints: [SB_DateValuePoint], sleepPoints: [SB_DateValuePoint]) -> String {
-        let count = max(recoveryPoints.count, sleepPoints.count)
+    private func progressCoverageTitle(coveredDayCount count: Int) -> String {
         switch count {
         case 5...: return "Coverage \(count)/7"
         case 1...: return "Partial \(count)/7"

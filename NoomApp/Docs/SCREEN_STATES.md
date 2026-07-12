@@ -18,6 +18,17 @@
 | Offline | Explain that a real source is unavailable offline | Do not fabricate or cache a fresh state without an approved freshness rule |
 | Debug preview | Clearly labeled **Preview sample** | May exercise 4/4 formula only in debug/preview route |
 
+## Home empty and early-history states
+
+| State | Home behavior |
+|---|---|
+| Metric absent, zero, negative, or non-finite | Show `—`, omit the unit, and use metric-specific waiting copy; never present a plausible zero |
+| Sleep absent on Today | Show `—` and **Waiting for today's sleep data** |
+| Sleep absent on a historical date | Show `—` and **No sleep data for this day** |
+| Fewer than 3 unique weekly Sleep/Recovery dates | Hide the Home Progress preview entirely |
+| At least 3 unique weekly Sleep/Recovery dates | Show **Progress**, count each returned date once across both streams, and leave missing dates blank |
+| Debug empty-state preview | Use `dashboard_empty_tiles_preview`; keep the Inflammation Signal visibly labeled as sample input |
+
 ## Accessibility focus order
 
 1. Metric title and selected date.

@@ -31,6 +31,10 @@ Mobbin references reviewed on 2026-07-10:
 
 NoomPlus translates those durable patterns into its warm Noom surface rather than copying dark palettes, assets, or proprietary layouts. Every Today metric uses one SF Rounded numeric family with monospaced digits; units are separate, smaller, normalized (`bpm`, `ms`, `/min`, `/100`), and baseline aligned. Labels, values, captions, and tap affordances occupy fixed roles. Sleep uses the same component and type family as the two-column grid, differentiated only by full-width prominence. Metric cards use a subtle Noom-tinted icon well, a quiet context footer, continuous 22-point corners, 12-point grid gutters, and a visible chevron while preserving the existing real SDK values and destinations.
 
+### Home empty and early-history states
+
+The same Oura and Ultrahuman Mobbin references above support keeping card anatomy stable while data arrives, rather than replacing the dashboard with plausible zeros. A dashboard metric is available only when the SDK returns a finite positive value; otherwise its value is `—`, its unit is omitted, and the footer explains what will unlock it. Missing Sleep on Today reads **Waiting for today's sleep data**; a historical day reads **No sleep data for this day**. The Home **Progress** preview remains hidden until the weekly SDK responses cover at least three unique returned dates across Sleep or Recovery, then uses the concise title **Progress**. Missing dates remain missing and are never converted to zero or duplicated across streams to inflate coverage.
+
 ## Sleep hub redesign
 
 The Sleep tab becomes a sync-backed daily hub rather than a directory. It surfaces: (1) a concise sleep score and duration, (2) a compact stage preview, (3) recovery drivers from returned score factors, and (4) clear drill-ins for full Sleep and Recovery detail. It uses only SDK-returned data; it does not invent a recovery score, stage history, baseline, or coaching diagnosis.
