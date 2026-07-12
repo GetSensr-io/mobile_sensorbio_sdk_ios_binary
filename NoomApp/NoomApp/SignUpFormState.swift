@@ -15,7 +15,6 @@ final class SignUpFormState {
     var heightInches: String = ""
     var weightInput: String = ""
     var imperialUnits: Bool = true
-    var orgId: String = ""
 
     var isSubmitting: Bool = false
     var result: Result? = nil
@@ -26,8 +25,13 @@ final class SignUpFormState {
         case invalidEmail
         case invalidHeight
         case invalidWeight
+        case invalidAccessCode
+        case accessCodeAlreadyInUse
+        case deviceSerialNumberRequired
+        case deviceSerialNumberMismatch
         case other(message: String)
-        case threw(String)
+        case threw
+        case unexpected
     }
 
     var heightOK: Bool {
@@ -63,8 +67,6 @@ final class SignUpFormState {
         }
         let weight = Float(weightInput) ?? 0
         let birthdayComponents = Calendar.current.dateComponents([.year, .month, .day], from: birthday)
-        let trimmedOrgId = orgId.trimmingCharacters(in: .whitespaces)
-
         let request = SB_CreateAccountRequest(
             username: username,
             email: email,
@@ -74,13 +76,16 @@ final class SignUpFormState {
             heightCm: heightCmValue,
             weight: weight,
             imperialUnits: imperialUnits,
-            orgId: trimmedOrgId.isEmpty ? nil : trimmedOrgId
+            orgId: nil,
+            accountVerificationAccessCode: nil,
+            deviceSerialNumber: nil
         )
 
         do {
             let outcome = try await sensorBio.createAccount(request)
             switch outcome {
             case .success:
+                password = ""
                 result = .success(username: username)
             case .invalidBirthday:
                 result = .invalidBirthday
@@ -91,20 +96,20 @@ final class SignUpFormState {
             case .invalidWeight:
                 result = .invalidWeight
             case .invalidAccessCode:
-                result = .other(message: "Invalid access code.")
+                result = .invalidAccessCode
             case .accessCodeAlreadyInUse:
-                result = .other(message: "That access code is already in use.")
+                result = .accessCodeAlreadyInUse
             case .deviceSerialNumberRequired:
-                result = .other(message: "A Noom Band serial number is required.")
+                result = .deviceSerialNumberRequired
             case .deviceSerialNumberMismatch:
-                result = .other(message: "The Noom Band serial number does not match.")
+                result = .deviceSerialNumberMismatch
             case .other(let message):
                 result = .other(message: message)
             @unknown default:
-                break
+                result = .unexpected
             }
         } catch {
-            result = .threw(error.localizedDescription)
+            result = .threw
         }
     }
 }

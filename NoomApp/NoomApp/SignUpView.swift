@@ -73,12 +73,6 @@ struct SignUpView: View {
                     }
                 }
 
-                compactSection("Program access (optional)") {
-                    TextField(text: $form.orgId, prompt: prompt("Access code")) { Text("Access code") }
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                }
-
                 if let result = form.result {
                     compactSection("Status") { resultView(result) }
                 }
@@ -161,7 +155,7 @@ struct SignUpView: View {
             Label("Please check your birthday and try again.", systemImage: "xmark.octagon.fill")
                 .foregroundStyle(.red)
         case .invalidEmail:
-            Label("Please check your email and try again.", systemImage: "xmark.octagon.fill")
+            Label("Enter a valid email address.", systemImage: "xmark.octagon.fill")
                 .foregroundStyle(.red)
         case .invalidHeight:
             Label("Please check your height and try again.", systemImage: "xmark.octagon.fill")
@@ -169,6 +163,18 @@ struct SignUpView: View {
         case .invalidWeight:
             Label("Please check your weight and try again.", systemImage: "xmark.octagon.fill")
                 .foregroundStyle(.red)
+        case .invalidAccessCode:
+            Label("Account setup is not configured correctly. Please contact support.", systemImage: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+        case .accessCodeAlreadyInUse:
+            Label("This account setup link has already been used. Please contact support.", systemImage: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+        case .deviceSerialNumberRequired:
+            Label("This account requires a Noom Band serial number. Please contact support.", systemImage: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+        case .deviceSerialNumberMismatch:
+            Label("The Noom Band assigned to this account does not match. Please contact support.", systemImage: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
         case .other(let message):
             Label(message.isEmpty ? "We could not create your account. Please try again." : message,
                   systemImage: "exclamationmark.triangle.fill")
@@ -176,8 +182,9 @@ struct SignUpView: View {
         case .threw:
             Label("We could not create your account. Please try again.", systemImage: "bolt.trianglebadge.exclamationmark.fill")
                 .foregroundStyle(.orange)
-            @unknown default:
-                EmptyView()
+        case .unexpected:
+            Label("Noom+ received an unexpected account response. Please try again.", systemImage: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
         }
     }
 }
