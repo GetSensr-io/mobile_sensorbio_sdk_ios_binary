@@ -292,12 +292,56 @@ private struct PopulationHistogramChartView: View {
         return maximum > 0 ? maximum * 1.12 : 1
     }
 
+    private var domainData: [PopulationHistogramDatum] {
+        let populated = data.filter { $0.population > 0 }
+        return populated.isEmpty ? data : populated
+    }
+
     private var xAxisDomain: ClosedRange<Float> {
-        let values = data.flatMap { [$0.lowerBound, $0.upperBound] }
+        let values = domainData.flatMap { [$0.lowerBound, $0.upperBound] }
         let lower = values.min() ?? 0
         let upper = values.max() ?? 1
-        let padding = max((upper - lower) * 0.05, 1)
-        return (lower - padding)...(upper + padding)
+        let span = max(upper - lower, Float.ulpOfOne)
+        let widths = domainData
+            .map { $0.upperBound - $0.lowerBound }
+            .filter { $0.isFinite && $0 > 0 }
+            .sorted()
+        let medianWidth = widths.isEmpty ? span : widths[widths.count / 2]
+        let padding = max(span * 0.04, min(medianWidth * 0.35, span * 0.10))
+        let paddedLower = lower >= 0 ? max(0, lower - padding) : lower - padding
+        return paddedLower...(upper + padding)
+    }
+
+    private var xAxisTickValues: [Float] {
+        let lower = xAxisDomain.lowerBound
+        let upper = xAxisDomain.upperBound
+        let step = niceAxisStep(for: upper - lower)
+        guard step.isFinite, step > 0 else { return [lower, upper] }
+
+        let first = ceil(lower / step) * step
+        var ticks: [Float] = []
+        var value = first
+        while value <= upper + (step * 0.001), ticks.count < 8 {
+            ticks.append(value == -0 ? 0 : value)
+            value += step
+        }
+        return ticks.count >= 2 ? ticks : [lower, upper]
+    }
+
+    private func niceAxisStep(for span: Float) -> Float {
+        guard span.isFinite, span > 0 else { return 1 }
+        let roughStep = Double(span) / 4
+        let magnitude = pow(10, floor(log10(roughStep)))
+        let normalized = roughStep / magnitude
+        let factor: Double
+        switch normalized {
+        case ...1: factor = 1
+        case ...2: factor = 2
+        case ...2.5: factor = 2.5
+        case ...5: factor = 5
+        default: factor = 10
+        }
+        return Float(factor * magnitude)
     }
 
     private var visibleUserValue: Float? {
@@ -338,10 +382,15 @@ private struct PopulationHistogramChartView: View {
             .chartXScale(domain: xAxisDomain)
             .chartYScale(domain: 0...yAxisMaximum)
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 4)) {
+                AxisMarks(values: xAxisTickValues) { axisValue in
                     AxisGridLine().foregroundStyle(NoomTheme.ink.opacity(0.08))
                     AxisTick().foregroundStyle(NoomTheme.ink.opacity(0.25))
-                    AxisValueLabel()
+                    AxisValueLabel {
+                        if let value = axisValue.as(Float.self) {
+                            Text(MetricFormatting.humanNumber(value))
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
+                    }
                 }
             }
             .chartYAxis {
@@ -545,6 +594,92 @@ struct PopulationInsightsGraphPreviewView: View {
         }
         .navigationTitle("Insights")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct PopulationHistogramMetricPreviewView: View {
+    let metric: PopulationHistogramPreviewMetric
+
+    var body: some View {
+        NoomScreen {
+            NoomTopBar(label: "Insights") {
+                NoomPill(title: "QA sample", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
+            }
+            NoomCard {
+                VStack(alignment: .leading, spacing: 14) {
+                    Text(metric.title).noomSerifTitle(size: 28)
+                    Text("Synthetic development distribution with an intentionally oversized empty tail.")
+                        .noomBody()
+                    PopulationHistogramChartView(
+                        data: metric.data,
+                        userValue: metric.userValue,
+                        xAxisTitle: metric.xAxisTitle
+                    )
+                }
+            }
+        }
+        .navigationTitle("Population insights")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct PopulationHistogramPreviewMetric {
+    let title: String
+    let xAxisTitle: String
+    let userValue: Float
+    fileprivate let data: [PopulationHistogramDatum]
+
+    static let hrv = PopulationHistogramPreviewMetric(
+        title: "HRV",
+        xAxisTitle: "Milliseconds",
+        userValue: 54,
+        data: histogram(start: 20, width: 15, populations: [4, 13, 27, 22, 9], emptyTailStart: 95)
+    )
+
+    static let restingHR = PopulationHistogramPreviewMetric(
+        title: "Resting HR",
+        xAxisTitle: "Beats Per Min",
+        userValue: 54,
+        data: histogram(start: 35, width: 10, populations: [8, 20, 31, 24, 10], emptyTailStart: 85)
+    )
+
+    static let respiratory = PopulationHistogramPreviewMetric(
+        title: "Respiratory rate",
+        xAxisTitle: "Breaths Per Min",
+        userValue: 14.8,
+        data: histogram(start: 10, width: 2, populations: [5, 18, 30, 21, 7], emptyTailStart: 20)
+    )
+
+    static let sleep = PopulationHistogramPreviewMetric(
+        title: "Total sleep",
+        xAxisTitle: "Hours",
+        userValue: 7.2,
+        data: histogram(start: 4, width: 1, populations: [3, 12, 26, 29, 14, 5], emptyTailStart: 10)
+    )
+
+    private static func histogram(
+        start: Float,
+        width: Float,
+        populations: [Float],
+        emptyTailStart: Float
+    ) -> [PopulationHistogramDatum] {
+        let populated = populations.enumerated().map { index, population in
+            let lower = start + (Float(index) * width)
+            return PopulationHistogramDatum(
+                id: index,
+                lowerBound: lower,
+                upperBound: lower + width,
+                population: population
+            )
+        }
+        return populated + [
+            PopulationHistogramDatum(
+                id: populations.count,
+                lowerBound: emptyTailStart,
+                upperBound: 1_000,
+                population: 0
+            )
+        ]
     }
 }
 #endif

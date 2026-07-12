@@ -62,6 +62,41 @@ class InsightsFeedbackContractTests(unittest.TestCase):
         domain_end = chart_source.index("var body", domain_start)
         self.assertNotIn("values.append(userValue)", chart_source[domain_start:domain_end])
 
+    def test_histogram_domain_ignores_empty_tail_buckets_and_uses_readable_ticks(self) -> None:
+        chart_start = INSIGHTS.index("private struct PopulationHistogramChartView")
+        chart_end = INSIGHTS.index("private struct PopulationRadarDatum", chart_start)
+        chart_source = INSIGHTS[chart_start:chart_end]
+        for token in (
+            "private var domainData",
+            "data.filter { $0.population > 0 }",
+            "populated.isEmpty ? data : populated",
+            "private var xAxisTickValues",
+            "niceAxisStep",
+            "AxisMarks(values: xAxisTickValues)",
+            "MetricFormatting.humanNumber(value)",
+            ".fixedSize(horizontal: true, vertical: false)",
+        ):
+            self.assertIn(token, chart_source)
+        domain_start = chart_source.index("private var xAxisDomain")
+        domain_end = chart_source.index("private var xAxisTickValues", domain_start)
+        self.assertIn("domainData", chart_source[domain_start:domain_end])
+        self.assertNotIn("data.flatMap", chart_source[domain_start:domain_end])
+
+    def test_tight_axis_preview_covers_every_population_metric_family(self) -> None:
+        content = (ROOT / "NoomApp/NoomApp/ContentView.swift").read_text()
+        for route in (
+            "population_insights_hrv_preview",
+            "population_insights_resting_hr_preview",
+            "population_insights_respiratory_preview",
+            "population_insights_sleep_preview",
+        ):
+            self.assertIn(f'case "{route}"', content)
+        for label in ("HRV", "Resting HR", "Respiratory rate", "Total sleep"):
+            self.assertIn(f'title: "{label}"', INSIGHTS)
+        self.assertIn("PopulationHistogramMetricPreviewView", INSIGHTS)
+        self.assertIn("population: 0", INSIGHTS)
+        self.assertIn("upperBound: 1_000", INSIGHTS)
+
     def test_population_filter_controls_expose_selected_state(self) -> None:
         self.assertGreaterEqual(INSIGHTS.count(".accessibilityAddTraits("), 3)
         self.assertIn(".isSelected", INSIGHTS)

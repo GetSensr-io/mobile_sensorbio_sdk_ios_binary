@@ -266,6 +266,14 @@ private struct NoomQAHost: View {
                 NavigationStack { InsightsView() }
             case "population_insights_preview":
                 NavigationStack { PopulationInsightsGraphPreviewView() }
+            case "population_insights_hrv_preview":
+                NavigationStack { PopulationHistogramMetricPreviewView(metric: .hrv) }
+            case "population_insights_resting_hr_preview":
+                NavigationStack { PopulationHistogramMetricPreviewView(metric: .restingHR) }
+            case "population_insights_respiratory_preview":
+                NavigationStack { PopulationHistogramMetricPreviewView(metric: .respiratory) }
+            case "population_insights_sleep_preview":
+                NavigationStack { PopulationHistogramMetricPreviewView(metric: .sleep) }
             case "pair_setup":
                 NavigationStack { NoomBandSetupEntryView() }
             case "pair_scanning":

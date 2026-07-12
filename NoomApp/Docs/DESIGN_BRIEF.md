@@ -23,6 +23,10 @@ When valid inputs are missing, renormalize available components only and visibly
 
 Mobbin reference: [Oura iOS Readiness Trend](https://mobbin.com/explore/screens/e2d94334-c086-4427-8a8c-6f76a9ac0c7a). Translate its quiet score-plus-trend hierarchy into Noom tokens; do not copy Oura assets, copy, or UI.
 
+### Population histogram axes
+
+The same Oura chart reference was re-reviewed on 2026-07-11 for restrained axis density and clear marker hierarchy. Population histograms use one shared Swift Charts component for every SDK metric, including HRV, resting HR, respiratory rate, and total sleep. The horizontal domain is derived from finite buckets with positive population; zero-population tail buckets do not stretch a real distribution into an unreadable sliver. The domain receives modest bin-aware padding and readable “nice” ticks. If every bucket is empty, the validated bucket extent remains the safe fallback. A personal value never silently widens the distribution: it is drawn only when it falls in the displayed range and remains available in text otherwise.
+
 ### Today metric-tile visual system
 
 Mobbin references reviewed on 2026-07-10:
