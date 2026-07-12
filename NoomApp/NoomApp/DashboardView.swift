@@ -29,15 +29,6 @@ struct DashboardView: View {
                     .accessibilityLabel("Noom plus")
                 Spacer()
                 HStack(spacing: 8) {
-                    NavigationLink { RecordActivityView() } label: {
-                        Image(systemName: "record.circle")
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(NoomTheme.logoBlack)
-                            .frame(width: 36, height: 36)
-                            .background(NoomTheme.softLine.opacity(0.72), in: Circle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Record activity or spot check")
                     BandBatteryBadge(
                         isApplyingSyncUpdate: isApplyingSyncUpdate,
                         showsSyncUpdated: showsSyncUpdated,
@@ -84,6 +75,16 @@ struct DashboardView: View {
             } else {
                 noDataCard
             }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            NavigationLink { RecordActivityView() } label: {
+                NoomRecordingFloatingButton()
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Record a session")
+            .accessibilityHint("Choose a spot check or activity tracking")
+            .padding(.trailing, NoomTheme.horizontalPadding)
+            .padding(.bottom, 14)
         }
         .toolbar(.hidden, for: .navigationBar)
         .task(id: dateContext.selectedDate) { await refreshDashboard() }

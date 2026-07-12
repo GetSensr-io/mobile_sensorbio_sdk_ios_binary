@@ -300,6 +300,12 @@ private struct NoomQAHost: View {
                 NavigationStack { NoomFirstNightPreviewView(title: "Sleep") }
             case "dashboard_no_sleep_preview":
                 NavigationStack { NoomFirstNightPreviewView(title: "Dashboard") }
+            case "recording_hub_preview":
+                NavigationStack { RecordActivityView(preview: .hub) }
+            case "recording_spot_preview":
+                NavigationStack { RecordActivityView(preview: .spotCheck) }
+            case "recording_activity_preview":
+                NavigationStack { RecordActivityView(preview: .activity) }
             case "record_activity":
                 NavigationStack { RecordActivityView() }
             case "steps_detail":

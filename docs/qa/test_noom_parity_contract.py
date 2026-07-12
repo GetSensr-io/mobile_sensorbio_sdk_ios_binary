@@ -48,6 +48,13 @@ class NoomParityContractTests(unittest.TestCase):
         toggle = CONTENT.split('Toggle("Use staging SDK environment"', 1)[0]
         self.assertIn("#if DEBUG", toggle[-500:])
 
+    def test_privacy_manifest_declares_app_owned_user_defaults_access(self) -> None:
+        privacy = (SRC / "PrivacyInfo.xcprivacy").read_text()
+        project = (ROOT / "NoomApp/NoomApp.xcodeproj/project.pbxproj").read_text()
+        self.assertIn("NSPrivacyAccessedAPICategoryUserDefaults", privacy)
+        self.assertIn("CA92.1", privacy)
+        self.assertIn("PrivacyInfo.xcprivacy in Resources", project)
+
     def test_qa_metric_details_use_disclosed_unit_correct_samples_without_sdk_auth(self) -> None:
         content = (SRC / "ContentView.swift").read_text()
         destination_block = content[content.index("private func qaDestination"):content.index("private var metricBaselinePreview")]
@@ -314,10 +321,10 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertIn("submitFeedback", INSIGHTS_VIEW)
 
     def test_recording_surface_uses_sdk_owned_activity_and_spot_check_orchestration(self) -> None:
-        main_tabs = (SRC / "MainTabView.swift").read_text()
-        self.assertIn("struct RecordActivityView", main_tabs)
+        recording = (SRC / "RecordingExperienceView.swift").read_text()
+        self.assertIn("struct RecordActivityView", recording)
         for token in ("recordDetailedBiometrics", "recordActivity", "finishCurrentRecording", "pauseRecording", "resumeRecording", "awaitActiveRecordingCompletion"):
-            self.assertIn(token, main_tabs)
+            self.assertIn(token, recording)
         self.assertIn("RecordActivityView()", DASHBOARD)
 
     def test_unsupported_noom_product_loop_screens_are_not_release_routable(self) -> None:

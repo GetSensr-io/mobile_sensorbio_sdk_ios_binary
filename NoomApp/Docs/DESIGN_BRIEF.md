@@ -1,4 +1,4 @@
-# Noom Inflammation Signal POC — Design Brief
+# NoomPlus — Product Design Brief
 
 ## Scope
 
@@ -45,6 +45,36 @@ Mobbin references used for hierarchy—not copied branding or assets:
 - [Oura Readiness Trend](https://mobbin.com/explore/screens/e2d94334-c086-4427-8a8c-6f76a9ac0c7a)
 - [Visible Trend Chart](https://mobbin.com/explore/screens/874e1de2-556c-4e15-ad3c-fbb397178369)
 - [Ultrahuman Health Metrics Dashboard](https://mobbin.com/explore/screens/ad181c1e-9e70-4fbc-b01a-8be0893805aa)
+
+## Recording experiences
+
+NoomPlus exposes recording from one floating action at the bottom-right of Home, above the tab bar. The destination is a focused recording hub—not a second tab—with two deliberately different paths:
+
+1. **Spot check** — a calm, fixed 60-second biometrics capture. The user receives stillness guidance, visible countdown progress, a bounded live PPG waveform, and real metrics only as the SDK emits them. The waveform is explicitly described as a light-based pulse signal, not an ECG or diagnosis.
+2. **Activity tracking** — an open-ended session with activity selection, a large count-up timer, live HR emphasis, bounded HR trend, pause/resume, and explicit finish. No distance, pace, route, calorie, or heart-rate-zone value is invented because those values are not exposed as live recording streams by the current SDK contract.
+
+### SensorBioSDK recording capability matrix
+
+| Stream/state | Public SDK source | Spot check | Activity tracking | UI rule |
+|---|---|---:|---:|---|
+| PPG | `sensorBio.ppg` raw `(timestamp, Float)` | Live bounded waveform | Not foregrounded during motion | Normalize only for drawing; never label as ECG |
+| HR | `sensorBio.hr` `(timestamp, bpm)` | Live metric | Primary live metric + trend | Missing remains `—` |
+| HRV | `sensorBio.hrv` `(timestamp, ms)` | Live metric | Secondary live metric | No interpretation from one sample |
+| IBI | `sensorBio.bbi` `(timestamp, ms)` | Shown to users as **IBI** | Secondary live metric | Preserve SDK value; rename only for user-facing terminology |
+| RR | `sensorBio.rr` `(timestamp, breaths/min)` | Secondary live metric | Available but not primary | Missing remains `—` |
+| SpO₂ | `sensorBio.spo2` `(timestamp, %)` | Secondary live metric | Available but not primary | Display only finite emitted values |
+| SNR | `sensorBio.snr` `(timestamp, dB)` | Signal-received context | Signal context | Do not invent clinical quality bands |
+| ECG | `sensorBio.ecg` raw stream | Not displayed in this client | Not displayed | Avoid diagnostic framing |
+| Lifecycle | `recordingState`, `canFinalize`, `isRecordingPaused` | Countdown/finalize | Count-up/pause/finalize | SDK is source of truth |
+| Submission | Awaited `recordDetailedBiometrics` / `recordActivity` orchestration | After completion | After completion | Completion means queued/processing, not server analysis complete |
+
+### Mobbin references reviewed on 2026-07-11
+
+- [Oura iOS Workout start](https://mobbin.com/explore/screens/90c1b4a8-1bcd-48d7-8d48-ef0231f3673c): one selected activity, a dominant timer, and one clear start action.
+- [Oura Android Recording workout HR flow](https://mobbin.com/explore/flows/1fa13090-f7b3-4621-adf2-17f6ed5c5aef): explicit idle/recording/paused/completed hierarchy, Resume as the paused primary action, and missing-data explanations.
+- [Oura iOS Adding a workout flow](https://mobbin.com/explore/flows/a57f8da1-9ffc-4677-be08-cd66f20682a9): bottom-right floating entry, labeled action expansion, and frequent activity choices before the full list.
+
+No Oura palette, ring-specific language, proprietary score, route behavior, or exact layout is copied. NoomPlus translates the hierarchy into warm cream surfaces, white cards, editorial type, rose accents, and the SensorBioSDK capabilities actually available.
 
 ## Accessibility and privacy
 

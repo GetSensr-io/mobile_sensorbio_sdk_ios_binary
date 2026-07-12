@@ -6,73 +6,69 @@ Last updated: 2026-07-11
 
 - Product: NoomPlus / NOOM+
 - Version: 1.0
-- Build: 19
+- Build: 20
 - Bundle ID: `ai.sensr.example.NoomApp`
 - Workspace: `NoomApp.xcworkspace`
 - Scheme: `NoomApp`
 - Export compliance declaration: `ITSAppUsesNonExemptEncryption = false`
+- Release commit: current release candidate; remote push tracked separately
 
 ## Task ledger
 
 | Scope | State | Evidence |
 |---|---|---|
-| SDK background-sync parity audit | Verified | `bluetooth-central`; SDK-owned BLE/sync lifecycle documented in `README.md` |
-| Compact real sync progress | Implemented | `BandBatteryBadge` uses SDK `deviceSyncing` and `percentSynced` |
-| Immediate post-sync dashboard refresh | Verified by contract | `test_noom_sync_experience.py`; forced remote dashboard/sleep/range fetches |
-| First-night sleep and missing-metric states | Verified by contract and screenshot | `test_noom_sync_experience.py`; `/tmp/noomplus-qa-features/feature-montage.jpg` |
-| Contextual loading system | Verified by contract and screenshot | `test_noom_loading_experience.py`; feature montage |
-| Shared date navigator | Verified by contract and screenshot | `test_noom_date_navigator_consistency.py`; feature montage |
-| Responsive auth layouts | Verified on three Simulator sizes | `test_noom_auth_responsive_layout.py`; `/tmp/noomplus-qa-auth/auth-montage-v2.jpg` |
-| Physical BLE and background behavior | Pending device | `xcrun devicectl list devices` returned no connected iPhone |
+| Population insight graphs | Implemented and Simulator-verified | `42c8c37`, `a2801ae`; finite/range-safe histogram and radar contracts |
+| Independent Band connection/sync/data states | Implemented and Simulator-verified | `3e54e40`; `test_noom_sync_experience.py` |
+| Home tab label | Implemented and Simulator-verified | `0533f7a`; authenticated Home screenshot |
+| Home floating Record action | Implemented and Simulator-verified | `DashboardView.swift`; `/tmp/noomplus-build20-main_default.png` |
+| Recording hub | Implemented and Simulator-verified | `/tmp/noomplus-build20-recording_hub_preview.png` |
+| Spot check | Implemented and deterministic-fixture verified | `/tmp/noomplus-build20-recording_spot_preview.png`; `test_noom_recording_experience.py` |
+| Activity tracking | Implemented and deterministic-fixture verified | `/tmp/noomplus-build20-recording_activity_preview.png`; `test_noom_recording_experience.py` |
+| Live PPG/HR/HRV/IBI/RR/SpO₂/SNR rendering | Implemented with finite-value guards | `RecordingExperienceView.swift`; synthetic Debug fixtures only |
+| Recording persistence/finalization/error states | Implemented and contract-verified | SDK-owned active recording restoration and friendly error mapping |
+| Required-reason API declaration | Implemented | App-owned `PrivacyInfo.xcprivacy` declares UserDefaults reason `CA92.1`; dependency manifests remain embedded separately |
+| Physical BLE and recording continuity | Pending device | No connected physical iPhone/Noom Band available |
 
 ## Automated gates
 
-- iOS source contracts: **90/90 passed**
+- iOS source contracts: **114/114 passed**
 - Backend TypeScript check: **passed**
 - Backend tests: **3/3 passed**
 - `git diff --check`: **passed**
 - Debug Simulator build: **passed**
-- Release archive: **passed** (`/tmp/NoomPlus-TestFlight-build19.xcarchive`)
-- Release executable scan: **passed**; Debug QA and staging-switch strings absent
-- App Store Connect IPA export: **passed** (`/tmp/noomplus-build19-export/NoomApp.ipa`)
-- Exported IPA signing verification: **passed**
-- Exported IPA SHA-256: `79c32204f46455d4aca06c947677eeef079e3368208bae23caf76ac72895d0c3`
-- Independent uncommitted-diff review: **passed**; no actionable correctness issue identified
-- Static visual review: **no release-blocking defect** across iPhone SE, iPhone 17 Pro, and iPhone 17 Pro Max auth layouts
-- Feature visual review: **no release-blocking defect** for loading, date navigation, and first-night states
+- Release Simulator build: **passed**
+- Release Simulator executable Debug-fixture scan: **passed**
+- App-owned privacy manifest embedding: **passed**
+- Final recording visual gates: **passed** for hub, Spot check, Activity tracking, and Home Record action
+- Independent final diff review: **passed** with no security concerns or logic errors
+- Release archive: **pending**
+- Release archive executable Debug-fixture scan: **pending**
+- App Store Connect IPA export/upload: **pending**
+- TestFlight processing/compliance/tester assignment: **pending**
 
 ## Simulator evidence
 
-Auth routes captured on:
+Simulator: `A208E85C-7453-40E3-91ED-810DEF25B54C` (`Hermes-SensorBio-iPhone-17-Pro`, iOS 26.5)
 
-- Hermes-Noom-Audit-SE
-- Hermes-SensorBio-iPhone-17-Pro
-- iPhone 17 Pro Max
+| Route | Artifact | Visual result |
+|---|---|---|
+| `recording_hub_preview` | `/tmp/noomplus-build20-recording_hub_preview.png` | Pass |
+| `recording_spot_preview` | `/tmp/noomplus-build20-recording_spot_preview.png` | Pass |
+| `recording_activity_preview` | `/tmp/noomplus-build20-recording_activity_preview.png` | Pass |
+| `main_default` | `/tmp/noomplus-build20-main_default.png` | Pass |
 
-Routes:
-
-- `signedout_home`
-- `signin_preview`
-- `signup`
-
-Feature routes captured on iPhone 17 Pro:
-
-- `loading_metric_preview`
-- `loading_dashboard_preview`
-- `loading_sleep_preview`
-- `date_navigator_preview`
-- `sleep_empty_preview`
-- `dashboard_no_sleep_preview`
-
-Debug QA routes use production components and are wrapped in `#if DEBUG`.
+Debug QA routes use production components and are wrapped in `#if DEBUG`. These screenshots validate layout and deterministic state presentation only; they do not establish hardware capture accuracy or continuity.
 
 ## Remaining release gates
 
-- [x] Final Release archive succeeds
-- [x] Final Release executable contains no Debug QA route or staging-switch strings
-- [x] Final App Store Connect export succeeds
-- [ ] Upload succeeds
+- [x] Independent final review passes
+- [ ] Verified release commit is created and pushed to `noomapp/main`
+- [ ] Release archive succeeds with build 20 and production-only startup
+- [ ] Archived executable contains no Debug QA route/fixture or staging-switch strings
+- [ ] Archived plist contains `ITSAppUsesNonExemptEncryption = false`
+- [ ] App Store Connect export/upload succeeds
 - [ ] App Store Connect processing completes
-- [ ] Build 19 is assigned to intended TestFlight groups
-- [ ] Beta App Review state is confirmed
-- [ ] Physical iPhone BLE/background/sleep matrix is executed when a device is available
+- [ ] Missing Compliance is absent or cleared using the recorded Noom decision
+- [ ] Build 20 is assigned to the intended TestFlight tester group
+- [ ] Build 20 is installable in TestFlight
+- [ ] Physical iPhone/Band recording matrix is executed when hardware is available

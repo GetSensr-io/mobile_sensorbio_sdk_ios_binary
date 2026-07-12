@@ -1,4 +1,4 @@
-# Noom Inflammation Signal POC — Navigation Map
+# NoomPlus — Navigation Map
 
 ```text
 Sleep tab
@@ -6,7 +6,18 @@ Sleep tab
   │    ├─ Open sleep details → SleepDetailView
   │    └─ Open recovery details → RecoveryDetailView
 
-Dashboard
+Dashboard / Home tab
+  ├─ Floating recording action (bottom-right)
+  │    └─ Recording hub
+  │         ├─ Spot check
+  │         │    ├─ Calm setup and supported-signal explanation
+  │         │    ├─ 60-second live PPG + biometrics capture
+  │         │    └─ Saved / queued-for-processing confirmation
+  │         └─ Activity tracking
+  │              ├─ Recent / featured activity selection
+  │              ├─ Open-ended live duration + HR trend
+  │              ├─ Pause / Resume / Finish
+  │              └─ Saved / queued-for-processing confirmation
   ├─ Body Status
   │    └─ Input rows
   │         ├─ Resting HR
