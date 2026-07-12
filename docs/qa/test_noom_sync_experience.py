@@ -39,12 +39,14 @@ class NoomSyncExperienceContracts(unittest.TestCase):
             '.frame(width: 64)',
             'Text("Updating")',
             'Text("Updated")',
-            'Text(issue == .deviceUpload ? "Sync issue" : "Data issue")',
-            'Latest data sync failed',
+            'if syncIssue == .dashboardRefresh',
+            'Text("Data issue")',
             'Latest dashboard update failed',
             'Noom Band syncing, \\(clampedProgress) percent',
         ):
             self.assertIn(snippet, badge)
+        self.assertNotIn('"Sync issue"', badge)
+        self.assertNotIn('Latest data sync failed', badge)
         self.assertNotIn('Text("Retry")', badge)
         self.assertIn("BandBatteryBadge(", DASHBOARD)
         self.assertIn("isApplyingSyncUpdate: isApplyingSyncUpdate", DASHBOARD)

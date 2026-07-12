@@ -661,10 +661,10 @@ struct BandBatteryBadge: View {
                         Text("Offline")
                     }
                 }
-                if let issue = syncIssue {
+                if syncIssue == .dashboardRefresh {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                        Text(issue == .deviceUpload ? "Sync issue" : "Data issue")
+                        Text("Data issue")
                     }
                     .font(.system(size: 9, weight: .bold, design: .rounded))
                     .foregroundStyle(NoomTheme.red)
@@ -678,7 +678,7 @@ struct BandBatteryBadge: View {
     private var statusBackground: Color {
         if syncing || isApplyingSyncUpdate { return NoomTheme.mint.opacity(0.78) }
         if showsSyncUpdated { return NoomTheme.mint.opacity(0.52) }
-        if syncIssue != nil { return NoomTheme.rose.opacity(0.82) }
+        if syncIssue == .dashboardRefresh { return NoomTheme.rose.opacity(0.82) }
         return connected ? NoomTheme.red.opacity(0.12) : NoomTheme.softLine.opacity(0.72)
     }
 
@@ -694,11 +694,8 @@ struct BandBatteryBadge: View {
         } else {
             connectionStatus = "Noom Band not connected"
         }
-        guard let syncIssue else { return connectionStatus }
-        let issueStatus = syncIssue == .deviceUpload
-            ? "Latest data sync failed"
-            : "Latest dashboard update failed"
-        return "\(connectionStatus). \(issueStatus)"
+        guard syncIssue == .dashboardRefresh else { return connectionStatus }
+        return "\(connectionStatus). Latest dashboard update failed"
     }
 
     private func batteryIcon() -> String {
