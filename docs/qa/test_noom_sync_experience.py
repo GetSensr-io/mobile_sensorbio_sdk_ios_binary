@@ -79,6 +79,42 @@ class NoomSyncExperienceContracts(unittest.TestCase):
         self.assertIn("if isSyncing", new_cycle)
         self.assertIn("syncIssue = nil", new_cycle)
 
+    def test_sleep_detail_exposes_authoritative_processing_and_session_timing(self) -> None:
+        for snippet in (
+            "detail.processing",
+            "detail.sleepOnset",
+            "detail.wakeUpTime",
+            "detail.timezone",
+            'Text(isProcessing ? "Processing sleep" : "Sleep analysis complete")',
+            'NoomPill(title: isProcessing ? "In progress" : "Complete"',
+            'NoomDetailValueRow(label: "Sleep onset"',
+            'NoomDetailValueRow(label: "Wake up"',
+            "timestampMillis > 0",
+            "Int(timezoneOffsetMinutes) * 60",
+            "Date.FormatStyle(date: .omitted, time: .shortened, timeZone: timeZone)",
+        ):
+            self.assertIn(snippet, SLEEP_DETAIL)
+        self.assertNotIn("wakeUpTime - sleepTimeSec", SLEEP_DETAIL)
+        self.assertNotIn("wakeUpTime - detail.sleepTimeSec", SLEEP_DETAIL)
+
+    def test_sleep_detection_event_drives_a_truthful_pending_state(self) -> None:
+        self.assertIn("sensorBio.sleepDetected", SLEEP_DETAIL)
+        self.assertIn("detectedSleep = detected", SLEEP_DETAIL)
+        self.assertIn("isSelectedDateToday,", SLEEP_DETAIL)
+        self.assertIn("if isLoading, granularity == .day, isSelectedDateToday, detectedSleep != nil", SLEEP_DETAIL)
+        self.assertIn("else if granularity == .day, isSelectedDateToday, detectedSleep != nil", SLEEP_DETAIL)
+        self.assertIn('title: "Sleep detected"', SLEEP_DETAIL)
+        self.assertIn('detail: "Noom+ is processing the session. Your score, stages, and overnight metrics will appear when analysis is complete."', SLEEP_DETAIL)
+        self.assertNotIn("detected.startEpochInms", SLEEP_DETAIL)
+        self.assertNotIn("detected.endEpochms", SLEEP_DETAIL)
+        self.assertNotIn('title: "Turning last night into a story"', SLEEP_DETAIL)
+
+    def test_sleep_processing_and_complete_states_have_debug_visual_routes(self) -> None:
+        self.assertIn('case "sleep_detail_processing_preview", "sleep_detail_complete_preview"', CONTENT)
+        self.assertIn('"sleep_detail_processing_preview", "sleep_detail_complete_preview"', SLEEP_DETAIL)
+        self.assertIn('title: "Preview sample"', SLEEP_DETAIL)
+        self.assertIn("#if DEBUG", SLEEP_DETAIL)
+
     def test_background_sync_matches_sdk_v013_contract(self) -> None:
         self.assertIn("bluetooth-central", INFO.get("UIBackgroundModes", []))
         self.assertNotIn("fetch", INFO.get("UIBackgroundModes", []))

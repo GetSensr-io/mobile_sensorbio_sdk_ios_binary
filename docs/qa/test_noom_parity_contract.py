@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "NoomApp/NoomApp"
 NOOM_APP = (SRC / "NoomApp.swift").read_text()
 CONTENT = (SRC / "ContentView.swift").read_text()
+RECORDING = (SRC / "RecordingExperienceView.swift").read_text()
 SIGNIN = (SRC / "SignInView.swift").read_text()
 DASHBOARD = (SRC / "DashboardView.swift").read_text()
 INSIGHTS_STATE = (SRC / "InsightsState.swift").read_text()
@@ -82,12 +83,16 @@ class NoomParityContractTests(unittest.TestCase):
         ):
             self.assertIn(token, content)
 
-    def test_customer_facing_identity_is_noomplus_with_a_noom_plus_lockup(self) -> None:
+    def test_customer_facing_identity_is_noom_plus_with_a_noom_plus_lockup(self) -> None:
         import plistlib
 
         with (SRC / "Info.plist").open("rb") as handle:
             info = plistlib.load(handle)
-        self.assertEqual(info["CFBundleDisplayName"], "NoomPlus")
+        self.assertEqual(info["CFBundleDisplayName"], "Noom+")
+        self.assertIn("Noom+ uses Bluetooth", info["NSBluetoothAlwaysUsageDescription"])
+        self.assertIn("Noom+ uses Bluetooth", info["NSBluetoothPeripheralUsageDescription"])
+        self.assertNotIn("NoomPlus keeps", RECORDING)
+        self.assertNotIn("NoomPlus is securing", RECORDING)
 
         design = (SRC / "NoomDesignSystem.swift").read_text()
         for token in (

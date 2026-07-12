@@ -388,6 +388,8 @@ private struct NoomQAHost: View {
                 sleepRecoveryStack()
             case "sleep_detail":
                 sleepRecoveryStack(initial: .sleepDetail)
+            case "sleep_detail_processing_preview", "sleep_detail_complete_preview":
+                sleepRecoveryStack(initial: .sleepDetail)
             case "recovery_detail":
                 sleepRecoveryStack(initial: .recoveryDetail)
             case "metric_baseline_preview":

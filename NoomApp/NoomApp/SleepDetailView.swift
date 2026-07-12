@@ -28,6 +28,7 @@ struct SleepDetailView: View {
     @State private var activeRequestID: UUID?
     @State private var haveDevice = sensorBio.haveDevice
     @State private var connected = sensorBio.connected
+    @State private var detectedSleep: SB_DetectedSleep?
     @State private var postSyncReloadTask: Task<Void, Never>?
 
     var body: some View {
@@ -35,7 +36,9 @@ struct SleepDetailView: View {
             VStack(alignment: .leading, spacing: 16) {
                 screenHeader
 
-                if isLoading {
+                if isLoading, granularity == .day, isSelectedDateToday, detectedSleep != nil {
+                    detectedSleepSections
+                } else if isLoading {
                     loadingCard
                 } else if isQAPreview {
                     qaDaySections
@@ -48,6 +51,8 @@ struct SleepDetailView: View {
                     daySections(detail)
                 } else if granularity != .day, let agg = range {
                     rangeSections(agg)
+                } else if granularity == .day, isSelectedDateToday, detectedSleep != nil {
+                    detectedSleepSections
                 } else {
                     NoomSleepNoDataView(
                         showsFirstNight: shouldShowFirstNight,
@@ -72,6 +77,13 @@ struct SleepDetailView: View {
         .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
             if !isQAPreview { schedulePostSyncReload() }
         }
+        .onReceive(sensorBio.sleepDetected) { detected in
+            guard !isQAPreview,
+                  granularity == .day,
+                  isSelectedDateToday else { return }
+            detectedSleep = detected
+            schedulePostSyncReload()
+        }
         .onReceive(sensorBio.syncCompleted) { result in
             guard result?.acknowledge == true, !isQAPreview else {
                 postSyncReloadTask?.cancel()
@@ -95,16 +107,29 @@ struct SleepDetailView: View {
 
     private var shouldShowFirstNight: Bool {
         granularity == .day &&
-        Calendar.current.isDateInToday(dateContext.selectedDate) &&
+        isSelectedDateToday &&
         !NoomSleepHistory.hasRecordedSleep(for: sensorBio.session?.userId) &&
         errorMessage == nil
     }
 
+    private var isSelectedDateToday: Bool {
+        Calendar.current.isDateInToday(dateContext.selectedDate)
+    }
+
     private var isQAPreview: Bool {
         #if DEBUG
-        ProcessInfo.processInfo.environment["NOOM_QA_ROUTE"] == "sleep_detail"
+        ["sleep_detail", "sleep_detail_processing_preview", "sleep_detail_complete_preview"]
+            .contains(ProcessInfo.processInfo.environment["NOOM_QA_ROUTE"])
         #else
         false
+        #endif
+    }
+
+    private var qaRoute: String? {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["NOOM_QA_ROUTE"]
+        #else
+        nil
         #endif
     }
 
@@ -119,8 +144,8 @@ struct SleepDetailView: View {
 
     private var loadingCard: some View {
         NoomLoadingExperience(
-            title: "Turning last night into a story",
-            detail: "Preparing sleep stages, timing, and overnight context.",
+            title: "Checking last night's sleep",
+            detail: "Loading the latest sleep session available for this date.",
             systemImage: "moon.stars.fill",
             accent: NoomTheme.metricPurple
         )
@@ -128,55 +153,67 @@ struct SleepDetailView: View {
 
     @ViewBuilder
     private var qaDaySections: some View {
-        sleepHero(score: 82, sleepTime: "7h 34m", restingHR: 58, restingHRV: 42)
+        #if DEBUG
+        NoomStateBanner(
+            title: "Preview sample",
+            detail: "Synthetic sleep data for layout review. It is not a personal health result.",
+            systemImage: "wrench.and.screwdriver",
+            tint: NoomTheme.rose
+        )
 
-        NoomCard(fill: Color.white.opacity(0.84), padding: 18) {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("Sleep stages")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(NoomTheme.logoBlack)
-                SleepStageBand(stages: makeStageData(awake: 8, light: 48, deep: 22, rem: 22))
-                    .frame(height: 18)
-                stageLegend(makeStageData(awake: 8, light: 48, deep: 22, rem: 22))
-            }
-        }
+        if qaRoute == "sleep_detail_processing_preview" {
+            sleepSessionStatusCard(
+                isProcessing: true,
+                onsetMillis: 1_783_826_100_000,
+                wakeMillis: 1_783_854_120_000,
+                timezoneOffsetMinutes: -300
+            )
+            processingSleepCard
+        } else {
+            sleepSessionStatusCard(
+                isProcessing: false,
+                onsetMillis: 1_783_826_100_000,
+                wakeMillis: 1_783_854_120_000,
+                timezoneOffsetMinutes: -300
+            )
+            sleepHero(score: 82, sleepTime: "7h 34m", restingHR: 58, restingHRV: 42)
 
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            NoomMetricTile(label: "Sleep time", value: "7h 34m", caption: "Last night", minHeight: 96)
-            NoomMetricTile(label: "Resting HR", value: "58 bpm", caption: "Overnight", minHeight: 96)
-            NoomMetricTile(label: "HRV", value: "42 ms", caption: "Recovery signal", minHeight: 96)
-            NoomMetricTile(label: "Awake", value: "8%", caption: "Sleep stage", minHeight: 96)
-        }
-
-        NoomCard(fill: Color.white.opacity(0.84)) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Contributors")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(NoomTheme.logoBlack)
-                NoomFactorRow(title: "Consistent bedtime", detail: "Your wind-down window helped protect deep sleep.", tint: NoomTheme.mint)
-                NoomFactorRow(title: "Lower overnight pulse", detail: "Resting heart rate stayed below your recent average.", tint: NoomTheme.mint)
-            }
-        }
-
-        NoomCard(fill: Color.white.opacity(0.84)) {
-            VStack(alignment: .leading, spacing: 12) {
-                NoomPill(title: "Tonight", color: NoomTheme.red)
-                Text("Plan a softer landing")
-                    .noomSerifTitle(size: 26)
-                VStack(spacing: 0) {
-                    NoomDetailValueRow(label: "Bedtime", value: "22:30", verticalPadding: 8)
-                    NoomDetailValueRow(label: "Wake up", value: "06:45", verticalPadding: 8)
-                    NoomDetailValueRow(label: "Target sleep", value: "7h 45m", verticalPadding: 8)
+            NoomCard(fill: Color.white.opacity(0.84), padding: 18) {
+                VStack(alignment: .leading, spacing: 14) {
+                    Text("Sleep stages")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(NoomTheme.logoBlack)
+                    SleepStageBand(stages: makeStageData(awake: 8, light: 48, deep: 22, rem: 22))
+                        .frame(height: 18)
+                    stageLegend(makeStageData(awake: 8, light: 48, deep: 22, rem: 22))
                 }
-                Text("Keep the routine simple so Noom Band can learn your rhythm over time.")
-                    .noomBody()
+            }
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                NoomMetricTile(label: "Sleep time", value: "7h 34m", caption: "Last night", minHeight: 96)
+                NoomMetricTile(label: "Resting HR", value: "58 bpm", caption: "Overnight", minHeight: 96)
+                NoomMetricTile(label: "HRV", value: "42 ms", caption: "Recovery signal", minHeight: 96)
+                NoomMetricTile(label: "Awake", value: "8%", caption: "Sleep stage", minHeight: 96)
             }
         }
+        #else
+        EmptyView()
+        #endif
     }
 
     @ViewBuilder
     private func daySections(_ detail: SB_SleepDetailDay) -> some View {
-        sleepHero(score: Int(detail.sleepScore.score), sleepTime: hoursMinutes(seconds: Int(detail.sleepTimeSec)), restingHR: Int(detail.restingHr), restingHRV: Int(detail.restingHrv))
+        sleepSessionStatusCard(
+            isProcessing: detail.processing,
+            onsetMillis: detail.sleepOnset,
+            wakeMillis: detail.wakeUpTime,
+            timezoneOffsetMinutes: detail.timezone
+        )
+
+        if detail.processing {
+            processingSleepCard
+        } else {
+            sleepHero(score: Int(detail.sleepScore.score), sleepTime: hoursMinutes(seconds: Int(detail.sleepTimeSec)), restingHR: Int(detail.restingHr), restingHRV: Int(detail.restingHrv))
 
         NoomCard(fill: Color.white.opacity(0.84), padding: 18) {
             VStack(alignment: .leading, spacing: 14) {
@@ -243,6 +280,7 @@ struct SleepDetailView: View {
                 }
             }
         }
+        }
     }
 
     @ViewBuilder
@@ -299,6 +337,93 @@ struct SleepDetailView: View {
         }
     }
 
+    @ViewBuilder
+    private var detectedSleepSections: some View {
+        NoomStateBanner(
+            title: "Sleep detected",
+            detail: "Noom+ is processing the session. Your score, stages, and overnight metrics will appear when analysis is complete.",
+            systemImage: "moon.stars.fill",
+            tint: NoomTheme.metricPurple
+        )
+        sleepSessionStatusCard(
+            isProcessing: true,
+            onsetMillis: 0,
+            wakeMillis: 0,
+            timezoneOffsetMinutes: 0
+        )
+        processingSleepCard
+    }
+
+    private var processingSleepCard: some View {
+        NoomLoadingExperience(
+            title: "Finishing your sleep analysis",
+            detail: "Sleep was detected. Your score, stages, and overnight metrics may update while analysis finishes.",
+            systemImage: "waveform.path.ecg",
+            accent: NoomTheme.metricPurple
+        )
+        .accessibilityLabel("Sleep analysis in progress")
+    }
+
+    private func sleepSessionStatusCard(
+        isProcessing: Bool,
+        onsetMillis: Int64,
+        wakeMillis: Int64,
+        timezoneOffsetMinutes: Int32
+    ) -> some View {
+        let onset = sleepClockLabel(timestampMillis: onsetMillis, timezoneOffsetMinutes: timezoneOffsetMinutes)
+        let wake = sleepClockLabel(timestampMillis: wakeMillis, timezoneOffsetMinutes: timezoneOffsetMinutes)
+
+        return NoomCard(fill: isProcessing ? NoomTheme.metricPurple.opacity(0.12) : Color.white.opacity(0.84), padding: 18) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(alignment: .center, spacing: 10) {
+                    if isProcessing {
+                        ProgressView()
+                            .tint(NoomTheme.metricPurple)
+                            .accessibilityHidden(true)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(NoomTheme.mint)
+                            .accessibilityHidden(true)
+                    }
+                    Text(isProcessing ? "Processing sleep" : "Sleep analysis complete")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(NoomTheme.logoBlack)
+                    Spacer(minLength: 8)
+                    NoomPill(title: isProcessing ? "In progress" : "Complete", color: isProcessing ? NoomTheme.rose : NoomTheme.mint, foreground: NoomTheme.logoBlack)
+                }
+
+                Text(isProcessing ? "Noom+ is still preparing this session. Timing can appear before the score and stages are final." : "These results are ready from the completed sleep session.")
+                    .noomBody()
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if onset != nil || wake != nil {
+                    VStack(spacing: 0) {
+                        if let onset {
+                            NoomDetailValueRow(label: "Sleep onset", value: onset, verticalPadding: 8)
+                        }
+                        if let wake {
+                            NoomDetailValueRow(label: "Wake up", value: wake, verticalPadding: 8)
+                        }
+                    }
+                } else {
+                    Text("Sleep onset and wake-up times will appear when the session provides them.")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(NoomTheme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func sleepClockLabel(timestampMillis: Int64, timezoneOffsetMinutes: Int32) -> String? {
+        guard timestampMillis > 0 else { return nil }
+        let secondsFromGMT = Int(timezoneOffsetMinutes) * 60
+        let timeZone = TimeZone(secondsFromGMT: secondsFromGMT) ?? .current
+        let style = Date.FormatStyle(date: .omitted, time: .shortened, timeZone: timeZone)
+        return Date(timeIntervalSince1970: TimeInterval(timestampMillis) / 1000).formatted(style)
+    }
+
     private func sleepHero(score: Int, sleepTime: String, restingHR: Int, restingHRV: Int?) -> some View {
         NoomCard(fill: NoomTheme.ink, padding: 22) {
             VStack(alignment: .leading, spacing: 18) {
@@ -341,10 +466,10 @@ struct SleepDetailView: View {
                     .noomSerifTitle(size: 26)
                 VStack(spacing: 0) {
                     if let bedtime = rec.bedtime {
-                        NoomDetailValueRow(label: "Bedtime", value: localTimeLabel(timestampMillis: bedtime.tsMillis), verticalPadding: 8)
+                        NoomDetailValueRow(label: "Bedtime", value: localTimeLabel(timestampMillis: bedtime.tsMillis, timezoneOffsetMinutes: bedtime.tzOffset), verticalPadding: 8)
                     }
                     if let wakeup = rec.wakeup {
-                        NoomDetailValueRow(label: "Wake up", value: localTimeLabel(timestampMillis: wakeup.tsMillis), verticalPadding: 8)
+                        NoomDetailValueRow(label: "Wake up", value: localTimeLabel(timestampMillis: wakeup.tsMillis, timezoneOffsetMinutes: wakeup.tzOffset), verticalPadding: 8)
                     }
                     NoomDetailValueRow(label: "Target sleep", value: hoursMinutes(minutes: Int(rec.sleepHoursInMins)), verticalPadding: 8)
                 }
@@ -396,7 +521,7 @@ struct SleepDetailView: View {
     private func sleepMetricValue(_ metric: SB_SleepMetric) -> String {
         switch metric.value {
         case .valueUnit(let vu): return formattedValueUnit(vu)
-        case .timeTz(let tt): return localTimeLabel(timestampMillis: tt.timestamp)
+        case .timeTz(let tt): return localTimeLabel(timestampMillis: tt.timestamp, timezoneOffsetMinutes: tt.timezone)
         case .empty: return "No data"
         @unknown default: return "No data"
         }
@@ -413,12 +538,8 @@ struct SleepDetailView: View {
         return wrapper.unit.isEmpty ? num : "\(num) \(wrapper.unit)"
     }
 
-    private func localTimeLabel(timestampMillis: Int64) -> String {
-        let date = Date(timeIntervalSince1970: TimeInterval(timestampMillis) / 1000)
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC") ?? .current
-        let comps = calendar.dateComponents([.hour, .minute], from: date)
-        return String(format: "%02d:%02d", comps.hour ?? 0, comps.minute ?? 0)
+    private func localTimeLabel(timestampMillis: Int64, timezoneOffsetMinutes: Int32) -> String {
+        sleepClockLabel(timestampMillis: timestampMillis, timezoneOffsetMinutes: timezoneOffsetMinutes) ?? "—"
     }
 
     private func hoursMinutes(seconds: Int) -> String {
@@ -473,6 +594,9 @@ struct SleepDetailView: View {
         daily = nextDaily
         range = nextRange
         errorMessage = nextError
+        if !isSelectedDateToday || nextDaily?.processing == false {
+            detectedSleep = nil
+        }
     }
 }
 
