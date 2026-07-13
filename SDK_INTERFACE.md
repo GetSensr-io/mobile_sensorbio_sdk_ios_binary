@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.13.0'
+    :tag => 'v0.14.0'
 end
 
 post_install do |installer|
@@ -417,6 +417,7 @@ public static var persistedDevicesDictionary: [String: AnyObject]?      // persi
 ```swift
 public func userLED(red: Bool = false, green: Bool = false, blue: Bool = false,
                     blink: Bool = false, for seconds: Int) async throws
+public func hapticMotor(pulse: Bool = false, intensity: Int, for seconds: Int) async throws
 public func setAskForDeviceResponse(_ enable: Bool)
 public func airplaneMode() async throws
 public func reset()

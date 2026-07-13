@@ -9531,6 +9531,7 @@ final public class SB_BluetoothPacketDecoder : @unchecked Swift.Sendable {
   final public var activityBuffer: [SensorBioBTSDK.sensrDataPacket]
   final public var fxcBuffer: [SensorBioBTSDK.sensrDataPacket]
   final public var bbiBuffer: [SensorBioSDK.StreamingPacket]
+  final public var temperatureBuffer: [SensorBioBTSDK.sensrDataPacket]
   public init(manager: SensorBioSDK.SB_SDK)
   final public func processData(id: Swift.String, packets: [SensorBioBTSDK.sensrDataPacket])
   final public func drainBuffersToDB()
@@ -10323,7 +10324,8 @@ public struct SB_MeditationGraph : Swift.Codable, Swift.Equatable, Swift.Sendabl
   public var sessionStart: Swift.Int64
   public var sessionEnd: Swift.Int64
   public var survey: SensorBioSDK.SB_BriefSurvey?
-  public init(duration: Swift.Int32, minBpm: Swift.Float, maxBpm: Swift.Float, medianBpm: Swift.Float, minHrv: Swift.Float, maxHrv: Swift.Float, medianHrv: Swift.Float, minBrpm: Swift.Float, maxBrpm: Swift.Float, medianBrpm: Swift.Float, minSpo2: Swift.Float, maxSpo2: Swift.Float, medianSpo2: Swift.Float, bpms: [SensorBioSDK.SB_TimeValuePoint], hrvs: [SensorBioSDK.SB_TimeValuePoint], brpms: [SensorBioSDK.SB_TimeValuePoint], spo2s: [SensorBioSDK.SB_TimeValuePoint], sessionStart: Swift.Int64, sessionEnd: Swift.Int64, survey: SensorBioSDK.SB_BriefSurvey?)
+  public var pauseSegments: [SensorBioSDK.SB_TimeSegment]
+  public init(duration: Swift.Int32, minBpm: Swift.Float, maxBpm: Swift.Float, medianBpm: Swift.Float, minHrv: Swift.Float, maxHrv: Swift.Float, medianHrv: Swift.Float, minBrpm: Swift.Float, maxBrpm: Swift.Float, medianBrpm: Swift.Float, minSpo2: Swift.Float, maxSpo2: Swift.Float, medianSpo2: Swift.Float, bpms: [SensorBioSDK.SB_TimeValuePoint], hrvs: [SensorBioSDK.SB_TimeValuePoint], brpms: [SensorBioSDK.SB_TimeValuePoint], spo2s: [SensorBioSDK.SB_TimeValuePoint], sessionStart: Swift.Int64, sessionEnd: Swift.Int64, survey: SensorBioSDK.SB_BriefSurvey?, pauseSegments: [SensorBioSDK.SB_TimeSegment] = [])
   public static func == (a: SensorBioSDK.SB_MeditationGraph, b: SensorBioSDK.SB_MeditationGraph) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -11222,6 +11224,7 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public func connect(_ id: Swift.String, pairing: Swift.Bool = false)
   public func disconnect(_ id: Swift.String? = nil)
   public func userLED(red: Swift.Bool = false, green: Swift.Bool = false, blue: Swift.Bool = false, blink: Swift.Bool = false, for seconds: Swift.Int) async throws
+  public func hapticMotor(pulse: Swift.Bool = false, intensity: Swift.Int, for seconds: Swift.Int) async throws
   public func updateFirmware(_ url: Foundation.URL, delay: Swift.Int? = nil, size: Swift.Int? = nil) async throws
   public func findSleepSession(startTimestamp: Swift.Int64, endTimestamp: Swift.Int64) -> SensorBioSDK.SB_SleepSession?
   public func persistPairedDevice(macAddress: Swift.String, name: Swift.String, type: SensorBioSDK.SB_BluetoothDeviceType)
