@@ -10,7 +10,7 @@ enum NoomBandConnectionState: Equatable {
     case error(String)
 
     static func live(paired: Bool, connected: Bool) -> Self {
-        if connected { return .connected }
+        if paired && connected { return .connected }
         return paired ? .pairedDisconnected : .neverPaired
     }
 

@@ -4,14 +4,13 @@ import SensorBioSDK
 
 struct NoomBandSetupEntryView: View {
     @State private var presentingPair = false
-    @State private var haveDevice: Bool = sensorBio.haveDevice
     @State private var connected: Bool = sensorBio.connected
     @State private var pairedDevice: SB_PairedDeviceState? = sensorBio.pairedDevice
     @State private var isReconnecting = false
     @State private var reconnectError: String? = nil
 
     private var bandState: NoomBandConnectionState {
-        isReconnecting ? .connecting : .live(paired: haveDevice, connected: connected)
+        isReconnecting ? .connecting : .live(paired: pairedDevice != nil, connected: connected)
     }
 
     var body: some View {
@@ -29,7 +28,7 @@ struct NoomBandSetupEntryView: View {
 
             VStack(spacing: 8) {
                 NoomSetupStep(number: "1", title: "Keep it nearby", detail: "Place your Noom Band near your phone and make sure it has charge.")
-                NoomSetupStep(number: "2", title: "Confirm the blink", detail: "When the band blinks, press the button to confirm it is yours.")
+                NoomSetupStep(number: "2", title: "Confirm the blink", detail: "When the band blinks, double-click the button to confirm it is yours.")
                 NoomSetupStep(number: "3", title: "Let it sync", detail: "Your first Body State appears after Noom Band finishes the first sync.")
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -53,7 +52,6 @@ struct NoomBandSetupEntryView: View {
         }
         .navigationTitle("Noom Band setup")
         .navigationBarTitleDisplayMode(.inline)
-        .onReceive(sensorBio.$haveDevice) { haveDevice = $0 }
         .onReceive(sensorBio.$connected) { connected = $0 }
         .onReceive(sensorBio.$pairedDevice) { pairedDevice = $0 }
         .sheet(isPresented: $presentingPair) { PairDeviceView() }
@@ -61,7 +59,7 @@ struct NoomBandSetupEntryView: View {
 
     private func handlePrimaryAction() {
         reconnectError = nil
-        if haveDevice {
+        if pairedDevice != nil {
             reconnectPairedDevice()
         } else {
             presentingPair = true

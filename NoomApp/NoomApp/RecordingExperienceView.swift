@@ -20,8 +20,13 @@ enum NoomRecordingPreview {
 private struct NoomRecordingSample: Identifiable, Equatable {
     let index: Int
     let value: Double
+    /// Timestamp of when the sample was recorded. Used for time‑based rendering of the PPG waveform.
+    let timestamp: Date
     var id: Int { index }
 }
+
+private let noomSpotCheckDuration: TimeInterval = 180
+private let noomPPGWindowDuration: TimeInterval = 5
 
 private struct NoomRecordingCompletion {
     let experience: NoomRecordingExperience
@@ -77,6 +82,8 @@ struct RecordActivityView: View {
     @State private var isCancellationPending = false
     @State private var isStartingRecording = false
     @State private var lastElapsed: TimeInterval = 0
+    @State private var spotCheckStartDate: Date?
+    @State private var spotCheckNow = Date()
 
     @State private var latestHeartRate: Int?
     @State private var latestHRV: Int?
@@ -191,7 +198,9 @@ struct RecordActivityView: View {
             guard !isPreview else { return }
             let value = Double(rawValue)
             guard value.isFinite else { return }
-            appendBounded(value, to: &ppgSamples, limit: 140)
+            // Append with timestamp and keep only the most recent 5 seconds of data for a smooth window.
+            let now = Date()
+            appendPPGSample(value, timestamp: now)
         }
         .onReceive(sensorBio.hr.receive(on: RunLoop.main)) { _, value in
             guard !isPreview, value > 0 else { return }
@@ -229,6 +238,13 @@ struct RecordActivityView: View {
             guard !isPreview else { return }
             restorePersistedRecordingIfNeeded()
             await loadActivityChoices()
+        }
+        .task(id: spotCheckStartDate) {
+            guard spotCheckStartDate != nil, !isPreview else { return }
+            while !Task.isCancelled {
+                spotCheckNow = Date()
+                try? await Task.sleep(for: .milliseconds(100))
+            }
         }
         .onDisappear {
             guard isStartingRecording, !isPreview else { return }
@@ -332,7 +348,7 @@ struct RecordActivityView: View {
                                 Text("Spot check")
                                     .font(.system(size: 20, weight: .bold, design: .rounded))
                                 Spacer()
-                                NoomPill(title: "60 sec", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
+                                NoomPill(title: "3 min", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
                             }
                             Text("Live PPG, heart rate, HRV, IBI, breathing, and signal context while you stay still.")
                                 .noomBody()
@@ -465,7 +481,7 @@ struct RecordActivityView: View {
                                 .font(.system(size: 44, weight: .bold, design: .rounded))
                                 .monospacedDigit()
                                 .foregroundStyle(.white)
-                            Text("SECONDS REMAINING")
+                            Text("SEC")
                                 .font(.system(size: 10, weight: .heavy, design: .rounded))
                                 .tracking(0.8)
                                 .foregroundStyle(.white.opacity(0.72))
@@ -497,6 +513,7 @@ struct RecordActivityView: View {
                     }
                     NoomRecordingSignalWaveform(samples: ppgSamples)
                         .frame(height: 82)
+                        .animation(.linear(duration: 0.04), value: ppgSamples.last?.index)
                     Text("Light-based pulse signal · for wellness context, not ECG or medical diagnosis")
                         .font(.system(size: 11, weight: .semibold, design: .rounded))
                         .foregroundStyle(NoomTheme.muted)
@@ -977,12 +994,17 @@ struct RecordActivityView: View {
         #endif
     }
 
+    private var spotCheckWallClockElapsed: TimeInterval {
+        guard let start = spotCheckStartDate else { return 0 }
+        return max(0, spotCheckNow.timeIntervalSince(start))
+    }
+
     private var spotCheckProgress: Double {
-        min(max(lastElapsed / 60, 0), 1)
+        min(max(spotCheckWallClockElapsed / noomSpotCheckDuration, 0), 1)
     }
 
     private var spotCheckSecondsRemaining: Int {
-        max(0, 60 - Int(lastElapsed.rounded(.down)))
+        max(0, Int(ceil(noomSpotCheckDuration - spotCheckWallClockElapsed)))
     }
 
     private var timerText: String { durationText(lastElapsed) }
@@ -1030,6 +1052,9 @@ struct RecordActivityView: View {
 
     private func startSpotCheck() {
         selectedExperience = .spotCheck
+        let now = Date()
+        spotCheckStartDate = now
+        spotCheckNow = now
         beginRecording(.spotCheck)
     }
 
@@ -1060,7 +1085,10 @@ struct RecordActivityView: View {
             do {
                 switch experience {
                 case .spotCheck:
-                    try await sensorBio.recordDetailedBiometrics(duration: 60, minDuration: 30)
+                    try await sensorBio.recordDetailedBiometrics(
+                        duration: noomSpotCheckDuration,
+                        minDuration: noomSpotCheckDuration
+                    )
                 case .activity:
                     try await sensorBio.recordActivity(activityName: activityName, minDuration: 30)
                 }
@@ -1106,6 +1134,7 @@ struct RecordActivityView: View {
         errorMessage = nil
         selectedExperience = nil
         lastElapsed = 0
+        spotCheckStartDate = nil
         clearLiveMetrics()
     }
 
@@ -1241,9 +1270,27 @@ struct RecordActivityView: View {
 
     private func appendBounded(_ value: Double, to samples: inout [NoomRecordingSample], limit: Int) {
         guard value.isFinite else { return }
-        samples.append(NoomRecordingSample(index: (samples.last?.index ?? -1) + 1, value: value))
+        samples.append(NoomRecordingSample(index: (samples.last?.index ?? -1) + 1, value: value, timestamp: Date()))
         if samples.count > limit {
             samples.removeFirst(samples.count - limit)
+        }
+    }
+
+    /// Appends a PPG sample with a timestamp and retains only the most recent five seconds.
+    /// A high hard limit protects memory if timestamps arrive out of order.
+    private func appendPPGSample(_ value: Double, timestamp: Date) {
+        guard value.isFinite else { return }
+        ppgSamples.append(
+            NoomRecordingSample(
+                index: (ppgSamples.last?.index ?? -1) + 1,
+                value: value,
+                timestamp: timestamp
+            )
+        )
+        let cutoff = timestamp.addingTimeInterval(-5)
+        ppgSamples.removeAll { $0.timestamp < cutoff }
+        if ppgSamples.count > 1_000 {
+            ppgSamples.removeFirst(ppgSamples.count - 1_000)
         }
     }
 
@@ -1271,8 +1318,10 @@ struct RecordActivityView: View {
             selectedExperience = nil
         case .spotCheck:
             selectedExperience = .spotCheck
-            recordingState = .recording(elapsed: 42, target: 60)
+            recordingState = .recording(elapsed: 42, target: noomSpotCheckDuration)
             lastElapsed = 42
+            spotCheckStartDate = Date().addingTimeInterval(-42)
+            spotCheckNow = Date()
             canFinalize = true
             latestHeartRate = 68
             latestHRV = 47
@@ -1283,7 +1332,7 @@ struct RecordActivityView: View {
             ppgSamples = (0..<140).map { index in
                 let x = Double(index)
                 let pulse = sin(x * 0.31) + 0.24 * sin(x * 0.91) + 0.08 * sin(x * 2.1)
-                return NoomRecordingSample(index: index, value: pulse)
+                return NoomRecordingSample(index: index, value: pulse, timestamp: Date().addingTimeInterval(Double(index - 139) / 28))
             }
         case .activity:
             selectedExperience = .activity
@@ -1297,7 +1346,7 @@ struct RecordActivityView: View {
             latestSNR = 14.2
             heartRateSamples = (0..<56).map { index in
                 let value = 105 + Double(index) * 0.22 + sin(Double(index) * 0.38) * 7
-                return NoomRecordingSample(index: index, value: value)
+                return NoomRecordingSample(index: index, value: value, timestamp: Date().addingTimeInterval(Double(index - 55) * 5))
             }
         }
     }
@@ -1423,14 +1472,20 @@ private struct NoomRecordingSignalWaveform: View {
                 context.stroke(idle, with: .color(NoomTheme.softLine), style: StrokeStyle(lineWidth: 2, dash: [5, 6]))
                 return
             }
-            let values = finiteSamples.map(\.value)
-            guard let low = values.min(), let high = values.max() else { return }
+            let sortedValues = finiteSamples.map(\.value).sorted()
+            let lowerIndex = Int(Double(sortedValues.count - 1) * 0.05)
+            let upperIndex = Int(Double(sortedValues.count - 1) * 0.95)
+            let low = sortedValues[lowerIndex]
+            let high = sortedValues[upperIndex]
             let range = max(high - low, 0.000_001)
+            guard let latestTimestamp = finiteSamples.last?.timestamp else { return }
+            let windowStart = latestTimestamp.addingTimeInterval(-noomPPGWindowDuration)
             var path = Path()
             for (offset, sample) in finiteSamples.enumerated() {
-                let x = size.width * CGFloat(offset) / CGFloat(max(finiteSamples.count - 1, 1))
-                let normalized = (sample.value - low) / range
-                let y = size.height - CGFloat(normalized) * size.height * 0.72 - size.height * 0.14
+                let elapsed = sample.timestamp.timeIntervalSince(windowStart)
+                let x = size.width * CGFloat(min(max(elapsed / noomPPGWindowDuration, 0), 1))
+                let normalized = min(max((sample.value - low) / range, 0), 1)
+                let y = size.height - CGFloat(normalized) * size.height * 0.76 - size.height * 0.12
                 let point = CGPoint(x: x, y: y)
                 if offset == 0 { path.move(to: point) } else { path.addLine(to: point) }
             }

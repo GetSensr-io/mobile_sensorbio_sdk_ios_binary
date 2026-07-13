@@ -187,7 +187,7 @@ final class PairDeviceState {
                 sensorBio.setAskForDeviceResponse(true)
                 self.startWatchdog(after: 30) { [weak self] in
                     sensorBio.setAskForDeviceResponse(false)
-                    self?.phase = .error("Timed out waiting for the Noom Band button press.")
+                    self?.phase = .error("Timed out waiting for the Noom Band double-click.")
                 }
             }
             .store(in: &subscriptions)
@@ -196,7 +196,7 @@ final class PairDeviceState {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
-                if self.phase == .connecting || self.phase == .confirming {
+                if self.phase == .connecting || self.phase == .confirming || self.phase == .allSet {
                     self.cancelWatchdog()
                     if self.phase == .confirming {
                         sensorBio.setAskForDeviceResponse(false)
@@ -209,8 +209,10 @@ final class PairDeviceState {
         sensorBio.$buttonTaps
             .compactMap { $0 }
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self, self.phase == .confirming else { return }
+            .sink { [weak self] tapCount in
+                guard let self,
+                      self.phase == .confirming,
+                      tapCount == 2 else { return }
                 self.cancelWatchdog()
                 sensorBio.setAskForDeviceResponse(false)
                 self.phase = .allSet
@@ -278,16 +280,16 @@ final class PairDeviceState {
     /// serializes the identity, updates `haveDevice` / `pairedDevice`, and
     /// registers the device with the BLE layer. The SDK owns paired-device
     /// persistence end-to-end; the app never rebuilds its device dictionary.
+    /// Keep the confirmed BLE session alive so the first sync can begin.
     @MainActor
     func finish() {
         sensorBio.setAskForDeviceResponse(false)
-        guard let device = selectedDevice else { return }
+        guard phase == .allSet, let device = selectedDevice else { return }
         sensorBio.persistPairedDevice(
             macAddress: device.id,
             name: device.name,
             type: device.deviceType
         )
-        sensorBio.disconnect()
     }
 
     // MARK: - watchdog

@@ -22,7 +22,7 @@ class NoomBandStateTests(unittest.TestCase):
             self.assertIn(f'case "{route}"', QA)
 
     def test_ready_requires_current_live_connection(self):
-        self.assertIn("if connected { return .connected }", STATE)
+        self.assertIn("if paired && connected { return .connected }", STATE)
         self.assertIn("return paired ? .pairedDisconnected : .neverPaired", STATE)
         self.assertIn("var isLiveReady: Bool { self == .connected }", STATE)
         self.assertNotIn('"Noom Band ready"', DASHBOARD)
@@ -80,10 +80,31 @@ class NoomBandStateTests(unittest.TestCase):
             "macAddress: device.id",
             "name: device.name",
             "type: device.deviceType",
-            "sensorBio.disconnect()",
         ):
             self.assertIn(snippet, PAIR)
         self.assertNotIn("persistDeviceState", PAIR)
+
+    def test_pairing_requires_an_explicit_double_click_before_connected_ui(self):
+        self.assertIn("tapCount == 2", PAIR)
+        self.assertIn('Double-click the button on your Noom Band', PAIR_VIEW)
+        self.assertIn('A single click will not confirm pairing.', PAIR_VIEW)
+        confirming = PAIR.index("self.phase = .confirming")
+        double_click = PAIR.index("tapCount == 2", confirming)
+        all_set = PAIR.index("self.phase = .allSet", double_click)
+        self.assertLess(confirming, double_click)
+        self.assertLess(double_click, all_set)
+        self.assertIn('case .allSet: return "Connected"', PAIR_VIEW)
+
+    def test_successful_pairing_keeps_the_live_ble_connection(self):
+        start = PAIR.index("func finish()")
+        end = PAIR.index("\n    // MARK: - watchdog", start)
+        finish_body = PAIR[start:end]
+        self.assertIn("guard phase == .allSet", finish_body)
+        self.assertIn("sensorBio.persistPairedDevice(", finish_body)
+        self.assertNotIn("sensorBio.disconnect()", finish_body)
+        cancel_start = PAIR.index("func cancel()")
+        cancel_end = PAIR.index("func connect(", cancel_start)
+        self.assertIn("sensorBio.disconnect()", PAIR[cancel_start:cancel_end])
 
     def test_user_facing_device_identity_uses_device_id_and_serial_number(self):
         self.assertIn('Text("Device ID · \\(device.id)")', PAIR_VIEW)
@@ -108,19 +129,29 @@ class NoomBandStateTests(unittest.TestCase):
         self.assertIn('NoomValueRowPublic(label: "Device ID", value: state.identity.deviceID ?? "Unavailable")', PAIR_VIEW)
         self.assertIn("@State private var deviceIdentity = DeviceIdentityPresentation(", PROFILE)
         self.assertIn("sensorBio.$pairedDevice.receive(on: DispatchQueue.main)", PROFILE)
-        self.assertIn("sensorBio.$haveDevice.receive(on: DispatchQueue.main)", PROFILE)
+        self.assertNotIn("sensorBio.$haveDevice.receive(on: DispatchQueue.main)", PROFILE)
         self.assertIn("sensorBio.$lastSyncd.receive(on: DispatchQueue.main)", PROFILE)
         self.assertIn("sensorBio.$deviceSyncing.receive(on: DispatchQueue.main)", PROFILE)
         self.assertIn("sensorBio.$percentSynced.receive(on: DispatchQueue.main)", PROFILE)
         self.assertIn("deviceIdentity.connectionEstablished(", PROFILE)
         self.assertIn("DeviceIdentityPresentation.serialsOnMain(sensorBio.$serialNumber)", PROFILE)
         self.assertIn('NoomValueRowPublic(label: "Serial number", value: deviceIdentity.serialNumber ?? "Unavailable")', PROFILE)
-        self.assertIn('NoomValueRowPublic(label: "Device ID", value: deviceIdentity.deviceID ?? "Unavailable")', PROFILE)
+        self.assertIn('NoomValueRowPublic(label: "Device ID", value: pairedDevice.macAddress)', PROFILE)
 
     def test_unpair_uses_v012_unpair_clear_api(self):
+        self.assertIn("private func unpair(_ device: SB_PairedDeviceState)", PROFILE)
+        self.assertIn("unpair(pairedDevice)", PROFILE)
         self.assertIn("sensorBio.removeDeviceFromPairedDevices(device.macAddress)", PROFILE)
         self.assertIn("sensorBio.clearPairedDevice()", PROFILE)
         self.assertNotIn("persistDeviceState", PROFILE)
+
+    def test_profile_band_card_and_remove_action_require_a_paired_device(self):
+        self.assertIn(".live(paired: pairedDevice != nil, connected: connected)", PROFILE)
+        self.assertIn("if let pairedDevice {", PROFILE)
+        self.assertNotIn("if haveDevice {", PROFILE)
+        self.assertNotIn("if !haveDevice {", PROFILE)
+        self.assertIn(".live(paired: pairedDevice != nil, connected: connected)", PRODUCT)
+        self.assertIn("if pairedDevice != nil {", PRODUCT)
 
     def test_reconnect_path_does_not_start_pairing_flow_for_paired_disconnected_device(self):
         self.assertIn("private func reconnectPairedDevice()", PRODUCT)

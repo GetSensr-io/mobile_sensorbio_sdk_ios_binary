@@ -70,10 +70,10 @@ struct PairDeviceView: View {
                         Text("Connecting to your Noom Band").noomBody()
                     }
                 case .confirming:
-                    Label("Press the button on your Noom Band to confirm it is yours.", systemImage: "hand.tap.fill")
+                    Label("Double-click the button on your Noom Band to confirm it is yours.", systemImage: "hand.tap.fill")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(NoomTheme.ink)
-                    Text("The light should blink blue. You have 30 seconds.").noomBody()
+                    Text("The light should blink blue. A single click will not confirm pairing. You have 30 seconds.").noomBody()
                 case .allSet:
                     Label("Noom Band is connected. Tap Done to finish.", systemImage: "checkmark.circle.fill")
                         .font(.system(size: 14, weight: .semibold))

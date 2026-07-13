@@ -7,7 +7,6 @@ struct ProfileView: View {
     let session: SB_Session
 
     @Environment(\.dismiss) private var dismiss
-    @State private var haveDevice: Bool = sensorBio.haveDevice
     @State private var connected: Bool = sensorBio.connected
     @State private var pairedDevice: SB_PairedDeviceState? = sensorBio.pairedDevice
     @State private var deviceIdentity = DeviceIdentityPresentation(
@@ -28,7 +27,7 @@ struct ProfileView: View {
     @State private var notificationError: String? = nil
 
     private var bandState: NoomBandConnectionState {
-        .live(paired: haveDevice, connected: connected)
+        .live(paired: pairedDevice != nil, connected: connected)
     }
 
     var body: some View {
@@ -60,13 +59,13 @@ struct ProfileView: View {
                 }
             }
 
-            if haveDevice {
+            if let pairedDevice {
                 NoomCard {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Noom Band").noomSerifTitle(size: 28)
                         NoomValueRowPublic(label: "Device", value: "Noom Band")
                         NoomValueRowPublic(label: "Serial number", value: deviceIdentity.serialNumber ?? "Unavailable")
-                        NoomValueRowPublic(label: "Device ID", value: deviceIdentity.deviceID ?? "Unavailable")
+                        NoomValueRowPublic(label: "Device ID", value: pairedDevice.macAddress)
                         NoomValueRowPublic(label: "Connection", value: bandState.isLiveReady ? "Connected" : "Not connected")
                         NoomValueRowPublic(label: "Last synced", value: formattedLastSynced(now: now))
                         if syncing {
@@ -77,11 +76,8 @@ struct ProfileView: View {
             }
 
             VStack(spacing: 12) {
-                if !haveDevice {
-                    Button("Set up Noom Band") { presentingPair = true }
-                        .buttonStyle(NoomPrimaryButtonStyle())
-                } else {
-                    Button("Remove Noom Band") { unpair() }
+                if let pairedDevice {
+                    Button("Remove Noom Band") { unpair(pairedDevice) }
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundStyle(NoomTheme.logoBlack)
                         .frame(maxWidth: .infinity)
@@ -92,6 +88,9 @@ struct ProfileView: View {
                         Label(unpairError, systemImage: "exclamationmark.triangle.fill")
                             .foregroundStyle(NoomTheme.ink)
                     }
+                } else {
+                    Button("Set up Noom Band") { presentingPair = true }
+                        .buttonStyle(NoomPrimaryButtonStyle())
                 }
                 Button {
                     Task { await signOut() }
@@ -126,7 +125,6 @@ struct ProfileView: View {
                 if !Task.isCancelled { now = Date() }
             }
         }
-        .onReceive(sensorBio.$haveDevice.receive(on: DispatchQueue.main)) { haveDevice = $0 }
         .onReceive(sensorBio.$connected.receive(on: DispatchQueue.main)) { isConnected in
             connected = isConnected
             if isConnected {
@@ -215,12 +213,8 @@ struct ProfileView: View {
         return formatter.localizedString(for: lastSyncd, relativeTo: now)
     }
 
-    private func unpair() {
+    private func unpair(_ device: SB_PairedDeviceState) {
         unpairError = nil
-        guard let device = pairedDevice else {
-            unpairError = "No Noom Band to remove."
-            return
-        }
         sensorBio.removeDeviceFromPairedDevices(device.macAddress)
         sensorBio.clearPairedDevice()
         pairedDevice = nil

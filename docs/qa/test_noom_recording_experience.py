@@ -41,7 +41,8 @@ class NoomRecordingExperienceContracts(unittest.TestCase):
     def test_spot_check_uses_fixed_sdk_capture_and_real_live_streams(self) -> None:
         source = self.recording_source()
         for snippet in (
-            "recordDetailedBiometrics(duration: 60, minDuration: 30)",
+            "duration: noomSpotCheckDuration",
+            "minDuration: noomSpotCheckDuration",
             "sensorBio.ppg.throttle",
             "sensorBio.hr.receive(on: RunLoop.main)",
             "sensorBio.hrv.receive(on: RunLoop.main)",
@@ -75,10 +76,25 @@ class NoomRecordingExperienceContracts(unittest.TestCase):
         source = self.recording_source()
         self.assertIn("guard value.isFinite else { return }", source)
         self.assertIn("appendBounded", source)
-        self.assertIn("limit: 140", source)
+        self.assertIn("timestamp: Date", source)
+        self.assertIn("addingTimeInterval(-5)", source)
         self.assertIn("let finiteSamples = samples.filter { $0.value.isFinite }", source)
         chart = source.split("struct NoomRecordingSignalWaveform", 1)[1]
         self.assertIn("finiteSamples", chart)
+        self.assertIn("noomPPGWindowDuration", chart)
+        self.assertIn("sortedValues", chart)
+
+    def test_spot_check_is_three_minutes_with_wall_clock_countdown(self) -> None:
+        source = self.recording_source()
+        for snippet in (
+            "private let noomSpotCheckDuration: TimeInterval = 180",
+            "spotCheckNow.timeIntervalSince(start)",
+            "Task.sleep(for: .milliseconds(100))",
+            'NoomPill(title: "3 min"',
+            'Text("SEC")',
+        ):
+            self.assertIn(snippet, source)
+        self.assertNotIn('Text("SECONDS REMAINING")', source)
 
     def test_recording_failures_are_friendly_and_cancel_is_real(self) -> None:
         source = self.recording_source()
