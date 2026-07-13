@@ -184,6 +184,25 @@ final class SignUpFormStateTests: XCTestCase {
 
 @MainActor
 final class DeviceIdentityPresentationTests: XCTestCase {
+    func testPairingCallbackUsesSelectedDiscoveryIDWhenCallbackIdentityDiffers() {
+        XCTAssertEqual(
+            PairingAttemptCorrelation.canonicalDeviceID(
+                selectedDeviceID: "CORE-BLUETOOTH-UUID",
+                callbackDeviceID: "AA:BB:CC:DD:EE:FF"
+            ),
+            "CORE-BLUETOOTH-UUID"
+        )
+    }
+
+    func testPairingCallbackCannotAdvanceWithoutSelectedDiscovery() {
+        XCTAssertNil(
+            PairingAttemptCorrelation.canonicalDeviceID(
+                selectedDeviceID: nil,
+                callbackDeviceID: "AA:BB:CC:DD:EE:FF"
+            )
+        )
+    }
+
     func testReplacingDeviceClearsOldSerialAndRejectsDelayedOldPublication() {
         var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
 

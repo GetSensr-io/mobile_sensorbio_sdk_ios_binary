@@ -21,6 +21,7 @@ NOOM_DESIGN = (SRC / "NoomDesignSystem.swift").read_text()
 SLEEP_DETAIL = (SRC / "SleepDetailView.swift").read_text()
 RECOVERY_DETAIL = (SRC / "RecoveryDetailView.swift").read_text()
 INFLAMMATION_DETAIL = (SRC / "InflammationSignal.swift").read_text()
+PROJECT_SPEC = (ROOT / "NoomApp/project.yml").read_text()
 NUMERIC_DISPLAY_SOURCES = {
     "DashboardView.swift": DASHBOARD,
     "InsightsView.swift": INSIGHTS_VIEW,
@@ -109,6 +110,19 @@ class NoomParityContractTests(unittest.TestCase):
             "NoomPlusLockup(compact: compact)",
         ):
             self.assertIn(token, design)
+
+    def test_xcodegen_and_committed_plist_use_the_same_build_number(self) -> None:
+        import plistlib
+
+        with (SRC / "Info.plist").open("rb") as handle:
+            info = plistlib.load(handle)
+        project_build = re.search(
+            r'^\s+CFBundleVersion:\s*"?([^"\s]+)"?\s*$',
+            PROJECT_SPEC,
+            re.MULTILINE,
+        )
+        self.assertIsNotNone(project_build)
+        self.assertEqual(project_build.group(1), str(info["CFBundleVersion"]))
 
     def test_qa_detail_routes_are_pushed_so_back_dismisses(self) -> None:
         content = (SRC / "ContentView.swift").read_text()

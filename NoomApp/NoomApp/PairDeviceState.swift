@@ -3,6 +3,15 @@ import Combine
 import Observation
 import SensorBioSDK
 
+struct PairingAttemptCorrelation {
+    static func canonicalDeviceID(
+        selectedDeviceID: String?,
+        callbackDeviceID _: String
+    ) -> String? {
+        selectedDeviceID
+    }
+}
+
 struct DeviceIdentityPresentation: Equatable {
     private(set) var deviceID: String?
     private(set) var serialNumber: String?
@@ -163,10 +172,12 @@ final class PairDeviceState {
             .sink { [weak self] connectedDeviceID in
                 guard let self,
                       self.phase == .connecting,
-                      let selectedDevice = self.selectedDevice,
-                      selectedDevice.id == connectedDeviceID else { return }
+                      let canonicalDeviceID = PairingAttemptCorrelation.canonicalDeviceID(
+                        selectedDeviceID: self.selectedDevice?.id,
+                        callbackDeviceID: connectedDeviceID
+                      ) else { return }
                 self.identity.connectionEstablished(
-                    deviceID: connectedDeviceID,
+                    deviceID: canonicalDeviceID,
                     currentSDKSerial: sensorBio.serialNumber
                 )
                 self.cancelWatchdog()
