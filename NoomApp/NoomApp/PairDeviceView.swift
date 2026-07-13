@@ -107,10 +107,10 @@ struct PairDeviceView: View {
                                 .frame(width: 34, height: 34)
                                 .background(NoomTheme.rose, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                             VStack(alignment: .leading, spacing: 3) {
-                                Text("MAC ID · \(device.id)")
+                                Text("Device ID · \(device.id)")
                                     .font(.system(size: 15, weight: .semibold, design: .monospaced))
                                     .foregroundStyle(NoomTheme.logoBlack)
-                                Text("Ready to connect")
+                                Text("Serial number appears after connection")
                                     .font(.system(size: 12))
                                     .foregroundStyle(NoomTheme.muted)
                             }
@@ -132,6 +132,8 @@ struct PairDeviceView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Paired").noomLabel()
                 NoomValueRowPublic(label: "Device", value: "Noom Band")
+                NoomValueRowPublic(label: "Serial number", value: state.identity.serialNumber ?? "Unavailable")
+                NoomValueRowPublic(label: "Device ID", value: state.identity.deviceID ?? "Unavailable")
                 NoomValueRowPublic(label: "Status", value: "Ready")
             }
         }

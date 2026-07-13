@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -84,9 +85,36 @@ class NoomBandStateTests(unittest.TestCase):
             self.assertIn(snippet, PAIR)
         self.assertNotIn("persistDeviceState", PAIR)
 
-    def test_discovered_bands_are_identified_by_mac_id(self):
-        self.assertIn('Text("MAC ID · \\(device.id)")', PAIR_VIEW)
-        self.assertNotIn('Text("Noom Band")\n                                    .font(.system(size: 15', PAIR_VIEW)
+    def test_user_facing_device_identity_uses_device_id_and_serial_number(self):
+        self.assertIn('Text("Device ID · \\(device.id)")', PAIR_VIEW)
+        for legacy_copy in ('"MAC ID', '"MAC address', '"MAC Address'):
+            self.assertNotIn(legacy_copy, PAIR_VIEW)
+            self.assertNotIn(legacy_copy, PROFILE)
+        visible_mac_pattern = re.compile(
+            r'(?i)(?:Text|accessibilityLabel)\s*\(\s*"[^"]*\bMAC\b|label:\s*"[^"]*\bMAC\b'
+        )
+        self.assertIsNone(visible_mac_pattern.search(PAIR_VIEW))
+        self.assertIsNone(visible_mac_pattern.search(PROFILE))
+        self.assertIn("var identity = DeviceIdentityPresentation(", PAIR)
+        self.assertIn("DeviceIdentityPresentation.serialsOnMain(sensorBio.$serialNumber)", PAIR)
+        self.assertIn("sensorBio.pairingConnection", PAIR)
+        self.assertIn("selectedDevice.id == connectedDeviceID", PAIR)
+        self.assertIn("identity.connectionEstablished(", PAIR)
+        self.assertIn("deviceID: connectedDeviceID", PAIR)
+        self.assertNotIn("sensorBio.deviceConnected", PAIR)
+        self.assertIn("identity.begin(", PAIR)
+        self.assertIn('NoomValueRowPublic(label: "Serial number", value: state.identity.serialNumber ?? "Unavailable")', PAIR_VIEW)
+        self.assertIn('NoomValueRowPublic(label: "Device ID", value: state.identity.deviceID ?? "Unavailable")', PAIR_VIEW)
+        self.assertIn("@State private var deviceIdentity = DeviceIdentityPresentation(", PROFILE)
+        self.assertIn("sensorBio.$pairedDevice.receive(on: DispatchQueue.main)", PROFILE)
+        self.assertIn("sensorBio.$haveDevice.receive(on: DispatchQueue.main)", PROFILE)
+        self.assertIn("sensorBio.$lastSyncd.receive(on: DispatchQueue.main)", PROFILE)
+        self.assertIn("sensorBio.$deviceSyncing.receive(on: DispatchQueue.main)", PROFILE)
+        self.assertIn("sensorBio.$percentSynced.receive(on: DispatchQueue.main)", PROFILE)
+        self.assertIn("deviceIdentity.connectionEstablished(", PROFILE)
+        self.assertIn("DeviceIdentityPresentation.serialsOnMain(sensorBio.$serialNumber)", PROFILE)
+        self.assertIn('NoomValueRowPublic(label: "Serial number", value: deviceIdentity.serialNumber ?? "Unavailable")', PROFILE)
+        self.assertIn('NoomValueRowPublic(label: "Device ID", value: deviceIdentity.deviceID ?? "Unavailable")', PROFILE)
 
     def test_unpair_uses_v012_unpair_clear_api(self):
         self.assertIn("sensorBio.removeDeviceFromPairedDevices(device.macAddress)", PROFILE)

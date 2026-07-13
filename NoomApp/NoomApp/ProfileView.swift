@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import SensorBioSDK
 import UserNotifications
 
@@ -9,6 +10,10 @@ struct ProfileView: View {
     @State private var haveDevice: Bool = sensorBio.haveDevice
     @State private var connected: Bool = sensorBio.connected
     @State private var pairedDevice: SB_PairedDeviceState? = sensorBio.pairedDevice
+    @State private var deviceIdentity = DeviceIdentityPresentation(
+        deviceID: sensorBio.pairedDevice?.macAddress,
+        serialNumber: sensorBio.connected ? sensorBio.serialNumber : nil
+    )
     @State private var lastSyncd: Date = sensorBio.lastSyncd
     @State private var syncing: Bool = sensorBio.deviceSyncing
     @State private var percentSynced: Int = sensorBio.percentSynced
@@ -60,6 +65,8 @@ struct ProfileView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Noom Band").noomSerifTitle(size: 28)
                         NoomValueRowPublic(label: "Device", value: "Noom Band")
+                        NoomValueRowPublic(label: "Serial number", value: deviceIdentity.serialNumber ?? "Unavailable")
+                        NoomValueRowPublic(label: "Device ID", value: deviceIdentity.deviceID ?? "Unavailable")
                         NoomValueRowPublic(label: "Connection", value: bandState.isLiveReady ? "Connected" : "Not connected")
                         NoomValueRowPublic(label: "Last synced", value: formattedLastSynced(now: now))
                         if syncing {
@@ -119,12 +126,47 @@ struct ProfileView: View {
                 if !Task.isCancelled { now = Date() }
             }
         }
-        .onReceive(sensorBio.$haveDevice) { haveDevice = $0 }
-        .onReceive(sensorBio.$connected) { connected = $0 }
-        .onReceive(sensorBio.$pairedDevice) { pairedDevice = $0 }
-        .onReceive(sensorBio.$lastSyncd) { lastSyncd = $0 }
-        .onReceive(sensorBio.$deviceSyncing) { syncing = $0 }
-        .onReceive(sensorBio.$percentSynced) { percentSynced = $0 }
+        .onReceive(sensorBio.$haveDevice.receive(on: DispatchQueue.main)) { haveDevice = $0 }
+        .onReceive(sensorBio.$connected.receive(on: DispatchQueue.main)) { isConnected in
+            connected = isConnected
+            if isConnected {
+                deviceIdentity.connectionEstablished(
+                    deviceID: pairedDevice?.macAddress,
+                    currentSDKSerial: sensorBio.serialNumber
+                )
+            } else {
+                deviceIdentity.begin(
+                    deviceID: pairedDevice?.macAddress,
+                    currentSDKSerial: sensorBio.serialNumber,
+                    waitForConnection: true
+                )
+            }
+        }
+        .onReceive(sensorBio.$pairedDevice.receive(on: DispatchQueue.main)) { device in
+            pairedDevice = device
+            if device?.macAddress != deviceIdentity.deviceID {
+                deviceIdentity.begin(
+                    deviceID: device?.macAddress,
+                    currentSDKSerial: sensorBio.serialNumber,
+                    waitForConnection: true
+                )
+            }
+            if connected {
+                deviceIdentity.connectionEstablished(
+                    deviceID: device?.macAddress,
+                    currentSDKSerial: sensorBio.serialNumber
+                )
+            }
+        }
+        .onReceive(DeviceIdentityPresentation.serialsOnMain(sensorBio.$serialNumber)) { serialNumber in
+            deviceIdentity.observe(
+                serial: serialNumber,
+                currentSDKSerial: sensorBio.serialNumber
+            )
+        }
+        .onReceive(sensorBio.$lastSyncd.receive(on: DispatchQueue.main)) { lastSyncd = $0 }
+        .onReceive(sensorBio.$deviceSyncing.receive(on: DispatchQueue.main)) { syncing = $0 }
+        .onReceive(sensorBio.$percentSynced.receive(on: DispatchQueue.main)) { percentSynced = $0 }
         .sheet(isPresented: $presentingPair) {
             PairDeviceView()
         }
@@ -181,6 +223,12 @@ struct ProfileView: View {
         }
         sensorBio.removeDeviceFromPairedDevices(device.macAddress)
         sensorBio.clearPairedDevice()
+        pairedDevice = nil
+        deviceIdentity.begin(
+            deviceID: nil,
+            currentSDKSerial: sensorBio.serialNumber,
+            waitForConnection: true
+        )
     }
 
     private func signOut() async {

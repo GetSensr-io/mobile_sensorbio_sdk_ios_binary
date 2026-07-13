@@ -3,6 +3,102 @@ import Combine
 import Observation
 import SensorBioSDK
 
+struct DeviceIdentityPresentation: Equatable {
+    private(set) var deviceID: String?
+    private(set) var serialNumber: String?
+
+    private var rejectedSerials: Set<String>
+    private var serialSourceDeviceID: String?
+    private var serialSourceSerial: String?
+    private var canAcceptSerial: Bool
+
+    init(deviceID: String? = nil, serialNumber: String? = nil) {
+        let normalizedDeviceID = Self.normalized(deviceID)
+        let normalizedSerial = Self.normalized(serialNumber)
+        self.deviceID = normalizedDeviceID
+        self.serialNumber = normalizedDeviceID == nil ? nil : normalizedSerial
+        self.rejectedSerials = []
+        self.serialSourceDeviceID = self.serialNumber == nil ? nil : normalizedDeviceID
+        self.serialSourceSerial = self.serialNumber
+        self.canAcceptSerial = normalizedDeviceID != nil
+    }
+
+    mutating func begin(
+        deviceID: String?,
+        currentSDKSerial: String?,
+        waitForConnection: Bool
+    ) {
+        let normalizedDeviceID = Self.normalized(deviceID)
+        let normalizedCurrentSerial = Self.normalized(currentSDKSerial)
+        self.deviceID = normalizedDeviceID
+        serialNumber = nil
+        rejectedSerials.removeAll()
+        if let normalizedDeviceID {
+            if serialSourceDeviceID != normalizedDeviceID,
+               let serialSourceSerial {
+                rejectedSerials.insert(serialSourceSerial)
+            }
+            if let normalizedCurrentSerial,
+               serialSourceDeviceID != normalizedDeviceID
+                    || serialSourceSerial != normalizedCurrentSerial {
+                rejectedSerials.insert(normalizedCurrentSerial)
+            }
+        }
+        canAcceptSerial = normalizedDeviceID != nil && !waitForConnection
+    }
+
+    mutating func connectionEstablished(deviceID connectedDeviceID: String?, currentSDKSerial: String?) {
+        guard let deviceID,
+              Self.normalized(connectedDeviceID) == deviceID else { return }
+        if let currentSerial = Self.normalized(currentSDKSerial),
+           let serialSourceSerial,
+           serialSourceDeviceID != deviceID,
+           currentSerial != serialSourceSerial {
+            rejectedSerials.remove(currentSerial)
+        }
+        canAcceptSerial = true
+        observe(serial: currentSDKSerial, currentSDKSerial: currentSDKSerial)
+    }
+
+    mutating func observe(serial emittedSerial: String?, currentSDKSerial: String?) {
+        guard deviceID != nil else { return }
+
+        let candidate = Self.normalized(emittedSerial)
+        let current = Self.normalized(currentSDKSerial)
+        guard candidate == current else { return }
+
+        guard let candidate else {
+            serialNumber = nil
+            return
+        }
+        guard canAcceptSerial else { return }
+        if serialSourceDeviceID == deviceID,
+           let serialSourceSerial,
+           candidate != serialSourceSerial {
+            return
+        }
+        guard !rejectedSerials.contains(candidate) else { return }
+
+        serialNumber = candidate
+        serialSourceDeviceID = deviceID
+        serialSourceSerial = candidate
+        rejectedSerials.removeAll()
+    }
+
+    static func serialsOnMain<P: Publisher>(_ publisher: P) -> AnyPublisher<String?, Never>
+    where P.Output == String?, P.Failure == Never {
+        publisher
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+    }
+
+    private static func normalized(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+}
+
 @Observable
 final class PairDeviceState {
     enum Phase: Equatable {
@@ -32,6 +128,10 @@ final class PairDeviceState {
     var phase: Phase = .idle
     var devices: [SB_DiscoveredDevice] = []
     var selectedDevice: SB_DiscoveredDevice?
+    var identity = DeviceIdentityPresentation(
+        deviceID: sensorBio.pairedDevice?.macAddress,
+        serialNumber: sensorBio.serialNumber
+    )
 
     private var subscriptions: Set<AnyCancellable> = []
     private var watchdog: Task<Void, Never>?
@@ -48,10 +148,27 @@ final class PairDeviceState {
             }
             .store(in: &subscriptions)
 
+        DeviceIdentityPresentation.serialsOnMain(sensorBio.$serialNumber)
+            .sink { [weak self] serialNumber in
+                guard let self else { return }
+                self.identity.observe(
+                    serial: serialNumber,
+                    currentSDKSerial: sensorBio.serialNumber
+                )
+            }
+            .store(in: &subscriptions)
+
         sensorBio.pairingConnection
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self, self.phase == .connecting else { return }
+            .sink { [weak self] connectedDeviceID in
+                guard let self,
+                      self.phase == .connecting,
+                      let selectedDevice = self.selectedDevice,
+                      selectedDevice.id == connectedDeviceID else { return }
+                self.identity.connectionEstablished(
+                    deviceID: connectedDeviceID,
+                    currentSDKSerial: sensorBio.serialNumber
+                )
                 self.cancelWatchdog()
                 sensorBio.stopScan()
                 self.phase = .confirming
@@ -99,6 +216,11 @@ final class PairDeviceState {
     func start() {
         devices.removeAll()
         selectedDevice = nil
+        identity.begin(
+            deviceID: nil,
+            currentSDKSerial: sensorBio.serialNumber,
+            waitForConnection: true
+        )
         phase = .scanning
         sensorBio.startScan()
         startWatchdog(after: 30) { [weak self] in
@@ -117,6 +239,11 @@ final class PairDeviceState {
         }
         devices.removeAll()
         selectedDevice = nil
+        identity.begin(
+            deviceID: nil,
+            currentSDKSerial: sensorBio.serialNumber,
+            waitForConnection: true
+        )
         phase = .idle
     }
 
@@ -124,6 +251,11 @@ final class PairDeviceState {
     func connect(_ device: SB_DiscoveredDevice) {
         cancelWatchdog()
         selectedDevice = device
+        identity.begin(
+            deviceID: device.id,
+            currentSDKSerial: sensorBio.serialNumber,
+            waitForConnection: true
+        )
         phase = .connecting
         sensorBio.connect(device.id, pairing: true)
         startWatchdog(after: 30) { [weak self] in

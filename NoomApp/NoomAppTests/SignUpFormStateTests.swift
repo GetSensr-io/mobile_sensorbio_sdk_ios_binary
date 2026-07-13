@@ -1,4 +1,5 @@
 import XCTest
+@preconcurrency import Combine
 @testable import NoomApp
 
 @MainActor
@@ -178,5 +179,172 @@ final class SignUpFormStateTests: XCTestCase {
             await form.submit()
             XCTAssertEqual(form.result, expected, "Failed to map \(outcome)")
         }
+    }
+}
+
+@MainActor
+final class DeviceIdentityPresentationTests: XCTestCase {
+    func testReplacingDeviceClearsOldSerialAndRejectsDelayedOldPublication() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(
+            deviceID: "DEVICE-B",
+            currentSDKSerial: "SERIAL-A",
+            waitForConnection: false
+        )
+        identity.observe(serial: "SERIAL-A", currentSDKSerial: "SERIAL-B")
+        identity.observe(serial: "SERIAL-A", currentSDKSerial: "SERIAL-A")
+
+        XCTAssertEqual(identity.deviceID, "DEVICE-B")
+        XCTAssertNil(identity.serialNumber)
+
+        identity.observe(serial: "SERIAL-B", currentSDKSerial: "SERIAL-B")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+    }
+
+    func testPairingWaitsForConnectionBeforeAcceptingCurrentDeviceSerial() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(
+            deviceID: "DEVICE-B",
+            currentSDKSerial: "SERIAL-A",
+            waitForConnection: true
+        )
+        identity.observe(serial: "SERIAL-B", currentSDKSerial: "SERIAL-B")
+        XCTAssertNil(identity.serialNumber)
+
+        identity.connectionEstablished(deviceID: "DEVICE-B", currentSDKSerial: "SERIAL-B")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+    }
+
+    func testMismatchedConnectionEventCannotUnlockCurrentDevice() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(
+            deviceID: "DEVICE-B",
+            currentSDKSerial: "SERIAL-A",
+            waitForConnection: true
+        )
+        identity.connectionEstablished(deviceID: "DEVICE-A", currentSDKSerial: "SERIAL-A")
+        identity.observe(serial: "SERIAL-A", currentSDKSerial: "SERIAL-A")
+        XCTAssertNil(identity.serialNumber)
+
+        identity.connectionEstablished(deviceID: "DEVICE-B", currentSDKSerial: "SERIAL-B")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+    }
+
+    func testSerialPublishedBeforeNewPairedIdentityIsAcceptedAfterMatchingConnection() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(
+            deviceID: "DEVICE-B",
+            currentSDKSerial: "SERIAL-B",
+            waitForConnection: true
+        )
+        identity.connectionEstablished(deviceID: "DEVICE-B", currentSDKSerial: "SERIAL-B")
+
+        XCTAssertEqual(identity.deviceID, "DEVICE-B")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+    }
+
+    func testReconnectingSameDeviceCanReuseItsVerifiedSerial() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(
+            deviceID: "DEVICE-A",
+            currentSDKSerial: "SERIAL-A",
+            waitForConnection: true
+        )
+        identity.connectionEstablished(deviceID: "DEVICE-A", currentSDKSerial: "SERIAL-A")
+
+        XCTAssertEqual(identity.deviceID, "DEVICE-A")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-A")
+    }
+
+    func testSameDeviceRejectsAChangedSerialUntilSDKClearsIdentity() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-B", serialNumber: "SERIAL-B")
+
+        identity.begin(
+            deviceID: "DEVICE-B",
+            currentSDKSerial: "SERIAL-B",
+            waitForConnection: true
+        )
+        identity.observe(serial: "SERIAL-A", currentSDKSerial: "SERIAL-A")
+        identity.connectionEstablished(deviceID: "DEVICE-B", currentSDKSerial: "SERIAL-A")
+        XCTAssertNil(identity.serialNumber)
+
+        identity.observe(serial: nil, currentSDKSerial: nil)
+        identity.observe(serial: "SERIAL-B", currentSDKSerial: "SERIAL-B")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+    }
+
+    func testDelayedNilCannotUnlockPreviousDeviceSerial() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(
+            deviceID: "DEVICE-B",
+            currentSDKSerial: "SERIAL-A",
+            waitForConnection: false
+        )
+        identity.observe(serial: "SERIAL-B", currentSDKSerial: "SERIAL-B")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+
+        identity.observe(serial: nil, currentSDKSerial: nil)
+        identity.observe(serial: "SERIAL-A", currentSDKSerial: "SERIAL-A")
+        XCTAssertNil(identity.serialNumber)
+
+        identity.observe(serial: "SERIAL-B", currentSDKSerial: "SERIAL-B")
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+    }
+
+    func testNewDeviceRejectsPreviousSerialEvenWhenSDKWasAlreadyCleared() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(deviceID: nil, currentSDKSerial: nil, waitForConnection: true)
+        identity.begin(deviceID: "DEVICE-B", currentSDKSerial: nil, waitForConnection: true)
+        identity.connectionEstablished(deviceID: "DEVICE-B", currentSDKSerial: "SERIAL-A")
+
+        XCTAssertEqual(identity.deviceID, "DEVICE-B")
+        XCTAssertNil(identity.serialNumber)
+    }
+
+    func testUnavailableSerialAndDeviceRemovalNeverReusePreviousIdentity() {
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-A", serialNumber: "SERIAL-A")
+
+        identity.begin(
+            deviceID: "DEVICE-B",
+            currentSDKSerial: "SERIAL-A",
+            waitForConnection: false
+        )
+        identity.observe(serial: "   ", currentSDKSerial: "   ")
+        XCTAssertEqual(identity.deviceID, "DEVICE-B")
+        XCTAssertNil(identity.serialNumber)
+
+        identity.begin(deviceID: nil, currentSDKSerial: "SERIAL-A", waitForConnection: false)
+        identity.observe(serial: "SERIAL-A", currentSDKSerial: "SERIAL-A")
+        XCTAssertNil(identity.deviceID)
+        XCTAssertNil(identity.serialNumber)
+    }
+
+    func testSerialPublisherHopsOffMainPublicationToMainThread() async {
+        let subject = PassthroughSubject<String?, Never>()
+        let delivered = expectation(description: "serial delivered on main")
+        var identity = DeviceIdentityPresentation(deviceID: "DEVICE-B", serialNumber: nil)
+        var cancellable: AnyCancellable?
+
+        cancellable = DeviceIdentityPresentation.serialsOnMain(subject)
+            .sink { serial in
+                XCTAssertTrue(Thread.isMainThread)
+                identity.observe(serial: serial, currentSDKSerial: serial)
+                delivered.fulfill()
+            }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            subject.send("SERIAL-B")
+        }
+
+        await fulfillment(of: [delivered], timeout: 1)
+        XCTAssertEqual(identity.serialNumber, "SERIAL-B")
+        withExtendedLifetime(cancellable) {}
     }
 }
