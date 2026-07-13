@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2605"
+   LastUpgradeVersion = "1430"
    version = "1.7">
    <BuildAction
-      parallelizeBuildables = "NO"
+      parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
-      buildArchitectures = "Automatic">
+      runPostActionsOnFailure = "NO">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -29,9 +29,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "35B8FEF4A7EC7B264458F19C"
+               BlueprintIdentifier = "B87DDEDA868139C0805965C7"
                BuildableName = "NoomApp.app"
                BlueprintName = "NoomApp"
+               ReferencedContainer = "container:NoomApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2A9A4FB604DB32D5C5126CDB"
+               BuildableName = "NoomAppTests.xctest"
+               BlueprintName = "NoomAppTests"
                ReferencedContainer = "container:NoomApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -42,7 +56,31 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      onlyGenerateCoverageForSpecifiedTargets = "NO">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B87DDEDA868139C0805965C7"
+            BuildableName = "NoomApp.app"
+            BlueprintName = "NoomApp"
+            ReferencedContainer = "container:NoomApp.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2A9A4FB604DB32D5C5126CDB"
+               BuildableName = "NoomAppTests.xctest"
+               BlueprintName = "NoomAppTests"
+               ReferencedContainer = "container:NoomApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -58,7 +96,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "35B8FEF4A7EC7B264458F19C"
+            BlueprintIdentifier = "B87DDEDA868139C0805965C7"
             BuildableName = "NoomApp.app"
             BlueprintName = "NoomApp"
             ReferencedContainer = "container:NoomApp.xcodeproj">
@@ -75,7 +113,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "35B8FEF4A7EC7B264458F19C"
+            BlueprintIdentifier = "B87DDEDA868139C0805965C7"
             BuildableName = "NoomApp.app"
             BlueprintName = "NoomApp"
             ReferencedContainer = "container:NoomApp.xcodeproj">

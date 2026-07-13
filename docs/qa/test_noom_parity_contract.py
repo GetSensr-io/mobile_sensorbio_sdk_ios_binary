@@ -35,6 +35,12 @@ NUMERIC_DISPLAY_SOURCES = {
 class NoomParityContractTests(unittest.TestCase):
     def test_release_startup_is_locked_to_production(self) -> None:
         self.assertIn("sensorBio.hydrateSession()", NOOM_APP)
+        self.assertIn("SB_SDK.bootstrapKeychain()", NOOM_APP)
+        self.assertIn("SB_SDK.runDefaultsMigratorIfNeeded()", NOOM_APP)
+        self.assertLess(NOOM_APP.index("SB_SDK.bootstrapKeychain()"), NOOM_APP.index("sensorBio.hydrateSession()"))
+        self.assertLess(NOOM_APP.index("SB_SDK.runDefaultsMigratorIfNeeded()"), NOOM_APP.index("sensorBio.hydrateSession()"))
+        self.assertIn("message, privacy: .private(mask: .hash)", NOOM_APP)
+        self.assertNotIn("composed, privacy: .public", NOOM_APP)
         self.assertIn("#if DEBUG", NOOM_APP)
         self.assertIn('UserDefaults.standard.removeObject(forKey: "envIsDev")', NOOM_APP)
         self.assertIn("SB_SDK.environment = .production", NOOM_APP)

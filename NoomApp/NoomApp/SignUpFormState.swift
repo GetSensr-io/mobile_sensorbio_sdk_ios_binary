@@ -4,6 +4,8 @@ import SensorBioSDK
 
 @Observable
 final class SignUpFormState {
+    private let dependencies: SignUpDependencies
+
     var username: String = ""
     var email: String = ""
     var password: String = ""
@@ -19,19 +21,24 @@ final class SignUpFormState {
     var isSubmitting: Bool = false
     var result: Result? = nil
 
-    enum Result {
+    enum Result: Equatable {
         case success(username: String)
         case invalidBirthday
         case invalidEmail
+        case emailInUse
         case invalidHeight
         case invalidWeight
         case invalidAccessCode
         case accessCodeAlreadyInUse
         case deviceSerialNumberRequired
         case deviceSerialNumberMismatch
-        case other(message: String)
+        case serviceUnavailable
         case threw
         case unexpected
+    }
+
+    init(dependencies: SignUpDependencies = .live) {
+        self.dependencies = dependencies
     }
 
     var heightOK: Bool {
@@ -53,6 +60,7 @@ final class SignUpFormState {
 
     @MainActor
     func submit() async {
+        guard !isSubmitting else { return }
         isSubmitting = true
         result = nil
         defer { isSubmitting = false }
@@ -67,22 +75,38 @@ final class SignUpFormState {
         }
         let weight = Float(weightInput) ?? 0
         let birthdayComponents = Calendar.current.dateComponents([.year, .month, .day], from: birthday)
-        let request = SB_CreateAccountRequest(
+        let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let request = SignUpRequest(
             username: username,
-            email: email,
+            email: normalizedEmail,
             password: password,
             birthday: birthdayComponents,
             gender: gender,
             heightCm: heightCmValue,
             weight: weight,
-            imperialUnits: imperialUnits,
-            orgId: nil,
-            accountVerificationAccessCode: nil,
-            deviceSerialNumber: nil
+            imperialUnits: imperialUnits
         )
 
         do {
-            let outcome = try await sensorBio.createAccount(request)
+            let emailAvailability = try await dependencies.checkEmailAvailability(normalizedEmail)
+            switch emailAvailability {
+            case .available:
+                break
+            case .invalidEmail:
+                result = .invalidEmail
+                return
+            case .emailInUse:
+                result = .emailInUse
+                return
+            case .serviceUnavailable:
+                result = .serviceUnavailable
+                return
+            case .unexpected:
+                result = .unexpected
+                return
+            }
+
+            let outcome = try await dependencies.createAccount(request)
             switch outcome {
             case .success:
                 password = ""
@@ -90,7 +114,15 @@ final class SignUpFormState {
             case .invalidBirthday:
                 result = .invalidBirthday
             case .invalidEmail:
-                result = .invalidEmail
+                // Availability and creation are separate backend operations.
+                // Recheck after a create-time rejection so a concurrent signup
+                // is never mislabeled as a malformed address.
+                if let latest = try? await dependencies.checkEmailAvailability(normalizedEmail),
+                   latest == .emailInUse {
+                    result = .emailInUse
+                } else {
+                    result = .invalidEmail
+                }
             case .invalidHeight:
                 result = .invalidHeight
             case .invalidWeight:
@@ -103,9 +135,9 @@ final class SignUpFormState {
                 result = .deviceSerialNumberRequired
             case .deviceSerialNumberMismatch:
                 result = .deviceSerialNumberMismatch
-            case .other(let message):
-                result = .other(message: message)
-            @unknown default:
+            case .serviceUnavailable:
+                result = .serviceUnavailable
+            case .unexpected:
                 result = .unexpected
             }
         } catch {

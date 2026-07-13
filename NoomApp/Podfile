@@ -10,6 +10,10 @@ target 'NoomApp' do
   use_frameworks!
 
   pod 'SensorBioSDK', :path => '..'
+
+  target 'NoomAppTests' do
+    inherit! :search_paths
+  end
 end
 
 post_install do |installer|

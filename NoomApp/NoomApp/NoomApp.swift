@@ -22,6 +22,10 @@ struct NoomApp: App {
         UserDefaults.standard.removeObject(forKey: "envIsDev")
         SB_SDK.environment = .production
         #endif
+        // SDK v0.13 requires its keychain namespace and legacy defaults to be
+        // prepared before any authentication call or session hydration.
+        SB_SDK.bootstrapKeychain()
+        SB_SDK.runDefaultsMigratorIfNeeded()
         sensorBio.hydrateSession()
     }
 
@@ -41,18 +45,17 @@ struct NoomApp: App {
         SB_SDK.log.sink { (level, message, file, function, line) in
             let basename = (file as NSString).lastPathComponent
             let prefix = "[\(basename):\(line) \(function)]"
-            let composed = "\(prefix) \(message)"
             switch level {
             case .verbose, .debug:
-                sdkLog.debug("\(composed, privacy: .public)")
+                sdkLog.debug("\(prefix, privacy: .public) \(message, privacy: .private(mask: .hash))")
             case .info:
-                sdkLog.info("\(composed, privacy: .public)")
+                sdkLog.info("\(prefix, privacy: .public) \(message, privacy: .private(mask: .hash))")
             case .warning:
-                sdkLog.warning("\(composed, privacy: .public)")
+                sdkLog.warning("\(prefix, privacy: .public) \(message, privacy: .private(mask: .hash))")
             case .error:
-                sdkLog.error("\(composed, privacy: .public)")
+                sdkLog.error("\(prefix, privacy: .public) \(message, privacy: .private(mask: .hash))")
             @unknown default:
-                sdkLog.debug("\(composed, privacy: .public)")
+                sdkLog.debug("\(prefix, privacy: .public) \(message, privacy: .private(mask: .hash))")
             }
         }
     }

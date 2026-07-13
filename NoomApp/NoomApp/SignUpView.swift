@@ -157,6 +157,9 @@ struct SignUpView: View {
         case .invalidEmail:
             Label("Enter a valid email address.", systemImage: "xmark.octagon.fill")
                 .foregroundStyle(.red)
+        case .emailInUse:
+            Label("An account with this email already exists. Sign in instead.", systemImage: "person.crop.circle.badge.exclamationmark")
+                .foregroundStyle(.orange)
         case .invalidHeight:
             Label("Please check your height and try again.", systemImage: "xmark.octagon.fill")
                 .foregroundStyle(.red)
@@ -175,8 +178,8 @@ struct SignUpView: View {
         case .deviceSerialNumberMismatch:
             Label("The Noom Band assigned to this account does not match. Please contact support.", systemImage: "exclamationmark.triangle.fill")
                 .foregroundStyle(.orange)
-        case .other(let message):
-            Label(message.isEmpty ? "We could not create your account. Please try again." : message,
+        case .serviceUnavailable:
+            Label("We could not create your account right now. Please try again.",
                   systemImage: "exclamationmark.triangle.fill")
                 .foregroundStyle(.orange)
         case .threw:
