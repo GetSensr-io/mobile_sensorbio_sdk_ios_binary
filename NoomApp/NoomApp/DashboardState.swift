@@ -9,7 +9,6 @@ struct DashboardSnapshot {
     let personalInsights: SB_NewInsights?
     let weeklyRecovery: SB_RecoveryRangeTrending?
     let weeklySleep: SB_SleepDetailAggregated?
-    let nightlySleep: SB_SleepDetailDay?
     let inflammationSignal: InflammationSignal
     let loadedAt: Date
     let networkStatus: SB_NetworkStatus
@@ -31,7 +30,6 @@ final class DashboardState {
     var personalInsights: SB_NewInsights? { snapshot?.personalInsights }
     var weeklyRecovery: SB_RecoveryRangeTrending? { snapshot?.weeklyRecovery }
     var weeklySleep: SB_SleepDetailAggregated? { snapshot?.weeklySleep }
-    var nightlySleep: SB_SleepDetailDay? { snapshot?.nightlySleep }
     var inflammationSignal: InflammationSignal {
         snapshot?.inflammationSignal ?? .unavailable(for: snapshot?.date ?? .now)
     }
@@ -54,7 +52,6 @@ final class DashboardState {
     private func performLoad(date: Date, forceRemote: Bool) async {
         let requestID = UUID()
         activeRequestID = requestID
-        let requestUserID = sensorBio.session?.userId
         let previousSnapshot = snapshotForSameDay(as: date)
         if previousSnapshot == nil {
             snapshot = nil
@@ -80,23 +77,6 @@ final class DashboardState {
             return
         }
 
-        var nextNightlySleep = previousSnapshot?.nightlySleep
-        if let sleepSession = nextData.sleeps.first {
-            NoomSleepHistory.recordSleep(for: requestUserID)
-            do {
-                let endDate = Date(timeIntervalSince1970: TimeInterval(sleepSession.endTimestamp) / 1000)
-                nextNightlySleep = try await sensorBio.fetchSleepDetail(
-                    endDate: endDate,
-                    endTimestamp: Int64(sleepSession.endTimestamp),
-                    forceRemote: forceRemote
-                )
-            } catch {
-                // Keep the last complete same-day sleep detail during a transient refresh failure.
-            }
-        } else {
-            nextNightlySleep = nil
-        }
-
         var nextPersonalInsights = previousSnapshot?.personalInsights
         var nextPersonalInsightsError: String?
         do {
@@ -118,7 +98,6 @@ final class DashboardState {
         var nextWeeklySleep = previousSnapshot?.weeklySleep
         do {
             nextWeeklySleep = try await sensorBio.fetchSleepAggregation(date: date, granularity: .week, forceRemote: forceRemote)
-            if nextWeeklySleep?.sleepTimePoints.isEmpty == false { NoomSleepHistory.recordSleep(for: requestUserID) }
         } catch {
             if nextProgressError == nil {
                 nextProgressError = error.localizedDescription
@@ -134,7 +113,6 @@ final class DashboardState {
             personalInsights: nextPersonalInsights,
             weeklyRecovery: nextWeeklyRecovery,
             weeklySleep: nextWeeklySleep,
-            nightlySleep: nextNightlySleep,
             inflammationSignal: inflammationSignalProvider.signal(for: date),
             loadedAt: Date(),
             networkStatus: sensorBio.networkStatus

@@ -17,6 +17,7 @@ PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
 METRIC_FORMATTING = (SRC / "Metric.swift").read_text()
 BODY_STATUS = METRIC_FORMATTING
 SLEEP_HOME = (SRC / "MainTabView.swift").read_text()
+COORDINATOR = (SRC / "SleepProcessingCoordinator.swift").read_text()
 NOOM_DESIGN = (SRC / "NoomDesignSystem.swift").read_text()
 SLEEP_DETAIL = (SRC / "SleepDetailView.swift").read_text()
 RECOVERY_DETAIL = (SRC / "RecoveryDetailView.swift").read_text()
@@ -173,11 +174,13 @@ class NoomParityContractTests(unittest.TestCase):
         self.assertNotIn("NoomTopBar(label:", header)
         self.assertNotIn("Text(\"Today\")", header)
 
-    def test_sleep_hub_surfaces_returned_sleep_context_and_keeps_detail_drill_ins(self) -> None:
+    def test_sleep_hub_surfaces_shared_sleep_context_and_keeps_detail_drill_ins(self) -> None:
         for snippet in (
-            "SleepHomeState",
-            "fetchDashboardData(date:",
-            "fetchSleepDetail(endDate:",
+            "@Environment(SleepProcessingCoordinator.self)",
+            "SleepRecoveryHomeState",
+            "SleepProcessingBanner",
+            "SleepSessionPicker",
+            "sleepProcessing.displaySnapshot",
             "sleepHeroSummary",
             "sleepStagesPreview",
             "recoveryFactorsPreview",
@@ -186,6 +189,7 @@ class NoomParityContractTests(unittest.TestCase):
             "Tonight is night one",
         ):
             self.assertIn(snippet, SLEEP_HOME)
+        self.assertNotIn("fetchSleepDetail(", SLEEP_HOME)
         self.assertNotIn("Recovery: 78", SLEEP_HOME)
         self.assertNotIn("better than 74%", SLEEP_HOME)
 
@@ -206,7 +210,12 @@ class NoomParityContractTests(unittest.TestCase):
             "sleepComponent",
         ):
             self.assertIn(snippet, BODY_STATUS)
-        self.assertIn("dashboard.nightlySleep", DASHBOARD)
+        self.assertIn("sleepProcessing.bodyStatusSleepDetail", DASHBOARD)
+        self.assertIn("sleepProcessing.sourceDate", DASHBOARD)
+        self.assertIn("sleepProcessing.displaySnapshot", DASHBOARD)
+        self.assertIn("processedSuccessfully", COORDINATOR)
+        self.assertIn("permitsBodyStatus", COORDINATOR)
+        self.assertNotIn("dashboard.nightlySleep", DASHBOARD)
         self.assertIn("bodyStatusSection", DASHBOARD)
         self.assertIn("Resting HR", DASHBOARD)
         self.assertIn("Nocturnal HRV", DASHBOARD)

@@ -11,15 +11,19 @@ PRODUCT = (SRC / "NoomProductScreens.swift").read_text()
 INSIGHTS = (SRC / "InsightsView.swift").read_text()
 MAIN = (SRC / "MainTabView.swift").read_text()
 CONTENT = (SRC / "ContentView.swift").read_text()
+COORDINATOR = (SRC / "SleepProcessingCoordinator.swift").read_text()
 CONVEX_PRODUCT_LOOP = (ROOT / "convex/productLoop.ts").read_text()
 
 
 class NoomProductLoopMappingTests(unittest.TestCase):
     def test_body_status_is_nightly_sleep_backed_with_freshness(self) -> None:
         self.assertIn("fetchDashboardData(date: date, tzOffset: tzOffset, forceRemote: forceRemote)", DASHBOARD_STATE)
-        self.assertIn("fetchSleepDetail(\n", DASHBOARD_STATE)
-        self.assertIn("endTimestamp: Int64(sleepSession.endTimestamp)", DASHBOARD_STATE)
-        self.assertIn("nightlySleep", DASHBOARD_STATE)
+        self.assertNotIn("fetchSleepDetail(", DASHBOARD_STATE)
+        self.assertIn("fetchSleepSessions", COORDINATOR)
+        self.assertIn("fetchSleepDetail", COORDINATOR)
+        self.assertIn("SleepRequestKey", COORDINATOR)
+        self.assertIn("sleepProcessing.bodyStatusSleepDetail", DASHBOARD_VIEW)
+        self.assertIn("sleepProcessing.sourceDate", DASHBOARD_VIEW)
         self.assertIn("enum NoomDataFreshness", DASHBOARD_STATE)
         self.assertIn("sensorBio.lastSyncd", DASHBOARD_STATE)
         self.assertIn("Stale today", DASHBOARD_VIEW)

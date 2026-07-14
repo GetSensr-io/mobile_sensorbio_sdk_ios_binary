@@ -4,24 +4,6 @@ import Observation
 import SensorBioSDK
 import Combine
 
-enum NoomSleepHistory {
-    private static func recordedSleepKey(for userID: String?) -> String? {
-        guard let userID, !userID.isEmpty else { return nil }
-        let account = Data(userID.utf8).base64EncodedString()
-        return "noomHasRecordedSleep.\(account)"
-    }
-
-    static func hasRecordedSleep(for userID: String?) -> Bool {
-        guard let key = recordedSleepKey(for: userID) else { return false }
-        return UserDefaults.standard.bool(forKey: key)
-    }
-
-    static func recordSleep(for userID: String?) {
-        guard let key = recordedSleepKey(for: userID) else { return }
-        UserDefaults.standard.set(true, forKey: key)
-    }
-}
-
 struct MainTabView: View {
     let session: SB_Session
     @State private var dashboard = DashboardState()
@@ -40,7 +22,7 @@ struct MainTabView: View {
             NavigationStack { NoomProgressSignalsView() }
                 .tabItem { Label("Progress", systemImage: "chart.xyaxis.line") }
 
-            NavigationStack { SleepHomeView(userID: session.userId) }
+            NavigationStack { SleepHomeView() }
                 .tabItem { Label("Sleep", systemImage: "moon.fill") }
         }
         .tint(NoomTheme.red)
@@ -50,20 +32,19 @@ struct MainTabView: View {
 }
 
 struct SleepHomeView: View {
-    let userID: String
     @Environment(AppDateContext.self) private var dateContext
-    @State private var state = SleepHomeState()
+    @Environment(SleepProcessingCoordinator.self) private var sleepProcessing
+    @State private var recoveryState = SleepRecoveryHomeState()
     @State private var haveDevice = sensorBio.haveDevice
     @State private var connected = sensorBio.connected
-    @State private var postSyncReloadTask: Task<Void, Never>?
 
     var body: some View {
         @Bindable var ctx = dateContext
         NoomScreen {
             NoomTopBar(label: "Sleep & Recovery") {
                 NoomPill(
-                    title: state.syncLabel,
-                    color: state.isFresh ? NoomTheme.mint : NoomTheme.rose,
+                    title: sleepSyncLabel,
+                    color: sleepProcessing.freshness == .fresh ? NoomTheme.mint : NoomTheme.rose,
                     foreground: NoomTheme.logoBlack
                 )
             }
@@ -73,43 +54,59 @@ struct SleepHomeView: View {
             Text("Last night, in context").noomSerifTitle(size: 36)
             Text("Your latest Noom Band sleep and recovery signals, with the details one tap away.").noomBody()
 
-            if state.isLoading && state.dailySleep == nil {
+            if sleepProcessing.allSessions.count > 1 {
+                SleepSessionPicker(
+                    sessions: sleepProcessing.allSessions,
+                    selectedIdentity: sleepProcessing.selectedSession?.identity,
+                    selectionReason: sleepProcessing.selectionReason,
+                    onSelect: sleepProcessing.selectSession
+                )
+            }
+
+            if shouldShowSleepProcessingBanner {
+                SleepProcessingBanner(
+                    phase: sleepProcessing.phase,
+                    transportState: sleepProcessing.transport,
+                    freshness: sleepProcessing.freshness,
+                    selectedDate: dateContext.selectedDate,
+                    sourceDate: sleepProcessing.sourceDate,
+                    canRetry: sleepProcessing.canRetry,
+                    retryAction: sleepProcessing.retry
+                )
+            }
+
+            if sleepProcessing.transport == .loading && sleepProcessing.displaySnapshot == nil {
                 loadingCard
-            } else if let detail = state.dailySleep {
-                sleepHeroSummary(detail)
-                atAGlanceMetrics(detail)
-                sleepStagesPreview(detail)
-                recoveryFactorsPreview(detail)
+            } else if let snapshot = sleepProcessing.displaySnapshot,
+                      snapshot.outcome == .processedSuccessfully {
+                completedSourceLabel(snapshot)
+                sleepHeroSummary(snapshot.detail)
+                atAGlanceMetrics(snapshot.detail)
+                sleepStagesPreview(snapshot.detail)
+                recoveryFactorsPreview(snapshot.detail)
             } else {
                 noSessionCard
             }
         }
         .navigationTitle("Sleep")
         .navigationBarTitleDisplayMode(.inline)
-        .task(id: dateContext.selectedDate) { await state.load(date: dateContext.selectedDate, userID: userID) }
-        .refreshable { await state.load(date: dateContext.selectedDate, userID: userID, forceRemote: true) }
+        .task(id: dateContext.selectedDate) {
+            await recoveryState.load(date: dateContext.selectedDate)
+        }
+        .refreshable {
+            sleepProcessing.refresh(forceRemote: true)
+            await recoveryState.load(date: dateContext.selectedDate, forceRemote: true)
+        }
+        .onChange(of: sleepProcessing.lastCompleted?.sessionIdentity) { _, _ in
+            Task {
+                await recoveryState.load(
+                    date: dateContext.selectedDate,
+                    forceRemote: true
+                )
+            }
+        }
         .onReceive(sensorBio.$haveDevice) { haveDevice = $0 }
         .onReceive(sensorBio.$connected) { connected = $0 }
-        .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
-            schedulePostSyncReload()
-        }
-        .onReceive(sensorBio.syncCompleted) { result in
-            guard result?.acknowledge == true else {
-                postSyncReloadTask?.cancel()
-                return
-            }
-            schedulePostSyncReload()
-        }
-        .onDisappear { postSyncReloadTask?.cancel() }
-    }
-
-    private func schedulePostSyncReload() {
-        postSyncReloadTask?.cancel()
-        postSyncReloadTask = Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 250_000_000)
-            guard !Task.isCancelled else { return }
-            await state.load(date: dateContext.selectedDate, userID: userID, forceRemote: true)
-        }
     }
 
     private var loadingCard: some View {
@@ -127,9 +124,11 @@ struct SleepHomeView: View {
                 NoomFirstNightCard(bandReady: bandReadyForTonight)
             } else {
                 NoomEmptyStateCard(
-                    title: state.errorMessage == nil ? "No sleep session for this date" : "Sleep unavailable",
-                    message: state.errorMessage ?? "No completed sleep was returned for the selected date. Try another day or sync Noom Band again.",
-                    systemImage: state.errorMessage == nil ? "moon.zzz.fill" : "exclamationmark.triangle.fill"
+                    title: sleepEmptyTitle,
+                    message: sleepEmptyMessage,
+                    systemImage: sleepProcessing.transport == .failed
+                        ? "exclamationmark.triangle.fill"
+                        : "moon.zzz.fill"
                 )
             }
             if !bandReadyForTonight {
@@ -146,8 +145,65 @@ struct SleepHomeView: View {
 
     private var shouldShowFirstNight: Bool {
         Calendar.current.isDateInToday(dateContext.selectedDate) &&
-        !NoomSleepHistory.hasRecordedSleep(for: userID) &&
-        state.errorMessage == nil
+        sleepProcessing.lastCompleted == nil &&
+        sleepProcessing.allSessions.isEmpty &&
+        sleepProcessing.phase == .idle &&
+        sleepProcessing.transport != .failed
+    }
+
+    private var shouldShowSleepProcessingBanner: Bool {
+        switch sleepProcessing.phase {
+        case .idle, .ready:
+            return sleepProcessing.transport == .failed || sleepProcessing.freshness == .stale
+        case .detected, .stored, .uploaded, .processing, .calibrating,
+             .retryableError, .tooShort:
+            return true
+        }
+    }
+
+    private var sleepSyncLabel: String {
+        if sleepProcessing.phase == .processing || sleepProcessing.phase == .calibrating {
+            return "Processing"
+        }
+        switch sleepProcessing.freshness {
+        case .fresh: return "Sleep current"
+        case .stale: return "Saved result"
+        case .unknown: return "Checking sleep"
+        }
+    }
+
+    private var sleepEmptyTitle: String {
+        if sleepProcessing.transport == .failed { return "Sleep refresh unavailable" }
+        if sleepProcessing.phase == .tooShort { return "Session was too short" }
+        if sleepProcessing.phase == .retryableError { return "Sleep analysis needs a retry" }
+        return "No sleep session for this date"
+    }
+
+    private var sleepEmptyMessage: String {
+        if sleepProcessing.transport == .failed {
+            return "No completed result was replaced. Connect and retry when Noom Band and the network are available."
+        }
+        if sleepProcessing.phase == .tooShort {
+            return "The returned session was too short for a complete sleep analysis."
+        }
+        if sleepProcessing.phase == .retryableError {
+            return "The SDK returned a processing error. Retry checks the same selected session without inventing a score."
+        }
+        return "No completed sleep was returned for the selected date. Try another day or sync Noom Band again."
+    }
+
+    @ViewBuilder
+    private func completedSourceLabel(_ snapshot: SleepAtomicSnapshot) -> some View {
+        if let sourceDate = sleepProcessing.sourceDate,
+           !Calendar.current.isDate(sourceDate, inSameDayAs: dateContext.selectedDate) {
+            NoomStateBanner(
+                title: "Showing last completed sleep",
+                detail: "This result is from \(sourceDate.formatted(.dateTime.month(.wide).day())). The selected date is still processing.",
+                systemImage: "clock.arrow.circlepath",
+                tint: NoomTheme.metricPurple
+            )
+            .accessibilityIdentifier("sleep.sourceDate")
+        }
     }
 
     private func sleepHeroSummary(_ detail: SB_SleepDetailDay) -> some View {
@@ -200,7 +256,7 @@ struct SleepHomeView: View {
                 NoomMetricTile(label: "HRV", value: "\(MetricFormatting.humanNumber(Int(detail.restingHrv))) ms", caption: "Recovery signal", minHeight: 98)
             }
             .buttonStyle(.plain)
-            if let recoveryScore = state.recoveryScore {
+            if let recoveryScore = recoveryState.recoveryScore {
                 NavigationLink { RecoveryDetailView() } label: {
                     NoomMetricTile(label: "Recovery", value: MetricFormatting.humanNumber(recoveryScore), caption: "Today", minHeight: 98)
                 }
@@ -241,7 +297,9 @@ struct SleepHomeView: View {
     }
 
     private func recoveryFactorsPreview(_ detail: SB_SleepDetailDay) -> some View {
-        let factors = state.recoveryFactors.isEmpty ? detail.scoreFactors.map { SleepHubFactor(title: $0.title, detail: $0.description) } : state.recoveryFactors
+        let factors = recoveryState.recoveryFactors.isEmpty
+            ? detail.scoreFactors.map { SleepHubFactor(title: $0.title, detail: $0.description) }
+            : recoveryState.recoveryFactors
         return NavigationLink { RecoveryDetailView() } label: {
             NoomCard(fill: Color.white.opacity(0.84), padding: 18) {
                 VStack(alignment: .leading, spacing: 12) {
@@ -378,8 +436,7 @@ private struct FirstNightStep {
 
 @MainActor
 @Observable
-final class SleepHomeState {
-    var dailySleep: SB_SleepDetailDay?
+final class SleepRecoveryHomeState {
     var dailyRecovery: SB_DailyRecoveryTrending?
     var isLoading = false
     var errorMessage: String?
@@ -394,18 +451,9 @@ final class SleepHomeState {
         return factors.map { SleepHubFactor(title: $0.title, detail: $0.description) }
     }
 
-    var isFresh: Bool {
-        Calendar.current.isDateInToday(sensorBio.lastSyncd)
-    }
-
-    var syncLabel: String {
-        isFresh ? "Synced today" : "Sync needed"
-    }
-
     private var activeRequestID: UUID?
 
-    @MainActor
-    func load(date: Date, userID: String, forceRemote: Bool = false) async {
+    func load(date: Date, forceRemote: Bool = false) async {
         let requestID = UUID()
         activeRequestID = requestID
         isLoading = true
@@ -413,32 +461,20 @@ final class SleepHomeState {
             if activeRequestID == requestID { isLoading = false }
         }
 
-        var nextSleep: SB_SleepDetailDay?
-        var nextRecovery: SB_DailyRecoveryTrending?
-        var nextError: String?
-        let tzOffset = Int32(TimeZone.current.secondsFromGMT(for: date))
-
         do {
-            let dashboard = try await sensorBio.fetchDashboardData(date: date, tzOffset: tzOffset, forceRemote: forceRemote)
-            if let session = dashboard.sleeps.first {
-                NoomSleepHistory.recordSleep(for: userID)
-                let endDate = Date(timeIntervalSince1970: TimeInterval(session.endTimestamp) / 1000)
-                nextSleep = try await sensorBio.fetchSleepDetail(endDate: endDate, endTimestamp: Int64(session.endTimestamp), forceRemote: forceRemote)
-            }
+            let recovery = try await sensorBio.fetchDailyRecovery(
+                date: date,
+                forceRemote: forceRemote
+            )
+            guard activeRequestID == requestID, !Task.isCancelled else { return }
+            dailyRecovery = recovery
+            errorMessage = nil
         } catch is CancellationError {
             return
         } catch {
-            nextError = "Connect and sync Noom Band to load your sleep summary."
+            guard activeRequestID == requestID, !Task.isCancelled else { return }
+            errorMessage = "Recovery details are temporarily unavailable."
         }
-
-        if !Task.isCancelled {
-            nextRecovery = try? await sensorBio.fetchDailyRecovery(date: date, forceRemote: forceRemote)
-        }
-
-        guard activeRequestID == requestID, !Task.isCancelled else { return }
-        dailySleep = nextSleep
-        dailyRecovery = nextRecovery
-        errorMessage = nextError
     }
 }
 

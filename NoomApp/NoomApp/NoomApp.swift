@@ -7,7 +7,9 @@ private let sdkLog = Logger(subsystem: "com.sensorbio.noomapp", category: "SDK")
 
 @main
 struct NoomApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var dateContext = AppDateContext()
+    @State private var sleepProcessing = SleepProcessingCoordinator()
     @State private var logSubscription: AnyCancellable? = NoomApp.wireSDKLogging()
 
     init() {
@@ -33,6 +35,13 @@ struct NoomApp: App {
         WindowGroup {
             ContentView()
                 .environment(dateContext)
+                .environment(sleepProcessing)
+                .onChange(of: dateContext.selectedDate, initial: true) { _, date in
+                    sleepProcessing.selectDate(date)
+                }
+                .onChange(of: scenePhase, initial: true) { _, phase in
+                    sleepProcessing.setForeground(phase == .active)
+                }
         }
     }
 
