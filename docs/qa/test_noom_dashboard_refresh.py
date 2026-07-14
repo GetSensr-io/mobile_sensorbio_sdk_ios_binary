@@ -8,6 +8,7 @@ SRC = ROOT / "NoomApp/NoomApp"
 MAIN_TAB = (SRC / "MainTabView.swift").read_text()
 DASHBOARD = (SRC / "DashboardView.swift").read_text()
 STATE = (SRC / "DashboardState.swift").read_text()
+COORDINATOR = (SRC / "SleepProcessingCoordinator.swift").read_text()
 
 
 class DashboardRefreshContractTests(unittest.TestCase):
@@ -24,8 +25,9 @@ class DashboardRefreshContractTests(unittest.TestCase):
     def test_refresh_publishes_one_complete_snapshot_without_clearing_visible_data(self) -> None:
         self.assertIn("struct DashboardSnapshot", STATE)
         self.assertIn("let nextData", STATE)
-        self.assertIn("nextNightlySleep", STATE)
+        self.assertIn("nextWeeklySleep", STATE)
         self.assertIn("snapshot = DashboardSnapshot(", STATE)
+        self.assertNotIn("fetchSleepDetail(", STATE)
 
         load_body = STATE.split("func load(date: Date", 1)[1].split("func freshness", 1)[0]
         for destructive_assignment in (
@@ -46,16 +48,14 @@ class DashboardRefreshContractTests(unittest.TestCase):
         manual = DASHBOARD.split("private func refreshDashboardFromUser()", 1)[1].split("private func refreshAfterSync", 1)[0]
         self.assertIn("await refreshDashboard(force: true)", manual)
 
-    def test_processed_sleep_forces_an_immediate_today_refresh(self) -> None:
-        self.assertIn(
-            ".onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded))",
-            DASHBOARD,
-        )
-        sleep_handler = DASHBOARD.split(
-            ".onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded))", 1
-        )[1].split(".onReceive", 1)[0]
-        self.assertNotIn("Task.sleep", sleep_handler)
-        self.assertIn("refreshAfterSync()", sleep_handler)
+    def test_sleep_pipeline_reconciles_at_root_and_sync_refreshes_dashboard_immediately(self) -> None:
+        self.assertNotIn("sensorBio.sleepStored", DASHBOARD)
+        self.assertNotIn("sensorBio.sleepUploaded", DASHBOARD)
+        self.assertIn("sensorBio.sleepStored", COORDINATOR)
+        self.assertIn("sensorBio.sleepUploaded", COORDINATOR)
+        self.assertIn("receiveVoidPipelineSignal", COORDINATOR)
+
+        self.assertIn(".onReceive(sensorBio.syncCompleted)", DASHBOARD)
         refresh_handler = DASHBOARD.split("private func refreshAfterSync(", 1)[1].split("private func markSyncRefreshFailed", 1)[0]
         immediate = refresh_handler.split("await refreshDashboard(force: true)", 1)[0]
         self.assertNotIn("Task.sleep", immediate)

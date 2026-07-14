@@ -132,7 +132,6 @@ final class NoomProgressState {
     func load(date: Date) async {
         let requestID = UUID()
         activeRequestID = requestID
-        let requestUserID = sensorBio.session?.userId
         isLoading = true
         defer {
             if activeRequestID == requestID { isLoading = false }
@@ -162,7 +161,6 @@ final class NoomProgressState {
         recoveryRange = nextRecovery
         sleepRange = nextSleep
         errorMessage = nextError
-        if nextSleep?.sleepTimePoints.isEmpty == false { NoomSleepHistory.recordSleep(for: requestUserID) }
     }
 }
 

@@ -2,6 +2,8 @@ import SwiftUI
 import SensorBioSDK
 
 struct ContentView: View {
+    @Environment(AppDateContext.self) private var dateContext
+    @Environment(SleepProcessingCoordinator.self) private var sleepProcessing
     @State private var session: SB_Session? = sensorBio.session
     #if DEBUG
     @AppStorage("envIsDev") private var envIsDev: Bool = false
@@ -27,7 +29,13 @@ struct ContentView: View {
             }
             #endif
         }
-        .onReceive(sensorBio.$session) { session = $0 }
+        .onReceive(sensorBio.$session) { nextSession in
+            session = nextSession
+            sleepProcessing.setAccountIdentifier(nextSession?.userId)
+            if nextSession != nil {
+                sleepProcessing.selectDate(dateContext.selectedDate)
+            }
+        }
         #if DEBUG
         .onChange(of: envIsDev) { _, newValue in
             SB_SDK.environment = newValue ? .staging : .production
@@ -304,6 +312,8 @@ private struct NoomWelcomeSlideCard: View {
 
 #Preview {
     ContentView()
+        .environment(AppDateContext())
+        .environment(SleepProcessingCoordinator(subscribeToSDKLifecycle: false))
 }
 
 #if DEBUG
@@ -390,6 +400,19 @@ private struct NoomQAHost: View {
                 sleepRecoveryStack(initial: .sleepDetail)
             case "sleep_detail_processing_preview", "sleep_detail_complete_preview":
                 sleepRecoveryStack(initial: .sleepDetail)
+            case "sleep_processing_detected",
+                 "sleep_processing_stored",
+                 "sleep_processing_uploaded",
+                 "sleep_processing_analyzing",
+                 "sleep_processing_ready",
+                 "sleep_processing_short",
+                 "sleep_processing_error",
+                 "sleep_processing_calibrating",
+                 "sleep_processing_stale",
+                 "sleep_processing_history_pending",
+                 "sleep_processing_pending_with_history",
+                 "sleep_processing_multiple_sessions":
+                NavigationStack { SleepProcessingLifecyclePreview(route: route) }
             case "recovery_detail":
                 sleepRecoveryStack(initial: .recoveryDetail)
             case "metric_baseline_preview":

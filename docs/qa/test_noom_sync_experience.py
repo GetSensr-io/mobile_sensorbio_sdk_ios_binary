@@ -10,6 +10,7 @@ STATE = (SRC / "DashboardState.swift").read_text()
 MAIN_TAB = (SRC / "MainTabView.swift").read_text()
 SLEEP_DETAIL = (SRC / "SleepDetailView.swift").read_text()
 CONTENT = (SRC / "ContentView.swift").read_text()
+COORDINATOR = (SRC / "SleepProcessingCoordinator.swift").read_text()
 README = (ROOT / "NoomApp/README.md").read_text()
 POD_LOCK = (ROOT / "NoomApp/Podfile.lock").read_text()
 with (SRC / "Info.plist").open("rb") as handle:
@@ -19,15 +20,17 @@ with (SRC / "Info.plist").open("rb") as handle:
 class NoomSyncExperienceContracts(unittest.TestCase):
     def test_v013_is_integrated_and_forced_refresh_bypasses_sdk_cache(self) -> None:
         self.assertIn("SensorBioSDK (0.13.0)", POD_LOCK)
-        load_body = STATE.split("func load(date: Date", 1)[1].split("func freshness", 1)[0]
+        load_body = STATE.split("func load(date: Date", 1)[1].split("private func snapshotForSameDay", 1)[0]
         for snippet in (
             "fetchDashboardData(date: date, tzOffset: tzOffset, forceRemote: forceRemote)",
-            "fetchSleepDetail(\n",
-            "endTimestamp: Int64(sleepSession.endTimestamp),\n                    forceRemote: forceRemote",
             "fetchRangeRecovery(date: date, granularity: .week, forceRemote: forceRemote)",
             "fetchSleepAggregation(date: date, granularity: .week, forceRemote: forceRemote)",
         ):
             self.assertIn(snippet, load_body)
+        self.assertNotIn("fetchSleepDetail(", STATE)
+        self.assertIn("fetchSleepSessions", COORDINATOR)
+        self.assertIn("fetchSleepDetail", COORDINATOR)
+        self.assertIn("forceRemote", COORDINATOR)
 
     def test_top_badge_has_determinate_sync_progress_and_refresh_phases(self) -> None:
         badge = MAIN_TAB.split("struct BandBatteryBadge", 1)[1].split("/// A deliberate entry point", 1)[0]
@@ -97,16 +100,14 @@ class NoomSyncExperienceContracts(unittest.TestCase):
         self.assertNotIn("wakeUpTime - sleepTimeSec", SLEEP_DETAIL)
         self.assertNotIn("wakeUpTime - detail.sleepTimeSec", SLEEP_DETAIL)
 
-    def test_sleep_detection_event_drives_a_truthful_pending_state(self) -> None:
-        self.assertIn("sensorBio.sleepDetected", SLEEP_DETAIL)
-        self.assertIn("detectedSleep = detected", SLEEP_DETAIL)
-        self.assertIn("isSelectedDateToday,", SLEEP_DETAIL)
-        self.assertIn("if isLoading, granularity == .day, isSelectedDateToday, detectedSleep != nil", SLEEP_DETAIL)
-        self.assertIn("else if granularity == .day, isSelectedDateToday, detectedSleep != nil", SLEEP_DETAIL)
-        self.assertIn('title: "Sleep detected"', SLEEP_DETAIL)
-        self.assertIn('detail: "Noom+ is processing the session. Your score, stages, and overnight metrics will appear when analysis is complete."', SLEEP_DETAIL)
-        self.assertNotIn("detected.startEpochInms", SLEEP_DETAIL)
-        self.assertNotIn("detected.endEpochms", SLEEP_DETAIL)
+    def test_sleep_detection_event_drives_a_truthful_root_pending_state(self) -> None:
+        self.assertNotIn("sensorBio.sleepDetected", SLEEP_DETAIL)
+        self.assertIn("sensorBio.sleepDetected", COORDINATOR)
+        self.assertIn("recordDetectedSleep", COORDINATOR)
+        self.assertIn("SleepProcessingBanner", SLEEP_DETAIL)
+        self.assertIn("sleepProcessing.phase", SLEEP_DETAIL)
+        self.assertNotIn("startEpochInms", SLEEP_DETAIL)
+        self.assertNotIn("endEpochms", SLEEP_DETAIL)
         self.assertNotIn('title: "Turning last night into a story"', SLEEP_DETAIL)
 
     def test_sleep_processing_and_complete_states_have_debug_visual_routes(self) -> None:
@@ -128,8 +129,9 @@ class NoomSyncExperienceContracts(unittest.TestCase):
         self.assertNotIn('value: "Open"', metrics)
         self.assertNotIn('?? "Open"', metrics)
         for snippet in (
-            'if let sleep = data.sleep, sleep.item.value.isFinite, sleep.item.value > 0',
-            'caption: missingSleepCaption',
+            "sleepProcessing.displaySnapshot",
+            "snapshot.outcome == .processedSuccessfully",
+            "caption: missingSleepCaption",
             'value: "—"',
         ):
             self.assertIn(snippet, metrics)
@@ -178,16 +180,15 @@ class NoomSyncExperienceContracts(unittest.TestCase):
         self.assertIn("NoomFirstNightCard", SLEEP_DETAIL)
         self.assertIn("shouldShowFirstNight", SLEEP_DETAIL)
         self.assertIn("No sleep session for this date", SLEEP_DETAIL)
-        self.assertIn("NoomSleepHistory.hasRecordedSleep(for:", SLEEP_DETAIL)
-        self.assertIn("NoomSleepHistory.recordSleep(for: requestUserID)", STATE)
-        self.assertIn("recordedSleepKey(for userID: String?)", MAIN_TAB)
-        self.assertIn('return "noomHasRecordedSleep.\\(account)"', MAIN_TAB)
-        self.assertIn(".onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded))", MAIN_TAB)
-        self.assertIn(".onReceive(sensorBio.syncCompleted)", SLEEP_DETAIL)
-        self.assertIn("activeRequestID == requestID", MAIN_TAB)
-        self.assertIn("activeRequestID == requestID", SLEEP_DETAIL)
-        self.assertIn("forceRemote: forceRemote", MAIN_TAB)
-        self.assertIn("load(forceRemote: true)", SLEEP_DETAIL)
+        self.assertIn("sleepProcessing.lastCompleted == nil", SLEEP_DETAIL)
+        self.assertIn("sleepProcessing.lastCompleted == nil", MAIN_TAB)
+        self.assertNotIn("NoomSleepHistory", SLEEP_DETAIL + MAIN_TAB + STATE)
+        self.assertNotIn("sensorBio.sleepStored", MAIN_TAB + SLEEP_DETAIL)
+        self.assertNotIn("sensorBio.sleepUploaded", MAIN_TAB + SLEEP_DETAIL)
+        self.assertIn("sensorBio.sleepStored", COORDINATOR)
+        self.assertIn("sensorBio.sleepUploaded", COORDINATOR)
+        self.assertRegex(COORDINATOR, r"requestGeneration|generation")
+        self.assertIn("sleepProcessing.refresh(forceRemote: true)", SLEEP_DETAIL)
 
 
 if __name__ == "__main__":

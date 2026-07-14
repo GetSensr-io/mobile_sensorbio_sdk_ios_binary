@@ -8,6 +8,7 @@ struct DashboardView: View {
     let productLoop: ProductLoopStore
 
     @Environment(AppDateContext.self) private var dateContext
+    @Environment(SleepProcessingCoordinator.self) private var sleepProcessing
     @State private var postSyncRefreshTask: Task<Void, Never>?
     @State private var activeSyncRefreshID: UUID?
     @State private var lastSyncRefreshStartedAt: Date?
@@ -64,6 +65,17 @@ struct DashboardView: View {
                 loadingCard
             } else if let data = dashboard.data {
                 dataStateBanner(for: data)
+                if shouldShowSleepProcessingBanner {
+                    SleepProcessingBanner(
+                        phase: sleepProcessing.phase,
+                        transportState: sleepProcessing.transport,
+                        freshness: sleepProcessing.freshness,
+                        selectedDate: dateContext.selectedDate,
+                        sourceDate: sleepProcessing.sourceDate,
+                        canRetry: sleepProcessing.canRetry,
+                        retryAction: sleepProcessing.retry
+                    )
+                }
                 bodyStatusSection
                 persistentExperimentSection
                 progressPreviewSection
@@ -89,9 +101,6 @@ struct DashboardView: View {
         .toolbar(.hidden, for: .navigationBar)
         .task(id: dateContext.selectedDate) { await refreshDashboard() }
         .refreshable { await refreshDashboardFromUser() }
-        .onReceive(sensorBio.sleepStored.merge(with: sensorBio.sleepUploaded)) { _ in
-            refreshAfterSync()
-        }
         .onReceive(sensorBio.syncCompleted) { result in
             guard result?.acknowledge == true else {
                 markSyncRefreshFailed()
@@ -118,16 +127,16 @@ struct DashboardView: View {
     }
 
     private func refreshDashboardFromUser() async {
+        sleepProcessing.refresh(forceRemote: true)
         await refreshDashboard(force: true)
         if syncIssue == .dashboardRefresh, dashboard.errorMessage == nil {
             syncIssue = nil
         }
     }
 
-    /// BLE sync is SDK-owned. Once it reports completion, bypass both the
-    /// app's one-minute dedupe and the SDK v0.13 cache immediately. A quiet
-    /// follow-up catches sleep/recovery scores that finish server-side moments
-    /// after the packet upload without making the user pull to refresh.
+    /// BLE sync is SDK-owned. Dashboard metrics still refresh on acknowledged
+    /// completion. Sleep lifecycle and bounded reconciliation are owned by the
+    /// root SleepProcessingCoordinator, never by this feature view.
     private func refreshAfterSync(bypassThrottle: Bool = false) {
         guard Calendar.current.isDateInToday(dateContext.selectedDate) else { return }
         let now = Date()
@@ -175,14 +184,24 @@ struct DashboardView: View {
 
     @ViewBuilder
     private var bodyStatusSection: some View {
-        if let nightlySleep = dashboard.nightlySleep,
+        if let nightlySleep = sleepProcessing.bodyStatusSleepDetail,
+           let sourceDate = sleepProcessing.sourceDate,
            let status = BodyStatusScore.make(
              restingHeartRate: Int(nightlySleep.restingHr),
              nocturnalHRV: Int(nightlySleep.restingHrv),
              sleepScore: Int(nightlySleep.sleepScore.score),
-             inflammationSignal: dashboard.inflammationSignal
+             inflammationSignal: Calendar.current.isDate(
+                sourceDate,
+                inSameDayAs: dateContext.selectedDate
+             ) ? dashboard.inflammationSignal : nil
            ) {
-            let freshness = dashboard.freshness(for: dateContext.selectedDate)
+            let sameSourceDay = Calendar.current.isDate(
+                sourceDate,
+                inSameDayAs: dateContext.selectedDate
+            )
+            let freshness: NoomDataFreshness = sameSourceDay
+                ? dashboard.freshness(for: dateContext.selectedDate)
+                : .historical(date: sourceDate)
             VStack(spacing: 12) {
                 NoomCard {
                     VStack(alignment: .leading, spacing: 16) {
@@ -209,11 +228,24 @@ struct DashboardView: View {
                             }
                         }
 
+                        if !sameSourceDay {
+                            Text("Using completed sleep from \(sourceDate.formatted(.dateTime.month(.abbreviated).day())). Current-day signals are not mixed into this Body Status.")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(NoomTheme.muted)
+                                .accessibilityIdentifier("bodyStatus.sourceDate")
+                        }
+
                         VStack(spacing: 0) {
                             NoomDetailValueRow(label: "Resting HR", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHr))) bpm", verticalPadding: 8)
                             NoomDetailValueRow(label: "Nocturnal HRV", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.restingHrv))) ms", verticalPadding: 8)
                             NoomDetailValueRow(label: "Sleep score", value: "\(MetricFormatting.humanNumber(Int(nightlySleep.sleepScore.score))) / 100", verticalPadding: 8)
-                            NoomDetailValueRow(label: "Inflammation signal", value: inflammationSignalValue, verticalPadding: 8)
+                            NoomDetailValueRow(
+                                label: "Inflammation signal",
+                                value: sameSourceDay
+                                    ? inflammationSignalValue
+                                    : "Not combined across dates",
+                                verticalPadding: 8
+                            )
                         }
                     }
                 }
@@ -239,8 +271,20 @@ struct DashboardView: View {
 
     private var shouldShowFirstBodyStatus: Bool {
         Calendar.current.isDateInToday(dateContext.selectedDate) &&
-        !NoomSleepHistory.hasRecordedSleep(for: session.userId) &&
+        sleepProcessing.lastCompleted == nil &&
+        sleepProcessing.allSessions.isEmpty &&
+        sleepProcessing.phase == .idle &&
         dashboard.errorMessage == nil
+    }
+
+    private var shouldShowSleepProcessingBanner: Bool {
+        switch sleepProcessing.phase {
+        case .idle, .ready:
+            return sleepProcessing.transport == .failed || sleepProcessing.freshness == .stale
+        case .detected, .stored, .uploaded, .processing, .calibrating,
+             .retryableError, .tooShort:
+            return true
+        }
     }
 
     private var inflammationSignalValue: String {
@@ -259,7 +303,7 @@ struct DashboardView: View {
         if freshness.isStaleCurrentDay {
             NoomStateBanner(title: "Stale today", detail: "Last Noom Band sync was not today. This Body Status is not current.", systemImage: "clock.badge.exclamationmark", tint: NoomTheme.rose)
         }
-        if dashboard.nightlySleep != nil && data.metrics.isEmpty {
+        if sleepProcessing.displaySnapshot != nil && data.metrics.isEmpty {
             NoomStateBanner(title: "Still filling in", detail: "Your overnight story is here. A few daytime metrics are still on their way.", systemImage: "chart.bar.doc.horizontal", tint: NoomTheme.mint)
         }
     }
@@ -494,12 +538,14 @@ struct DashboardView: View {
     @ViewBuilder
     private func dashboardMetrics(_ data: SB_DashboardData) -> some View {
         NavigationLink { SleepDetailView() } label: {
-            if let sleep = data.sleep, sleep.item.value.isFinite, sleep.item.value > 0 {
+            if let snapshot = sleepProcessing.displaySnapshot,
+               snapshot.outcome == .processedSuccessfully {
+                let sleep = snapshot.detail
                 NoomDashboardMetricTile(
                     label: "Sleep",
-                    value: formatNumber(sleep.item.value),
+                    value: MetricFormatting.humanNumber(Int(sleep.sleepScore.score)),
                     unit: "/100",
-                    caption: sleep.durationSeconds > 0 ? "\(duration(seconds: sleep.durationSeconds)) asleep" : "View sleep details",
+                    caption: sleepTileCaption(snapshot: snapshot),
                     systemImage: "moon.stars.fill",
                     accent: NoomTheme.metricPurple,
                     minHeight: 132,
@@ -567,6 +613,21 @@ struct DashboardView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+
+    private func sleepTileCaption(snapshot: SleepAtomicSnapshot) -> String {
+        var parts: [String] = []
+        if let sourceDate = sleepProcessing.sourceDate,
+           !Calendar.current.isDate(sourceDate, inSameDayAs: dateContext.selectedDate) {
+            parts.append("Completed \(sourceDate.formatted(.dateTime.month(.abbreviated).day()))")
+        }
+        if snapshot.detail.sleepTime > 0 {
+            parts.append("\(duration(seconds: Int(snapshot.detail.sleepTime))) asleep")
+        }
+        if sleepProcessing.allSessions.count > 1 {
+            parts.append("\(sleepProcessing.allSessions.count) sessions")
+        }
+        return parts.isEmpty ? "View sleep details" : parts.joined(separator: " • ")
     }
 
     private var missingSleepCaption: String {
