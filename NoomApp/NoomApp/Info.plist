@@ -4,16 +4,16 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleIconName</key>
-	<string>AppIcon</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
 	<key>CFBundleDisplayName</key>
 	<string>Noom+</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -21,15 +21,15 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>28</string>
+	<string>29</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>ProductLoopEndpoint</key>
-	<string>https://stoic-mink-37.convex.site</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Noom+ uses Bluetooth to connect to your Noom Band.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Noom+ uses Bluetooth to connect to your Noom Band.</string>
+	<key>ProductLoopEndpoint</key>
+	<string>https://stoic-mink-37.convex.site</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>

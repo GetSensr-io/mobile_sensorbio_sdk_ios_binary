@@ -47,7 +47,7 @@ targets:
         CFBundleIconName: AppIcon
         CFBundleDisplayName: Noom+
         CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "28"
+        CFBundleVersion: "29"
         ITSAppUsesNonExemptEncryption: false
         ProductLoopEndpoint: https://stoic-mink-37.convex.site
         # BLE permission strings — the SDK pairs over CoreBluetooth.
