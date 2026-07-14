@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		099A4167B50B2794893123C8 /* NoomSpotCheckSignalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74E153C91087A3B94645E497 /* NoomSpotCheckSignalTests.swift */; };
 		0A3842FA9EE11AEA48A2EDC9 /* AppDateContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D15A01ADB409610C71013E1 /* AppDateContext.swift */; };
+		0F9F6E4120E23D73D03213FC /* Pods_NoomAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51EFDC34CBD6D2300853C5B9 /* Pods_NoomAppTests.framework */; };
 		1E9F3890C097A123CFAB5AD4 /* RecoveryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0929DD9E1475B6AF613FE8C /* RecoveryDetailView.swift */; };
 		20EEA1BA2F910C4076091D92 /* RRDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801F69A1CE919B4F462E7B3A /* RRDetailView.swift */; };
 		26F0578BC1F83A2C933CE0EF /* InsightsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FB273ABB444E09826788AA /* InsightsState.swift */; };
@@ -32,16 +33,16 @@
 		6FB65400F20F9B8E730A3DF1 /* SleepProcessingDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2595A096D6AB09561C908F /* SleepProcessingDomainTests.swift */; };
 		75E4FB4D9C3EE52E44DA7B2C /* NoomBandConnectionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD4AC883108B1F0F2D595656 /* NoomBandConnectionState.swift */; };
 		7D9C583B6F6BC23CDF845B51 /* NoomLiveTelemetryFreshness.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEA5D9379F627A2E44F8BC9 /* NoomLiveTelemetryFreshness.swift */; };
-		7EB02D68224D9E8EE48A0F91 /* Pods_NoomApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F8BAA40DDFAB89F2AC9C538 /* Pods_NoomApp.framework */; };
-		83B63A598C449238CD413F76 /* Pods_NoomAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E298BC89FA1BC5CBC44273BB /* Pods_NoomAppTests.framework */; };
 		8524457083D5555BB2589C58 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7063E755D3388FE782F3BB85 /* ProfileView.swift */; };
 		865EFCE9FB284499FAF25940 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8AC6706486F2E46A84C462 /* SignUpView.swift */; };
 		8AE3F392EDBF697CFD05F828 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848E6F722C5AF7B48135F6C5 /* DashboardView.swift */; };
 		8BA128249C6C4A15F91FDAA3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D804EBA8A2B63BD65EF93FC7 /* PrivacyInfo.xcprivacy */; };
 		91B7FFB717096DE84668029B /* PairDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398FF21DED14033668AB580B /* PairDeviceView.swift */; };
 		95A28FFFC6CD8889BA8278FF /* SleepProcessingBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C791161E754925C887E2F /* SleepProcessingBanner.swift */; };
+		99BB2C24AB8F56E29CF37F78 /* MetricDisplayPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEFEA309FDA636686E0CE216 /* MetricDisplayPolicyTests.swift */; };
 		9B0CB02968DCD1A877BB4DEE /* Metric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BFDDE525CF11EE2E05C59F4 /* Metric.swift */; };
 		A02A8D114E752DD203E53468 /* StepsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252C6C66A16E6C22038C0655 /* StepsDetailView.swift */; };
+		A630A51D7F8F5147FBAA21C4 /* Pods_NoomApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80555852966D61F94BB52298 /* Pods_NoomApp.framework */; };
 		A85EDD9CFDA6F1A8044DE257 /* SleepJourneyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D978773D4FF94A29195DD35 /* SleepJourneyStateTests.swift */; };
 		AF836E1FD94B68E7EDE6476A /* SleepProcessingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 448AE2DD8F81E52546298256 /* SleepProcessingState.swift */; };
 		B3262012BD39B3314C7CBCB5 /* SleepProcessingPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 802D57516F30D473607B798F /* SleepProcessingPreview.swift */; };
@@ -51,6 +52,7 @@
 		CACB31FDAB1418C7D3300270 /* SleepDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0A167C56242752BBABD23E /* SleepDetailView.swift */; };
 		CE6714009D2A44B94C428660 /* NoomLiveTelemetryFreshnessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422E3A0B961A2037DFBF6233 /* NoomLiveTelemetryFreshnessTests.swift */; };
 		CE7AD185EEF172D9B552D443 /* SignUpFormState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BFB99D5E5B6063F846872B1 /* SignUpFormState.swift */; };
+		DE8FE6176B4B599A76DA3ADA /* MetricDisplayPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 854F2C7F101D9CCE9F0A48A6 /* MetricDisplayPolicy.swift */; };
 		DF89813CB15762A85A64A4FA /* NoomDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16CB5D88C9FE2F02A5FB7AD4 /* NoomDesignSystem.swift */; };
 		E2E0B86CD6AE58F2A64F4FDE /* CaloriesDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD987A4A244436576A164B0A /* CaloriesDetailView.swift */; };
 		E4CDC304A62580026A6C22C1 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80B18CEAB6AD612F7BF5EA7F /* InsightsView.swift */; };
@@ -76,9 +78,11 @@
 		0F9B856A2BB781C7D4F480D9 /* PairDeviceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairDeviceState.swift; sourceTree = "<group>"; };
 		119BC3F0E4AA8FC1ED0AFD4D /* HRVDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRVDetailView.swift; sourceTree = "<group>"; };
 		16CB5D88C9FE2F02A5FB7AD4 /* NoomDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomDesignSystem.swift; sourceTree = "<group>"; };
+		17608E602BA3E79A8F115053 /* Pods-NoomAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomAppTests.debug.xcconfig"; path = "Target Support Files/Pods-NoomAppTests/Pods-NoomAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		1CA8A63ED09E3347D7DA31FE /* SleepProcessingStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepProcessingStateTests.swift; sourceTree = "<group>"; };
 		1EF9E52B6039F759504D06BA /* SignUpFormStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpFormStateTests.swift; sourceTree = "<group>"; };
 		249DEF085B9595FD3DADCFAD /* RecordingExperienceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingExperienceView.swift; sourceTree = "<group>"; };
+		24C7E6E98142921313EBC0A5 /* Pods-NoomApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomApp.debug.xcconfig"; path = "Target Support Files/Pods-NoomApp/Pods-NoomApp.debug.xcconfig"; sourceTree = "<group>"; };
 		252C6C66A16E6C22038C0655 /* StepsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsDetailView.swift; sourceTree = "<group>"; };
 		2AD3C2EC6AB581C0EF38B512 /* DashboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardState.swift; sourceTree = "<group>"; };
 		2B4A5F097C7A5B7F1DD45670 /* RecordingFinalizationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingFinalizationPolicy.swift; sourceTree = "<group>"; };
@@ -93,64 +97,73 @@
 		4D15A01ADB409610C71013E1 /* AppDateContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDateContext.swift; sourceTree = "<group>"; };
 		4D4791AEF812D3F6DEA54BDC /* NoomProductScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomProductScreens.swift; sourceTree = "<group>"; };
 		50CEC0DD1E186F4C89582F23 /* NoomRecordingFinalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomRecordingFinalizationTests.swift; sourceTree = "<group>"; };
+		51EFDC34CBD6D2300853C5B9 /* Pods_NoomAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoomAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		52F438EB677D6FB0811DD507 /* SleepProcessingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepProcessingCoordinator.swift; sourceTree = "<group>"; };
-		5B69D7E77720A3D226C2E0CB /* Pods-NoomApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomApp.debug.xcconfig"; path = "Target Support Files/Pods-NoomApp/Pods-NoomApp.debug.xcconfig"; sourceTree = "<group>"; };
 		5C163C9AA8C693117F8E6B77 /* SignInFormState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInFormState.swift; sourceTree = "<group>"; };
 		6605FF81F45CFEA7CCCC60D8 /* HRDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRDetailView.swift; sourceTree = "<group>"; };
 		7063E755D3388FE782F3BB85 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		74E153C91087A3B94645E497 /* NoomSpotCheckSignalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomSpotCheckSignalTests.swift; sourceTree = "<group>"; };
 		7788D554638D6AF5BE0F7A6E /* SleepProcessingDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepProcessingDomain.swift; sourceTree = "<group>"; };
 		7A0A167C56242752BBABD23E /* SleepDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDetailView.swift; sourceTree = "<group>"; };
+		7A969B619D5C06401C0AF52C /* Pods-NoomAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomAppTests.release.xcconfig"; path = "Target Support Files/Pods-NoomAppTests/Pods-NoomAppTests.release.xcconfig"; sourceTree = "<group>"; };
 		801F69A1CE919B4F462E7B3A /* RRDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RRDetailView.swift; sourceTree = "<group>"; };
 		802D57516F30D473607B798F /* SleepProcessingPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepProcessingPreview.swift; sourceTree = "<group>"; };
+		80555852966D61F94BB52298 /* Pods_NoomApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoomApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		80B18CEAB6AD612F7BF5EA7F /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		848E6F722C5AF7B48135F6C5 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		854F2C7F101D9CCE9F0A48A6 /* MetricDisplayPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricDisplayPolicy.swift; sourceTree = "<group>"; };
 		8B894FF3CBE1CD48D894E3F3 /* NoomAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NoomAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D978773D4FF94A29195DD35 /* SleepJourneyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepJourneyStateTests.swift; sourceTree = "<group>"; };
-		9F8BAA40DDFAB89F2AC9C538 /* Pods_NoomApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoomApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A062498CEE2FC3C76A53937C /* Pods-NoomApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomApp.release.xcconfig"; path = "Target Support Files/Pods-NoomApp/Pods-NoomApp.release.xcconfig"; sourceTree = "<group>"; };
 		A30FCDAA3E34FC476FF322D3 /* InflammationSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InflammationSignal.swift; sourceTree = "<group>"; };
 		A7FB273ABB444E09826788AA /* InsightsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsState.swift; sourceTree = "<group>"; };
 		AC8AC6706486F2E46A84C462 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		AD4AC883108B1F0F2D595656 /* NoomBandConnectionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomBandConnectionState.swift; sourceTree = "<group>"; };
 		AD987A4A244436576A164B0A /* CaloriesDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaloriesDetailView.swift; sourceTree = "<group>"; };
 		ADEA5D9379F627A2E44F8BC9 /* NoomLiveTelemetryFreshness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomLiveTelemetryFreshness.swift; sourceTree = "<group>"; };
-		B8475B91578C67E4C8C08CB7 /* Pods-NoomAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomAppTests.debug.xcconfig"; path = "Target Support Files/Pods-NoomAppTests/Pods-NoomAppTests.debug.xcconfig"; sourceTree = "<group>"; };
+		BEFEA309FDA636686E0CE216 /* MetricDisplayPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricDisplayPolicyTests.swift; sourceTree = "<group>"; };
 		C0929DD9E1475B6AF613FE8C /* RecoveryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryDetailView.swift; sourceTree = "<group>"; };
 		C2ED4D47E08C15A1D2787BE3 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		CB3407CAE9C881F008593038 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CD1B4DC30D8389017D9A449D /* Pods-NoomApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomApp.release.xcconfig"; path = "Target Support Files/Pods-NoomApp/Pods-NoomApp.release.xcconfig"; sourceTree = "<group>"; };
 		D639076A97E0272A7FCEEB76 /* RecordingSignalProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSignalProcessing.swift; sourceTree = "<group>"; };
 		D804EBA8A2B63BD65EF93FC7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D99A8184A1055AAF793FC377 /* SleepJourneyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepJourneyState.swift; sourceTree = "<group>"; };
 		E003AA361F20D4D6D22C859B /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		E25A7E0083E9DB6CF6BA8796 /* SignUpDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpDependencies.swift; sourceTree = "<group>"; };
-		E298BC89FA1BC5CBC44273BB /* Pods_NoomAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoomAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E44F7687C8142DA182B8FE3A /* NoomApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NoomApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8FEA6ACDB186BCFC0D90FEE /* SleepProcessingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepProcessingCoordinatorTests.swift; sourceTree = "<group>"; };
 		F2ADF18966AEA8AAACA3F911 /* NoomApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoomApp.swift; sourceTree = "<group>"; };
-		FA0CAA8E1B9555ACE0F29CFA /* Pods-NoomAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoomAppTests.release.xcconfig"; path = "Target Support Files/Pods-NoomAppTests/Pods-NoomAppTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		134F46C4B5D629B4453DDFF2 /* Frameworks */ = {
+		11F04039280656B4F257295E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7EB02D68224D9E8EE48A0F91 /* Pods_NoomApp.framework in Frameworks */,
+				0F9F6E4120E23D73D03213FC /* Pods_NoomAppTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BC81439F1988A88927167643 /* Frameworks */ = {
+		A504FFBD97933D0FC922F024 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				83B63A598C449238CD413F76 /* Pods_NoomAppTests.framework in Frameworks */,
+				A630A51D7F8F5147FBAA21C4 /* Pods_NoomApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		013CD52A3DD70781028FA628 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				80555852966D61F94BB52298 /* Pods_NoomApp.framework */,
+				51EFDC34CBD6D2300853C5B9 /* Pods_NoomAppTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0A82DB5EB8F094CBA60B9D1D /* NoomApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -168,6 +181,7 @@
 				80B18CEAB6AD612F7BF5EA7F /* InsightsView.swift */,
 				E003AA361F20D4D6D22C859B /* MainTabView.swift */,
 				4BFDDE525CF11EE2E05C59F4 /* Metric.swift */,
+				854F2C7F101D9CCE9F0A48A6 /* MetricDisplayPolicy.swift */,
 				F2ADF18966AEA8AAACA3F911 /* NoomApp.swift */,
 				AD4AC883108B1F0F2D595656 /* NoomBandConnectionState.swift */,
 				16CB5D88C9FE2F02A5FB7AD4 /* NoomDesignSystem.swift */,
@@ -200,6 +214,18 @@
 			path = NoomApp;
 			sourceTree = "<group>";
 		};
+		3DD2BE5D5999C543D357AFEB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				24C7E6E98142921313EBC0A5 /* Pods-NoomApp.debug.xcconfig */,
+				CD1B4DC30D8389017D9A449D /* Pods-NoomApp.release.xcconfig */,
+				17608E602BA3E79A8F115053 /* Pods-NoomAppTests.debug.xcconfig */,
+				7A969B619D5C06401C0AF52C /* Pods-NoomAppTests.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		689F05B8EEA8D9B2F9C223D8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -215,14 +241,15 @@
 				0A82DB5EB8F094CBA60B9D1D /* NoomApp */,
 				B42A203A90AA817CF1D5784A /* NoomAppTests */,
 				689F05B8EEA8D9B2F9C223D8 /* Products */,
-				EA3FAE260FA5CA8E43EB7AB5 /* Pods */,
-				E8CEE7321E54DD320AA53780 /* Frameworks */,
+				3DD2BE5D5999C543D357AFEB /* Pods */,
+				013CD52A3DD70781028FA628 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		B42A203A90AA817CF1D5784A /* NoomAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				BEFEA309FDA636686E0CE216 /* MetricDisplayPolicyTests.swift */,
 				422E3A0B961A2037DFBF6233 /* NoomLiveTelemetryFreshnessTests.swift */,
 				50CEC0DD1E186F4C89582F23 /* NoomRecordingFinalizationTests.swift */,
 				74E153C91087A3B94645E497 /* NoomSpotCheckSignalTests.swift */,
@@ -235,27 +262,6 @@
 			path = NoomAppTests;
 			sourceTree = "<group>";
 		};
-		E8CEE7321E54DD320AA53780 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				9F8BAA40DDFAB89F2AC9C538 /* Pods_NoomApp.framework */,
-				E298BC89FA1BC5CBC44273BB /* Pods_NoomAppTests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		EA3FAE260FA5CA8E43EB7AB5 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				5B69D7E77720A3D226C2E0CB /* Pods-NoomApp.debug.xcconfig */,
-				A062498CEE2FC3C76A53937C /* Pods-NoomApp.release.xcconfig */,
-				B8475B91578C67E4C8C08CB7 /* Pods-NoomAppTests.debug.xcconfig */,
-				FA0CAA8E1B9555ACE0F29CFA /* Pods-NoomAppTests.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -263,9 +269,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AD4948FC1001BCE1AAEE49A6 /* Build configuration list for PBXNativeTarget "NoomAppTests" */;
 			buildPhases = (
-				6E910B26BE859E5BDA174102 /* [CP] Check Pods Manifest.lock */,
+				5D3B5272125C12F81F6B206C /* [CP] Check Pods Manifest.lock */,
 				9AB8531BF5DBBF3CB9A51B35 /* Sources */,
-				BC81439F1988A88927167643 /* Frameworks */,
+				11F04039280656B4F257295E /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -281,11 +287,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 190690E4C22DD001A86BCF79 /* Build configuration list for PBXNativeTarget "NoomApp" */;
 			buildPhases = (
-				827EF7A556D583138B28AC92 /* [CP] Check Pods Manifest.lock */,
+				3267004CD703BA06C924036B /* [CP] Check Pods Manifest.lock */,
 				5125337A080235AB7F31B458 /* Sources */,
 				19DFA9373BBEF3D80A077564 /* Resources */,
-				134F46C4B5D629B4453DDFF2 /* Frameworks */,
-				59762234A89194EFF04D90A8 /* [CP] Embed Pods Frameworks */,
+				A504FFBD97933D0FC922F024 /* Frameworks */,
+				EE005384817486C24E578729 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -344,46 +350,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		59762234A89194EFF04D90A8 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NoomApp/Pods-NoomApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NoomApp/Pods-NoomApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NoomApp/Pods-NoomApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6E910B26BE859E5BDA174102 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NoomAppTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		827EF7A556D583138B28AC92 /* [CP] Check Pods Manifest.lock */ = {
+		3267004CD703BA06C924036B /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -405,6 +372,45 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		5D3B5272125C12F81F6B206C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NoomAppTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EE005384817486C24E578729 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NoomApp/Pods-NoomApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NoomApp/Pods-NoomApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NoomApp/Pods-NoomApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -424,6 +430,7 @@
 				E4CDC304A62580026A6C22C1 /* InsightsView.swift in Sources */,
 				4EEC94E4893C32D1E28496D2 /* MainTabView.swift in Sources */,
 				9B0CB02968DCD1A877BB4DEE /* Metric.swift in Sources */,
+				DE8FE6176B4B599A76DA3ADA /* MetricDisplayPolicy.swift in Sources */,
 				45FAC666078D8871D4CA9E77 /* NoomApp.swift in Sources */,
 				75E4FB4D9C3EE52E44DA7B2C /* NoomBandConnectionState.swift in Sources */,
 				DF89813CB15762A85A64A4FA /* NoomDesignSystem.swift in Sources */,
@@ -458,6 +465,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99BB2C24AB8F56E29CF37F78 /* MetricDisplayPolicyTests.swift in Sources */,
 				CE6714009D2A44B94C428660 /* NoomLiveTelemetryFreshnessTests.swift in Sources */,
 				6C550307C0CD9E559D704100 /* NoomRecordingFinalizationTests.swift in Sources */,
 				099A4167B50B2794893123C8 /* NoomSpotCheckSignalTests.swift in Sources */,
@@ -482,7 +490,7 @@
 /* Begin XCBuildConfiguration section */
 		29C26C2B80164C30904549DF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B69D7E77720A3D226C2E0CB /* Pods-NoomApp.debug.xcconfig */;
+			baseConfigurationReference = 24C7E6E98142921313EBC0A5 /* Pods-NoomApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -563,7 +571,7 @@
 		};
 		3E24A9F88A8304937272BE33 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FA0CAA8E1B9555ACE0F29CFA /* Pods-NoomAppTests.release.xcconfig */;
+			baseConfigurationReference = 7A969B619D5C06401C0AF52C /* Pods-NoomAppTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -581,7 +589,7 @@
 		};
 		53190A7D47E376D91B734098 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B8475B91578C67E4C8C08CB7 /* Pods-NoomAppTests.debug.xcconfig */;
+			baseConfigurationReference = 17608E602BA3E79A8F115053 /* Pods-NoomAppTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -599,7 +607,7 @@
 		};
 		B4971792E31A3602EE8AB19C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A062498CEE2FC3C76A53937C /* Pods-NoomApp.release.xcconfig */;
+			baseConfigurationReference = CD1B4DC30D8389017D9A449D /* Pods-NoomApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";

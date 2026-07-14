@@ -11,6 +11,7 @@ MAIN_TAB = (SRC / "MainTabView.swift").read_text()
 SLEEP_DETAIL = (SRC / "SleepDetailView.swift").read_text()
 CONTENT = (SRC / "ContentView.swift").read_text()
 COORDINATOR = (SRC / "SleepProcessingCoordinator.swift").read_text()
+DISPLAY_POLICY = (SRC / "MetricDisplayPolicy.swift").read_text()
 README = (ROOT / "NoomApp/README.md").read_text()
 POD_LOCK = (ROOT / "NoomApp/Podfile.lock").read_text()
 with (SRC / "Info.plist").open("rb") as handle:
@@ -135,16 +136,14 @@ class NoomSyncExperienceContracts(unittest.TestCase):
             'value: "—"',
         ):
             self.assertIn(snippet, metrics)
-        self.assertIn('dashboardMetricHasData', DASHBOARD)
-        self.assertIn('value: availableMetric.flatMap(dashboardMetricNumber) ?? "—"', DASHBOARD)
+        self.assertIn("MetricDisplayPolicy.routeSnapshot", metrics)
+        self.assertIn('value: presentation?.valueText ?? "—"', DASHBOARD)
         self.assertIn('return "Waiting for today\'s sleep data"', DASHBOARD)
         self.assertIn('return "No sleep data for this day"', DASHBOARD)
-        availability = DASHBOARD.split("private func dashboardMetricHasData", 1)[1].split("private func dashboardMetricNumber", 1)[0]
-        self.assertIn("dashboardMetricNumber(metric) != nil", availability)
-        formatter = DASHBOARD.split("private func dashboardMetricNumber", 1)[1].split("private func dashboardMetricUnit", 1)[0]
-        self.assertIn("-> String?", formatter)
-        self.assertIn("metric.valueFloat.isFinite && metric.valueFloat > 0", formatter)
-        self.assertIn("guard metric.valueFloat == 0, metric.value > 0 else", formatter)
+        formatter = DISPLAY_POLICY.split("private static func preferredValue", 1)[1].split("private static func isUsable", 1)[0]
+        self.assertIn("floatValue.isFinite && floatValue > 0", formatter)
+        self.assertIn("integerValue.isFinite && integerValue > 0", formatter)
+        self.assertNotIn("permitsZero", formatter)
         self.assertIn('missingMetricCaption(for: label)', DASHBOARD)
 
     def test_home_progress_requires_three_unique_days(self) -> None:

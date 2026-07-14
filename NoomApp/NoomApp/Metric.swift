@@ -363,6 +363,11 @@ struct MetricReading: Identifiable {
     var id: String { label }
 }
 
+enum MetricDetailSupportingState: Equatable {
+    case loading
+    case error(String)
+}
+
 enum BaselineDetailTone {
     case activity, heartRate, variability, respiratory, inflammation
 
@@ -395,6 +400,7 @@ struct BaselineMetricDetail: View {
     let tone: BaselineDetailTone
     let baseline: PersonalBaseline?
     let readings: [MetricReading]
+    var supportingState: MetricDetailSupportingState? = nil
     var previewDisclosure: String? = nil
 
     var body: some View {
@@ -431,46 +437,50 @@ struct BaselineMetricDetail: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
 
-                baselineCard
+                if let supportingState {
+                    supportingCard(supportingState)
+                } else {
+                    baselineCard
 
-                if let baseline, baseline.values.count > 1 {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Your recent pattern")
-                            .font(.headline)
-                        InteractiveBaselineChart(
-                            baseline: baseline,
-                            selectedDate: date,
-                            selectedValue: value,
-                            unit: unit,
-                            accent: accent
-                        )
-                        Text("Tap, hold, or drag across the chart to inspect the date (X) and value (Y). The shaded band is your typical range; the filled dot is the selected-day marker.")
-                            .font(.footnote)
-                            .foregroundStyle(Color.primary.opacity(0.68))
-                    }
-                    .padding(18)
-                    .background(.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                }
-
-                if !readings.isEmpty {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("Today’s readings")
-                            .font(.headline)
-                            .padding(.bottom, 8)
-                        ForEach(readings) { reading in
-                            HStack {
-                                Text(reading.label)
-                                Spacer()
-                                Text(reading.value)
-                                    .foregroundStyle(Color.primary.opacity(0.68))
-                            }
-                            .font(.subheadline)
-                            .padding(.vertical, 13)
-                            Divider()
+                    if let baseline, baseline.values.count > 1 {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Your recent pattern")
+                                .font(.headline)
+                            InteractiveBaselineChart(
+                                baseline: baseline,
+                                selectedDate: date,
+                                selectedValue: value,
+                                unit: unit,
+                                accent: accent
+                            )
+                            Text("Tap, hold, or drag across the chart to inspect the date (X) and value (Y). The shaded band is your typical range; the filled dot is the selected-day marker.")
+                                .font(.footnote)
+                                .foregroundStyle(Color.primary.opacity(0.68))
                         }
+                        .padding(18)
+                        .background(.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                     }
-                    .padding(18)
-                    .background(.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+
+                    if !readings.isEmpty {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("Selected-day readings")
+                                .font(.headline)
+                                .padding(.bottom, 8)
+                            ForEach(readings) { reading in
+                                HStack {
+                                    Text(reading.label)
+                                    Spacer()
+                                    Text(reading.value)
+                                        .foregroundStyle(Color.primary.opacity(0.68))
+                                }
+                                .font(.subheadline)
+                                .padding(.vertical, 13)
+                                Divider()
+                            }
+                        }
+                        .padding(18)
+                        .background(.background, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    }
                 }
 
                 Text("Your baseline uses up to the 30 completed days before this date and needs at least 14 valid days. It is personal context. Not a medical assessment.")
@@ -484,6 +494,26 @@ struct BaselineMetricDetail: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .noomDetailBackButton()
+    }
+
+    @ViewBuilder
+    private func supportingCard(_ state: MetricDetailSupportingState) -> some View {
+        switch state {
+        case .loading:
+            NoomStateBanner(
+                title: "Loading selected-day context",
+                detail: "Your dashboard value is preserved while we fetch readings and your personal baseline.",
+                systemImage: "arrow.triangle.2.circlepath",
+                tint: accent
+            )
+        case .error(let message):
+            NoomStateBanner(
+                title: "Additional detail unavailable",
+                detail: "Your dashboard value is still shown. \(message)",
+                systemImage: "exclamationmark.triangle.fill",
+                tint: .orange
+            )
+        }
     }
 
     @ViewBuilder
@@ -516,7 +546,7 @@ struct BaselineMetricDetail: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Building your 30-day personal baseline")
                     .font(.headline)
-                Text("We’ll show your usual range after 14 valid completed days. Today’s data is still available below.")
+                Text("We’ll show your usual range after 14 valid completed days. Selected-day data is still available below.")
                     .font(.subheadline)
                     .foregroundStyle(Color.primary.opacity(0.68))
             }

@@ -301,12 +301,12 @@ class NoomParityContractTests(unittest.TestCase):
 
     def test_dashboard_exposes_every_exampleapp_metric_route(self) -> None:
         for view in (
-            "SleepDetailView()",
-            "StepsDetailView()",
-            "CaloriesDetailView()",
-            "HRDetailView()",
-            "HRVDetailView()",
-            "RRDetailView()",
+            "SleepDetailView(",
+            "StepsDetailView(",
+            "CaloriesDetailView(",
+            "HRDetailView(",
+            "HRVDetailView(",
+            "RRDetailView(",
         ):
             self.assertIn(view, DASHBOARD)
         for metric_case in (

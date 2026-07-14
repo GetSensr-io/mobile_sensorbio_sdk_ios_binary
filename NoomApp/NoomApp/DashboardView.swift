@@ -567,15 +567,62 @@ struct DashboardView: View {
         .buttonStyle(.plain)
 
         let metricsByType = Dictionary(grouping: data.metrics, by: \.metricType).compactMapValues(\.first)
+        let sourceDate = dashboard.snapshot?.date ?? dateContext.selectedDate
+        let stepsSnapshot = MetricDisplayPolicy.routeSnapshot(
+            kind: .steps,
+            metric: metricsByType[.stepDashMetric],
+            sourceDate: sourceDate
+        )
+        let caloriesSnapshot = MetricDisplayPolicy.routeSnapshot(
+            kind: .activeCalories,
+            metric: metricsByType[.calorieDashMetric],
+            sourceDate: sourceDate
+        )
+        let heartRateSnapshot = MetricDisplayPolicy.routeSnapshot(
+            kind: .restingHeartRate,
+            metric: metricsByType[.hrDashMetric],
+            sourceDate: sourceDate
+        )
+        let hrvSnapshot = MetricDisplayPolicy.routeSnapshot(
+            kind: .heartRateVariability,
+            metric: metricsByType[.hrvDashMetric],
+            sourceDate: sourceDate
+        )
+        let respiratorySnapshot = MetricDisplayPolicy.routeSnapshot(
+            kind: .respiratoryRate,
+            metric: metricsByType[.respRateDashMetric],
+            sourceDate: sourceDate
+        )
+
         LazyVGrid(
             columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible())],
             spacing: 12
         ) {
-            metricRouteTile(label: "Steps", metric: metricsByType[.stepDashMetric], destination: StepsDetailView())
-            metricRouteTile(label: "Active Calories", metric: metricsByType[.calorieDashMetric], destination: CaloriesDetailView())
-            metricRouteTile(label: "Resting Heart Rate", metric: metricsByType[.hrDashMetric], destination: HRDetailView())
-            metricRouteTile(label: "Heart Rate Variability", metric: metricsByType[.hrvDashMetric], destination: HRVDetailView())
-            metricRouteTile(label: "Respiratory Rate", metric: metricsByType[.respRateDashMetric], destination: RRDetailView())
+            metricRouteTile(
+                label: "Steps",
+                snapshot: stepsSnapshot,
+                destination: StepsDetailView(dashboardSnapshot: stepsSnapshot)
+            )
+            metricRouteTile(
+                label: "Active Calories",
+                snapshot: caloriesSnapshot,
+                destination: CaloriesDetailView(dashboardSnapshot: caloriesSnapshot)
+            )
+            metricRouteTile(
+                label: "Resting Heart Rate",
+                snapshot: heartRateSnapshot,
+                destination: HRDetailView(dashboardSnapshot: heartRateSnapshot)
+            )
+            metricRouteTile(
+                label: "Heart Rate Variability",
+                snapshot: hrvSnapshot,
+                destination: HRVDetailView(dashboardSnapshot: hrvSnapshot)
+            )
+            metricRouteTile(
+                label: "Respiratory Rate",
+                snapshot: respiratorySnapshot,
+                destination: RRDetailView(dashboardSnapshot: respiratorySnapshot)
+            )
             inflammationMetricTile
         }
     }
@@ -600,14 +647,24 @@ struct DashboardView: View {
         .accessibilityLabel("Inflammation signal, \(inflammationSignalValue)\(dashboard.inflammationSignal.isPreview ? ", sample data, not personal health data" : "")")
     }
 
-    private func metricRouteTile<Destination: View>(label: String, metric: SB_DashboardMetric? = nil, destination: Destination) -> some View {
-        let availableMetric = metric.flatMap { dashboardMetricHasData($0) ? $0 : nil }
+    private func metricRouteTile<Destination: View>(
+        label: String,
+        snapshot: DashboardMetricRouteSnapshot,
+        destination: Destination
+    ) -> some View {
+        let presentation = snapshot.presentation
+        let caption: String
+        if let presentation {
+            caption = presentation.footerText ?? "Selected-day value"
+        } else {
+            caption = missingMetricCaption(for: label)
+        }
         return NavigationLink { destination } label: {
             NoomDashboardMetricTile(
                 label: label,
-                value: availableMetric.flatMap(dashboardMetricNumber) ?? "—",
-                unit: availableMetric.flatMap(dashboardMetricUnit),
-                caption: availableMetric.map(metricFooter).flatMap { $0.isEmpty ? nil : $0 } ?? missingMetricCaption(for: label),
+                value: presentation?.valueText ?? "—",
+                unit: presentation?.unit,
+                caption: caption,
                 systemImage: dashboardMetricIcon(for: label),
                 accent: dashboardMetricAccent(for: label)
             )
@@ -710,49 +767,6 @@ struct DashboardView: View {
         return dashboard.errorMessage == nil ? "Wear Noom Band and sync to see available sleep, Recovery, and movement data." : "We couldn't load this day. Try again."
     }
 
-    private func dashboardMetricHasData(_ metric: SB_DashboardMetric) -> Bool {
-        dashboardMetricNumber(metric) != nil
-    }
-
-    private func dashboardMetricNumber(_ metric: SB_DashboardMetric) -> String? {
-        if metric.valueFloat.isFinite && metric.valueFloat > 0 {
-            return formatNumber(metric.valueFloat)
-        }
-        guard metric.valueFloat == 0, metric.value > 0 else { return nil }
-        return MetricFormatting.humanNumber(metric.value)
-    }
-
-    private func dashboardMetricUnit(_ metric: SB_DashboardMetric) -> String? {
-        guard let rawUnit = metric.valueUnit?.trimmingCharacters(in: .whitespacesAndNewlines), !rawUnit.isEmpty else {
-            return nil
-        }
-        switch rawUnit.lowercased() {
-        case "bpm": return "bpm"
-        case "ms": return "ms"
-        case "/min", "brpm": return "/min"
-        case "kcal": return "kcal"
-        default: return rawUnit
-        }
-    }
-
-    private func metricFooter(_ metric: SB_DashboardMetric) -> String {
-        switch metric.footer {
-        case .avgValue(let value):
-            return "Average \(formatNumber(value))"
-        case .improvementVsBaseline(let value):
-            guard abs(value) >= 0.05 else { return "At baseline" }
-            let sign = value > 0 ? "+" : ""
-            if let unit = dashboardMetricUnit(metric) {
-                return "\(sign)\(formatNumber(value)) \(unit) vs baseline"
-            }
-            return "\(sign)\(formatNumber(value)) vs baseline"
-        case .unset:
-            return ""
-        @unknown default:
-            return ""
-        }
-    }
-
     private func dashboardMetricIcon(for label: String) -> String {
         switch label {
         case "Steps": return "figure.walk"
@@ -833,10 +847,6 @@ struct DashboardView: View {
         case 1...: return "Partial \(count)/7"
         default: return "No coverage"
         }
-    }
-
-    private func formatNumber(_ value: Float) -> String {
-        MetricFormatting.humanNumber(value)
     }
 
     private func duration(seconds: Int) -> String {

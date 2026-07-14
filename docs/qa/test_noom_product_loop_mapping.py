@@ -102,13 +102,13 @@ class NoomProductLoopMappingTests(unittest.TestCase):
         self.assertIn('Label("Progress", systemImage: "chart.xyaxis.line")', MAIN)
         self.assertIn('case "progress", "progress_signals"', CONTENT)
         for view in (
-            "RecoveryDetailView()",
-            "SleepDetailView()",
-            "StepsDetailView()",
-            "CaloriesDetailView()",
-            "HRDetailView()",
-            "HRVDetailView()",
-            "RRDetailView()",
+            "RecoveryDetailView(",
+            "SleepDetailView(",
+            "StepsDetailView(",
+            "CaloriesDetailView(",
+            "HRDetailView(",
+            "HRVDetailView(",
+            "RRDetailView(",
         ):
             self.assertIn(view, DASHBOARD_VIEW + CONTENT)
 

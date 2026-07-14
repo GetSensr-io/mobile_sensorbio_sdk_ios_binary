@@ -2,6 +2,8 @@ import SwiftUI
 import SensorBioSDK
 
 struct HRVDetailView: View {
+    let dashboardSnapshot: DashboardMetricRouteSnapshot?
+
     @Environment(AppDateContext.self) private var dateContext
     @State private var granularity: SB_ViewGranularity = .day
     @State private var daily: SB_HRVDailyTrending?
@@ -10,59 +12,107 @@ struct HRVDetailView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
 
+    init(dashboardSnapshot: DashboardMetricRouteSnapshot? = nil) {
+        self.dashboardSnapshot = dashboardSnapshot
+    }
+
     var body: some View {
         Group {
-            if isLoading {
-                NoomLoadingExperience(
-                    title: "Finding your recovery rhythm",
-                    detail: "Bringing your heart-rate variability into focus.",
-                    systemImage: "waveform.path.ecg",
-                    accent: NoomTheme.metricPurple
-                )
-                .padding(NoomTheme.horizontalPadding)
-            } else if let errorMessage {
-                ContentUnavailableView("HRV unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
-            } else if granularity == .day, let graph = daily?.graph {
-                BaselineMetricDetail(
-                    title: Metric.hrv.title,
-                    symbol: "waveform.path.ecg",
-                    accent: .purple,
-                    date: dateContext.selectedDate,
-                    value: Double(graph.rMssd),
-                    valueText: MetricFormatting.humanNumber(Double(graph.rMssd)),
-                    unit: "ms",
-                    tone: .variability,
-                    baseline: baseline,
-                    readings: [
-                        MetricReading(label: "rMSSD", value: "\(MetricFormatting.humanNumber(Double(graph.rMssd))) ms"),
-                        MetricReading(label: "Average", value: "\(MetricFormatting.humanNumber(Double(graph.rawAvg))) ms"),
-                        MetricReading(label: "Low", value: "\(MetricFormatting.humanNumber(Double(graph.rawLowest))) ms"),
-                        MetricReading(label: "High", value: "\(MetricFormatting.humanNumber(Double(graph.rawHighest))) ms")
-                    ] + graph.rawDatetimeHrvPoints.sorted { $0.timestamp < $1.timestamp }.map {
-                        MetricReading(label: MetricFormatting.dayTimeLabel(timestampMillis: $0.timestamp, timezoneOffsetMinutes: $0.timezone), value: "\(MetricFormatting.humanNumber(Double($0.value))) ms")
-                    }
-                )
-            } else if let graph = range?.graph {
-                List {
-                    Section("Range summary") {
-                        LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Double(graph.avg))) ms")
-                        LabeledContent("Low", value: "\(MetricFormatting.humanNumber(Double(graph.lowest))) ms")
-                        LabeledContent("High", value: "\(MetricFormatting.humanNumber(Double(graph.highest))) ms")
-                    }
-                    Section("Readings") {
-                        ForEach(graph.hrvIndexPoints.sorted { $0.date < $1.date }, id: \.date) { point in
-                            LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: "\(MetricFormatting.humanNumber(Double(point.value))) ms")
+            switch dashboardRouteResolution {
+            case .available(let primary):
+                dayDetail(primary: primary, supportingState: supportingState)
+            case .unavailable:
+                ContentUnavailableView("No HRV data yet", systemImage: "waveform.path.ecg")
+            case .notApplicable:
+                if isLoading {
+                    NoomLoadingExperience(
+                        title: "Finding your recovery rhythm",
+                        detail: "Bringing your heart-rate variability into focus.",
+                        systemImage: "waveform.path.ecg",
+                        accent: NoomTheme.metricPurple
+                    )
+                    .padding(NoomTheme.horizontalPadding)
+                } else if let errorMessage {
+                    ContentUnavailableView("HRV unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
+                } else if granularity == .day, let primary = dailyPrimary {
+                    dayDetail(primary: primary)
+                } else if let graph = range?.graph {
+                    List {
+                        Section("Range summary") {
+                            LabeledContent("Average", value: "\(MetricFormatting.humanNumber(Double(graph.avg))) ms")
+                            LabeledContent("Low", value: "\(MetricFormatting.humanNumber(Double(graph.lowest))) ms")
+                            LabeledContent("High", value: "\(MetricFormatting.humanNumber(Double(graph.highest))) ms")
+                        }
+                        Section("Readings") {
+                            ForEach(graph.hrvIndexPoints.sorted { $0.date < $1.date }, id: \.date) { point in
+                                LabeledContent(MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity), value: "\(MetricFormatting.humanNumber(Double(point.value))) ms")
+                            }
                         }
                     }
+                } else {
+                    ContentUnavailableView("No HRV data yet", systemImage: "waveform.path.ecg")
                 }
-            } else {
-                ContentUnavailableView("No HRV data yet", systemImage: "waveform.path.ecg")
             }
         }
         .navigationTitle(Metric.hrv.title)
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .top, spacing: 0) { DetailHeaderControls(granularity: $granularity) }
         .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) { await load() }
+    }
+
+    private var dashboardRouteResolution: DashboardMetricRouteResolution {
+        guard granularity == .day else { return .notApplicable }
+        return MetricDisplayPolicy.routeResolution(
+            kind: .heartRateVariability,
+            dashboardSnapshot: dashboardSnapshot,
+            selectedDate: dateContext.selectedDate
+        )
+    }
+
+    private var supportingState: MetricDetailSupportingState? {
+        if isLoading { return .loading }
+        if let errorMessage { return .error(errorMessage) }
+        return nil
+    }
+
+    private func dayDetail(
+        primary: MetricPrimaryPresentation,
+        supportingState: MetricDetailSupportingState? = nil
+    ) -> some View {
+        let graph = daily?.graph
+        return BaselineMetricDetail(
+            title: Metric.hrv.title,
+            symbol: "waveform.path.ecg",
+            accent: .purple,
+            date: dateContext.selectedDate,
+            value: primary.value,
+            valueText: primary.valueText,
+            unit: primary.unit,
+            tone: .variability,
+            baseline: baseline,
+            readings: [MetricReading(label: "rMSSD", value: primary.readingText)] + (graph.map {
+                [
+                    MetricReading(label: "Average", value: "\(MetricFormatting.humanNumber(Double($0.rawAvg))) \(primary.unit)"),
+                    MetricReading(label: "Low", value: "\(MetricFormatting.humanNumber(Double($0.rawLowest))) \(primary.unit)"),
+                    MetricReading(label: "High", value: "\(MetricFormatting.humanNumber(Double($0.rawHighest))) \(primary.unit)")
+                ] + $0.rawDatetimeHrvPoints.sorted { $0.timestamp < $1.timestamp }.map {
+                    MetricReading(
+                        label: MetricFormatting.dayTimeLabel(timestampMillis: $0.timestamp, timezoneOffsetMinutes: $0.timezone),
+                        value: "\(MetricFormatting.humanNumber(Double($0.value))) \(primary.unit)"
+                    )
+                }
+            } ?? []),
+            supportingState: supportingState
+        )
+    }
+
+    private var dailyPrimary: MetricPrimaryPresentation? {
+        MetricDisplayPolicy.primaryPresentation(
+            kind: .heartRateVariability,
+            dashboardSnapshot: dashboardSnapshot,
+            selectedDate: dateContext.selectedDate,
+            fallbackValue: daily?.graph.map { Double($0.rMssd) }
+        )
     }
 
     @MainActor private func load() async {
@@ -72,9 +122,8 @@ struct HRVDetailView: View {
         do {
             if granularity == .day {
                 daily = try await sensorBio.fetchDailyHRV(date: dateContext.selectedDate)
-                let current = Double(daily?.graph?.rMssd ?? 0)
                 let observations = (try? await PersonalBaselineLoader.trailingObservations(for: .hrv, selectedDate: dateContext.selectedDate)) ?? []
-                baseline = PersonalBaseline.make(currentValue: current, observations: observations)
+                baseline = dailyPrimary.flatMap { PersonalBaseline.make(currentValue: $0.value, observations: observations) }
             } else {
                 range = try await sensorBio.fetchRangeHRV(date: dateContext.selectedDate, granularity: granularity)
                 baseline = nil

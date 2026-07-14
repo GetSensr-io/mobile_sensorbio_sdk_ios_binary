@@ -3,6 +3,8 @@ import SwiftUI
 import SensorBioSDK
 
 struct StepsDetailView: View {
+    let dashboardSnapshot: DashboardMetricRouteSnapshot?
+
     @Environment(AppDateContext.self) private var dateContext
     @State private var granularity: SB_ViewGranularity = .day
     @State private var dailySteps: Int?
@@ -11,46 +13,89 @@ struct StepsDetailView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
 
+    init(dashboardSnapshot: DashboardMetricRouteSnapshot? = nil) {
+        self.dashboardSnapshot = dashboardSnapshot
+    }
+
     var body: some View {
         Group {
-            if isLoading {
-                NoomLoadingExperience(
-                    title: "Counting up your day",
-                    detail: "Bringing your movement into focus.",
-                    systemImage: "figure.walk",
-                    accent: NoomTheme.metricGreen
-                )
-                .padding(NoomTheme.horizontalPadding)
-            } else if let errorMessage {
-                ContentUnavailableView("Steps unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
-            } else if granularity == .day, let dailySteps {
-                BaselineMetricDetail(
-                    title: Metric.steps.title,
-                    symbol: "figure.walk",
-                    accent: .orange,
-                    date: dateContext.selectedDate,
-                    value: Double(dailySteps),
-                    valueText: MetricFormatting.humanNumber(dailySteps),
-                    unit: "steps",
-                    tone: .activity,
-                    baseline: baseline,
-                    readings: [MetricReading(label: "Daily total", value: "\(MetricFormatting.humanNumber(dailySteps)) steps")]
-                )
-            } else if !rangePoints.isEmpty {
-                List(rangePoints) { point in
-                    LabeledContent(
-                        MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
-                        value: "\(MetricFormatting.humanNumber(point.steps)) steps"
-                    )
-                }
-            } else {
+            switch dashboardRouteResolution {
+            case .available(let primary):
+                dayDetail(primary: primary, supportingState: supportingState)
+            case .unavailable:
                 ContentUnavailableView("No steps yet", systemImage: "figure.walk")
+            case .notApplicable:
+                if isLoading {
+                    NoomLoadingExperience(
+                        title: "Counting up your day",
+                        detail: "Bringing your movement into focus.",
+                        systemImage: "figure.walk",
+                        accent: NoomTheme.metricGreen
+                    )
+                    .padding(NoomTheme.horizontalPadding)
+                } else if let errorMessage {
+                    ContentUnavailableView("Steps unavailable", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
+                } else if granularity == .day, let primary = dailyPrimary {
+                    dayDetail(primary: primary)
+                } else if !rangePoints.isEmpty {
+                    List(rangePoints) { point in
+                        LabeledContent(
+                            MetricFormatting.rangeDateLabel(packedDate: point.date, granularity: granularity),
+                            value: "\(MetricFormatting.humanNumber(point.steps)) steps"
+                        )
+                    }
+                } else {
+                    ContentUnavailableView("No steps yet", systemImage: "figure.walk")
+                }
             }
         }
         .navigationTitle(Metric.steps.title)
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .top, spacing: 0) { DetailHeaderControls(granularity: $granularity) }
         .task(id: DetailLoadKey(date: dateContext.selectedDate, granularity: granularity)) { await load() }
+    }
+
+    private var dashboardRouteResolution: DashboardMetricRouteResolution {
+        guard granularity == .day else { return .notApplicable }
+        return MetricDisplayPolicy.routeResolution(
+            kind: .steps,
+            dashboardSnapshot: dashboardSnapshot,
+            selectedDate: dateContext.selectedDate
+        )
+    }
+
+    private var supportingState: MetricDetailSupportingState? {
+        if isLoading { return .loading }
+        if let errorMessage { return .error(errorMessage) }
+        return nil
+    }
+
+    private func dayDetail(
+        primary: MetricPrimaryPresentation,
+        supportingState: MetricDetailSupportingState? = nil
+    ) -> some View {
+        BaselineMetricDetail(
+            title: Metric.steps.title,
+            symbol: "figure.walk",
+            accent: .orange,
+            date: dateContext.selectedDate,
+            value: primary.value,
+            valueText: primary.valueText,
+            unit: primary.unit,
+            tone: .activity,
+            baseline: baseline,
+            readings: [MetricReading(label: "Daily total", value: primary.readingText)],
+            supportingState: supportingState
+        )
+    }
+
+    private var dailyPrimary: MetricPrimaryPresentation? {
+        MetricDisplayPolicy.primaryPresentation(
+            kind: .steps,
+            dashboardSnapshot: dashboardSnapshot,
+            selectedDate: dateContext.selectedDate,
+            fallbackValue: dailySteps.map(Double.init)
+        )
     }
 
     @MainActor private func load() async {
@@ -79,8 +124,8 @@ struct StepsDetailView: View {
             if granularity == .day {
                 dailySteps = points.last?.steps
                 let observations = (try? await PersonalBaselineLoader.trailingObservations(for: .steps, selectedDate: dateContext.selectedDate)) ?? []
-                if let dailySteps {
-                    baseline = PersonalBaseline.make(currentValue: Double(dailySteps), observations: observations)
+                if let primary = dailyPrimary {
+                    baseline = PersonalBaseline.make(currentValue: primary.value, observations: observations)
                 }
             } else {
                 rangePoints = points

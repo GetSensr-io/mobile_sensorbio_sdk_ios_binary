@@ -31,9 +31,15 @@ class PersonalBaselineContracts(unittest.TestCase):
         self.assertIn("fetchDailyStats", source)
         self.assertIn("physicalStats", source)
         self.assertIn(".steps", source)
-        self.assertIn('unit: "steps"', source)
+        self.assertIn("kind: .steps", source)
+        self.assertIn("unit: primary.unit", source)
         self.assertNotIn("unit: metric.unit", source)
         self.assertNotIn("\\(metric.unit)", source)
+
+    def test_calories_detail_selects_the_active_series_not_array_order(self) -> None:
+        source = (SRC / "CaloriesDetailView.swift").read_text()
+        self.assertIn("MetricDisplayPolicy.activeCaloriesMetric", source)
+        self.assertNotIn("data?.graph?.metrics.first", source)
 
     def test_recent_pattern_uses_swift_charts_with_drag_selection_and_xy_values(self) -> None:
         source = BASELINE_PATH.read_text()
