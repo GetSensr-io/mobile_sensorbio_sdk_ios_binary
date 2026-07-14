@@ -4,7 +4,7 @@ import Combine
 import SensorBioSDK
 
 /// The two SDK-owned recording paths intentionally have different information hierarchies.
-enum NoomRecordingExperience: String, Equatable {
+enum NoomRecordingExperience: String, Equatable, Sendable {
     case spotCheck
     case activity
 }
@@ -14,19 +14,19 @@ enum NoomRecordingPreview {
     case hub
     case spotCheck
     case activity
+    case delayedSync
 }
 #endif
 
 private struct NoomRecordingSample: Identifiable, Equatable {
     let index: Int
     let value: Double
-    /// Timestamp of when the sample was recorded. Used for time‑based rendering of the PPG waveform.
-    let timestamp: Date
     var id: Int { index }
 }
 
 private let noomSpotCheckDuration: TimeInterval = 180
-private let noomPPGWindowDuration: TimeInterval = 5
+private let noomSpotCheckMinimumDuration: TimeInterval = 30
+private let noomRenderedPPGSampleLimit = 300
 
 private struct NoomRecordingCompletion {
     let experience: NoomRecordingExperience
@@ -35,6 +35,7 @@ private struct NoomRecordingCompletion {
     let heartRate: Int?
     let hrv: Int?
     let ibi: Int?
+    let evidence: NoomRecordingResolution.Terminal
 }
 
 /// Extended floating action inspired by Oura's lower-right recording entry, translated into Noom tokens.
@@ -74,8 +75,11 @@ struct RecordActivityView: View {
     @State private var recordingState: SB_RecordingState = sensorBio.recordingState
     @State private var canFinalize = sensorBio.canFinalize
     @State private var isPaused = sensorBio.isRecordingPaused
+    @State private var isBandReady = sensorBio.isFullyConfigured
     @State private var recordingTask: Task<Void, Never>?
     @State private var recordingRequestID: UUID?
+    @State private var activeRecordingAttempt: NoomRecordingAttempt?
+    @State private var ppgCaptureRequestID: UUID?
     @State private var isAwaitingRestoredRecording = false
     @State private var unsupportedRestoredKind: SB_PersistedRecordingKind?
     @State private var preservesRestoredActivityName = false
@@ -90,7 +94,15 @@ struct RecordActivityView: View {
     @State private var latestIBI: Int?
     @State private var latestRR: Int?
     @State private var latestSpO2: Double?
-    @State private var latestSNR: Double?
+    @State private var latestSNRDecibels: Double?
+    @State private var telemetryFreshness = NoomLiveTelemetryFreshness()
+    @State private var telemetryNow = Date()
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var ppgInterpolator = NoomPPGSampleInterpolator()
+    @State private var ppgYRangeSmoother = NoomPPGYRangeSmoother()
+    @State private var ppgDisplayRange: ClosedRange<Double>?
+    @State private var ppgDisplayTask: Task<Void, Never>?
+    @State private var ppgDisplayToken: UUID?
     @State private var ppgSamples: [NoomRecordingSample] = []
     @State private var heartRateSamples: [NoomRecordingSample] = []
     @State private var showsMoreSignals = false
@@ -98,6 +110,24 @@ struct RecordActivityView: View {
     @State private var completion: NoomRecordingCompletion?
     @State private var errorMessage: String?
     @State private var showsCancelConfirmation = false
+    @State private var showsDelayedDiscardConfirmation = false
+    @State private var finalizationPhase: NoomRecordingFinalizationPhase?
+    @State private var finalizationRecovery: NoomRecordingResolution.Recoverable?
+    @State private var finalizationWatchdogValue: NoomRecordingFinalizationWatchdog?
+    @State private var finalizationWatchdogToken: UUID?
+    @State private var finalizationWatchdogTask: Task<Void, Never>?
+    @State private var failedSubmissionLocalID: UUID?
+    @State private var delayedRetryTask: Task<Void, Never>?
+    @State private var delayedRetryToken: UUID?
+
+    private let finalizationPolicy = NoomRecordingFinalizationPolicy(
+        phaseBounds: [
+            .stoppingDevice: 30,
+            .syncingDevice: 45,
+            .submitting: 105,
+        ],
+        correlationToleranceMilliseconds: 15_000
+    )
 
     #if DEBUG
     private let preview: NoomRecordingPreview?
@@ -152,6 +182,7 @@ struct RecordActivityView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .interactiveDismissDisabled(isActive)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if isStartingRecording {
                 startingRecordingControlDock
@@ -165,26 +196,7 @@ struct RecordActivityView: View {
         }
         .onReceive(sensorBio.$recordingState.receive(on: RunLoop.main)) { state in
             guard !isPreview else { return }
-            if isCancellationPending {
-                if case .idle = state {
-                    isCancellationPending = false
-                    recordingState = .idle
-                    canFinalize = false
-                    isPaused = false
-                }
-                return
-            }
-            if isStartingRecording {
-                if case .idle = state {
-                    // Keep startup ownership until the SDK leaves idle.
-                } else {
-                    isStartingRecording = false
-                }
-            }
-            if case let .recording(elapsed, _) = state {
-                lastElapsed = max(lastElapsed, elapsed)
-            }
-            recordingState = state
+            handleSDKRecordingState(state)
         }
         .onReceive(sensorBio.$canFinalize.receive(on: RunLoop.main)) { value in
             guard !isPreview, !isCancellationPending else { return }
@@ -194,30 +206,75 @@ struct RecordActivityView: View {
             guard !isPreview, !isCancellationPending else { return }
             isPaused = value
         }
-        .onReceive(sensorBio.ppg.throttle(for: .milliseconds(40), scheduler: RunLoop.main, latest: true)) { _, rawValue in
+        .onReceive(sensorBio.$isFullyConfigured.receive(on: RunLoop.main)) { value in
             guard !isPreview else { return }
+            isBandReady = value
+        }
+        .onReceive(sensorBio.pendingSubmissionsPublisher.receive(on: RunLoop.main)) { submissions in
+            guard !isPreview, let attempt = activeRecordingAttempt else { return }
+            for submission in submissions {
+                guard let evidence: NoomRecordingSubmissionEvidence = recordingSubmissionEvidence(
+                    from: submission,
+                    requestID: attempt.requestID
+                ) else { continue }
+                let resolution = finalizationPolicy.resolve(
+                    submission: evidence,
+                    for: attempt
+                )
+                if case .recoverable(.submissionFailed) = resolution {
+                    failedSubmissionLocalID = submission.localId
+                } else if resolution != .unresolved {
+                    failedSubmissionLocalID = nil
+                }
+                handleFinalizationResolution(resolution, for: attempt)
+                guard activeRecordingAttempt == attempt else { break }
+            }
+        }
+        .onReceive(sensorBio.biometricRecordResult.receive(on: RunLoop.main)) { result in
+            guard !isPreview, let attempt = activeRecordingAttempt else { return }
+            let evidence = NoomBiometricResultEvidence(
+                requestID: attempt.requestID,
+                startEpoch: result.startEpoch,
+                outcome: result.error == nil
+                    ? .success(resultID: result.id)
+                    : .failure
+            )
+            let resolution = finalizationPolicy.resolve(
+                biometricResult: evidence,
+                for: attempt
+            )
+            handleFinalizationResolution(resolution, for: attempt)
+        }
+        .onReceive(sensorBio.ppg.receive(on: RunLoop.main)) { _, rawValue in
+            guard !isPreview,
+                  let attempt = activeRecordingAttempt,
+                  attempt.experience == .spotCheck,
+                  recordingRequestID == attempt.requestID,
+                  ppgCaptureRequestID == attempt.requestID else { return }
             let value = Double(rawValue)
             guard value.isFinite else { return }
-            // Append with timestamp and keep only the most recent 5 seconds of data for a smooth window.
-            let now = Date()
-            appendPPGSample(value, timestamp: now)
+            ppgInterpolator.enqueue(value)
         }
         .onReceive(sensorBio.hr.receive(on: RunLoop.main)) { _, value in
             guard !isPreview, value > 0 else { return }
             latestHeartRate = value
+            recordTelemetrySample()
             appendBounded(Double(value), to: &heartRateSamples, limit: 80)
         }
         .onReceive(sensorBio.hrv.receive(on: RunLoop.main)) { _, value in
             guard !isPreview, value > 0 else { return }
             latestHRV = value
+            recordTelemetrySample()
         }
         .onReceive(sensorBio.bbi.receive(on: RunLoop.main)) { _, value in
             guard !isPreview, value > 0 else { return }
             latestIBI = value
+            recordTelemetrySample()
         }
         .onReceive(sensorBio.rr.receive(on: RunLoop.main)) { _, value in
             guard !isPreview, value > 0 else { return }
             latestRR = value
+            recordTelemetrySample()
         }
         .onReceive(sensorBio.spo2.receive(on: RunLoop.main)) { _, rawValue in
             guard !isPreview else { return }
@@ -227,9 +284,38 @@ struct RecordActivityView: View {
         }
         .onReceive(sensorBio.snr.receive(on: RunLoop.main)) { _, rawValue in
             guard !isPreview else { return }
-            let value = Double(rawValue)
-            guard value.isFinite else { return }
-            latestSNR = value
+            latestSNRDecibels = NoomSignalQuality.displayDecibels(
+                rawSNR: Double(rawValue)
+            )
+            if latestSNRDecibels != nil {
+                recordTelemetrySample()
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard !isPreview else { return }
+            telemetryFreshness.setForeground(phase == .active, at: Date())
+            telemetryNow = Date()
+            if phase == .active, isActive {
+                // The SDK-owned recording continued while suspended; rebind
+                // to it so elapsed truth and completion ownership resume,
+                // and let stale live values show their stale treatment
+                // until fresh samples arrive.
+                restorePersistedRecordingIfNeeded()
+            }
+        }
+        .task(id: telemetryFreshnessTickToken) {
+            // Freshness can decay without any new event (Band out of range).
+            // A 1-second truth tick keeps the stale banner honest while a
+            // recording is active; it renders nothing when idle.
+            guard telemetryFreshnessTickToken != nil, !isPreview else { return }
+            while !Task.isCancelled {
+                telemetryNow = Date()
+                do {
+                    try await Task.sleep(for: .seconds(1))
+                } catch {
+                    return
+                }
+            }
         }
         .task {
             #if DEBUG
@@ -243,10 +329,18 @@ struct RecordActivityView: View {
             guard spotCheckStartDate != nil, !isPreview else { return }
             while !Task.isCancelled {
                 spotCheckNow = Date()
-                try? await Task.sleep(for: .milliseconds(100))
+                do {
+                    try await Task.sleep(for: .milliseconds(100))
+                } catch {
+                    return
+                }
             }
         }
         .onDisappear {
+            ppgCaptureRequestID = nil
+            stopPPGDisplay(reset: true)
+            cancelFinalizationWatchdog(clearPhase: false)
+            cancelDelayedRetry()
             guard isStartingRecording, !isPreview else { return }
             cancelRecording()
         }
@@ -259,6 +353,16 @@ struct RecordActivityView: View {
             Button("Keep recording", role: .cancel) {}
         } message: {
             Text("This session will not be saved.")
+        }
+        .confirmationDialog(
+            "Discard this delayed session?",
+            isPresented: $showsDelayedDiscardConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Discard session", role: .destructive) { cancelRecording() }
+            Button("Keep waiting", role: .cancel) {}
+        } message: {
+            Text("Discard only if you no longer want this session. Noom+ will not discard it automatically.")
         }
     }
 
@@ -308,8 +412,10 @@ struct RecordActivityView: View {
                 NoomPill(title: "QA sample", color: NoomTheme.rose, foreground: NoomTheme.logoBlack)
             } else {
                 NoomPill(
-                    title: bandConnected ? "Band connected" : "Band needed",
-                    color: bandConnected ? NoomTheme.mint : NoomTheme.rose,
+                    title: finalizationRecovery != nil || isFinalizing
+                        ? (isBandReady ? "Band available · finalizing" : "Band unavailable · finalizing")
+                        : (isBandReady ? "Band ready" : (sensorBio.haveDevice ? "Band getting ready" : "Band not ready")),
+                    color: isBandReady ? NoomTheme.mint : NoomTheme.rose,
                     foreground: NoomTheme.logoBlack
                 )
             }
@@ -330,7 +436,7 @@ struct RecordActivityView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("A clearer look at your body, right now.")
                     .noomSerifTitle(size: 32)
-                Text("Choose a one-minute check or track a longer activity with live Noom Band signals.")
+                Text("Choose a three-minute check or track a longer activity with live Noom Band signals.")
                     .noomBody()
             }
 
@@ -363,7 +469,7 @@ struct RecordActivityView: View {
                 }
             }
             .buttonStyle(.plain)
-            .accessibilityHint("Opens the guided sixty-second biometrics capture")
+            .accessibilityHint("Opens the guided three-minute biometrics capture")
 
             Button {
                 selectedExperience = .activity
@@ -403,6 +509,8 @@ struct RecordActivityView: View {
     private var spotCheckExperience: some View {
         if let completion, completion.experience == .spotCheck {
             completionCard(completion)
+        } else if finalizationRecovery != nil {
+            delayedFinalizationCard
         } else if isFinalizing {
             finalizingCard
         } else if isRecording {
@@ -415,7 +523,7 @@ struct RecordActivityView: View {
     private var spotCheckReady: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("One quiet minute.")
+                Text("Three quiet minutes.")
                     .noomSerifTitle(size: 40)
                 Text("Sit comfortably, rest your arm, and keep the Band snug. Your live values appear only when the Band emits them.")
                     .noomBody()
@@ -425,9 +533,9 @@ struct RecordActivityView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("60-second spot check")
+                            Text("3-minute spot check")
                                 .font(.system(size: 19, weight: .bold, design: .rounded))
-                            Text("Finish unlocks after 30 seconds and a valid heart-rate sample.")
+                            Text("Finish is available after 30 seconds when the SDK's signal criteria are met.")
                                 .noomLabel()
                         }
                         Spacer()
@@ -455,19 +563,40 @@ struct RecordActivityView: View {
     }
 
     private var spotCheckLive: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let timerPresentation = NoomSpotCheckTimerPresentation(
+            elapsed: spotCheckWallClockElapsed,
+            target: noomSpotCheckDuration
+        )
+        return VStack(alignment: .leading, spacing: 16) {
             NoomCard(fill: NoomTheme.ink, padding: 18) {
                 VStack(spacing: 12) {
                     HStack {
-                        Label(latestHeartRate == nil ? "Finding your signal" : "Live signal", systemImage: "dot.radiowaves.left.and.right")
+                        Label(
+                            isTelemetryStale
+                                ? "Waiting for fresh samples"
+                                : (latestHeartRate == nil ? "Finding your signal" : "Live signal"),
+                            systemImage: "dot.radiowaves.left.and.right"
+                        )
                             .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundStyle(latestHeartRate == nil ? .white.opacity(0.72) : NoomTheme.mint)
+                            .foregroundStyle(
+                                isTelemetryStale
+                                    ? NoomTheme.metricAmber
+                                    : (latestHeartRate == nil ? .white.opacity(0.72) : NoomTheme.mint)
+                            )
                         Spacer()
-                        if let latestSNR {
-                            Text("Signal \(latestSNR.formatted(.number.precision(.fractionLength(1)))) dB")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                                .foregroundStyle(.white.opacity(0.64))
-                        }
+                        Text(latestSNRDecibels.map {
+                            "Signal \($0.formatted(.number.precision(.fractionLength(1)))) dB"
+                        } ?? "Signal —")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.64))
+                    }
+
+                    if isTelemetryStale {
+                        Text("Recording continues on your Band. Live values will refresh when fresh samples arrive.")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(NoomTheme.metricAmber)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("recording-telemetry-stale")
                     }
 
                     ZStack {
@@ -477,11 +606,11 @@ struct RecordActivityView: View {
                             .stroke(NoomTheme.red, style: StrokeStyle(lineWidth: 15, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                         VStack(spacing: 3) {
-                            Text("\(spotCheckSecondsRemaining)")
+                            Text(timerPresentation.text)
                                 .font(.system(size: 44, weight: .bold, design: .rounded))
                                 .monospacedDigit()
                                 .foregroundStyle(.white)
-                            Text("SEC")
+                            Text(timerPresentation.unit)
                                 .font(.system(size: 10, weight: .heavy, design: .rounded))
                                 .tracking(0.8)
                                 .foregroundStyle(.white.opacity(0.72))
@@ -489,7 +618,7 @@ struct RecordActivityView: View {
                     }
                     .frame(width: 146, height: 146)
                     .accessibilityElement(children: .combine)
-                    .accessibilityLabel("Spot check, \(spotCheckSecondsRemaining) seconds remaining")
+                    .accessibilityLabel(timerPresentation.accessibilityLabel)
 
                     Text("Stay still and breathe normally")
                         .font(.system(size: 15, weight: .bold, design: .rounded))
@@ -511,7 +640,7 @@ struct RecordActivityView: View {
                         Image(systemName: "waveform.path")
                             .foregroundStyle(NoomTheme.red)
                     }
-                    NoomRecordingSignalWaveform(samples: ppgSamples)
+                    NoomRecordingSignalWaveform(samples: ppgSamples, yRange: ppgDisplayRange)
                         .frame(height: 82)
                         .animation(.linear(duration: 0.04), value: ppgSamples.last?.index)
                     Text("Light-based pulse signal · for wellness context, not ECG or medical diagnosis")
@@ -564,7 +693,7 @@ struct RecordActivityView: View {
                     NoomRecordingMetricTile(label: "IBI", value: latestIBI.map(String.init), unit: "ms", systemImage: "metronome.fill", tint: NoomTheme.metricBlue)
                     NoomRecordingMetricTile(label: "Breathing", value: latestRR.map(String.init), unit: "/min", systemImage: "lungs.fill", tint: NoomTheme.metricGreen)
                     NoomRecordingMetricTile(label: "SpO₂", value: latestSpO2.map { $0.formatted(.number.precision(.fractionLength(0...1))) }, unit: "%", systemImage: "drop.fill", tint: NoomTheme.metricBlue)
-                    NoomRecordingMetricTile(label: "Signal", value: latestSNR.map { $0.formatted(.number.precision(.fractionLength(1))) }, unit: "dB", systemImage: "antenna.radiowaves.left.and.right", tint: NoomTheme.metricAmber)
+                    NoomRecordingMetricTile(label: "Signal", value: latestSNRDecibels.map { $0.formatted(.number.precision(.fractionLength(1))) }, unit: latestSNRDecibels == nil ? "" : "dB", systemImage: "antenna.radiowaves.left.and.right", tint: NoomTheme.metricAmber)
                 }
             }
         }
@@ -574,6 +703,8 @@ struct RecordActivityView: View {
     private var activityExperience: some View {
         if let completion, completion.experience == .activity {
             completionCard(completion)
+        } else if finalizationRecovery != nil {
+            delayedFinalizationCard
         } else if isFinalizing {
             finalizingCard
         } else if isRecording {
@@ -658,10 +789,19 @@ struct RecordActivityView: View {
                                 .foregroundStyle(.white)
                         }
                         Spacer()
-                        Text("LIVE")
+                        Text(isTelemetryStale ? "RECONNECTING" : "LIVE")
                             .font(.system(size: 10, weight: .heavy, design: .rounded))
                             .tracking(1.2)
-                            .foregroundStyle(.white.opacity(0.68))
+                            .foregroundStyle(isTelemetryStale ? NoomTheme.metricAmber : .white.opacity(0.68))
+                            .accessibilityLabel(isTelemetryStale ? "Waiting for fresh Band samples" : "Live")
+                    }
+
+                    if isTelemetryStale {
+                        Text("Recording continues on your Band. Live values will refresh when fresh samples arrive.")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(NoomTheme.metricAmber)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("recording-telemetry-stale")
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -701,7 +841,7 @@ struct RecordActivityView: View {
                             .font(.system(size: 10, weight: .heavy, design: .rounded))
                             .tracking(1.1)
                         Spacer()
-                        Text("Live samples")
+                        Text(isTelemetryStale ? "Waiting for fresh samples" : "Live samples")
                             .font(.system(size: 10, weight: .semibold, design: .rounded))
                     }
                     .foregroundStyle(.white.opacity(0.62))
@@ -714,7 +854,7 @@ struct RecordActivityView: View {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 NoomRecordingMetricTile(label: "HRV", value: latestHRV.map(String.init), unit: "ms", systemImage: "waveform.path.ecg", tint: NoomTheme.metricPurple, compact: true)
                 NoomRecordingMetricTile(label: "IBI", value: latestIBI.map(String.init), unit: "ms", systemImage: "metronome.fill", tint: NoomTheme.metricBlue, compact: true)
-                NoomRecordingMetricTile(label: "Signal", value: latestSNR.map { $0.formatted(.number.precision(.fractionLength(1))) }, unit: "dB", systemImage: "antenna.radiowaves.left.and.right", tint: NoomTheme.metricAmber, compact: true)
+                NoomRecordingMetricTile(label: "Signal", value: latestSNRDecibels.map { $0.formatted(.number.precision(.fractionLength(1))) }, unit: latestSNRDecibels == nil ? "" : "dB", systemImage: "antenna.radiowaves.left.and.right", tint: NoomTheme.metricAmber, compact: true)
             }
 
             Text("Live values are provisional. Processed session insights may differ after saving.")
@@ -725,7 +865,9 @@ struct RecordActivityView: View {
 
     @ViewBuilder
     private var unsupportedRestoredRecording: some View {
-        if isFinalizing {
+        if finalizationRecovery != nil {
+            delayedFinalizationCard
+        } else if isFinalizing {
             finalizingCard
         } else {
             VStack(alignment: .leading, spacing: 16) {
@@ -803,6 +945,103 @@ struct RecordActivityView: View {
         }
     }
 
+    private var delayedFinalizationCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            NoomCard(fill: NoomTheme.ink, padding: 22) {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: "hourglass")
+                            .font(.system(size: 28, weight: .semibold))
+                            .foregroundStyle(NoomTheme.metricAmber)
+                            .frame(width: 54, height: 54)
+                            .background(Color.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(delayedFinalizationTitle)
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                            Text(delayedFinalizationDetail)
+                                .font(.system(size: 14))
+                                .foregroundStyle(.white.opacity(0.72))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+
+                    Divider().overlay(Color.white.opacity(0.12))
+
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(isBandReady ? NoomTheme.mint : NoomTheme.metricAmber)
+                            .frame(width: 9, height: 9)
+                        Text(isBandReady ? "Band available · finalizing" : "Band unavailable · finalizing")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.82))
+                    }
+                    .accessibilityElement(children: .combine)
+
+                    HStack(spacing: 10) {
+                        Button("Keep waiting") {
+                            rearmWatchdog()
+                        }
+                        .buttonStyle(NoomSecondaryButtonStyle())
+
+                        Button("Try again") {
+                            retryDelayedFinalization()
+                        }
+                        .buttonStyle(NoomPrimaryButtonStyle())
+                        .disabled(delayedRetryToken != nil)
+                    }
+
+                    Button("Discard session", role: .destructive) {
+                        showsDelayedDiscardConfirmation = true
+                    }
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(NoomTheme.rose)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                }
+            }
+
+            Text("Noom+ has not marked this session complete or discarded it. You choose whether to keep waiting, retry, or discard.")
+                .font(.footnote)
+                .foregroundStyle(NoomTheme.muted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var delayedFinalizationTitle: String {
+        guard let finalizationRecovery else { return "This session needs more time" }
+        switch finalizationRecovery {
+        case let .phaseTimedOut(phase):
+            switch phase {
+            case .stoppingDevice: return "Stopping is taking longer"
+            case .syncingDevice: return "Still syncing your Band"
+            case .submitting: return "Saving is taking longer"
+            }
+        case .submissionFailed:
+            return "Saving needs another try"
+        case .biometricResultFailed:
+            return "This Spot check needs more time"
+        }
+    }
+
+    private var delayedFinalizationDetail: String {
+        guard let finalizationRecovery else {
+            return "Keep your Band nearby while Noom+ waits for a durable completion update."
+        }
+        switch finalizationRecovery {
+        case .phaseTimedOut(.syncingDevice):
+            return "Band sync is taking longer than expected. Noom+ has not yet confirmed this session as saved or processed."
+        case .phaseTimedOut(.stoppingDevice):
+            return "The Band is taking longer to stop capture. Keep it nearby while Noom+ waits for confirmation."
+        case .phaseTimedOut(.submitting):
+            return "Noom+ is still waiting for a secure queue or processing update."
+        case .submissionFailed:
+            return "The durable submission needs another attempt. Noom+ has kept the retry action without exposing technical error text."
+        case .biometricResultFailed:
+            return "Noom+ received a Spot check failure signal. Retry or keep waiting for a durable submission update."
+        }
+    }
+
     private func finalizationStep(_ title: String, step: Int) -> some View {
         let activeStep = finalizationStepNumber
         return VStack(spacing: 6) {
@@ -826,10 +1065,7 @@ struct RecordActivityView: View {
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundStyle(NoomTheme.logoBlack)
                     }
-                    Text("Session saved")
-                        .noomSerifTitle(size: 36)
-                    Text("Processing continues securely in the background.")
-                        .noomBody()
+                    completionStatusCopy(completion.evidence)
                 }
             }
 
@@ -854,6 +1090,32 @@ struct RecordActivityView: View {
                 clearLiveMetrics()
             }
             .buttonStyle(NoomPrimaryButtonStyle())
+        }
+    }
+
+    @ViewBuilder
+    private func completionStatusCopy(_ evidence: NoomRecordingResolution.Terminal) -> some View {
+        switch evidence {
+        case .submissionPending:
+            Text("Session secured locally")
+                .noomSerifTitle(size: 36)
+            Text("Your session is queued for secure upload. It is not processed yet.")
+                .noomBody()
+        case .submissionUploaded:
+            Text("Session uploaded")
+                .noomSerifTitle(size: 36)
+            Text("Your session is uploaded and processing securely in the background.")
+                .noomBody()
+        case .submissionProcessed, .biometricResult:
+            Text("Session ready")
+                .noomSerifTitle(size: 36)
+            Text("Your session has a completed processing result.")
+                .noomBody()
+        case .orchestrationReturned:
+            Text("Session saved")
+                .noomSerifTitle(size: 36)
+            Text("Processing continues securely in the background.")
+                .noomBody()
         }
     }
 
@@ -899,11 +1161,7 @@ struct RecordActivityView: View {
                     .accessibilityLabel("Cancel activity")
 
                     Button {
-                        if isPaused {
-                            sensorBio.resumeRecording()
-                        } else {
-                            sensorBio.pauseRecording()
-                        }
+                        toggleRecordingPause()
                     } label: {
                         Label(isPaused ? "Resume" : "Pause", systemImage: isPaused ? "play.fill" : "pause.fill")
                     }
@@ -914,16 +1172,20 @@ struct RecordActivityView: View {
                 }
 
                 Button {
-                    sensorBio.finishCurrentRecording()
+                    finishRecording()
                 } label: {
                     Label("Finish & save", systemImage: "stop.fill")
                 }
                 .buttonStyle(NoomPrimaryButtonStyle())
-                .disabled(!canFinalize)
+                .disabled(!canFinalize || !isBandReady)
             }
 
-            if !canFinalize {
-                Text("Finish unlocks after 30 seconds and a valid heart-rate sample.")
+            if !isBandReady {
+                Text("Band getting ready. Finish will be available when the Band is fully configured.")
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .foregroundStyle(NoomTheme.muted)
+            } else if !canFinalize {
+                Text("Finish is available after 30 seconds when the SDK's signal criteria are met.")
                     .font(.system(size: 10, weight: .semibold, design: .rounded))
                     .foregroundStyle(NoomTheme.muted)
             }
@@ -941,15 +1203,15 @@ struct RecordActivityView: View {
                 Label(title, systemImage: systemImage)
             }
             .buttonStyle(NoomPrimaryButtonStyle())
-            .disabled(!bandConnected || recordingTask != nil || isCancellationPending)
+            .disabled(!isBandReady || recordingTask != nil || isCancellationPending)
 
-            if !bandConnected {
+            if !isBandReady {
                 NavigationLink { NoomBandSetupEntryView() } label: {
-                    Label(sensorBio.haveDevice ? "Reconnect Noom Band" : "Set up Noom Band", systemImage: "antenna.radiowaves.left.and.right")
+                    Label(sensorBio.haveDevice ? "Check Noom Band" : "Set up Noom Band", systemImage: "antenna.radiowaves.left.and.right")
                 }
                 .buttonStyle(NoomSecondaryButtonStyle())
 
-                Text(sensorBio.haveDevice ? "Your paired Band must reconnect before recording." : "Set up and connect a Noom Band before recording.")
+                Text(sensorBio.haveDevice ? "Band getting ready. Recording starts only after full configuration." : "Band not ready. Set up a Noom Band before recording.")
                     .font(.footnote)
                     .foregroundStyle(NoomTheme.muted)
                     .multilineTextAlignment(.center)
@@ -966,8 +1228,10 @@ struct RecordActivityView: View {
     }
 
     private var isActive: Bool {
+        if completion != nil { return false }
+        if finalizationRecovery != nil { return true }
         if isStartingRecording { return true }
-        guard !isCancellationPending else { return false }
+        if isCancellationPending { return true }
         if case .idle = recordingState { return false }
         return true
     }
@@ -984,8 +1248,6 @@ struct RecordActivityView: View {
         return false
     }
 
-    private var bandConnected: Bool { isPreview || sensorBio.connected }
-
     private var isPreview: Bool {
         #if DEBUG
         return preview != nil
@@ -1001,10 +1263,6 @@ struct RecordActivityView: View {
 
     private var spotCheckProgress: Double {
         min(max(spotCheckWallClockElapsed / noomSpotCheckDuration, 0), 1)
-    }
-
-    private var spotCheckSecondsRemaining: Int {
-        max(0, Int(ceil(noomSpotCheckDuration - spotCheckWallClockElapsed)))
     }
 
     private var timerText: String { durationText(lastElapsed) }
@@ -1052,9 +1310,6 @@ struct RecordActivityView: View {
 
     private func startSpotCheck() {
         selectedExperience = .spotCheck
-        let now = Date()
-        spotCheckStartDate = now
-        spotCheckNow = now
         beginRecording(.spotCheck)
     }
 
@@ -1064,7 +1319,22 @@ struct RecordActivityView: View {
     }
 
     private func beginRecording(_ experience: NoomRecordingExperience) {
-        guard !isCancellationPending else { return }
+        guard !isPreview else { return }
+        guard !isCancellationPending, recordingTask == nil else { return }
+        guard finalizationPolicy.canStartRecording(
+            connected: false,
+            isFullyConfigured: isBandReady
+        ) else {
+            errorMessage = sensorBio.haveDevice
+                ? "Band getting ready. Keep it nearby and try again when it is fully configured."
+                : "Band not ready. Set up a Noom Band before recording."
+            return
+        }
+
+        cancelFinalizationWatchdog(clearPhase: true)
+        cancelDelayedRetry()
+        ppgCaptureRequestID = nil
+        stopPPGDisplay(reset: true)
         clearSessionFeedback()
         clearLiveMetrics()
         unsupportedRestoredKind = nil
@@ -1074,48 +1344,82 @@ struct RecordActivityView: View {
         lastElapsed = 0
 
         let requestID = UUID()
+        let now = Date()
+        let attempt = NoomRecordingAttempt(
+            requestID: requestID,
+            experience: experience,
+            startedAtMilliseconds: epochMilliseconds(for: now)
+        )
         recordingRequestID = requestID
+        activeRecordingAttempt = attempt
+        ppgCaptureRequestID = experience == .spotCheck ? requestID : nil
+        if experience == .spotCheck {
+            spotCheckStartDate = now
+            spotCheckNow = now
+        } else {
+            spotCheckStartDate = nil
+        }
+
         recordingTask = Task { @MainActor in
-            defer {
-                if recordingRequestID == requestID {
-                    recordingTask = nil
-                    recordingRequestID = nil
-                }
-            }
             do {
                 switch experience {
                 case .spotCheck:
                     try await sensorBio.recordDetailedBiometrics(
                         duration: noomSpotCheckDuration,
-                        minDuration: noomSpotCheckDuration
+                        minDuration: noomSpotCheckMinimumDuration
                     )
                 case .activity:
                     try await sensorBio.recordActivity(activityName: activityName, minDuration: 30)
                 }
-                guard recordingRequestID == requestID else { return }
-                completeRecording(experience)
+                guard recordingRequestID == requestID,
+                      activeRecordingAttempt == attempt else { return }
+                let resolution = finalizationPolicy.resolve(
+                    orchestrationReturn: attempt,
+                    for: attempt
+                )
+                handleFinalizationResolution(resolution, for: attempt)
             } catch is CancellationError {
-                if isCancellationPending {
-                    isCancellationPending = false
-                    recordingState = .idle
-                    canFinalize = false
-                    isPaused = false
-                }
-                if recordingRequestID == requestID {
-                    isStartingRecording = false
-                }
-                return
-            } catch {
-                guard recordingRequestID == requestID else { return }
+                guard recordingRequestID == requestID,
+                      activeRecordingAttempt == attempt else { return }
                 isStartingRecording = false
-                errorMessage = recordingErrorMessage(error)
+            } catch {
+                guard recordingRequestID == requestID,
+                      activeRecordingAttempt == attempt else { return }
+                failRecordingAttempt(attempt, message: recordingErrorMessage(error))
             }
         }
+    }
+
+    private func toggleRecordingPause() {
+        guard !isPreview else { return }
+        if isPaused {
+            sensorBio.resumeRecording()
+        } else {
+            sensorBio.pauseRecording()
+        }
+    }
+
+    private func finishRecording() {
+        guard !isPreview else { return }
+        guard isBandReady else {
+            errorMessage = "Band getting ready. Keep it nearby until it is fully configured before finishing."
+            return
+        }
+        guard canFinalize,
+              let attempt = activeRecordingAttempt,
+              recordingRequestID == attempt.requestID else { return }
+        sensorBio.finishCurrentRecording()
     }
 
     private func cancelRecording() {
         isCancellationPending = true
         isStartingRecording = false
+        ppgCaptureRequestID = nil
+        stopPPGDisplay(reset: true)
+        cancelFinalizationWatchdog(clearPhase: true)
+        cancelDelayedRetry()
+        spotCheckStartDate = nil
+
         if isPreview {
             recordingTask?.cancel()
             recordingState = .idle
@@ -1125,7 +1429,9 @@ struct RecordActivityView: View {
         } else {
             recordingTask?.cancel()
         }
+
         recordingRequestID = nil
+        activeRecordingAttempt = nil
         recordingTask = nil
         isAwaitingRestoredRecording = false
         unsupportedRestoredKind = nil
@@ -1134,19 +1440,66 @@ struct RecordActivityView: View {
         errorMessage = nil
         selectedExperience = nil
         lastElapsed = 0
-        spotCheckStartDate = nil
+        failedSubmissionLocalID = nil
         clearLiveMetrics()
     }
 
-    private func completeRecording(_ experience: NoomRecordingExperience) {
+    private func completeRecording(
+        _ attempt: NoomRecordingAttempt,
+        evidence: NoomRecordingResolution.Terminal
+    ) {
+        guard recordingRequestID == attempt.requestID,
+              activeRecordingAttempt == attempt,
+              completion == nil else { return }
+
+        let capturedDuration = max(lastElapsed, attempt.experience == .spotCheck ? spotCheckWallClockElapsed : 0)
+        ppgCaptureRequestID = nil
+        stopPPGDisplay(reset: true)
+        cancelFinalizationWatchdog(clearPhase: true)
+        cancelDelayedRetry()
+        spotCheckStartDate = nil
+        recordingState = .idle
+        canFinalize = false
+        isPaused = false
+        isStartingRecording = false
+        finalizationRecovery = nil
+        failedSubmissionLocalID = nil
         completion = NoomRecordingCompletion(
-            experience: experience,
-            activityName: experience == .activity ? activityName : nil,
-            duration: lastElapsed,
+            experience: attempt.experience,
+            activityName: attempt.experience == .activity ? activityName : nil,
+            duration: capturedDuration,
             heartRate: latestHeartRate,
             hrv: latestHRV,
-            ibi: latestIBI
+            ibi: latestIBI,
+            evidence: evidence
         )
+
+        recordingRequestID = nil
+        activeRecordingAttempt = nil
+        recordingTask = nil
+        isAwaitingRestoredRecording = false
+        unsupportedRestoredKind = nil
+    }
+
+    private func failRecordingAttempt(_ attempt: NoomRecordingAttempt, message: String) {
+        guard recordingRequestID == attempt.requestID,
+              activeRecordingAttempt == attempt else { return }
+        ppgCaptureRequestID = nil
+        stopPPGDisplay(reset: true)
+        cancelFinalizationWatchdog(clearPhase: true)
+        cancelDelayedRetry()
+        spotCheckStartDate = nil
+        recordingState = .idle
+        canFinalize = false
+        isPaused = false
+        isStartingRecording = false
+        finalizationRecovery = nil
+        failedSubmissionLocalID = nil
+        errorMessage = message
+        recordingRequestID = nil
+        activeRecordingAttempt = nil
+        recordingTask = nil
+        isAwaitingRestoredRecording = false
     }
 
     private func restorePersistedRecordingIfNeeded() {
@@ -1165,6 +1518,8 @@ struct RecordActivityView: View {
         case .biometrics:
             experience = .spotCheck
             selectedExperience = .spotCheck
+            spotCheckStartDate = persisted.startDate
+            spotCheckNow = Date()
         case .meditation:
             experience = nil
             selectedExperience = nil
@@ -1177,39 +1532,501 @@ struct RecordActivityView: View {
         lastElapsed = currentElapsed
 
         guard recordingTask == nil else { return }
+        ppgCaptureRequestID = nil
+        stopPPGDisplay(reset: true)
+        cancelDelayedRetry()
         let requestID = UUID()
+        let attempt = experience.map {
+            NoomRecordingAttempt(
+                requestID: requestID,
+                experience: $0,
+                startedAtMilliseconds: persisted.startEpochMs
+            )
+        }
         recordingRequestID = requestID
+        activeRecordingAttempt = attempt
+        ppgCaptureRequestID = attempt?.experience == .spotCheck ? requestID : nil
         isAwaitingRestoredRecording = true
         recordingTask = Task { @MainActor in
-            defer {
-                if recordingRequestID == requestID {
-                    recordingTask = nil
-                    recordingRequestID = nil
-                    isAwaitingRestoredRecording = false
-                }
-            }
             do {
                 try await sensorBio.awaitActiveRecordingCompletion()
                 guard recordingRequestID == requestID else { return }
-                if let experience {
-                    completeRecording(experience)
+                if let attempt {
+                    guard activeRecordingAttempt == attempt else { return }
+                    let resolution = finalizationPolicy.resolve(
+                        orchestrationReturn: attempt,
+                        for: attempt
+                    )
+                    handleFinalizationResolution(resolution, for: attempt)
                 } else {
                     unsupportedRestoredKind = nil
+                    recordingState = .idle
+                    ppgCaptureRequestID = nil
+                    recordingRequestID = nil
+                    recordingTask = nil
+                    isAwaitingRestoredRecording = false
                 }
             } catch is CancellationError {
-                if isCancellationPending {
-                    isCancellationPending = false
-                    recordingState = .idle
-                    canFinalize = false
-                    isPaused = false
-                }
-                return
+                guard recordingRequestID == requestID else { return }
             } catch {
                 guard recordingRequestID == requestID else { return }
-                unsupportedRestoredKind = nil
-                errorMessage = recordingErrorMessage(error)
+                if let attempt {
+                    guard activeRecordingAttempt == attempt else { return }
+                    failRecordingAttempt(attempt, message: recordingErrorMessage(error))
+                } else {
+                    unsupportedRestoredKind = nil
+                    errorMessage = recordingErrorMessage(error)
+                    ppgCaptureRequestID = nil
+                    recordingRequestID = nil
+                    recordingTask = nil
+                    isAwaitingRestoredRecording = false
+                }
             }
         }
+
+        handleSDKRecordingState(recordingState)
+        if let attempt {
+            resolvePendingSubmissionSnapshot(for: attempt)
+        }
+    }
+
+    private func handleSDKRecordingState(_ state: SB_RecordingState) {
+        if isCancellationPending {
+            if case .idle = state {
+                isCancellationPending = false
+                recordingState = .idle
+                canFinalize = false
+                isPaused = false
+                ppgCaptureRequestID = nil
+                stopPPGDisplay(reset: true)
+                cancelFinalizationWatchdog(clearPhase: true)
+            }
+            return
+        }
+
+        if completion != nil, activeRecordingAttempt == nil {
+            if case .idle = state {
+                recordingState = .idle
+            }
+            return
+        }
+
+        if isStartingRecording {
+            if case .idle = state {
+                // Initial SDK idle still belongs to startup. Keep capture ownership and
+                // any early Spot check packets until the SDK leaves idle.
+                recordingState = .idle
+                return
+            }
+            isStartingRecording = false
+        }
+
+        switch state {
+        case .idle:
+            if selectedExperience == .spotCheck, spotCheckStartDate != nil {
+                lastElapsed = max(lastElapsed, spotCheckWallClockElapsed)
+            }
+
+            if !isStartingRecording,
+               !isCancellationPending,
+               completion == nil,
+               recordingTask != nil,
+               let attempt = activeRecordingAttempt,
+               recordingRequestID == attempt.requestID {
+                // The SDK has handed off capture while the exact awaited orchestration
+                // remains unresolved. Preserve attempt ownership and reconcile durable
+                // evidence under the app-owned submitting watchdog.
+                recordingState = .finalizing(phase: .submitting)
+                canFinalize = false
+                isPaused = false
+                spotCheckStartDate = nil
+                ppgCaptureRequestID = nil
+                stopPPGDisplay(reset: true)
+                advanceFinalization(to: .submitting, for: attempt)
+                resolvePendingSubmissionSnapshot(for: attempt)
+                return
+            }
+
+            recordingState = .idle
+            spotCheckStartDate = nil
+            ppgCaptureRequestID = nil
+            stopPPGDisplay(reset: true)
+            cancelFinalizationWatchdog(clearPhase: finalizationRecovery == nil)
+        case let .recording(elapsed, _):
+            recordingState = state
+            lastElapsed = max(lastElapsed, elapsed)
+            finalizationRecovery = nil
+            cancelFinalizationWatchdog(clearPhase: true)
+            startPPGDisplayIfNeeded()
+        case let .finalizing(sdkPhase):
+            if selectedExperience == .spotCheck, spotCheckStartDate != nil {
+                lastElapsed = max(lastElapsed, spotCheckWallClockElapsed)
+            }
+            recordingState = state
+            spotCheckStartDate = nil
+            ppgCaptureRequestID = nil
+            stopPPGDisplay(reset: true)
+            guard let attempt = activeRecordingAttempt,
+                  recordingRequestID == attempt.requestID,
+                  let phase = appFinalizationPhase(sdkPhase) else { return }
+            advanceFinalization(to: phase, for: attempt)
+        }
+    }
+
+    private func appFinalizationPhase(
+        _ phase: SB_RecordingFinalizationPhase
+    ) -> NoomRecordingFinalizationPhase? {
+        switch phase {
+        case .stoppingDevice: return .stoppingDevice
+        case .syncingDevice: return .syncingDevice
+        case .submitting: return .submitting
+        @unknown default: return nil
+        }
+    }
+
+    private var isActiveRealSpotCheckDisplay: Bool {
+        guard !isPreview,
+              let attempt = activeRecordingAttempt,
+              attempt.experience == .spotCheck,
+              recordingRequestID == attempt.requestID,
+              ppgCaptureRequestID == attempt.requestID else { return false }
+        if case .recording = recordingState { return true }
+        return false
+    }
+
+    private func startPPGDisplayIfNeeded() {
+        guard isActiveRealSpotCheckDisplay, ppgDisplayTask == nil else { return }
+        let token = UUID()
+        ppgDisplayToken = token
+        ppgDisplayTask = Task { @MainActor in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .milliseconds(16))
+                } catch {
+                    return
+                }
+                guard !Task.isCancelled,
+                      ppgDisplayToken == token,
+                      isActiveRealSpotCheckDisplay else { return }
+                guard let frame = ppgInterpolator.nextFrame(), frame.isFinite else { continue }
+                ppgSamples.append(
+                    NoomRecordingSample(
+                        index: (ppgSamples.last?.index ?? -1) + 1,
+                        value: frame
+                    )
+                )
+                if ppgSamples.count > noomRenderedPPGSampleLimit {
+                    ppgSamples.removeFirst(ppgSamples.count - noomRenderedPPGSampleLimit)
+                }
+                ppgDisplayRange = ppgYRangeSmoother.update(
+                    with: ppgSamples.map(\.value)
+                )
+            }
+        }
+    }
+
+    private func stopPPGDisplay(reset: Bool) {
+        ppgDisplayTask?.cancel()
+        ppgDisplayTask = nil
+        ppgDisplayToken = nil
+        guard reset else { return }
+        ppgInterpolator.reset()
+        ppgYRangeSmoother.reset()
+        ppgDisplayRange = nil
+        ppgSamples = []
+    }
+
+    private func advanceFinalization(
+        to phase: NoomRecordingFinalizationPhase,
+        for attempt: NoomRecordingAttempt
+    ) {
+        guard recordingRequestID == attempt.requestID,
+              activeRecordingAttempt == attempt else { return }
+        if finalizationPhase == phase,
+           finalizationWatchdogValue?.requestID == attempt.requestID {
+            return
+        }
+
+        let enteredAt = ProcessInfo.processInfo.systemUptime
+        let token = UUID()
+        let nextWatchdog: NoomRecordingFinalizationWatchdog
+        if let previous = finalizationWatchdogValue,
+           previous.requestID == attempt.requestID {
+            nextWatchdog = finalizationPolicy.advanceWatchdog(
+                previous,
+                to: phase,
+                at: enteredAt,
+                token: token
+            )
+        } else {
+            nextWatchdog = finalizationPolicy.armWatchdog(
+                for: attempt,
+                phase: phase,
+                enteredAt: enteredAt,
+                token: token
+            )
+        }
+
+        finalizationWatchdogTask?.cancel()
+        finalizationPhase = phase
+        finalizationRecovery = nil
+        failedSubmissionLocalID = nil
+        finalizationWatchdogValue = nextWatchdog
+        finalizationWatchdogToken = token
+        scheduleFinalizationWatchdog(nextWatchdog)
+    }
+
+    private func scheduleFinalizationWatchdog(
+        _ watchdog: NoomRecordingFinalizationWatchdog
+    ) {
+        finalizationWatchdogTask?.cancel()
+        let token = watchdog.token
+        let attempt = watchdog.attempt
+        let phase = watchdog.phase
+        finalizationWatchdogTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: finalizationDelay(for: phase))
+            } catch {
+                return
+            }
+            guard !Task.isCancelled,
+                  finalizationWatchdogToken == token,
+                  finalizationWatchdogValue == watchdog,
+                  recordingRequestID == attempt.requestID,
+                  activeRecordingAttempt == attempt,
+                  finalizationPhase == phase else { return }
+            let resolution = finalizationPolicy.resolve(
+                timeout: watchdog,
+                firedToken: token,
+                requestID: attempt.requestID,
+                phase: phase,
+                now: ProcessInfo.processInfo.systemUptime
+            )
+            handleFinalizationResolution(resolution, for: attempt)
+        }
+    }
+
+    private func finalizationDelay(
+        for phase: NoomRecordingFinalizationPhase
+    ) -> Duration {
+        switch phase {
+        case .stoppingDevice: return .seconds(30)
+        case .syncingDevice: return .seconds(45)
+        case .submitting: return .seconds(105)
+        }
+    }
+
+    private func cancelFinalizationWatchdog(clearPhase: Bool) {
+        finalizationWatchdogTask?.cancel()
+        finalizationWatchdogTask = nil
+        finalizationWatchdogToken = nil
+        if clearPhase {
+            finalizationWatchdogValue = nil
+            finalizationPhase = nil
+            finalizationRecovery = nil
+        }
+    }
+
+    private func rearmWatchdog() {
+        guard let attempt = activeRecordingAttempt,
+              recordingRequestID == attempt.requestID else { return }
+        let recoveryPhase: NoomRecordingFinalizationPhase?
+        switch finalizationRecovery {
+        case let .phaseTimedOut(phase): recoveryPhase = phase
+        case .submissionFailed, .biometricResultFailed: recoveryPhase = .submitting
+        case nil: recoveryPhase = finalizationPhase
+        }
+        guard let phase = recoveryPhase else { return }
+
+        if isPreview {
+            finalizationPhase = phase
+            finalizationRecovery = nil
+            return
+        }
+
+        let enteredAt = ProcessInfo.processInfo.systemUptime
+        let token = UUID()
+        let nextWatchdog: NoomRecordingFinalizationWatchdog
+        if let previous = finalizationWatchdogValue,
+           previous.requestID == attempt.requestID,
+           previous.phase == phase {
+            nextWatchdog = finalizationPolicy.rearmWatchdog(
+                previous,
+                at: enteredAt,
+                token: token
+            )
+        } else {
+            nextWatchdog = finalizationPolicy.armWatchdog(
+                for: attempt,
+                phase: phase,
+                enteredAt: enteredAt,
+                token: token
+            )
+        }
+
+        finalizationWatchdogTask?.cancel()
+        finalizationPhase = phase
+        finalizationRecovery = nil
+        finalizationWatchdogValue = nextWatchdog
+        finalizationWatchdogToken = token
+        scheduleFinalizationWatchdog(nextWatchdog)
+    }
+
+    private func retryDelayedFinalization() {
+        guard let attempt = activeRecordingAttempt else { return }
+        guard delayedRetryTask == nil,
+              delayedRetryToken == nil,
+              recordingRequestID == attempt.requestID else { return }
+
+        let token = UUID()
+        delayedRetryToken = token
+
+        if isPreview {
+            rearmWatchdog()
+            delayedRetryToken = nil
+            return
+        }
+
+        if let localID = failedSubmissionLocalID {
+            sensorBio.retrySubmission(localId: localID)
+            failedSubmissionLocalID = nil
+            rearmWatchdog()
+            delayedRetryToken = nil
+            return
+        }
+
+        delayedRetryTask = Task { @MainActor in
+            defer {
+                if delayedRetryToken == token {
+                    delayedRetryTask = nil
+                    delayedRetryToken = nil
+                }
+            }
+
+            // Reconcile on a later actor turn so repeated taps cannot race the same
+            // durable snapshot or re-arm a stale attempt.
+            await Task.yield()
+            guard !Task.isCancelled,
+                  delayedRetryToken == token,
+                  recordingRequestID == attempt.requestID,
+                  activeRecordingAttempt == attempt else { return }
+
+            resolvePendingSubmissionSnapshot(for: attempt)
+
+            let recoveryRemainsUnresolved = finalizationRecovery != nil
+                || finalizationPhase != nil
+            guard !Task.isCancelled,
+                  delayedRetryToken == token,
+                  recordingRequestID == attempt.requestID,
+                  activeRecordingAttempt == attempt,
+                  completion == nil,
+                  recoveryRemainsUnresolved else { return }
+            rearmWatchdog()
+        }
+    }
+
+    private func cancelDelayedRetry() {
+        delayedRetryTask?.cancel()
+        delayedRetryTask = nil
+        delayedRetryToken = nil
+    }
+
+    private func handleFinalizationResolution(
+        _ resolution: NoomRecordingResolution,
+        for attempt: NoomRecordingAttempt
+    ) {
+        guard recordingRequestID == attempt.requestID,
+              activeRecordingAttempt == attempt else { return }
+        switch resolution {
+        case .unresolved:
+            return
+        case let .terminal(evidence):
+            completeRecording(attempt, evidence: evidence)
+        case let .recoverable(recovery):
+            if selectedExperience == .spotCheck, spotCheckStartDate != nil {
+                lastElapsed = max(lastElapsed, spotCheckWallClockElapsed)
+            }
+            spotCheckStartDate = nil
+            ppgCaptureRequestID = nil
+            stopPPGDisplay(reset: true)
+            canFinalize = false
+            isPaused = false
+            finalizationWatchdogTask?.cancel()
+            finalizationWatchdogTask = nil
+            finalizationWatchdogToken = nil
+            finalizationRecovery = recovery
+            switch recovery {
+            case let .phaseTimedOut(phase):
+                finalizationPhase = phase
+            case .submissionFailed, .biometricResultFailed:
+                recordingState = .finalizing(phase: .submitting)
+                if finalizationPhase == nil {
+                    finalizationPhase = .submitting
+                }
+            }
+        }
+    }
+
+    private func recordingSubmissionEvidence(
+        from submission: SB_RecordingSubmissionInfo,
+        requestID: UUID
+    ) -> NoomRecordingSubmissionEvidence? {
+        let experience: NoomRecordingExperience
+        let type: NoomRecordingSubmissionEvidence.SubmissionType
+        switch submission.type {
+        case .biometricRecord:
+            experience = .spotCheck
+            type = .biometrics
+        case .routine, .generalCardio, .gymWorkout:
+            experience = .activity
+            type = .activity
+        case .vo2maxAssessment, .meditation:
+            return nil
+        @unknown default:
+            return nil
+        }
+
+        let status: NoomRecordingSubmissionEvidence.Status
+        switch submission.status {
+        case .pendingUpload: status = .pending
+        case .uploaded: status = .uploaded
+        case .processed: status = .processed
+        case .failed: status = .failed
+        @unknown default: return nil
+        }
+
+        return NoomRecordingSubmissionEvidence(
+            requestID: requestID,
+            experience: experience,
+            type: type,
+            status: status,
+            startedAtMilliseconds: submission.startTsMillis
+        )
+    }
+
+    private func resolvePendingSubmissionSnapshot(for attempt: NoomRecordingAttempt) {
+        for submission in sensorBio.pendingSubmissions() {
+            guard recordingRequestID == attempt.requestID,
+                  activeRecordingAttempt == attempt,
+                  let evidence = recordingSubmissionEvidence(
+                    from: submission,
+                    requestID: attempt.requestID
+                  ) else { continue }
+            let resolution = finalizationPolicy.resolve(
+                submission: evidence,
+                for: attempt
+            )
+            if case .recoverable(.submissionFailed) = resolution {
+                failedSubmissionLocalID = submission.localId
+            } else if resolution != .unresolved {
+                failedSubmissionLocalID = nil
+            }
+            handleFinalizationResolution(resolution, for: attempt)
+        }
+    }
+
+    private func epochMilliseconds(for date: Date) -> Int64 {
+        Int64((date.timeIntervalSince1970 * 1_000).rounded())
     }
 
     private var currentElapsed: TimeInterval {
@@ -1270,27 +2087,14 @@ struct RecordActivityView: View {
 
     private func appendBounded(_ value: Double, to samples: inout [NoomRecordingSample], limit: Int) {
         guard value.isFinite else { return }
-        samples.append(NoomRecordingSample(index: (samples.last?.index ?? -1) + 1, value: value, timestamp: Date()))
-        if samples.count > limit {
-            samples.removeFirst(samples.count - limit)
-        }
-    }
-
-    /// Appends a PPG sample with a timestamp and retains only the most recent five seconds.
-    /// A high hard limit protects memory if timestamps arrive out of order.
-    private func appendPPGSample(_ value: Double, timestamp: Date) {
-        guard value.isFinite else { return }
-        ppgSamples.append(
+        samples.append(
             NoomRecordingSample(
-                index: (ppgSamples.last?.index ?? -1) + 1,
-                value: value,
-                timestamp: timestamp
+                index: (samples.last?.index ?? -1) + 1,
+                value: value
             )
         )
-        let cutoff = timestamp.addingTimeInterval(-5)
-        ppgSamples.removeAll { $0.timestamp < cutoff }
-        if ppgSamples.count > 1_000 {
-            ppgSamples.removeFirst(ppgSamples.count - 1_000)
+        if samples.count > limit {
+            samples.removeFirst(samples.count - limit)
         }
     }
 
@@ -1305,14 +2109,41 @@ struct RecordActivityView: View {
         latestIBI = nil
         latestRR = nil
         latestSpO2 = nil
-        latestSNR = nil
+        latestSNRDecibels = nil
+        telemetryFreshness.reset()
+        telemetryNow = Date()
+        ppgInterpolator.reset()
+        ppgYRangeSmoother.reset()
+        ppgDisplayRange = nil
         ppgSamples = []
         heartRateSamples = []
+    }
+
+    private func recordTelemetrySample() {
+        let now = Date()
+        telemetryFreshness.recordSample(at: now)
+        telemetryNow = now
+    }
+
+    /// Non-nil while a live recording surface is visible, so the freshness
+    /// truth tick runs only when it can affect what the user sees.
+    private var telemetryFreshnessTickToken: String? {
+        guard !isPreview, isRecording, selectedExperience != nil else { return nil }
+        return "recording-freshness"
+    }
+
+    private var telemetryPresentation: NoomLiveTelemetryFreshness.Presentation {
+        telemetryFreshness.presentation(at: telemetryNow)
+    }
+
+    private var isTelemetryStale: Bool {
+        telemetryPresentation == .stale
     }
 
     #if DEBUG
     private func applyPreviewIfNeeded() {
         guard let preview else { return }
+        isBandReady = true
         switch preview {
         case .hub:
             selectedExperience = nil
@@ -1328,12 +2159,13 @@ struct RecordActivityView: View {
             latestIBI = 882
             latestRR = 14
             latestSpO2 = 98
-            latestSNR = 18.6
+            latestSNRDecibels = NoomSignalQuality.displayDecibels(rawSNR: 72)
             ppgSamples = (0..<140).map { index in
                 let x = Double(index)
                 let pulse = sin(x * 0.31) + 0.24 * sin(x * 0.91) + 0.08 * sin(x * 2.1)
-                return NoomRecordingSample(index: index, value: pulse, timestamp: Date().addingTimeInterval(Double(index - 139) / 28))
+                return NoomRecordingSample(index: index, value: pulse)
             }
+            ppgDisplayRange = ppgYRangeSmoother.update(with: ppgSamples.map(\.value))
         case .activity:
             selectedExperience = .activity
             activityName = "Walk"
@@ -1343,11 +2175,25 @@ struct RecordActivityView: View {
             latestHeartRate = 118
             latestHRV = 31
             latestIBI = 508
-            latestSNR = 14.2
+            latestSNRDecibels = NoomSignalQuality.displayDecibels(rawSNR: 64)
             heartRateSamples = (0..<56).map { index in
                 let value = 105 + Double(index) * 0.22 + sin(Double(index) * 0.38) * 7
-                return NoomRecordingSample(index: index, value: value, timestamp: Date().addingTimeInterval(Double(index - 55) * 5))
+                return NoomRecordingSample(index: index, value: value)
             }
+        case .delayedSync:
+            let requestID = UUID(uuidString: "D31A9ED0-5A7E-4E63-940D-6F01F87D9A11")!
+            let attempt = NoomRecordingAttempt(
+                requestID: requestID,
+                experience: .spotCheck,
+                startedAtMilliseconds: 1_700_000_000_000
+            )
+            recordingRequestID = requestID
+            activeRecordingAttempt = attempt
+            selectedExperience = .spotCheck
+            recordingState = .finalizing(phase: .syncingDevice)
+            lastElapsed = noomSpotCheckDuration
+            finalizationPhase = .syncingDevice
+            finalizationRecovery = .phaseTimedOut(.syncingDevice)
         }
     }
     #endif
@@ -1461,38 +2307,173 @@ private struct NoomRecordingMetricTile: View {
 
 private struct NoomRecordingSignalWaveform: View {
     let samples: [NoomRecordingSample]
+    let yRange: ClosedRange<Double>?
+
+    /// Low-intensity neighboring-point controls approximate the authoritative Charts
+    /// `cubicBezier` geometry while keeping every segment bounded by real endpoints.
+    private let cubicCurveIntensity: CGFloat = 0.1
 
     var body: some View {
-        let finiteSamples = samples.filter { $0.value.isFinite }
+        let finiteSamples = samples.filter { $0.index >= 0 && $0.value.isFinite }
         Canvas { context, size in
-            guard finiteSamples.count > 1 else {
+            guard size.width.isFinite,
+                  size.height.isFinite,
+                  size.width > 0,
+                  size.height > 0 else { return }
+
+            guard !finiteSamples.isEmpty else {
                 var idle = Path()
                 idle.move(to: CGPoint(x: 0, y: size.height / 2))
                 idle.addLine(to: CGPoint(x: size.width, y: size.height / 2))
-                context.stroke(idle, with: .color(NoomTheme.softLine), style: StrokeStyle(lineWidth: 2, dash: [5, 6]))
+                context.stroke(
+                    idle,
+                    with: .color(NoomTheme.softLine),
+                    style: StrokeStyle(lineWidth: 2, dash: [5, 6])
+                )
                 return
             }
-            let sortedValues = finiteSamples.map(\.value).sorted()
-            let lowerIndex = Int(Double(sortedValues.count - 1) * 0.05)
-            let upperIndex = Int(Double(sortedValues.count - 1) * 0.95)
-            let low = sortedValues[lowerIndex]
-            let high = sortedValues[upperIndex]
-            let range = max(high - low, 0.000_001)
-            guard let latestTimestamp = finiteSamples.last?.timestamp else { return }
-            let windowStart = latestTimestamp.addingTimeInterval(-noomPPGWindowDuration)
-            var path = Path()
-            for (offset, sample) in finiteSamples.enumerated() {
-                let elapsed = sample.timestamp.timeIntervalSince(windowStart)
-                let x = size.width * CGFloat(min(max(elapsed / noomPPGWindowDuration, 0), 1))
-                let normalized = min(max((sample.value - low) / range, 0), 1)
-                let y = size.height - CGFloat(normalized) * size.height * 0.76 - size.height * 0.12
-                let point = CGPoint(x: x, y: y)
-                if offset == 0 { path.move(to: point) } else { path.addLine(to: point) }
+
+            guard let displayRange = resolvedYRange(for: finiteSamples),
+                  let lastIndex = finiteSamples.last?.index else { return }
+            let range = displayRange.upperBound - displayRange.lowerBound
+            let fixedDomainSpan = Double(max(noomRenderedPPGSampleLimit - 1, 1))
+            guard range.isFinite,
+                  range > 0,
+                  fixedDomainSpan.isFinite,
+                  fixedDomainSpan > 0 else { return }
+
+            // Indices 0...299 fill the fixed domain from left to right. From index
+            // 300 onward, the start advances one point at a time instead of rescaling
+            // the history by its current count.
+            let viewportWindowStart = max(
+                0,
+                lastIndex - max(noomRenderedPPGSampleLimit - 1, 1)
+            )
+            let points = finiteSamples.compactMap { sample -> CGPoint? in
+                let relativeIndex = Double(sample.index) - Double(viewportWindowStart)
+                guard relativeIndex.isFinite,
+                      relativeIndex >= 0,
+                      relativeIndex <= fixedDomainSpan else { return nil }
+
+                let normalized = (sample.value - displayRange.lowerBound) / range
+                guard normalized.isFinite else { return nil }
+                let boundedY = min(max(normalized, 0), 1)
+                let x = size.width * CGFloat(
+                    (Double(sample.index) - Double(viewportWindowStart)) / fixedDomainSpan
+                )
+                let y = size.height
+                    - CGFloat(boundedY) * size.height * 0.76
+                    - size.height * 0.12
+                guard x.isFinite, y.isFinite else { return nil }
+                return CGPoint(x: x, y: y)
             }
-            context.stroke(path, with: .linearGradient(Gradient(colors: [NoomTheme.red.opacity(0.55), NoomTheme.red]), startPoint: .zero, endPoint: CGPoint(x: size.width, y: 0)), style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
+
+            guard let firstPoint = points.first else { return }
+            if points.count == 1 {
+                let radius = min(2.4, min(size.width / 2, size.height / 2))
+                guard radius.isFinite, radius > 0 else { return }
+                let marker = CGRect(
+                    x: firstPoint.x - radius,
+                    y: firstPoint.y - radius,
+                    width: radius * 2,
+                    height: radius * 2
+                )
+                context.fill(Path(ellipseIn: marker), with: .color(NoomTheme.red))
+                return
+            }
+
+            var path = Path()
+            path.move(to: firstPoint)
+            for segmentIndex in 0..<(points.count - 1) {
+                let segmentStart = points[segmentIndex]
+                let segmentEnd = points[segmentIndex + 1]
+                let priorPoint = segmentIndex > 0
+                    ? points[segmentIndex - 1]
+                    : segmentStart
+                let followingPoint = segmentIndex + 2 < points.count
+                    ? points[segmentIndex + 2]
+                    : segmentEnd
+
+                let minimumX = min(segmentStart.x, segmentEnd.x)
+                let maximumX = max(segmentStart.x, segmentEnd.x)
+                let minimumY = min(segmentStart.y, segmentEnd.y)
+                let maximumY = max(segmentStart.y, segmentEnd.y)
+
+                let rawControl1 = CGPoint(
+                    x: segmentStart.x
+                        + (segmentEnd.x - priorPoint.x) * cubicCurveIntensity,
+                    y: segmentStart.y
+                        + (segmentEnd.y - priorPoint.y) * cubicCurveIntensity
+                )
+                let rawControl2 = CGPoint(
+                    x: segmentEnd.x
+                        - (followingPoint.x - segmentStart.x) * cubicCurveIntensity,
+                    y: segmentEnd.y
+                        - (followingPoint.y - segmentStart.y) * cubicCurveIntensity
+                )
+                let control1 = CGPoint(
+                    x: clamped(rawControl1.x, lower: minimumX, upper: maximumX),
+                    y: clamped(rawControl1.y, lower: minimumY, upper: maximumY)
+                )
+                let control2 = CGPoint(
+                    x: clamped(rawControl2.x, lower: minimumX, upper: maximumX),
+                    y: clamped(rawControl2.y, lower: minimumY, upper: maximumY)
+                )
+                path.addCurve(
+                    to: segmentEnd,
+                    control1: control1,
+                    control2: control2
+                )
+            }
+            context.stroke(
+                path,
+                with: .linearGradient(
+                    Gradient(colors: [NoomTheme.red.opacity(0.55), NoomTheme.red]),
+                    startPoint: .zero,
+                    endPoint: CGPoint(x: size.width, y: 0)
+                ),
+                style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round)
+            )
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(finiteSamples.isEmpty ? "Live PPG waveform, waiting for signal" : "Live PPG waveform, \(finiteSamples.count) recent samples")
+        .accessibilityLabel(
+            finiteSamples.isEmpty
+                ? "Live PPG waveform, waiting for signal"
+                : "Live PPG waveform, \(finiteSamples.count) recent samples"
+        )
+    }
+
+    private func clamped(
+        _ value: CGFloat,
+        lower: CGFloat,
+        upper: CGFloat
+    ) -> CGFloat {
+        min(max(value, lower), upper)
+    }
+
+    private func resolvedYRange(
+        for finiteSamples: [NoomRecordingSample]
+    ) -> ClosedRange<Double>? {
+        if let yRange,
+           yRange.lowerBound.isFinite,
+           yRange.upperBound.isFinite,
+           yRange.lowerBound < yRange.upperBound {
+            return yRange
+        }
+
+        guard let minimum = finiteSamples.map(\.value).min(),
+              let maximum = finiteSamples.map(\.value).max() else {
+            return nil
+        }
+        let observedRange = maximum - minimum
+        guard observedRange.isFinite else { return nil }
+        let effectiveRange = max(observedRange, 0.5)
+        let center = minimum + observedRange / 2
+        let padding = effectiveRange * 0.1
+        let lower = center - effectiveRange / 2 - padding
+        let upper = center + effectiveRange / 2 + padding
+        guard lower.isFinite, upper.isFinite, lower < upper else { return nil }
+        return lower...upper
     }
 }
 

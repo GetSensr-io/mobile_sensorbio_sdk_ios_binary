@@ -410,6 +410,8 @@ private struct NoomQAHost: View {
                 NavigationStack { RecordActivityView(preview: .spotCheck) }
             case "recording_activity_preview":
                 NavigationStack { RecordActivityView(preview: .activity) }
+            case "recording_delayed_sync_preview":
+                NavigationStack { RecordActivityView(preview: .delayedSync) }
             case "record_activity":
                 NavigationStack { RecordActivityView() }
             case "steps_detail":
