@@ -66,7 +66,7 @@ Mobbin references used for hierarchy—not copied branding or assets:
 
 NoomPlus exposes recording from one floating action at the bottom-right of Home, above the tab bar. The destination is a focused recording hub—not a second tab—with two deliberately different paths:
 
-1. **Spot check** — a calm, fixed 60-second biometrics capture. The user receives stillness guidance, visible countdown progress, a bounded live PPG waveform, and real metrics only as the SDK emits them. The waveform is explicitly described as a light-based pulse signal, not an ECG or diagnosis.
+1. **Spot check** — a calm, fixed 3-minute (180-second) biometrics capture with Finish available after the SDK's 30-second minimum and signal criteria are met. The user receives stillness guidance, visible elapsed-time progress, a bounded interpolated live PPG waveform, and real metrics only as the SDK emits them. The waveform is explicitly described as a light-based pulse signal, not an ECG or diagnosis.
 2. **Activity tracking** — an open-ended session with activity selection, a large count-up timer, live HR emphasis, bounded HR trend, pause/resume, and explicit finish. No distance, pace, route, calorie, or heart-rate-zone value is invented because those values are not exposed as live recording streams by the current SDK contract.
 
 ### SensorBioSDK recording capability matrix
@@ -79,9 +79,9 @@ NoomPlus exposes recording from one floating action at the bottom-right of Home,
 | IBI | `sensorBio.bbi` `(timestamp, ms)` | Shown to users as **IBI** | Secondary live metric | Preserve SDK value; rename only for user-facing terminology |
 | RR | `sensorBio.rr` `(timestamp, breaths/min)` | Secondary live metric | Available but not primary | Missing remains `—` |
 | SpO₂ | `sensorBio.spo2` `(timestamp, %)` | Secondary live metric | Available but not primary | Display only finite emitted values |
-| SNR | `sensorBio.snr` `(timestamp, dB)` | Signal-received context | Signal context | Do not invent clinical quality bands |
+| SNR | `sensorBio.snr` `(timestamp, raw ratio)` | Signal-received context | Signal context | Convert each current packet exactly with `raw / 10`, then `10 * log10(raw / 10)`; no EMA or invented clinical quality bands |
 | ECG | `sensorBio.ecg` raw stream | Not displayed in this client | Not displayed | Avoid diagnostic framing |
-| Lifecycle | `recordingState`, `canFinalize`, `isRecordingPaused` | Countdown/finalize | Count-up/pause/finalize | SDK is source of truth |
+| Lifecycle | `recordingState`, `canFinalize`, `isRecordingPaused` | Elapsed-time/finalize | Elapsed-time/pause/finalize | SDK is source of truth |
 | Submission | Awaited `recordDetailedBiometrics` / `recordActivity` orchestration | After completion | After completion | Completion means queued/processing, not server analysis complete |
 
 ### Mobbin references reviewed on 2026-07-11

@@ -11,7 +11,7 @@ Dashboard / Home tab
   │    └─ Recording hub
   │         ├─ Spot check
   │         │    ├─ Calm setup and supported-signal explanation
-  │         │    ├─ 60-second live PPG + biometrics capture
+  │         │    ├─ 3-minute (180-second) live PPG + biometrics capture
   │         │    └─ Saved / queued-for-processing confirmation
   │         └─ Activity tracking
   │              ├─ Recent / featured activity selection

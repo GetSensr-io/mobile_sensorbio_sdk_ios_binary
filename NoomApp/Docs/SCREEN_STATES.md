@@ -41,15 +41,15 @@
 
 | State | Spot check | Activity tracking |
 |---|---|---|
-| Ready, Band connected | 60-second purpose, stillness guidance, supported signals, one Start action | Activity choices from recent/featured SDK values, one Start action |
+| Ready, Band fully configured | 3-minute (180-second) purpose, stillness guidance, supported signals, one Start action | Activity choices from recent/featured SDK values, one Start action |
 | Starting | Lock navigation ownership, show progress, offer Cancel start, and cancel the caller task if the view disappears before SDK leaves idle | Same; do not allow a second start or orphan the control context |
 | Band unavailable | Keep experience visible; disable Start and route to Band setup/reconnect | Same; never pretend recording can start |
-| Warming up | Countdown begins; PPG area says finding signal; metrics remain `—` until emitted | Timer begins; live HR remains `—` until emitted |
+| Warming up | Elapsed timing begins; PPG area says finding signal; metrics remain `—` until emitted | Elapsed timer begins; live HR remains `—` until emitted |
 | Weak or missing signal | Keep the real waveform/metrics that exist, explain that the Band is still finding a usable signal, and gate Finish through `canFinalize` | Preserve elapsed time and controls; do not invent HR, HRV, or IBI values |
-| Recording | Fixed progress/countdown, bounded PPG waveform, HR/HRV/IBI/RR/SpO₂/SNR when emitted | Large count-up timer, live HR hierarchy, bounded HR trend, HRV/IBI/SNR secondary |
+| Recording | Fixed elapsed-time progress, bounded interpolated PPG waveform, HR/HRV/IBI/RR/SpO₂/SNR when emitted | Large count-up timer, live HR hierarchy, bounded HR trend, HRV/IBI/SNR secondary |
 | Paused | Not exposed for detailed biometrics | Freeze elapsed state from SDK, label **Paused**, make Resume primary and Finish secondary |
 | Too short | Finish remains disabled until SDK `canFinalize`; early cancellation is explicit | Same minimum-duration gate |
-| Finalizing | Stopping capture → syncing Band → saving session | Same, driven by `SB_RecordingFinalizationPhase` |
+| Finalizing | Stopping capture → syncing Band → saving session, with bounded delayed recovery at 30/45/105 seconds | Same, driven by `SB_RecordingFinalizationPhase` with the same bounded delayed recovery |
 | Saved | Confirm local session was saved and queued; disclose processing continues securely | Show actual captured duration and last emitted values, not a fabricated workout analysis |
 | Failed | Friendly, cause-specific recovery; never raw SDK error text | Same; retry starts only a new recording |
 | Restored after relaunch | Route to persisted biometrics and await SDK completion | Preserve the exact activity name, elapsed time, pause state, and await SDK completion |
@@ -59,7 +59,7 @@
 ## Recording accessibility focus order
 
 1. Current experience and Band connection state.
-2. Recording state and elapsed/remaining time.
+2. Recording state and elapsed time.
 3. Live signal summary; charts expose one concise VoiceOver description rather than every point.
 4. Primary action (Start, Pause/Resume, or Finish).
 5. Secondary cancel/end action and minimum-duration explanation.
