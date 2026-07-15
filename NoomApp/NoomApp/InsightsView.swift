@@ -158,7 +158,12 @@ struct InsightsView: View {
                     systemImage: "chart.bar.xaxis"
                 )
             } else {
-                PopulationHistogramChartView(data: data, userValue: userValue, xAxisTitle: xAxisTitle)
+                PopulationHistogramChartView(
+                    data: data,
+                    userValue: userValue,
+                    xAxisTitle: xAxisTitle,
+                    metricType: histogram.metricType
+                )
             }
         }
     }
@@ -286,21 +291,71 @@ private struct PopulationHistogramChartView: View {
     let data: [PopulationHistogramDatum]
     let userValue: Float?
     let xAxisTitle: String
+    var metricType: SB_PopulationMetricType = .unknown
+
+    /// Natural display windows hide extreme outlier tails while preserving the local bell curve.
+    private var displayWindow: (minimum: Float?, maximum: Float?) {
+        switch metricType {
+        case .hrv:
+            return (nil, 150)
+        case .bpm:
+            return (nil, 90)
+        case .avgTotalSleep:
+            return (3, nil)
+        default:
+            return (nil, nil)
+        }
+    }
+
+    /// Clip SDK buckets into the metric display window so long empty/outlier tails do not dominate.
+    private var displayedData: [PopulationHistogramDatum] {
+        let window = displayWindow
+        return data.compactMap { bucket in
+            var lower = bucket.lowerBound
+            var upper = bucket.upperBound
+            if let minimum = window.minimum {
+                if upper <= minimum { return nil }
+                lower = max(lower, minimum)
+            }
+            if let maximum = window.maximum {
+                if lower >= maximum { return nil }
+                upper = min(upper, maximum)
+            }
+            guard upper > lower else { return nil }
+            return PopulationHistogramDatum(
+                id: bucket.id,
+                lowerBound: lower,
+                upperBound: upper,
+                population: bucket.population
+            )
+        }
+    }
 
     private var yAxisMaximum: Float {
-        let maximum = data.map(\.population).filter { $0 > 0 }.max() ?? 0
+        let maximum = displayedData.map(\.population).filter { $0 > 0 }.max() ?? 0
         return maximum > 0 ? maximum * 1.12 : 1
     }
 
     private var domainData: [PopulationHistogramDatum] {
-        let populated = data.filter { $0.population > 0 }
-        return populated.isEmpty ? data : populated
+        let populated = displayedData.filter { $0.population > 0 }
+        return populated.isEmpty ? displayedData : populated
     }
 
     private var xAxisDomain: ClosedRange<Float> {
+        let window = displayWindow
         let values = domainData.flatMap { [$0.lowerBound, $0.upperBound] }
-        let lower = values.min() ?? 0
-        let upper = values.max() ?? 1
+        var lower = values.min() ?? window.minimum ?? 0
+        var upper = values.max() ?? window.maximum ?? 1
+        if let minimum = window.minimum {
+            lower = max(lower, minimum)
+        }
+        if let maximum = window.maximum {
+            upper = min(upper, maximum)
+        }
+        if upper <= lower {
+            upper = lower + 1
+        }
+
         let span = max(upper - lower, Float.ulpOfOne)
         let widths = domainData
             .map { $0.upperBound - $0.lowerBound }
@@ -308,8 +363,19 @@ private struct PopulationHistogramChartView: View {
             .sorted()
         let medianWidth = widths.isEmpty ? span : widths[widths.count / 2]
         let padding = max(span * 0.04, min(medianWidth * 0.35, span * 0.10))
-        let paddedLower = lower >= 0 ? max(0, lower - padding) : lower - padding
-        return paddedLower...(upper + padding)
+
+        var paddedLower = lower >= 0 ? max(0, lower - padding) : lower - padding
+        var paddedUpper = upper + padding
+        if let minimum = window.minimum {
+            paddedLower = max(paddedLower, minimum)
+        }
+        if let maximum = window.maximum {
+            paddedUpper = min(paddedUpper, maximum)
+        }
+        if paddedUpper <= paddedLower {
+            paddedUpper = paddedLower + max(span, 1)
+        }
+        return paddedLower...paddedUpper
     }
 
     private var xAxisTickValues: [Float] {
@@ -349,13 +415,26 @@ private struct PopulationHistogramChartView: View {
         return userValue
     }
 
+    /// Leave a small visual gap between adjacent histogram bars.
+    private func barRange(for bucket: PopulationHistogramDatum) -> (start: Float, end: Float) {
+        let width = bucket.upperBound - bucket.lowerBound
+        let inset = min(max(width * 0.10, width * 0.05), width * 0.22)
+        let start = bucket.lowerBound + inset
+        let end = bucket.upperBound - inset
+        if end > start {
+            return (start, end)
+        }
+        return (bucket.lowerBound, bucket.upperBound)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Chart {
-                ForEach(data) { bucket in
+                ForEach(displayedData) { bucket in
+                    let range = barRange(for: bucket)
                     RectangleMark(
-                        xStart: .value("Range start", bucket.lowerBound),
-                        xEnd: .value("Range end", bucket.upperBound),
+                        xStart: .value("Range start", range.start),
+                        xEnd: .value("Range end", range.end),
                         yStart: .value("Baseline", 0),
                         yEnd: .value("Population", bucket.population)
                     )
@@ -369,7 +448,7 @@ private struct PopulationHistogramChartView: View {
                     RuleMark(x: .value("Your value", visibleUserValue))
                         .foregroundStyle(NoomTheme.logoBlack)
                         .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 4]))
-                        .annotation(position: .top, alignment: .center) {
+                        .annotation(position: .top, alignment: .center, spacing: 6) {
                             Text("You")
                                 .font(.system(size: 11, weight: .bold, design: .rounded))
                                 .foregroundStyle(NoomTheme.logoBlack)
@@ -400,9 +479,13 @@ private struct PopulationHistogramChartView: View {
                     AxisValueLabel()
                 }
             }
-            .chartXAxisLabel(xAxisTitle)
-            .chartYAxisLabel("Population")
-            .frame(height: 220)
+            .chartXAxisLabel(xAxisTitle, position: .bottom, alignment: .center)
+            .chartYAxisLabel("Population", position: .leading, alignment: .center)
+            // Push the plot down so the "You" capsule clears the y-axis title / insight text.
+            .chartPlotStyle { plotArea in
+                plotArea.padding(.top, 28)
+            }
+            .frame(height: 248)
 
             if let userValue {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -585,7 +668,7 @@ struct PopulationInsightsGraphPreviewView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     Text("Population insights").noomSerifTitle(size: 28)
                     Text("See how your recent signals compare with the broader population.").noomBody()
-                    PopulationHistogramChartView(data: histogram, userValue: 62, xAxisTitle: "Resting heart rate (bpm)")
+                    PopulationHistogramChartView(data: histogram, userValue: 62, xAxisTitle: "Resting heart rate (bpm)", metricType: .bpm)
                     Divider().opacity(0.25)
                     Text("Signal profile").noomLabel()
                     PopulationRadarChartView(points: radar)
@@ -613,7 +696,8 @@ struct PopulationHistogramMetricPreviewView: View {
                     PopulationHistogramChartView(
                         data: metric.data,
                         userValue: metric.userValue,
-                        xAxisTitle: metric.xAxisTitle
+                        xAxisTitle: metric.xAxisTitle,
+                        metricType: metric.metricType
                     )
                 }
             }
@@ -627,12 +711,14 @@ struct PopulationHistogramPreviewMetric {
     let title: String
     let xAxisTitle: String
     let userValue: Float
+    let metricType: SB_PopulationMetricType
     fileprivate let data: [PopulationHistogramDatum]
 
     static let hrv = PopulationHistogramPreviewMetric(
         title: "HRV",
         xAxisTitle: "Milliseconds",
         userValue: 54,
+        metricType: .hrv,
         data: histogram(start: 20, width: 15, populations: [4, 13, 27, 22, 9], emptyTailStart: 95)
     )
 
@@ -640,6 +726,7 @@ struct PopulationHistogramPreviewMetric {
         title: "Resting HR",
         xAxisTitle: "Beats Per Min",
         userValue: 54,
+        metricType: .bpm,
         data: histogram(start: 35, width: 10, populations: [8, 20, 31, 24, 10], emptyTailStart: 85)
     )
 
@@ -647,6 +734,7 @@ struct PopulationHistogramPreviewMetric {
         title: "Respiratory rate",
         xAxisTitle: "Breaths Per Min",
         userValue: 14.8,
+        metricType: .brpm,
         data: histogram(start: 10, width: 2, populations: [5, 18, 30, 21, 7], emptyTailStart: 20)
     )
 
@@ -654,7 +742,8 @@ struct PopulationHistogramPreviewMetric {
         title: "Total sleep",
         xAxisTitle: "Hours",
         userValue: 7.2,
-        data: histogram(start: 4, width: 1, populations: [3, 12, 26, 29, 14, 5], emptyTailStart: 10)
+        metricType: .avgTotalSleep,
+        data: histogram(start: 2, width: 1, populations: [2, 3, 12, 26, 29, 14, 5], emptyTailStart: 10)
     )
 
     private static func histogram(

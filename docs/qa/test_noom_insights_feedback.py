@@ -68,8 +68,8 @@ class InsightsFeedbackContractTests(unittest.TestCase):
         chart_source = INSIGHTS[chart_start:chart_end]
         for token in (
             "private var domainData",
-            "data.filter { $0.population > 0 }",
-            "populated.isEmpty ? data : populated",
+            "displayedData.filter { $0.population > 0 }",
+            "populated.isEmpty ? displayedData : populated",
             "private var xAxisTickValues",
             "niceAxisStep",
             "AxisMarks(values: xAxisTickValues)",
@@ -81,6 +81,26 @@ class InsightsFeedbackContractTests(unittest.TestCase):
         domain_end = chart_source.index("private var xAxisTickValues", domain_start)
         self.assertIn("domainData", chart_source[domain_start:domain_end])
         self.assertNotIn("data.flatMap", chart_source[domain_start:domain_end])
+
+    def test_population_histogram_hides_outlier_tails_and_separates_bars(self) -> None:
+        chart_start = INSIGHTS.index("private struct PopulationHistogramChartView")
+        chart_end = INSIGHTS.index("private struct PopulationRadarDatum", chart_start)
+        chart_source = INSIGHTS[chart_start:chart_end]
+        for token in (
+            "private var displayWindow",
+            "case .hrv:",
+            "return (nil, 150)",
+            "case .bpm:",
+            "return (nil, 90)",
+            "case .avgTotalSleep:",
+            "return (3, nil)",
+            "private var displayedData",
+            "private func barRange(for bucket:",
+            "width * 0.10",
+            "padding(.top, 28)",
+            "metricType: histogram.metricType",
+        ):
+            self.assertIn(token, INSIGHTS if token.startswith("metricType") else chart_source)
 
     def test_tight_axis_preview_covers_every_population_metric_family(self) -> None:
         content = (ROOT / "NoomApp/NoomApp/ContentView.swift").read_text()
