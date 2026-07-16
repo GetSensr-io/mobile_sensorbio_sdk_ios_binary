@@ -376,7 +376,6 @@ SWIFT_CLASS("_TtC12SensorBioSDK13SB_FXCLogging")
 
 SWIFT_CLASS("_TtC12SensorBioSDK23SB_OnDeviceSleepDecoder")
 @interface SB_OnDeviceSleepDecoder : NSObject
-+ (void)FindUnuploadedSleepAndUpload;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 

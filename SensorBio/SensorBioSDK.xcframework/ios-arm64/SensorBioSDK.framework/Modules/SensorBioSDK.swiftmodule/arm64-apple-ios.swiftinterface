@@ -9532,6 +9532,7 @@ final public class SB_BluetoothPacketDecoder : @unchecked Swift.Sendable {
   final public var fxcBuffer: [SensorBioBTSDK.sensrDataPacket]
   final public var bbiBuffer: [SensorBioSDK.StreamingPacket]
   final public var temperatureBuffer: [SensorBioBTSDK.sensrDataPacket]
+  final public var sleepBuffer: [SensorBioBTSDK.sensrDataPacket]
   public init(manager: SensorBioSDK.SB_SDK)
   final public func processData(id: Swift.String, packets: [SensorBioBTSDK.sensrDataPacket])
   final public func drainBuffersToDB()
@@ -10425,10 +10426,7 @@ public enum SB_NotificationElemType : Swift.Int32, Swift.Codable, Swift.Equatabl
   public static func CreateSleepTags(_ activityPacketsValues: [(value: Swift.Int64, timestampMs: Swift.Int64)]) -> [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]
   public static func UpdateSleepStartTimeConsideringSpuriousSleep(sleepTags: [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]) -> [(tag: SensorBioSDK.SB_SleepTag, timestampMs: Swift.Int64)]
   public static func AddToSleepDB(_ sleepStages: [SensorBioSDK.edge_sleep_stages_e], _ stagesTimestamps: [Swift.Int64], _ isOverlapping: Swift.Bool, _ usesPhilipsSleepAlgorithm: Swift.Bool = true)
-  public static func launchSleepUploadThread()
-  @objc public static func FindUnuploadedSleepAndUpload()
   public static func UploadBioEdgeDataForSleep(startEpoch: Swift.Int64, endEpoch: Swift.Int64, completedSuccessfully: @escaping @Sendable () -> Swift.Void)
-  public static func MergeOverlappingSleepsInDatabase(_ sleeps: [SensorBioBTSDK.sensrDataPacket]) -> [SensorBioBTSDK.sensrDataPacket]
   public static func DeleteSleepWithEndtime(_ endTime: Swift.Int64)
   public static func clearAll()
   public static func isSafeToLogOut() -> Swift.Bool
@@ -12533,6 +12531,7 @@ public struct sdkDefaults {
   public static let lastCustomEpochAsPrimaryKey: Swift.String
   public static let persistedRecordingKey: Swift.String
   public static let interimSleepObjects: Swift.String
+  public static let didDrainLegacyInterimSleep: Swift.String
   public static let currentFXCSleepsActivityEpoch: Swift.String
   public static let fxcSleepAlgorithmData: Swift.String
   public static let fxcPacketsIndicesArray: Swift.String

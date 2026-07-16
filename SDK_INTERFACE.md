@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.14.0'
+    :tag => 'v0.15.0'
 end
 
 post_install do |installer|
@@ -526,6 +526,8 @@ public struct SB_PersistedRecording: Codable, Sendable, Equatable {
 ### 5.4 Sync — automatic
 
 Sync runs automatically once a paired device connects. No customer-side method call is required to trigger it; the SDK manages the sync lifecycle internally and emits state changes via the `@Published` `deviceSyncing` / `percentSynced` / `lastSyncd` properties (see §3.2).
+
+**Upload is automatic too.** Every data type the device produces — biometrics, activity, steps, temperature, and **sleep** — is uploaded to the server by the SDK with no customer-side trigger. Uploads are driven off sync completion and a persistent, retrying job queue that survives app relaunches and waits for connectivity, so there is nothing to call and nothing to schedule. (Sleep upload previously exposed `SB_OnDeviceSleepDecoder.launchSleepUploadThread()`; that is removed — sleep is now handled internally like every other type.)
 
 ---
 
