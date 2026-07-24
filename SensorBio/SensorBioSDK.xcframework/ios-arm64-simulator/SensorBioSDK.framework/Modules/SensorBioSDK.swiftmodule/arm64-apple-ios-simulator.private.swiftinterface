@@ -11252,7 +11252,12 @@ extension SensorBioSDK.SB_SDK {
   public static func runDefaultsMigratorIfNeeded()
   public static func bootstrapKeychain()
 }
+public enum SB_RegisterUserOutcome : Swift.Sendable {
+  case success(SensorBioSDK.SB_Session)
+  case failure(errorCode: Swift.String)
+}
 extension SensorBioSDK.SB_SDK {
+  public func registerUser(orgId: Swift.String, sdkKey: Swift.String, userId: Swift.String, email: Swift.String? = nil, birthday: Foundation.DateComponents? = nil, sex: SensorBioSDK.SB_Gender? = nil, heightCm: Swift.Float? = nil, weightKg: Swift.Float? = nil, imperialUnits: Swift.Bool = false, activationCode: Swift.String? = nil) async throws -> SensorBioSDK.SB_RegisterUserOutcome
   public var isAuthenticated: Swift.Bool {
     get
   }
@@ -11472,6 +11477,34 @@ public enum SB_ServerWorkoutInfoKeys : Swift.String {
     get
   }
 }
+public enum SB_ServiceErrorCode : Swift.Int, Swift.Sendable {
+  case ok
+  case cancelled
+  case unknown
+  case invalidArgument
+  case deadlineExceeded
+  case notFound
+  case alreadyExists
+  case permissionDenied
+  case resourceExhausted
+  case failedPrecondition
+  case aborted
+  case outOfRange
+  case unimplemented
+  case internalError
+  case unavailable
+  case dataLoss
+  case unauthenticated
+  public var name: Swift.String {
+    get
+  }
+  public static func from(gRPCStatusCode code: Swift.Int) -> SensorBioSDK.SB_ServiceErrorCode
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
 public struct SB_Session : Swift.Equatable, Swift.Sendable {
   public let userId: Swift.String
   public let email: Swift.String
@@ -11485,9 +11518,7 @@ public enum SB_SignInOutcome {
   case success(SensorBioSDK.SB_Session)
   case passwordIncorrect
   case unknownUsername
-  case subscriptionRequired(message: Swift.String)
-  case loginBlocked(message: Swift.String)
-  case other(message: Swift.String)
+  case failed(code: SensorBioSDK.SB_ServiceErrorCode)
 }
 public struct SB_SleepAccounting : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var isGenerating: Swift.Bool
@@ -12160,11 +12191,11 @@ public struct SB_UserProfileUpdate {
   public var weightKg: Swift.Float
   public var walkingStrideLength: Swift.Float
   public var runningStrideLength: Swift.Float
-  public var zipcode: Swift.String
+  public var location: Swift.String
   public var vo2Max: Swift.Float
   public var maxHr: Swift.Float
   public var imperialUnits: Swift.Bool
-  public init(fullName: Swift.String, birthday: Foundation.DateComponents, gender: SensorBioSDK.SB_Gender, heightCm: Swift.Float, weightKg: Swift.Float, walkingStrideLength: Swift.Float, runningStrideLength: Swift.Float, zipcode: Swift.String, vo2Max: Swift.Float, maxHr: Swift.Float, imperialUnits: Swift.Bool)
+  public init(fullName: Swift.String, birthday: Foundation.DateComponents, gender: SensorBioSDK.SB_Gender, heightCm: Swift.Float, weightKg: Swift.Float, walkingStrideLength: Swift.Float, runningStrideLength: Swift.Float, location: Swift.String, vo2Max: Swift.Float, maxHr: Swift.Float, imperialUnits: Swift.Bool)
 }
 public struct SB_ValidateAccountRequirementsRequest {
   public var email: Swift.String?
@@ -20729,6 +20760,7 @@ nonisolated public enum Proto_UserSourceType : SwiftProtobuf.Enum, Swift.CaseIte
   case philialabs
   case sensr
   case innofit
+  case sensorbioSdk
   case UNRECOGNIZED(Swift.Int)
   nonisolated public init()
   nonisolated public init?(rawValue: Swift.Int)
@@ -20915,6 +20947,10 @@ nonisolated public struct Proto_User : @unchecked Swift.Sendable {
     get
   }
   nonisolated public mutating func clearUserSourceType()
+  nonisolated public var clientSdkUserID: Swift.String {
+    get
+    set
+  }
   public var unknownFields: SwiftProtobuf.UnknownStorage
   nonisolated public struct OptionalUserSourceType : Swift.Sendable {
     public var type: SensorBioSDK.Proto_UserSourceType
@@ -21986,6 +22022,89 @@ nonisolated public struct Proto_CreateUserResponse : Swift.Sendable {
   }
   nonisolated public init()
 }
+nonisolated public struct Proto_SDKRegisterUserRequest : Swift.Sendable {
+  public var clientSdkUserID: Swift.String
+  nonisolated public var user: SensorBioSDK.Proto_User {
+    get
+    set
+  }
+  nonisolated public var hasUser: Swift.Bool {
+    get
+  }
+  nonisolated public mutating func clearUser()
+  public var acceptedAgreements: [SensorBioSDK.Proto_Agreement]
+  nonisolated public var activationCode: SensorBioSDK.Proto_OptionalString {
+    get
+    set
+  }
+  nonisolated public var hasActivationCode: Swift.Bool {
+    get
+  }
+  nonisolated public mutating func clearActivationCode()
+  nonisolated public var deviceSerialNumber: SensorBioSDK.Proto_OptionalString {
+    get
+    set
+  }
+  nonisolated public var hasDeviceSerialNumber: Swift.Bool {
+    get
+  }
+  nonisolated public mutating func clearDeviceSerialNumber()
+  public var unknownFields: SwiftProtobuf.UnknownStorage
+  nonisolated public init()
+}
+nonisolated public struct Proto_SDKRegisterUserResponse : Swift.Sendable {
+  public var err: SensorBioSDK.Proto_SDKRegisterUserResponse.ErrCode
+  nonisolated public var user: SensorBioSDK.Proto_User {
+    get
+    set
+  }
+  nonisolated public var hasUser: Swift.Bool {
+    get
+  }
+  nonisolated public mutating func clearUser()
+  nonisolated public var sessionAuthToken: SensorBioSDK.Proto_UserSessionAuthToken {
+    get
+    set
+  }
+  nonisolated public var hasSessionAuthToken: Swift.Bool {
+    get
+  }
+  nonisolated public mutating func clearSessionAuthToken()
+  nonisolated public var deviceSubscription: SensorBioSDK.Proto_DeviceSubscription {
+    get
+    set
+  }
+  nonisolated public var hasDeviceSubscription: Swift.Bool {
+    get
+  }
+  nonisolated public mutating func clearDeviceSubscription()
+  public var unknownFields: SwiftProtobuf.UnknownStorage
+  nonisolated public enum ErrCode : SwiftProtobuf.Enum, Swift.CaseIterable {
+    public typealias RawValue = Swift.Int
+    case ok
+    case invalidClientSdkUserID
+    case clientSdkUserIDAlreadyInUse
+    case invalidHeight
+    case invalidWeight
+    case invalidBirthday
+    case invalidEmail
+    case invalidAccessCode
+    case accessCodeAlreadyInUse
+    case deviceSerialNumberRequired
+    case deviceSerialNumberMismatch
+    case deviceSubscriptionRequired
+    case orgBillingPeriodInactive
+    case UNRECOGNIZED(Swift.Int)
+    nonisolated public init()
+    nonisolated public init?(rawValue: Swift.Int)
+    nonisolated public var rawValue: Swift.Int {
+      get
+    }
+    public static let allCases: [SensorBioSDK.Proto_SDKRegisterUserResponse.ErrCode]
+    public typealias AllCases = [SensorBioSDK.Proto_SDKRegisterUserResponse.ErrCode]
+  }
+  nonisolated public init()
+}
 nonisolated public struct Proto_ResetPasswordCode : Swift.Sendable {
   public var resetCode: Swift.String
   public var accountEmail: Swift.String
@@ -22781,6 +22900,43 @@ nonisolated public struct Proto_GetSpecifiedFirmwareVersionRequest : Swift.Senda
 nonisolated public struct Proto_GetSpecifiedFirmwareVersionResponse : Swift.Sendable {
   public var firmwareVersionWristband: Swift.String
   public var firmwareVersionShoepod: Swift.String
+  public var unknownFields: SwiftProtobuf.UnknownStorage
+  nonisolated public init()
+}
+nonisolated public struct Proto_ListFirmwareVersionsRequest : Swift.Sendable {
+  public var deviceType: Swift.String
+  public var page: Swift.Int32
+  public var pageSize: Swift.Int32
+  public var unknownFields: SwiftProtobuf.UnknownStorage
+  nonisolated public init()
+}
+nonisolated public struct Proto_FirmwareVersion : Swift.Sendable {
+  public var id: Swift.String
+  public var version: Swift.String
+  public var deviceType: Swift.String
+  public var releaseNotes: Swift.String
+  public var createdAtTsInMs: Swift.Int64
+  public var unknownFields: SwiftProtobuf.UnknownStorage
+  nonisolated public init()
+}
+nonisolated public struct Proto_ListFirmwareVersionsResponse : Swift.Sendable {
+  public var firmwareVersions: [SensorBioSDK.Proto_FirmwareVersion]
+  public var page: Swift.Int32
+  public var pageSize: Swift.Int32
+  public var totalItems: Swift.Int32
+  public var availablePages: Swift.Int32
+  public var hasMore_p: Swift.Bool
+  public var unknownFields: SwiftProtobuf.UnknownStorage
+  nonisolated public init()
+}
+nonisolated public struct Proto_GetFirmwareDownloadURLRequest : Swift.Sendable {
+  public var firmwareVersionID: Swift.String
+  public var unknownFields: SwiftProtobuf.UnknownStorage
+  nonisolated public init()
+}
+nonisolated public struct Proto_GetFirmwareDownloadURLResponse : Swift.Sendable {
+  public var url: Swift.String
+  public var expiresAtTsInMs: Swift.Int64
   public var unknownFields: SwiftProtobuf.UnknownStorage
   nonisolated public init()
 }
@@ -29114,6 +29270,29 @@ nonisolated extension SensorBioSDK.Proto_CreateUserResponse : SwiftProtobuf.Mess
 nonisolated extension SensorBioSDK.Proto_CreateUserResponse.ErrCode : SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap
 }
+nonisolated extension SensorBioSDK.Proto_SDKRegisterUserRequest : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: Swift.String
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+  nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
+  nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
+  public static func == (lhs: SensorBioSDK.Proto_SDKRegisterUserRequest, rhs: SensorBioSDK.Proto_SDKRegisterUserRequest) -> Swift.Bool
+  nonisolated public var hashValue: Swift.Int {
+    get
+  }
+}
+nonisolated extension SensorBioSDK.Proto_SDKRegisterUserResponse : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: Swift.String
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+  nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
+  nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
+  public static func == (lhs: SensorBioSDK.Proto_SDKRegisterUserResponse, rhs: SensorBioSDK.Proto_SDKRegisterUserResponse) -> Swift.Bool
+  nonisolated public var hashValue: Swift.Int {
+    get
+  }
+}
+nonisolated extension SensorBioSDK.Proto_SDKRegisterUserResponse.ErrCode : SwiftProtobuf._ProtoNameProviding {
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+}
 nonisolated extension SensorBioSDK.Proto_ResetPasswordCode : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: Swift.String
   public static let _protobuf_nameMap: SwiftProtobuf._NameMap
@@ -29669,6 +29848,56 @@ nonisolated extension SensorBioSDK.Proto_GetSpecifiedFirmwareVersionResponse : S
   nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
   nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
   public static func == (lhs: SensorBioSDK.Proto_GetSpecifiedFirmwareVersionResponse, rhs: SensorBioSDK.Proto_GetSpecifiedFirmwareVersionResponse) -> Swift.Bool
+  nonisolated public var hashValue: Swift.Int {
+    get
+  }
+}
+nonisolated extension SensorBioSDK.Proto_ListFirmwareVersionsRequest : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: Swift.String
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+  nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
+  nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
+  public static func == (lhs: SensorBioSDK.Proto_ListFirmwareVersionsRequest, rhs: SensorBioSDK.Proto_ListFirmwareVersionsRequest) -> Swift.Bool
+  nonisolated public var hashValue: Swift.Int {
+    get
+  }
+}
+nonisolated extension SensorBioSDK.Proto_FirmwareVersion : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: Swift.String
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+  nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
+  nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
+  public static func == (lhs: SensorBioSDK.Proto_FirmwareVersion, rhs: SensorBioSDK.Proto_FirmwareVersion) -> Swift.Bool
+  nonisolated public var hashValue: Swift.Int {
+    get
+  }
+}
+nonisolated extension SensorBioSDK.Proto_ListFirmwareVersionsResponse : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: Swift.String
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+  nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
+  nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
+  public static func == (lhs: SensorBioSDK.Proto_ListFirmwareVersionsResponse, rhs: SensorBioSDK.Proto_ListFirmwareVersionsResponse) -> Swift.Bool
+  nonisolated public var hashValue: Swift.Int {
+    get
+  }
+}
+nonisolated extension SensorBioSDK.Proto_GetFirmwareDownloadURLRequest : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: Swift.String
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+  nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
+  nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
+  public static func == (lhs: SensorBioSDK.Proto_GetFirmwareDownloadURLRequest, rhs: SensorBioSDK.Proto_GetFirmwareDownloadURLRequest) -> Swift.Bool
+  nonisolated public var hashValue: Swift.Int {
+    get
+  }
+}
+nonisolated extension SensorBioSDK.Proto_GetFirmwareDownloadURLResponse : SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: Swift.String
+  public static let _protobuf_nameMap: SwiftProtobuf._NameMap
+  nonisolated public mutating func decodeMessage<D>(decoder: inout D) throws where D : SwiftProtobuf.Decoder
+  nonisolated public func traverse<V>(visitor: inout V) throws where V : SwiftProtobuf.Visitor
+  public static func == (lhs: SensorBioSDK.Proto_GetFirmwareDownloadURLResponse, rhs: SensorBioSDK.Proto_GetFirmwareDownloadURLResponse) -> Swift.Bool
   nonisolated public var hashValue: Swift.Int {
     get
   }
@@ -34742,6 +34971,9 @@ extension SensorBioSDK.SB_ActivityType : Swift.Hashable {}
 extension SensorBioSDK.SB_ActivityType : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_AgreementType : Swift.Equatable {}
 extension SensorBioSDK.SB_AgreementType : Swift.Hashable {}
+extension SensorBioSDK.SB_ServiceErrorCode : Swift.Equatable {}
+extension SensorBioSDK.SB_ServiceErrorCode : Swift.Hashable {}
+extension SensorBioSDK.SB_ServiceErrorCode : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_AuthError : Swift.Equatable {}
 extension SensorBioSDK.SB_AuthError : Swift.Hashable {}
 extension SensorBioSDK.SB_BluetoothDeviceType : Swift.Equatable {}

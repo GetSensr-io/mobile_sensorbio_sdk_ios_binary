@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.15.1'
+    :tag => 'v0.16.0'
 end
 
 post_install do |installer|
@@ -335,6 +335,20 @@ public func validateAccountRequirements(
     _ request: SB_ValidateAccountRequirementsRequest
 ) async throws -> SB_ValidateAccountRequirementsResult
 
+// SDK-key auth (externally-authenticated, password-less users — SB-957)
+public func registerUser(
+    orgId: String,
+    sdkKey: String,
+    userId: String,
+    email: String? = nil,
+    birthday: DateComponents? = nil,
+    sex: SB_Gender? = nil,
+    heightCm: Float? = nil,
+    weightKg: Float? = nil,
+    imperialUnits: Bool = false,
+    activationCode: String? = nil
+) async throws -> SB_RegisterUserOutcome
+
 // Session
 public func hydrateSession()                                          // restore from keychain
 public func signOut() async throws                                    // see side-effects note below
@@ -352,22 +366,56 @@ public func acceptCurrentAgreements() async throws
 
 Example:
 
+`signIn` never throws for a login error: bad credentials surface as
+`.passwordIncorrect` / `.unknownUsername`, and every other failure — a
+transport-level gRPC error or a non-credential in-band server code — surfaces as
+`.failed(code:)` carrying a typed `SB_ServiceErrorCode` (no raw gRPC message
+string crosses the boundary). Map the code to your own localized copy:
+
 ```swift
 do {
     switch try await sensorBio.signIn(email: email, password: password) {
-    case .success:                     routeToHome()
-    case .passwordIncorrect:           showError("Incorrect username or password")
-    case .unknownUsername:             showError("Unknown email")
-    case .subscriptionRequired(let m): showError(m.isEmpty ? "A subscription is required" : m)
-    case .loginBlocked(let m):         showError(m.isEmpty ? "Too many failed attempts. Try again later." : m)
-    case .other(let msg):              showError(msg)
+    case .success:           routeToHome()
+    case .passwordIncorrect,
+         .unknownUsername:   showError("Incorrect username or password")
+    case .failed(let code):
+        switch code {
+        case .unauthenticated:  showError("Incorrect username or password")
+        case .permissionDenied: showError("No active device subscription — contact your administrator.")
+        default:                showError("Something went wrong while signing in. (Error code: \(code.name))")
+        }
     }
 } catch {
-    showError(error.localizedDescription)
+    // Defensive only — `signIn` resolves login errors to `.failed(code:)`.
+    showError("Something went wrong while signing in.")
 }
 ```
 
 > **`signOut()` side effects.** A successful sign-out disconnects any connected device, clears the paired-device state, nils out `pairedDevice` / `haveDevice` / `exerciseZoneAttributes`, and wipes the SDK's locally cached user data. `signOut()` is the **only** customer-facing way to clear SDK persistence — a wipe without a sign-out would leave in-memory `@Published` state and the BLE connection inconsistent with the cleared cache. Account-deletion flows should call `signOut()` after the delete-account call succeeds.
+
+### 4.1 SDK-key registration (`registerUser`)
+
+For third-party apps embedding the SDK, `registerUser` is a **register-or-login** entry point for users your app has already authenticated by its own means (your login, SSO, OAuth — the SDK doesn't care which). These users have **no** Sensor Bio email/password. On success the SDK persists the returned session and publishes `session` / `userProfile`, exactly like `signIn`.
+
+- **`orgId` + `sdkKey`** — the server-issued organization credentials for your integration (from your Sensor Bio dashboard). The backend validates that the key is active and belongs to `orgId`.
+- **`userId`** — your own stable identifier for the end-user (`client_sdk_user_id`). The first call for a given `userId` registers; subsequent calls log in. It is also recorded as the user's **username** (visible in the web dashboard).
+- **`email`** *(optional)* — a contact email. Omitted if nil/empty; when supplied it is recorded on the backend as the user's contact email (never used as the login identity).
+- **`birthday` / `sex` / `heightCm` / `weightKg` / `imperialUnits`** *(optional)* — demographics. **Any omitted value is filled with a dummy** before the request is sent: the platform requires height/weight/sex/birthday to compute higher-level metrics (recovery, calories, sleep scoring, …), so a user with none would break downstream processing. Pass real values when you have them.
+- **`activationCode`** *(optional)* — redeems a device-subscription activation code during a first registration (same flow as `createAccount`).
+
+```swift
+switch try await sensorBio.registerUser(orgId: orgId, sdkKey: sdkKey, userId: userId) {
+case .success(let session):        routeToHome(session)
+case .failure(let errorCode):      showError(errorCode)   // e.g. "clientSdkUserIDAlreadyInUse"
+}
+```
+
+```swift
+public enum SB_RegisterUserOutcome: Sendable {
+    case success(SB_Session)
+    case failure(errorCode: String)
+}
+```
 
 ---
 
@@ -663,6 +711,12 @@ public func uploadUserPhoto(imageData: Data) async throws -> String?
 public func deleteUserPhoto() async throws
 ```
 
+> **`location` is a full-replace field.** `SB_UserProfileUpdate.location` and `SB_UserProfile.location`
+> name the same value — the user's location (city / country). It maps to a wire field historically
+> named `zipcode`. `updateUserProfile` replaces the whole profile, so read the current value from
+> `sensorBio.userProfile?.location` and pass it back in on every update; sending `""` (or omitting it)
+> overwrites the stored value on the server.
+
 ### 6.7 Goals
 
 Steps / calories / sleep are the customer-facing goal surface. `SB_Goals` is returned with those three targets/currents public; its workout / routine-goal members are Sensr-Bio-only and absent from the binary.
@@ -858,7 +912,7 @@ final class HomeViewModel: ObservableObject {
             switch try await sensorBio.signIn(email: email, password: password) {
             case .success:
                 await refreshDashboard()
-            case .passwordIncorrect, .unknownUsername, .subscriptionRequired, .loginBlocked, .other:
+            case .passwordIncorrect, .unknownUsername, .failed:
                 break
             }
         } catch { print(error) }
