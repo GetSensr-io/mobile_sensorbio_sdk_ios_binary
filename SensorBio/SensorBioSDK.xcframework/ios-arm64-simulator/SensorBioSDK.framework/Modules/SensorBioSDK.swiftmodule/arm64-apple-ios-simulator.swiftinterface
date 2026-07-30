@@ -11402,6 +11402,21 @@ extension SensorBioSDK.SB_SDK {
 extension SensorBioSDK.SB_SDK {
   public func submitBriefSurvey(_ survey: SensorBioSDK.SB_BriefSurvey)
 }
+public struct SB_SkinTemperature : Swift.Sendable {
+  public let min: Swift.Float
+  public let max: Swift.Float
+  public let average: Swift.Float
+  public let points: [SensorBioSDK.SB_SkinTemperature.Point]
+  public struct Point : Swift.Sendable {
+    public let epoch: Swift.Int64
+    public let value: Swift.Float
+    public init(epoch: Swift.Int64, value: Swift.Float)
+  }
+  public init(min: Swift.Float, max: Swift.Float, average: Swift.Float, points: [SensorBioSDK.SB_SkinTemperature.Point])
+}
+extension SensorBioSDK.SB_SDK {
+  public func getSkinTemperature(date: Foundation.Date) -> SensorBioSDK.SB_SkinTemperature?
+}
 extension SensorBioSDK.SB_SDK {
   public func fetchActivityList() async throws -> SensorBioSDK.SB_ActivityRecordingList
   public func fetchWorkoutRecordingInfo() async throws -> SensorBioSDK.SB_WorkoutRecordingInfo
@@ -12550,6 +12565,7 @@ public struct sdkDefaults {
   public static let logoImageKey: Swift.String
   public static let logoURLKey: Swift.String
   public static let devicesKey: Swift.String
+  public static let pendingAlterMigrationKey: Swift.String
   public static let lastSyncdKey: Swift.String
   public static let airplaneModeStatus: Swift.String
   public static let haveGrantedBluetoothPermission: Swift.String
