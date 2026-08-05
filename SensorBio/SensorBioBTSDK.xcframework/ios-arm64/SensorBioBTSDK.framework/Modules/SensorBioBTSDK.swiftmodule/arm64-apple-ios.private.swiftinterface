@@ -2525,6 +2525,15 @@ public enum packetType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
   final public let dataPackets: Combine.PassthroughSubject<(Swift.Int, [SensorBioBTSDK.sensrDataPacket]), Swift.Never>
   final public let dataComplete: Combine.PassthroughSubject<(Swift.Int, Swift.Int, Swift.Int, Swift.Int, Swift.Bool), Swift.Never>
   final public let dataFailure: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  final public let rawDataPackets: Combine.PassthroughSubject<(Swift.Int, [SensorBioBTSDK.sensrDataPacket]), Swift.Never>
+  final public let rawDataComplete: Combine.PassthroughSubject<(Swift.Int, Swift.Int, Swift.Int, Swift.Int, Swift.Bool), Swift.Never>
+  final public let rawDataFailure: Combine.PassthroughSubject<Swift.Void, Swift.Never>
+  @Combine.Published<Swift.Bool> @_projectedValueProperty($supportsRawSync) public var supportsRawSync: Swift.Bool {
+    get
+  }
+  public var $supportsRawSync: Combine.Published<Swift.Bool>.Publisher {
+    get
+  }
   final public let ppgMetrics: Combine.PassthroughSubject<SensorBioBTSDK.ppgMetricsType, Swift.Never>
   final public let connected: Combine.PassthroughSubject<Swift.Void, Swift.Never>
   public static func previewed(type: SensorBioBTSDK.SB_BTSDK.sensrDeviceType = .alter, battery: Swift.Int? = nil, charging: Swift.Bool? = nil, on_charger: Swift.Bool? = nil, worn: Swift.Bool? = nil, modelNumber: Swift.String? = nil, firmwareRevision: Swift.String? = nil, hardwareRevision: SensorBioBTSDK.HardwareRevisionType? = nil, manufacturerName: Swift.String? = nil, serialNumber: Swift.String? = nil, bluetoothSoftwareRevision: Swift.String? = nil, algorithmsSoftwareRevision: Swift.String? = nil, sleepSoftwareRevision: Swift.String? = nil, commandCompletionStatus: SensorBioBTSDK.DeviceCommandCompletionStatus? = nil) -> SensorBioBTSDK.SB_Device
@@ -2536,6 +2545,9 @@ public enum packetType : Swift.UInt8, Swift.Codable, Swift.CaseIterable {
   public func getAllPacketsAsync(pages: Swift.Int, delay: Swift.Int) async throws
   public func getAllPacketsAcknowledgeAsync(_ ack: Swift.Bool) async throws
   public func getPacketCountAsync() async throws -> Swift.Int
+  public func getAllRawPacketsAsync(pages: Swift.Int, delay: Swift.Int) async throws
+  public func getAllRawPacketsAcknowledgeAsync(_ ack: Swift.Bool) async throws
+  public func getRawPacketCountAsync() async throws -> Swift.Int
   public func disableWornDetectAsync() async throws
   public func enableWornDetectAsync() async throws
   public func startManualAsync(_ algorithms: SensorBioBTSDK.ppgAlgorithmConfiguration) async throws

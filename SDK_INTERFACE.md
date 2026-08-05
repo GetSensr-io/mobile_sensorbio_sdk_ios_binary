@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.17.0'
+    :tag => 'v1.0.0'
 end
 
 post_install do |installer|

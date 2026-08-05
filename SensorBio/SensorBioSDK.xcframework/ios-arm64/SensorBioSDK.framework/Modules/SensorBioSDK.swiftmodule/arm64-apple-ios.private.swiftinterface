@@ -10325,11 +10325,51 @@ public struct SB_MeditationGraph : Swift.Codable, Swift.Equatable, Swift.Sendabl
   public var sessionStart: Swift.Int64
   public var sessionEnd: Swift.Int64
   public var survey: SensorBioSDK.SB_BriefSurvey?
+  public var score: SensorBioSDK.SB_MeditationScore?
+  public var scoreFactors: [SensorBioSDK.SB_MeditationScoreFactor]
+  public var scorePenalty: [SensorBioSDK.SB_MeditationScorePenalty]
   public var pauseSegments: [SensorBioSDK.SB_TimeSegment]
-  public init(duration: Swift.Int32, minBpm: Swift.Float, maxBpm: Swift.Float, medianBpm: Swift.Float, minHrv: Swift.Float, maxHrv: Swift.Float, medianHrv: Swift.Float, minBrpm: Swift.Float, maxBrpm: Swift.Float, medianBrpm: Swift.Float, minSpo2: Swift.Float, maxSpo2: Swift.Float, medianSpo2: Swift.Float, bpms: [SensorBioSDK.SB_TimeValuePoint], hrvs: [SensorBioSDK.SB_TimeValuePoint], brpms: [SensorBioSDK.SB_TimeValuePoint], spo2s: [SensorBioSDK.SB_TimeValuePoint], sessionStart: Swift.Int64, sessionEnd: Swift.Int64, survey: SensorBioSDK.SB_BriefSurvey?, pauseSegments: [SensorBioSDK.SB_TimeSegment] = [])
+  public init(duration: Swift.Int32, minBpm: Swift.Float, maxBpm: Swift.Float, medianBpm: Swift.Float, minHrv: Swift.Float, maxHrv: Swift.Float, medianHrv: Swift.Float, minBrpm: Swift.Float, maxBrpm: Swift.Float, medianBrpm: Swift.Float, minSpo2: Swift.Float, maxSpo2: Swift.Float, medianSpo2: Swift.Float, bpms: [SensorBioSDK.SB_TimeValuePoint], hrvs: [SensorBioSDK.SB_TimeValuePoint], brpms: [SensorBioSDK.SB_TimeValuePoint], spo2s: [SensorBioSDK.SB_TimeValuePoint], sessionStart: Swift.Int64, sessionEnd: Swift.Int64, survey: SensorBioSDK.SB_BriefSurvey?, score: SensorBioSDK.SB_MeditationScore? = nil, scoreFactors: [SensorBioSDK.SB_MeditationScoreFactor] = [], scorePenalty: [SensorBioSDK.SB_MeditationScorePenalty] = [], pauseSegments: [SensorBioSDK.SB_TimeSegment] = [])
   public static func == (a: SensorBioSDK.SB_MeditationGraph, b: SensorBioSDK.SB_MeditationGraph) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
+}
+public struct SB_MeditationScore : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public var processState: SensorBioSDK.SB_MeditationScoreProcessState
+  public var stateMessage: Swift.String
+  public var score: Swift.Int32
+  public init(processState: SensorBioSDK.SB_MeditationScoreProcessState = .processing, stateMessage: Swift.String = "", score: Swift.Int32 = 0)
+  public static func == (a: SensorBioSDK.SB_MeditationScore, b: SensorBioSDK.SB_MeditationScore) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct SB_MeditationScoreFactor : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public var title: Swift.String
+  public var color: SensorBioSDK.SB_Color
+  public var value: Swift.Float
+  public var description: Swift.String
+  public init(title: Swift.String = "", color: SensorBioSDK.SB_Color = .unknown, value: Swift.Float = 0, description: Swift.String = "")
+  public static func == (a: SensorBioSDK.SB_MeditationScoreFactor, b: SensorBioSDK.SB_MeditationScoreFactor) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct SB_MeditationScorePenalty : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public var name: Swift.String
+  public var value: Swift.String
+  public init(name: Swift.String = "", value: Swift.String = "")
+  public static func == (a: SensorBioSDK.SB_MeditationScorePenalty, b: SensorBioSDK.SB_MeditationScorePenalty) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public enum SB_MeditationScoreProcessState : Swift.Int32, Swift.Codable, Swift.Equatable, Swift.Sendable {
+  case processing
+  case processedSuccessfully
+  case processedWithError
+  public init?(rawValue: Swift.Int32)
+  public typealias RawValue = Swift.Int32
+  public var rawValue: Swift.Int32 {
+    get
+  }
 }
 public enum SB_MobileApplicationLogLevel : Swift.Equatable {
   case unknown
@@ -11327,6 +11367,9 @@ extension SensorBioSDK.SB_SDK {
   nonisolated(unsafe) public static var environment: SensorBioSDK.SB_SDK.Environment
 }
 extension SensorBioSDK.SB_SDK {
+  public func updateFirmware(_ data: Foundation.Data, delay: Swift.Int? = nil, size: Swift.Int? = nil) async throws
+}
+extension SensorBioSDK.SB_SDK {
   public func refreshUserAppSettings() async throws -> SensorBioSDK.SB_UserAppSettings
 }
 extension SensorBioSDK.SB_SDK {
@@ -11440,7 +11483,17 @@ extension SensorBioSDK.SB_SDK {
   @objc deinit
 }
 @_hasMissingDesignatedInitializers public class SB_SensorPacketProcessor : Combine.ObservableObject, @unchecked Swift.Sendable {
+  public enum Stream {
+    case processed
+    case raw
+    public static func == (a: SensorBioSDK.SB_SensorPacketProcessor.Stream, b: SensorBioSDK.SB_SensorPacketProcessor.Stream) -> Swift.Bool
+    public func hash(into hasher: inout Swift.Hasher)
+    public var hashValue: Swift.Int {
+      get
+    }
+  }
   public static let shared: SensorBioSDK.SB_SensorPacketProcessor
+  public static let raw: SensorBioSDK.SB_SensorPacketProcessor
   @Combine.Published<Swift.Bool> @_projectedValueProperty($haveUnuploadedPackets) public var haveUnuploadedPackets: Swift.Bool {
     get
     @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
@@ -12564,6 +12617,7 @@ public struct sdkDefaults {
   public static let featureFlags: Swift.String
   public static let logoImageKey: Swift.String
   public static let logoURLKey: Swift.String
+  public static let surveyLoginBoundary: Swift.String
   public static let devicesKey: Swift.String
   public static let pendingAlterMigrationKey: Swift.String
   public static let lastSyncdKey: Swift.String
@@ -12586,6 +12640,9 @@ public struct sdkDefaults {
   public static let devOptionsLastActivityEpoch: Swift.String
   public static let devOptionsDataSyncErrorCodes: Swift.String
   public static let lastSyncedEpochKey: Swift.String
+  public static let lastSyncedEpochRawKey: Swift.String
+  public static let lastPacketSyncTimeMsKey: Swift.String
+  public static let nextPacketRowIDKey: Swift.String
   public static let hasRunBefore: Swift.String
   public static let didMigrateSQLiteToAppSupport: Swift.String
 }
@@ -35029,6 +35086,8 @@ extension SensorBioSDK.SB_InsightFeedback : Swift.Equatable {}
 extension SensorBioSDK.SB_InsightFeedback : Swift.Hashable {}
 extension SensorBioSDK.SB_LineColor : Swift.Hashable {}
 extension SensorBioSDK.SB_LineColor : Swift.RawRepresentable {}
+extension SensorBioSDK.SB_MeditationScoreProcessState : Swift.Hashable {}
+extension SensorBioSDK.SB_MeditationScoreProcessState : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_MobileApplicationLogLevel : Swift.Hashable {}
 extension SensorBioSDK.SB_MobileDashboardRefreshOption : Swift.Hashable {}
 extension SensorBioSDK.SB_ModifyAction : Swift.Hashable {}
@@ -35067,6 +35126,8 @@ extension SensorBioSDK.SB_SDK.Environment : Swift.Equatable {}
 extension SensorBioSDK.SB_SDK.Environment : Swift.Hashable {}
 extension SensorBioSDK.SB_SummaryGranularity : Swift.Hashable {}
 extension SensorBioSDK.SB_SummaryGranularity : Swift.RawRepresentable {}
+extension SensorBioSDK.SB_SensorPacketProcessor.Stream : Swift.Equatable {}
+extension SensorBioSDK.SB_SensorPacketProcessor.Stream : Swift.Hashable {}
 extension SensorBioSDK.SB_ServerActivityInfoKeys : Swift.Equatable {}
 extension SensorBioSDK.SB_ServerActivityInfoKeys : Swift.Hashable {}
 extension SensorBioSDK.SB_ServerActivityInfoKeys : Swift.RawRepresentable {}

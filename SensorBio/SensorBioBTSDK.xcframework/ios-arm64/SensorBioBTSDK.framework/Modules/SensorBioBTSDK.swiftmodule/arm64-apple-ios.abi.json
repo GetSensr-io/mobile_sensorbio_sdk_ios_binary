@@ -3600,6 +3600,47 @@
       },
       {
         "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioBTSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "CoreBluetooth",
+        "printedName": "CoreBluetooth",
+        "declKind": "Import",
+        "moduleName": "SensorBioBTSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "SensorBioBTSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "zlib",
+        "printedName": "zlib",
+        "declKind": "Import",
+        "moduleName": "SensorBioBTSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioBTSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
         "name": "CoreBluetooth",
         "printedName": "CoreBluetooth",
         "declKind": "Import",
@@ -53753,6 +53794,424 @@
           },
           {
             "kind": "Var",
+            "name": "rawDataPackets",
+            "printedName": "rawDataPackets",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PassthroughSubject",
+                "printedName": "Combine.PassthroughSubject<(Swift.Int, [SensorBioBTSDK.sensrDataPacket]), Swift.Never>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Tuple",
+                    "printedName": "(Swift.Int, [SensorBioBTSDK.sensrDataPacket])",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Array",
+                        "printedName": "[SensorBioBTSDK.sensrDataPacket]",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "sensrDataPacket",
+                            "printedName": "SensorBioBTSDK.sensrDataPacket",
+                            "usr": "c:@M@SensorBioBTSDK@objc(cs)sensrDataPacket"
+                          }
+                        ],
+                        "usr": "s:Sa"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Never",
+                    "printedName": "Swift.Never",
+                    "usr": "s:s5NeverO"
+                  }
+                ],
+                "usr": "s:7Combine18PassthroughSubjectC"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC14rawDataPackets7Combine18PassthroughSubjectCySi_SayAA05sensrG6PacketCGts5NeverOGvp",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC14rawDataPackets7Combine18PassthroughSubjectCySi_SayAA05sensrG6PacketCGts5NeverOGvp",
+            "moduleName": "SensorBioBTSDK",
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "PassthroughSubject",
+                    "printedName": "Combine.PassthroughSubject<(Swift.Int, [SensorBioBTSDK.sensrDataPacket]), Swift.Never>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(Swift.Int, [SensorBioBTSDK.sensrDataPacket])",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Array",
+                            "printedName": "[SensorBioBTSDK.sensrDataPacket]",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "sensrDataPacket",
+                                "printedName": "SensorBioBTSDK.sensrDataPacket",
+                                "usr": "c:@M@SensorBioBTSDK@objc(cs)sensrDataPacket"
+                              }
+                            ],
+                            "usr": "s:Sa"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Never",
+                        "printedName": "Swift.Never",
+                        "usr": "s:s5NeverO"
+                      }
+                    ],
+                    "usr": "s:7Combine18PassthroughSubjectC"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:14SensorBioBTSDK9SB_DeviceC14rawDataPackets7Combine18PassthroughSubjectCySi_SayAA05sensrG6PacketCGts5NeverOGvg",
+                "mangledName": "$s14SensorBioBTSDK9SB_DeviceC14rawDataPackets7Combine18PassthroughSubjectCySi_SayAA05sensrG6PacketCGts5NeverOGvg",
+                "moduleName": "SensorBioBTSDK",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "rawDataComplete",
+            "printedName": "rawDataComplete",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PassthroughSubject",
+                "printedName": "Combine.PassthroughSubject<(Swift.Int, Swift.Int, Swift.Int, Swift.Int, Swift.Bool), Swift.Never>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Tuple",
+                    "printedName": "(Swift.Int, Swift.Int, Swift.Int, Swift.Int, Swift.Bool)",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Never",
+                    "printedName": "Swift.Never",
+                    "usr": "s:s5NeverO"
+                  }
+                ],
+                "usr": "s:7Combine18PassthroughSubjectC"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC15rawDataComplete7Combine18PassthroughSubjectCySi_S3iSbts5NeverOGvp",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC15rawDataComplete7Combine18PassthroughSubjectCySi_S3iSbts5NeverOGvp",
+            "moduleName": "SensorBioBTSDK",
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "PassthroughSubject",
+                    "printedName": "Combine.PassthroughSubject<(Swift.Int, Swift.Int, Swift.Int, Swift.Int, Swift.Bool), Swift.Never>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(Swift.Int, Swift.Int, Swift.Int, Swift.Int, Swift.Bool)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Bool",
+                            "printedName": "Swift.Bool",
+                            "usr": "s:Sb"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Never",
+                        "printedName": "Swift.Never",
+                        "usr": "s:s5NeverO"
+                      }
+                    ],
+                    "usr": "s:7Combine18PassthroughSubjectC"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:14SensorBioBTSDK9SB_DeviceC15rawDataComplete7Combine18PassthroughSubjectCySi_S3iSbts5NeverOGvg",
+                "mangledName": "$s14SensorBioBTSDK9SB_DeviceC15rawDataComplete7Combine18PassthroughSubjectCySi_S3iSbts5NeverOGvg",
+                "moduleName": "SensorBioBTSDK",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "rawDataFailure",
+            "printedName": "rawDataFailure",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PassthroughSubject",
+                "printedName": "Combine.PassthroughSubject<(), Swift.Never>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Never",
+                    "printedName": "Swift.Never",
+                    "usr": "s:s5NeverO"
+                  }
+                ],
+                "usr": "s:7Combine18PassthroughSubjectC"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC14rawDataFailure7Combine18PassthroughSubjectCyyts5NeverOGvp",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC14rawDataFailure7Combine18PassthroughSubjectCyyts5NeverOGvp",
+            "moduleName": "SensorBioBTSDK",
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "PassthroughSubject",
+                    "printedName": "Combine.PassthroughSubject<(), Swift.Never>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Never",
+                        "printedName": "Swift.Never",
+                        "usr": "s:s5NeverO"
+                      }
+                    ],
+                    "usr": "s:7Combine18PassthroughSubjectC"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:14SensorBioBTSDK9SB_DeviceC14rawDataFailure7Combine18PassthroughSubjectCyyts5NeverOGvg",
+                "mangledName": "$s14SensorBioBTSDK9SB_DeviceC14rawDataFailure7Combine18PassthroughSubjectCyyts5NeverOGvg",
+                "moduleName": "SensorBioBTSDK",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "supportsRawSync",
+            "printedName": "supportsRawSync",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC15supportsRawSyncSbvp",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC15supportsRawSyncSbvp",
+            "moduleName": "SensorBioBTSDK",
+            "declAttributes": [
+              "ProjectedValueProperty",
+              "SetterAccess",
+              "AccessControl",
+              "Custom",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:14SensorBioBTSDK9SB_DeviceC15supportsRawSyncSbvg",
+                "mangledName": "$s14SensorBioBTSDK9SB_DeviceC15supportsRawSyncSbvg",
+                "moduleName": "SensorBioBTSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "$supportsRawSync",
+            "printedName": "$supportsRawSync",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Publisher",
+                "printedName": "Combine.Published<Swift.Bool>.Publisher",
+                "usr": "s:7Combine9PublishedV9PublisherV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC16$supportsRawSync7Combine9PublishedV9PublisherVySb_Gvp",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC16$supportsRawSync7Combine9PublishedV9PublisherVySb_Gvp",
+            "moduleName": "SensorBioBTSDK",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Publisher",
+                    "printedName": "Combine.Published<Swift.Bool>.Publisher",
+                    "usr": "s:7Combine9PublishedV9PublisherV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:14SensorBioBTSDK9SB_DeviceC16$supportsRawSync7Combine9PublishedV9PublisherVySb_Gvg",
+                "mangledName": "$s14SensorBioBTSDK9SB_DeviceC16$supportsRawSync7Combine9PublishedV9PublisherVySb_Gvg",
+                "moduleName": "SensorBioBTSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "ppgMetrics",
             "printedName": "ppgMetrics",
             "children": [
@@ -54360,6 +54819,89 @@
             "declAttributes": [
               "AccessControl",
               "RawDocComment"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getAllRawPacketsAsync",
+            "printedName": "getAllRawPacketsAsync(pages:delay:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC21getAllRawPacketsAsync5pages5delayySi_SitYaKF",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC21getAllRawPacketsAsync5pages5delayySi_SitYaKF",
+            "moduleName": "SensorBioBTSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getAllRawPacketsAcknowledgeAsync",
+            "printedName": "getAllRawPacketsAcknowledgeAsync(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC32getAllRawPacketsAcknowledgeAsyncyySbYaKF",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC32getAllRawPacketsAcknowledgeAsyncyySbYaKF",
+            "moduleName": "SensorBioBTSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getRawPacketCountAsync",
+            "printedName": "getRawPacketCountAsync()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:14SensorBioBTSDK9SB_DeviceC22getRawPacketCountAsyncSiyYaKF",
+            "mangledName": "$s14SensorBioBTSDK9SB_DeviceC22getRawPacketCountAsyncSiyYaKF",
+            "moduleName": "SensorBioBTSDK",
+            "declAttributes": [
+              "AccessControl"
             ],
             "throwing": true,
             "funcSelfKind": "NonMutating"
@@ -68568,85 +69110,99 @@
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
+      "kind": "BooleanLiteral",
+      "offset": 912,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3078,
+      "offset": 3907,
       "length": 38,
       "value": "\"883BBA2C-8E31-40BB-A859-D59A2FB38EC0\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3138,
+      "offset": 3967,
       "length": 38,
       "value": "\"140BB753-9845-4C0E-B61A-E6BAE41712F0\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3535,
+      "offset": 4364,
       "length": 38,
       "value": "\"883BBA2C-8E31-40BB-A859-D59A2FB38EC1\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3613,
+      "offset": 4442,
       "length": 38,
       "value": "\"883BBA2C-8E31-40BB-A859-D59A2FB38EC2\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3691,
+      "offset": 4520,
       "length": 38,
       "value": "\"883BBA2C-8E31-40BB-A859-D59A2FB38EC3\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3770,
+      "offset": 4599,
       "length": 38,
       "value": "\"140BB753-9845-4C0E-B61A-E6BAE41712F1\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3848,
+      "offset": 4677,
       "length": 38,
       "value": "\"140BB753-9845-4C0E-B61A-E6BAE41712F2\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
       "kind": "StringLiteral",
-      "offset": 3926,
+      "offset": 4755,
       "length": 38,
       "value": "\"140BB753-9845-4C0E-B61A-E6BAE41712F3\""
     },
     {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customService.swift",
+      "kind": "StringLiteral",
+      "offset": 5001,
+      "length": 38,
+      "value": "\"140BB753-9845-4C0E-B61A-E6BAE41712F4\""
+    },
+    {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customServiceExtensions\/customServiceAsyncAwaitCommandsExtension.swift",
       "kind": "BooleanLiteral",
-      "offset": 6776,
+      "offset": 7221,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customServiceExtensions\/customServiceAsyncAwaitCommandsExtension.swift",
       "kind": "BooleanLiteral",
-      "offset": 6796,
+      "offset": 7241,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customServiceExtensions\/customServiceAsyncAwaitCommandsExtension.swift",
       "kind": "BooleanLiteral",
-      "offset": 6815,
+      "offset": 7260,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Services\/CustomService\/customServiceExtensions\/customServiceAsyncAwaitCommandsExtension.swift",
       "kind": "BooleanLiteral",
-      "offset": 6833,
+      "offset": 7278,
       "length": 4,
       "value": "true"
     },
@@ -68835,273 +69391,294 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 300,
+      "offset": 541,
+      "length": 4,
+      "value": "0x06"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
+      "kind": "IntegerLiteral",
+      "offset": 575,
+      "length": 4,
+      "value": "0x08"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
+      "kind": "IntegerLiteral",
+      "offset": 619,
+      "length": 4,
+      "value": "0x09"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
+      "kind": "IntegerLiteral",
+      "offset": 639,
       "length": 4,
       "value": "0x10"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 330,
+      "offset": 669,
       "length": 4,
       "value": "0x11"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 356,
+      "offset": 695,
       "length": 4,
       "value": "0x12"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 381,
+      "offset": 720,
       "length": 4,
       "value": "0x13"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 409,
+      "offset": 748,
       "length": 4,
       "value": "0x14"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 447,
+      "offset": 786,
       "length": 4,
       "value": "0x29"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 488,
+      "offset": 827,
       "length": 4,
       "value": "0x2A"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 528,
+      "offset": 867,
       "length": 4,
       "value": "0x50"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 568,
+      "offset": 907,
       "length": 4,
       "value": "0x51"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 599,
+      "offset": 938,
       "length": 4,
       "value": "0x60"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 630,
+      "offset": 969,
       "length": 4,
       "value": "0x61"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 661,
+      "offset": 1000,
       "length": 4,
       "value": "0x62"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 692,
+      "offset": 1031,
       "length": 4,
       "value": "0x63"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 724,
+      "offset": 1063,
       "length": 4,
       "value": "0x64"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 758,
+      "offset": 1097,
       "length": 4,
       "value": "0x65"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 792,
+      "offset": 1131,
       "length": 4,
       "value": "0x66"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 825,
+      "offset": 1164,
       "length": 4,
       "value": "0x67"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 858,
+      "offset": 1197,
       "length": 4,
       "value": "0x68"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 889,
+      "offset": 1228,
       "length": 4,
       "value": "0x70"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 920,
+      "offset": 1259,
       "length": 4,
       "value": "0x71"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 951,
+      "offset": 1290,
       "length": 4,
       "value": "0x72"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 983,
+      "offset": 1322,
       "length": 4,
       "value": "0x80"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1015,
+      "offset": 1354,
       "length": 4,
       "value": "0x81"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1054,
+      "offset": 1393,
       "length": 4,
       "value": "0x90"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1099,
+      "offset": 1438,
       "length": 4,
       "value": "0x91"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1148,
+      "offset": 1487,
       "length": 4,
       "value": "0x92"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1180,
+      "offset": 1519,
       "length": 4,
       "value": "0xee"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1207,
+      "offset": 1546,
       "length": 4,
       "value": "0xf3"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1236,
+      "offset": 1575,
       "length": 4,
       "value": "0xf4"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1272,
+      "offset": 1611,
       "length": 4,
       "value": "0xf5"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1310,
+      "offset": 1649,
       "length": 4,
       "value": "0xf6"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1344,
+      "offset": 1683,
       "length": 4,
       "value": "0xf7"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1370,
+      "offset": 1709,
       "length": 4,
       "value": "0xf9"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1406,
+      "offset": 1745,
       "length": 4,
       "value": "0xfa"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1440,
+      "offset": 1779,
       "length": 4,
       "value": "0xfb"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1473,
+      "offset": 1812,
       "length": 4,
       "value": "0xfc"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1501,
+      "offset": 1840,
       "length": 4,
       "value": "0xfd"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1528,
+      "offset": 1867,
       "length": 4,
       "value": "0xfe"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/DeviceCommandType.swift",
       "kind": "IntegerLiteral",
-      "offset": 1550,
+      "offset": 1889,
       "length": 4,
       "value": "0xff"
     },
@@ -70555,6 +71132,20 @@
       "value": "0x0e"
     },
     {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/NotificationsType.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1064,
+      "length": 4,
+      "value": "0x0e"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/NotificationsType.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1096,
+      "length": 4,
+      "value": "0x0f"
+    },
+    {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Enumerations\/packetType.swift",
       "kind": "IntegerLiteral",
       "offset": 186,
@@ -71278,63 +71869,70 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "BooleanLiteral",
-      "offset": 6540,
+      "offset": 6752,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
+      "kind": "BooleanLiteral",
+      "offset": 7251,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "FloatLiteral",
-      "offset": 6858,
+      "offset": 7569,
       "length": 3,
       "value": "0.0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "BooleanLiteral",
-      "offset": 20275,
+      "offset": 22985,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "IntegerLiteral",
-      "offset": 20297,
+      "offset": 23007,
       "length": 1,
       "value": "4"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "BooleanLiteral",
-      "offset": 54055,
+      "offset": 56765,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "BooleanLiteral",
-      "offset": 54075,
+      "offset": 56785,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "BooleanLiteral",
-      "offset": 54094,
+      "offset": 56804,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "BooleanLiteral",
-      "offset": 54112,
+      "offset": 56822,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/scripts\/shell-app\/Pods\/SensorBioBTSDK\/Source\/Top Level\/SB_Device.swift",
       "kind": "IntegerLiteral",
-      "offset": 64536,
+      "offset": 67246,
       "length": 1,
       "value": "0"
     },
