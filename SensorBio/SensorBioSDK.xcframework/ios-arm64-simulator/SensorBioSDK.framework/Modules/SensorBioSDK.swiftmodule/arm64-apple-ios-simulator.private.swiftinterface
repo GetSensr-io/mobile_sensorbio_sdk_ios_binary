@@ -10136,17 +10136,17 @@ public struct SB_HRMExerciseZone : Swift.Codable, Swift.Equatable, Swift.Sendabl
 }
 extension SensorBioSDK.SB_HRMManager {
   final public func saveHR(_ packets: [SensorBioSDK.StreamingPacket])
-  final public func fetchHR(endTime: Swift.Int64) -> [SensorBioSDK.HRMeasure]
+  final public func hasUnprocessedHR(before endTime: Swift.Int64) -> Swift.Bool
   final public func markHRProcessed(timestamps: [Swift.Int64])
 }
 extension SensorBioSDK.SB_HRMManager {
   final public func saveHRV(_ packets: [SensorBioSDK.StreamingPacket])
-  final public func fetchHRV(endTime: Swift.Int64) -> [SensorBioSDK.HRVMeasure]
+  final public func hasUnprocessedHRV(before endTime: Swift.Int64) -> Swift.Bool
   final public func markHRVProcessed(timestamps: [Swift.Int64])
 }
 extension SensorBioSDK.SB_HRMManager {
   final public func saveRR(_ packets: [SensorBioSDK.StreamingPacket])
-  final public func fetchRR(endTime: Swift.Int64) -> [SensorBioSDK.RRMeasure]
+  final public func hasUnprocessedRR(before endTime: Swift.Int64) -> Swift.Bool
   final public func markRRProcessed(timestamps: [Swift.Int64])
 }
 extension SensorBioSDK.SB_HRMManager {
@@ -11282,11 +11282,11 @@ extension SensorBioSDK.SB_SDK {
   public func fetchDailyActivityDetail(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_DailyActivityDetail
   public func fetchDailyRecovery(date: Foundation.Date, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_DailyRecoveryTrending
   public func fetchRangeRecovery(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_RecoveryRangeTrending
-  public func cachedSteps(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_StepsTrending?
-  public func cachedCalories(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_CaloriesTrending?
-  public func cachedDailyActivityDetail(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_DailyActivityDetail?
-  public func cachedDailyRecovery(for date: Foundation.Date) -> SensorBioSDK.SB_DailyRecoveryTrending?
-  public func cachedRangeRecovery(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_RecoveryRangeTrending?
+  public func stepsUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_StepsTrending, any Swift.Error>
+  public func caloriesUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_CaloriesTrending, any Swift.Error>
+  public func dailyActivityDetailUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_DailyActivityDetail, any Swift.Error>
+  public func dailyRecoveryUpdates(for date: Foundation.Date, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_DailyRecoveryTrending, any Swift.Error>
+  public func rangeRecoveryUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_RecoveryRangeTrending, any Swift.Error>
 }
 extension SensorBioSDK.SB_SDK {
   public static func runDefaultsMigratorIfNeeded()
@@ -11327,21 +11327,21 @@ extension SensorBioSDK.SB_SDK {
   public func fetchRangeRR(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_RRRangeTrending
   public func fetchDailySpO2(date: Foundation.Date, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SpO2DailyTrending
   public func fetchRangeSpO2(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SpO2RangeTrending
-  public func cachedDailyHR(for date: Foundation.Date) -> SensorBioSDK.SB_HRDailyTrending?
-  public func cachedRangeHR(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_HRRangeTrending?
-  public func cachedDailyHRV(for date: Foundation.Date) -> SensorBioSDK.SB_HRVDailyTrending?
-  public func cachedRangeHRV(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_HRVRangeTrending?
-  public func cachedDailyRR(for date: Foundation.Date) -> SensorBioSDK.SB_RRDailyTrending?
-  public func cachedRangeRR(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_RRRangeTrending?
-  public func cachedDailySpO2(for date: Foundation.Date) -> SensorBioSDK.SB_SpO2DailyTrending?
-  public func cachedRangeSpO2(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_SpO2RangeTrending?
+  public func dailyHRUpdates(for date: Foundation.Date, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_HRDailyTrending, any Swift.Error>
+  public func rangeHRUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_HRRangeTrending, any Swift.Error>
+  public func dailyHRVUpdates(for date: Foundation.Date, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_HRVDailyTrending, any Swift.Error>
+  public func rangeHRVUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_HRVRangeTrending, any Swift.Error>
+  public func dailyRRUpdates(for date: Foundation.Date, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_RRDailyTrending, any Swift.Error>
+  public func rangeRRUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_RRRangeTrending, any Swift.Error>
+  public func dailySpO2Updates(for date: Foundation.Date, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_SpO2DailyTrending, any Swift.Error>
+  public func rangeSpO2Updates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_SpO2RangeTrending, any Swift.Error>
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchDailyStats(startDate: Swift.Int32, days: Swift.Int32, includeBiometrics: Swift.Bool, includeSleep: Swift.Bool, includeSteps: Swift.Bool) async throws -> SensorBioSDK.SB_DailyStatsResponse
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchDashboardData(date: Foundation.Date, tzOffset: Swift.Int32, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_DashboardData
-  public func cachedDashboardData(for date: Foundation.Date) -> SensorBioSDK.SB_DashboardData?
+  public func dashboardUpdates(for date: Foundation.Date, tzOffset: Swift.Int32, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_DashboardData, any Swift.Error>
 }
 extension SensorBioSDK.SB_SDK {
   public func updateUserDeviceInfo(macAddress: Swift.String, metadata: [Swift.String : Swift.String], unlinkDevice: Swift.Bool)
@@ -11427,8 +11427,8 @@ extension SensorBioSDK.SB_SDK {
 extension SensorBioSDK.SB_SDK {
   public func fetchSleepDetail(endDate: Foundation.Date, endTimestamp: Swift.Int64, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SleepDetailDay
   public func fetchSleepAggregation(date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_SleepDetailAggregated
-  public func cachedSleepDetail(endDate: Foundation.Date, endTimestamp: Swift.Int64) -> SensorBioSDK.SB_SleepDetailDay?
-  public func cachedSleepAggregation(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity) -> SensorBioSDK.SB_SleepDetailAggregated?
+  public func sleepDetailUpdates(endDate: Foundation.Date, endTimestamp: Swift.Int64, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_SleepDetailDay, any Swift.Error>
+  public func sleepAggregationUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_SleepDetailAggregated, any Swift.Error>
 }
 public enum SB_SleepWriteError : Swift.Error {
   case insufficientData
@@ -11458,7 +11458,7 @@ public struct SB_SkinTemperature : Swift.Sendable {
   public init(min: Swift.Float, max: Swift.Float, average: Swift.Float, points: [SensorBioSDK.SB_SkinTemperature.Point])
 }
 extension SensorBioSDK.SB_SDK {
-  public func getSkinTemperature(date: Foundation.Date) -> SensorBioSDK.SB_SkinTemperature?
+  public func getSkinTemperature(date: Foundation.Date) async -> SensorBioSDK.SB_SkinTemperature?
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchActivityList() async throws -> SensorBioSDK.SB_ActivityRecordingList

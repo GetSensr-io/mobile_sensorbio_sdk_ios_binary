@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v1.0.0'
+    :tag => 'v1.1.0'
 end
 
 post_install do |installer|
@@ -355,7 +355,7 @@ public func signOut() async throws                                    // see sid
 public func generateTemporaryAuthToken() async throws -> String?
 
 // Password
-public func requestPasswordReset(email: String) async throws -> SB_RequestPasswordResetOutcome
+public func requestPasswordReset(email: String) async throws -> SB_RequestPasswordResetOutcome  // ⚠️ link-based; slated for removal — see internal-only code-based reset below
 public func changePassword(currentPassword: String, newPassword: String) async throws -> SB_ChangePasswordOutcome
 
 // Agreements (ToS / Health Data)
@@ -363,6 +363,8 @@ public func shouldRequestAgreement(type: SB_AgreementType) async throws -> SB_Ag
 public func acceptAgreements(tosVersion: String, healthDataVersion: String) async throws
 public func acceptCurrentAgreements() async throws
 ```
+
+
 
 Example:
 
@@ -589,7 +591,9 @@ Every method below is `async throws` on the `SB_SDK` facade. All return typed `S
 - **A past date** is served straight from the on-disk cache with no network call — *but only once that cache is final*, i.e. it was written after the date's own calendar day ended. An entry cached while the date was still "today" is provisional (the day was still accumulating — a late device sync, a sleep the server scores hours later), so the first time you open that day *after it has passed* the SDK refetches once to finalize it, then serves from cache thereafter. This is transparent to the caller: keep calling `fetch…` on load and the SDK decides whether a network hit is needed.
 - **`forceRemote: true`** (pull-to-refresh) always fetches, regardless of the above.
 
-Each cache-backed read also has a synchronous, no-network peek that returns the last cached value (or `nil`) for stale-while-revalidate rendering — these always return whatever is on disk (provisional included) so the UI can paint instantly while the finalizing `fetch…` runs: `cachedDashboardData(for:)`, `cachedDailyHR(for:)` / `cachedRangeHR(for:granularity:)` (and the HRV / RR / SpO2 equivalents), `cachedSteps(for:granularity:)`, `cachedCalories(for:granularity:)`, `cachedDailyActivityDetail(for:granularity:)`, `cachedDailyRecovery(for:)` / `cachedRangeRecovery(for:granularity:)`, `cachedSleepDetail(endDate:endTimestamp:)`, and `cachedSleepAggregation(for:granularity:)`.
+**Stale-while-revalidate streams.** Each cache-backed read also has an `…Updates(…)` variant returning `AsyncThrowingStream<T, Error>` that **yields the last cached value first (if any), then the fresh server value** — consume it with `for try await v in …`. This replaces the older synchronous `cachedX(for:)` peeks (removed): the peek read the store on the caller's (main) thread; the stream reads off-main and non-blocking (SB-1546), so `for try await` inside a `@MainActor` Task both paints instantly *and* keeps the UI thread free. On a fetch failure with a cached value present, the cached value is delivered and the stream finishes (no throw); with nothing cached it throws. `fetch…` (single value) is retained for pull-to-refresh (`forceRemote: true`) and one-shot reads. The stream variants: `dashboardUpdates(for:tzOffset:)`, `dailyHRUpdates(for:)` / `rangeHRUpdates(for:granularity:)` (and the HRV / RR / SpO2 equivalents), `stepsUpdates(for:granularity:)`, `caloriesUpdates(for:granularity:)`, `dailyActivityDetailUpdates(for:granularity:)`, `dailyRecoveryUpdates(for:)` / `rangeRecoveryUpdates(for:granularity:)`, `sleepDetailUpdates(endDate:endTimestamp:)`, and `sleepAggregationUpdates(for:granularity:)`. Each takes a trailing `forceRemote: Bool = false`.
+
+> **Non-blocking store access (SB-1546).** All SDK SwiftData reads/writes on the async path (`getSkinTemperature`, the cache reads/writes behind the streams, and the packet-upload queue ops) now suspend on the store's serial queue rather than blocking the calling thread. `getSkinTemperature(date:)` is therefore `async`.
 
 > **`forceRemote` (pull-to-refresh).** Every cache-backed `fetch…` read takes a trailing `forceRemote: Bool = false`. When `true`, every cache shortcut is bypassed and the read always hits the network (still writing the fresh result to the cache, and still falling back to the cached payload on a network failure). Pass `forceRemote: true` from a user-initiated refresh. This is the escape hatch for data that changes after the fact — a device synced days later, or sleep/recovery **scores** the server finishes processing asynchronously after upload — on top of the automatic provisional-cache refetch described above.
 
