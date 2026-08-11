@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		164710E28DAAA8272DC99827 /* SignUpFormState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D76877D03565B0CC996C19 /* SignUpFormState.swift */; };
-		214124F64AE4B92E6A1F2AA7 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C8B98BE49E80AA2953C0A /* SignInView.swift */; };
+		214124F64AE4B92E6A1F2AA7 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 519C8B98BE49E80AA2953C0A /* RegisterView.swift */; };
 		265CDE4B4BA21486B9A66A5B /* HRVDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC221488DA9BBEB059227BD /* HRVDetailView.swift */; };
 		36054B70743C8B67B9D1715D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5014B422856F3856804FE5A /* ContentView.swift */; };
 		3744BE3F4C810563329EE89C /* Pods_ExampleApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B10CD9B700710DE8483551A /* Pods_ExampleApp.framework */; };
@@ -19,8 +18,7 @@
 		5DF4A37E5ABDD9679DD524DF /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC6C539B2D79134C0BB21CE /* MainTabView.swift */; };
 		64EDE3714FA39474C381A533 /* RecoveryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D7D8B831057487AB86F81F /* RecoveryDetailView.swift */; };
 		71273BB6A7733EA277325A78 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE70B675CC58D3B140F6444D /* Assets.xcassets */; };
-		74F3EFECDF1EB57510D7AFBC /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F64D87A55A3F29264BE2DA66 /* SignUpView.swift */; };
-		83B4AD1D8B7D5A27562850CC /* SignInFormState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4B95183F613C447AAF4D62 /* SignInFormState.swift */; };
+		83B4AD1D8B7D5A27562850CC /* RegisterFormState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4B95183F613C447AAF4D62 /* RegisterFormState.swift */; };
 		86BE0DD7167ED318F65454B4 /* PairDeviceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665D054FD505DCC598224AB5 /* PairDeviceState.swift */; };
 		891608A7E0C71E7F2BAD4AC3 /* SleepDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FD910ACB453F265C8E01FD /* SleepDetailView.swift */; };
 		8D167E08376F79E8DD0B6479 /* PairDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A492870FDF12B462872D50B7 /* PairDeviceView.swift */; };
@@ -36,14 +34,14 @@
 
 /* Begin PBXFileReference section */
 		04559BD2179D8DA45FAB4D6C /* Pods-ExampleApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExampleApp.release.xcconfig"; path = "Target Support Files/Pods-ExampleApp/Pods-ExampleApp.release.xcconfig"; sourceTree = "<group>"; };
-		0C4B95183F613C447AAF4D62 /* SignInFormState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInFormState.swift; sourceTree = "<group>"; };
+		0C4B95183F613C447AAF4D62 /* RegisterFormState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterFormState.swift; sourceTree = "<group>"; };
 		2B10CD9B700710DE8483551A /* Pods_ExampleApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ExampleApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		34D7D8B831057487AB86F81F /* RecoveryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryDetailView.swift; sourceTree = "<group>"; };
 		3B3A01B084D14088BB918BA9 /* HRDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRDetailView.swift; sourceTree = "<group>"; };
 		3D43D0921D5B2F53DB442764 /* SDKExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKExampleApp.swift; sourceTree = "<group>"; };
 		3E2E8610C77C88E9E96D8821 /* RRDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RRDetailView.swift; sourceTree = "<group>"; };
 		51717CEF22FD31D89FA806A6 /* DashboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardState.swift; sourceTree = "<group>"; };
-		519C8B98BE49E80AA2953C0A /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		519C8B98BE49E80AA2953C0A /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		55FD910ACB453F265C8E01FD /* SleepDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDetailView.swift; sourceTree = "<group>"; };
 		5754A3DAAB8E8B8F86F14A79 /* StepsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsDetailView.swift; sourceTree = "<group>"; };
 		597DFAA70149577CB840168A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -59,11 +57,9 @@
 		C049C4624A9063E245B7F099 /* CaloriesDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaloriesDetailView.swift; sourceTree = "<group>"; };
 		CE70B675CC58D3B140F6444D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D5014B422856F3856804FE5A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		D5D76877D03565B0CC996C19 /* SignUpFormState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpFormState.swift; sourceTree = "<group>"; };
 		DF47AD9DAA58A61B2B9F3112 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		EF1BC2F185CB8B45012A1020 /* InsightsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsState.swift; sourceTree = "<group>"; };
 		F61A6C6DF2313ED7C0AB13ED /* Pods-ExampleApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExampleApp.debug.xcconfig"; path = "Target Support Files/Pods-ExampleApp/Pods-ExampleApp.debug.xcconfig"; sourceTree = "<group>"; };
-		F64D87A55A3F29264BE2DA66 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,10 +104,8 @@
 				34D7D8B831057487AB86F81F /* RecoveryDetailView.swift */,
 				3E2E8610C77C88E9E96D8821 /* RRDetailView.swift */,
 				3D43D0921D5B2F53DB442764 /* SDKExampleApp.swift */,
-				0C4B95183F613C447AAF4D62 /* SignInFormState.swift */,
-				519C8B98BE49E80AA2953C0A /* SignInView.swift */,
-				D5D76877D03565B0CC996C19 /* SignUpFormState.swift */,
-				F64D87A55A3F29264BE2DA66 /* SignUpView.swift */,
+				0C4B95183F613C447AAF4D62 /* RegisterFormState.swift */,
+				519C8B98BE49E80AA2953C0A /* RegisterView.swift */,
 				55FD910ACB453F265C8E01FD /* SleepDetailView.swift */,
 				5754A3DAAB8E8B8F86F14A79 /* StepsDetailView.swift */,
 			);
@@ -277,10 +271,8 @@
 				50A0B7975B76638885D05620 /* RRDetailView.swift in Sources */,
 				64EDE3714FA39474C381A533 /* RecoveryDetailView.swift in Sources */,
 				9D133FC4383F58DC5793497C /* SDKExampleApp.swift in Sources */,
-				83B4AD1D8B7D5A27562850CC /* SignInFormState.swift in Sources */,
-				214124F64AE4B92E6A1F2AA7 /* SignInView.swift in Sources */,
-				164710E28DAAA8272DC99827 /* SignUpFormState.swift in Sources */,
-				74F3EFECDF1EB57510D7AFBC /* SignUpView.swift in Sources */,
+				83B4AD1D8B7D5A27562850CC /* RegisterFormState.swift in Sources */,
+				214124F64AE4B92E6A1F2AA7 /* RegisterView.swift in Sources */,
 				891608A7E0C71E7F2BAD4AC3 /* SleepDetailView.swift in Sources */,
 				E9FC757AD240A56836EC1BD7 /* StepsDetailView.swift in Sources */,
 			);

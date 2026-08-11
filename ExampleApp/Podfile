@@ -9,7 +9,12 @@ inhibit_all_warnings!
 target 'ExampleApp' do
   use_frameworks!
 
-  pod 'SensorBioSDK', :path => '..'
+  # LOCAL DIAGNOSTIC: build SensorBioSDK (+ BTSDK) from SOURCE instead of the
+  # vendored binary xcframework, so the SDK's auth/gRPC code is editable and
+  # steppable while we chase the SDK-key (registerUser) auth bug. Revert to
+  # `pod 'SensorBioSDK', :path => '..'` before committing the example.
+  pod 'SensorBioSDK',   :path => '/Users/josephbennett/Development/sensr/mobile_sensorbio_sdk_ios'
+  pod 'SensorBioBTSDK', :path => '/Users/josephbennett/Development/sensr/mobile_bluetooth_sdk_ios'
 end
 
 post_install do |installer|

@@ -245,6 +245,19 @@ PODS:
     - abseil/types/span
     - abseil/utility/utility
     - abseil/xcprivacy
+  - abseil/container/node_hash_map (1.20250512.1):
+    - abseil/algorithm/container
+    - abseil/base/core_headers
+    - abseil/container/container_memory
+    - abseil/container/hash_container_defaults
+    - abseil/container/node_slot_policy
+    - abseil/container/raw_hash_map
+    - abseil/memory/memory
+    - abseil/meta/type_traits
+    - abseil/xcprivacy
+  - abseil/container/node_slot_policy (1.20250512.1):
+    - abseil/base/config
+    - abseil/xcprivacy
   - abseil/container/raw_hash_map (1.20250512.1):
     - abseil/base/config
     - abseil/base/core_headers
@@ -1173,20 +1186,23 @@ PODS:
     - abseil/meta/type_traits
     - abseil/xcprivacy
   - abseil/xcprivacy (1.20250512.1)
+  - AWSCore (2.41.0)
+  - AWSS3 (2.41.0):
+    - AWSCore (= 2.41.0)
   - BoringSSL-GRPC (0.0.41):
     - BoringSSL-GRPC/Implementation (= 0.0.41)
     - BoringSSL-GRPC/Interface (= 0.0.41)
   - BoringSSL-GRPC/Implementation (0.0.41):
     - BoringSSL-GRPC/Interface (= 0.0.41)
   - BoringSSL-GRPC/Interface (0.0.41)
-  - CocoaMQTT (2.2.4):
-    - CocoaMQTT/Core (= 2.2.4)
-  - CocoaMQTT/Core (2.2.4):
+  - CocoaMQTT (2.3.0):
+    - CocoaMQTT/Core (= 2.3.0)
+  - CocoaMQTT/Core (2.3.0):
     - MqttCocoaAsyncSocket (~> 1.0.8)
-  - gRPC-Core (1.75.0):
-    - gRPC-Core/Implementation (= 1.75.0)
-    - gRPC-Core/Interface (= 1.75.0)
-  - gRPC-Core/Implementation (1.75.0):
+  - gRPC-Core (1.76.0):
+    - gRPC-Core/Implementation (= 1.76.0)
+    - gRPC-Core/Interface (= 1.76.0)
+  - gRPC-Core/Implementation (1.76.0):
     - abseil/algorithm/container (~> 1.20250512.1)
     - abseil/base/base (~> 1.20250512.1)
     - abseil/base/config (~> 1.20250512.1)
@@ -1198,6 +1214,7 @@ PODS:
     - abseil/container/flat_hash_map (~> 1.20250512.1)
     - abseil/container/flat_hash_set (~> 1.20250512.1)
     - abseil/container/inlined_vector (~> 1.20250512.1)
+    - abseil/container/node_hash_map (~> 1.20250512.1)
     - abseil/flags/flag (~> 1.20250512.1)
     - abseil/flags/marshalling (~> 1.20250512.1)
     - abseil/functional/any_invocable (~> 1.20250512.1)
@@ -1225,64 +1242,70 @@ PODS:
     - abseil/types/span (~> 1.20250512.1)
     - abseil/utility/utility (~> 1.20250512.1)
     - BoringSSL-GRPC (= 0.0.41)
-    - gRPC-Core/Interface (= 1.75.0)
-    - gRPC-Core/Privacy (= 1.75.0)
-  - gRPC-Core/Interface (1.75.0)
-  - gRPC-Core/Privacy (1.75.0)
-  - gRPC-ProtoRPC (1.75.0):
-    - gRPC-ProtoRPC/Legacy (= 1.75.0)
-    - gRPC-ProtoRPC/Legacy-Header (= 1.75.0)
-    - gRPC-ProtoRPC/Main (= 1.75.0)
-  - gRPC-ProtoRPC/Legacy (1.75.0):
-    - gRPC-ProtoRPC/Legacy-Header (= 1.75.0)
-    - gRPC-ProtoRPC/Main (= 1.75.0)
-    - gRPC-RxLibrary (= 1.75.0)
-    - gRPC/GRPCCore (= 1.75.0)
+    - gRPC-Core/Interface (= 1.76.0)
+    - gRPC-Core/Privacy (= 1.76.0)
+  - gRPC-Core/Interface (1.76.0)
+  - gRPC-Core/Privacy (1.76.0)
+  - gRPC-ProtoRPC (1.76.0):
+    - gRPC-ProtoRPC/Legacy (= 1.76.0)
+    - gRPC-ProtoRPC/Legacy-Header (= 1.76.0)
+    - gRPC-ProtoRPC/Main (= 1.76.0)
+  - gRPC-ProtoRPC/Legacy (1.76.0):
+    - gRPC-ProtoRPC/Legacy-Header (= 1.76.0)
+    - gRPC-ProtoRPC/Main (= 1.76.0)
+    - gRPC-RxLibrary (= 1.76.0)
+    - gRPC/GRPCCore (= 1.76.0)
     - Protobuf (~> 4.0)
-  - gRPC-ProtoRPC/Legacy-Header (1.75.0)
-  - gRPC-ProtoRPC/Main (1.75.0):
-    - gRPC-ProtoRPC/Legacy-Header (= 1.75.0)
-    - gRPC/Interface (= 1.75.0)
+  - gRPC-ProtoRPC/Legacy-Header (1.76.0)
+  - gRPC-ProtoRPC/Main (1.76.0):
+    - gRPC-ProtoRPC/Legacy-Header (= 1.76.0)
+    - gRPC/Interface (= 1.76.0)
     - Protobuf (~> 4.0)
-  - gRPC-RxLibrary (1.75.0):
-    - gRPC-RxLibrary/Implementation (= 1.75.0)
-    - gRPC-RxLibrary/Interface (= 1.75.0)
-  - gRPC-RxLibrary/Implementation (1.75.0):
+  - gRPC-RxLibrary (1.76.0):
+    - gRPC-RxLibrary/Implementation (= 1.76.0)
+    - gRPC-RxLibrary/Interface (= 1.76.0)
+  - gRPC-RxLibrary/Implementation (1.76.0):
     - gRPC-RxLibrary/Interface
-  - gRPC-RxLibrary/Interface (1.75.0)
-  - gRPC/GRPCCore (1.75.0):
-    - gRPC-Core (= 1.75.0)
-    - gRPC-RxLibrary (= 1.75.0)
-    - gRPC/Interface (= 1.75.0)
-    - gRPC/Interface-Legacy (= 1.75.0)
-    - gRPC/Privacy (= 1.75.0)
-  - gRPC/Interface (1.75.0):
-    - gRPC/Interface-Legacy (= 1.75.0)
-    - gRPC/Privacy (= 1.75.0)
-  - gRPC/Interface-Legacy (1.75.0):
-    - gRPC-RxLibrary/Interface (= 1.75.0)
-    - gRPC/Privacy (= 1.75.0)
-  - gRPC/Privacy (1.75.0)
+  - gRPC-RxLibrary/Interface (1.76.0)
+  - gRPC/GRPCCore (1.76.0):
+    - gRPC-Core (= 1.76.0)
+    - gRPC-RxLibrary (= 1.76.0)
+    - gRPC/Interface (= 1.76.0)
+    - gRPC/Interface-Legacy (= 1.76.0)
+    - gRPC/Privacy (= 1.76.0)
+  - gRPC/Interface (1.76.0):
+    - gRPC/Interface-Legacy (= 1.76.0)
+    - gRPC/Privacy (= 1.76.0)
+  - gRPC/Interface-Legacy (1.76.0):
+    - gRPC-RxLibrary/Interface (= 1.76.0)
+    - gRPC/Privacy (= 1.76.0)
+  - gRPC/Privacy (1.76.0)
   - KeychainAccess (4.2.2)
   - MqttCocoaAsyncSocket (1.0.8)
-  - Protobuf (4.32.1)
-  - SensorBioSDK (0.14.0):
+  - Protobuf (4.33.6)
+  - SensorBioBTSDK (9.0.113)
+  - SensorBioSDK (1.1.0):
+    - AWSS3 (~> 2.34)
     - CocoaMQTT (~> 2.2)
     - gRPC-ProtoRPC
     - KeychainAccess (~> 4.0)
+    - SensorBioBTSDK (~> 9.0.113)
     - SwiftKeychainWrapper (~> 4.0)
     - SwiftProtobuf (~> 1.37)
     - SwiftQueue (~> 6.0)
   - SwiftKeychainWrapper (4.0.1)
-  - SwiftProtobuf (1.38.0)
+  - SwiftProtobuf (1.38.1)
   - SwiftQueue (6.0.0)
 
 DEPENDENCIES:
-  - SensorBioSDK (from `..`)
+  - SensorBioBTSDK (from `/Users/josephbennett/Development/sensr/mobile_bluetooth_sdk_ios`)
+  - SensorBioSDK (from `/Users/josephbennett/Development/sensr/mobile_sensorbio_sdk_ios`)
 
 SPEC REPOS:
   trunk:
     - abseil
+    - AWSCore
+    - AWSS3
     - BoringSSL-GRPC
     - CocoaMQTT
     - gRPC
@@ -1297,25 +1320,30 @@ SPEC REPOS:
     - SwiftQueue
 
 EXTERNAL SOURCES:
+  SensorBioBTSDK:
+    :path: "/Users/josephbennett/Development/sensr/mobile_bluetooth_sdk_ios"
   SensorBioSDK:
-    :path: ".."
+    :path: "/Users/josephbennett/Development/sensr/mobile_sensorbio_sdk_ios"
 
 SPEC CHECKSUMS:
   abseil: 7fa81b779e36e3f761304c08dbad00b93bccf99c
+  AWSCore: ee7594bda3132cde8666328bf9a09d8770c1c100
+  AWSS3: 50da7408a26c1c2886d02968807f2a0b6bf936ca
   BoringSSL-GRPC: 67474b580c48b3327ac586844fe2b574fcbadde6
-  CocoaMQTT: 6a26470fae5c25605f24d6fa3e596c8883e82c84
-  gRPC: 3941eb1f030670f9e5b799923266d980f186fcd5
-  gRPC-Core: 7eaec2d1bb083a8550ca6ffeccca37e0a8d6cc48
-  gRPC-ProtoRPC: 50fcb88b7d042c74a7d7bb8db6eb26d3692d571b
-  gRPC-RxLibrary: d4752faf63997b3a258acfe59b382db666892792
+  CocoaMQTT: f97a1da91f9fa99649aeb466518dc5bbb0cea5d2
+  gRPC: c1522f2e9620fa99f5f16a1d65596f8cb081c675
+  gRPC-Core: ba9d3592f830c7f570e000961362da1abf37907f
+  gRPC-ProtoRPC: fd4d64ad29f3259aaea5e5ddda1763a185e4ede5
+  gRPC-RxLibrary: 2791e6a7d85639a03db4ef849f450750ee1c3e58
   KeychainAccess: c0c4f7f38f6fc7bbe58f5702e25f7bd2f65abf51
   MqttCocoaAsyncSocket: 77d3b74f76228dd5a05d1f9526eab101d415b30c
-  Protobuf: 19ac8864550efbdbc2269473d57ed73d545d0f8f
-  SensorBioSDK: b601aac8ff86eede13040fd70a691396db6c1574
+  Protobuf: a58fa4a5f4f70163753779228d7789ce8e197468
+  SensorBioBTSDK: 497af4f5cd5fbe9a8e90f6a9fa8e402cd5bcd3c0
+  SensorBioSDK: 4c6bdb8524bdf4a859e3234deef3c2472cb27538
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
-  SwiftProtobuf: d724b5145bfc609d9a49c1e3e3a3dabb07273ffb
+  SwiftProtobuf: 409d3aaec90e51b1705b1dd8065b56893450e77c
   SwiftQueue: ce8ff8194f3318bedea023b14277091e8a6887a3
 
-PODFILE CHECKSUM: dc2fb80e14469b60c6a008ad16749a503bd0da86
+PODFILE CHECKSUM: 9737ce2e21f488d3d08ab134a64dd4d3050d74d4
 
 COCOAPODS: 1.16.2
