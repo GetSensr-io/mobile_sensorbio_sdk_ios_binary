@@ -19,7 +19,6 @@ struct ProfileView: View {
         List {
             Section("Account") {
                 LabeledContent("Username", value: session.username)
-                LabeledContent("Email", value: session.email)
             }
 
             if haveDevice, let device = pairedDevice {

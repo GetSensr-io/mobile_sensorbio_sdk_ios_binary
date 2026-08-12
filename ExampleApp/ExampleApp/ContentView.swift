@@ -3,11 +3,16 @@ import SensorBioSDK
 
 struct ContentView: View {
     @State private var session: SB_Session? = sensorBio.session
+    @State private var authFlow = AuthFlow.shared
     @AppStorage("envIsDev") private var envIsDev: Bool = true
 
     var body: some View {
         Group {
-            if let session {
+            // While a register attempt is resolving, stay on the signed-out
+            // screen even if the SDK has transiently published a session — a
+            // failed register creates the account and publishes a session
+            // before we roll it back.
+            if let session, !authFlow.isRegistering {
                 MainTabView(session: session)
             } else {
                 signedOut
@@ -24,14 +29,9 @@ struct ContentView: View {
             List {
                 Section("Auth") {
                     NavigationLink {
-                        SignInView()
+                        RegisterView()
                     } label: {
-                        Label("Sign In", systemImage: "person.crop.circle")
-                    }
-                    NavigationLink {
-                        SignUpView()
-                    } label: {
-                        Label("Create Account", systemImage: "person.crop.circle.badge.plus")
+                        Label("Register", systemImage: "person.crop.circle.badge.plus")
                     }
                 }
                 Section {
