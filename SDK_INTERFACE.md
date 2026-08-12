@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v1.1.0'
+    :tag => 'v1.2.0'
 end
 
 post_install do |installer|
@@ -335,10 +335,11 @@ public func validateAccountRequirements(
     _ request: SB_ValidateAccountRequirementsRequest
 ) async throws -> SB_ValidateAccountRequirementsResult
 
-// SDK-key auth (externally-authenticated, password-less users — SB-957)
+// SDK-key auth (externally-authenticated, password-less users — SB-957).
+// Configure `SB_SDK.sdkKeyCredentials` once (like `SB_SDK.environment`),
+// then register with just the user identity — see §4.1.
+public static var sdkKeyCredentials: SB_SDKKeyCredentials?   // host-supplied org creds; in-memory only, never persisted
 public func registerUser(
-    orgId: String,
-    sdkKey: String,
     userId: String,
     email: String? = nil,
     birthday: DateComponents? = nil,
@@ -399,14 +400,31 @@ do {
 
 For third-party apps embedding the SDK, `registerUser` is a **register-or-login** entry point for users your app has already authenticated by its own means (your login, SSO, OAuth — the SDK doesn't care which). These users have **no** Sensor Bio email/password. On success the SDK persists the returned session and publishes `session` / `userProfile`, exactly like `signIn`.
 
-- **`orgId` + `sdkKey`** — the server-issued organization credentials for your integration (from your Sensor Bio dashboard). The backend validates that the key is active and belongs to `orgId`.
+**Configure your org credentials first.** The SDK reads your organization credentials from `SB_SDK.sdkKeyCredentials`, which you set **once** (like `SB_SDK.environment`) before registering. The SDK holds them **in memory only — it never persists them**, and it uses them on every authenticated call for the session (not just registration). Because they are not persisted, a host that relaunches into a **hydrated** session (restored from the keychain) **must set `sdkKeyCredentials` again at launch, before the first authenticated call** (e.g. in `App.init`, alongside `SB_SDK.environment`).
+
+```swift
+public struct SB_SDKKeyCredentials: Sendable, Equatable {
+    public let orgId: String   // server-issued organization UUID (from your Sensor Bio dashboard)
+    public let sdkKey: String  // server-issued SDK key; validated as active and belonging to orgId
+    public init(orgId: String, sdkKey: String)
+}
+
+// e.g. in App.init, and again after a cold launch that hydrates a session:
+SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(orgId: orgId, sdkKey: sdkKey)
+```
+
+`registerUser` parameters:
+
 - **`userId`** — your own stable identifier for the end-user (`client_sdk_user_id`). The first call for a given `userId` registers; subsequent calls log in. It is also recorded as the user's **username** (visible in the web dashboard).
 - **`email`** *(optional)* — a contact email. Omitted if nil/empty; when supplied it is recorded on the backend as the user's contact email (never used as the login identity).
 - **`birthday` / `sex` / `heightCm` / `weightKg` / `imperialUnits`** *(optional)* — demographics. **Any omitted value is filled with a dummy** before the request is sent: the platform requires height/weight/sex/birthday to compute higher-level metrics (recovery, calories, sleep scoring, …), so a user with none would break downstream processing. Pass real values when you have them.
 - **`activationCode`** *(optional)* — redeems a device-subscription activation code during a first registration (same flow as `createAccount`).
 
+> The org credentials come from `SB_SDK.sdkKeyCredentials`, **not** from parameters on `registerUser` — set them once (above) and pass only the user identity here. If `sdkKeyCredentials` is unset, `registerUser` returns `.failure(errorCode: "sdkKeyCredentialsNotSet")`.
+
 ```swift
-switch try await sensorBio.registerUser(orgId: orgId, sdkKey: sdkKey, userId: userId) {
+// SB_SDK.sdkKeyCredentials must already be set (see above).
+switch try await sensorBio.registerUser(userId: userId) {
 case .success(let session):        routeToHome(session)
 case .failure(let errorCode):      showError(errorCode)   // e.g. "clientSdkUserIDAlreadyInUse"
 }

@@ -11297,7 +11297,7 @@ public enum SB_RegisterUserOutcome : Swift.Sendable {
   case failure(errorCode: Swift.String)
 }
 extension SensorBioSDK.SB_SDK {
-  public func registerUser(orgId: Swift.String, sdkKey: Swift.String, userId: Swift.String, email: Swift.String? = nil, birthday: Foundation.DateComponents? = nil, sex: SensorBioSDK.SB_Gender? = nil, heightCm: Swift.Float? = nil, weightKg: Swift.Float? = nil, imperialUnits: Swift.Bool = false, activationCode: Swift.String? = nil) async throws -> SensorBioSDK.SB_RegisterUserOutcome
+  public func registerUser(userId: Swift.String, email: Swift.String? = nil, birthday: Foundation.DateComponents? = nil, sex: SensorBioSDK.SB_Gender? = nil, heightCm: Swift.Float? = nil, weightKg: Swift.Float? = nil, imperialUnits: Swift.Bool = false, activationCode: Swift.String? = nil) async throws -> SensorBioSDK.SB_RegisterUserOutcome
   public var isAuthenticated: Swift.Bool {
     get
   }
@@ -11335,6 +11335,18 @@ extension SensorBioSDK.SB_SDK {
   public func rangeRRUpdates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_RRRangeTrending, any Swift.Error>
   public func dailySpO2Updates(for date: Foundation.Date, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_SpO2DailyTrending, any Swift.Error>
   public func rangeSpO2Updates(for date: Foundation.Date, granularity: SensorBioSDK.SB_ViewGranularity, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_SpO2RangeTrending, any Swift.Error>
+}
+extension SensorBioSDK.SB_SDK {
+  public static var sdkKeyCredentials: SensorBioSDK.SB_SDKKeyCredentials? {
+    get
+    set
+  }
+}
+public struct SB_SDKKeyCredentials : Swift.Sendable, Swift.Equatable {
+  public let orgId: Swift.String
+  public let sdkKey: Swift.String
+  public init(orgId: Swift.String, sdkKey: Swift.String)
+  public static func == (a: SensorBioSDK.SB_SDKKeyCredentials, b: SensorBioSDK.SB_SDKKeyCredentials) -> Swift.Bool
 }
 extension SensorBioSDK.SB_SDK {
   public func fetchDailyStats(startDate: Swift.Int32, days: Swift.Int32, includeBiometrics: Swift.Bool, includeSleep: Swift.Bool, includeSteps: Swift.Bool) async throws -> SensorBioSDK.SB_DailyStatsResponse
