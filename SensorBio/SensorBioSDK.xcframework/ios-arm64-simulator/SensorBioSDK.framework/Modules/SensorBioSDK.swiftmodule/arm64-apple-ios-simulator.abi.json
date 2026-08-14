@@ -41780,6 +41780,820 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "SB_HRDataPoint",
+        "printedName": "SB_HRDataPoint",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "epoch",
+            "printedName": "epoch",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK14SB_HRDataPointV5epochs5Int64Vvp",
+            "mangledName": "$s12SensorBioSDK14SB_HRDataPointV5epochs5Int64Vvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK14SB_HRDataPointV5epochs5Int64Vvg",
+                "mangledName": "$s12SensorBioSDK14SB_HRDataPointV5epochs5Int64Vvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "value",
+            "printedName": "value",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK14SB_HRDataPointV5valueSivp",
+            "mangledName": "$s12SensorBioSDK14SB_HRDataPointV5valueSivp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK14SB_HRDataPointV5valueSivg",
+                "mangledName": "$s12SensorBioSDK14SB_HRDataPointV5valueSivg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "type",
+            "printedName": "type",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRPointType",
+                "printedName": "SensorBioSDK.SB_HRPointType",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK14SB_HRDataPointV4typeAA0D12_HRPointTypeOvp",
+            "mangledName": "$s12SensorBioSDK14SB_HRDataPointV4typeAA0D12_HRPointTypeOvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRPointType",
+                    "printedName": "SensorBioSDK.SB_HRPointType",
+                    "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK14SB_HRDataPointV4typeAA0D12_HRPointTypeOvg",
+                "mangledName": "$s12SensorBioSDK14SB_HRDataPointV4typeAA0D12_HRPointTypeOvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(epoch:value:type:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoint",
+                "printedName": "SensorBioSDK.SB_HRDataPoint",
+                "usr": "s:12SensorBioSDK14SB_HRDataPointV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRPointType",
+                "printedName": "SensorBioSDK.SB_HRPointType",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK14SB_HRDataPointV5epoch5value4typeACs5Int64V_SiAA0D12_HRPointTypeOtcfc",
+            "mangledName": "$s12SensorBioSDK14SB_HRDataPointV5epoch5value4typeACs5Int64V_SiAA0D12_HRPointTypeOtcfc",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoint",
+                "printedName": "SensorBioSDK.SB_HRDataPoint",
+                "usr": "s:12SensorBioSDK14SB_HRDataPointV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK14SB_HRDataPointV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s12SensorBioSDK14SB_HRDataPointV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK14SB_HRDataPointV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s12SensorBioSDK14SB_HRDataPointV6encode2toys7Encoder_p_tKF",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoint",
+                "printedName": "SensorBioSDK.SB_HRDataPoint",
+                "usr": "s:12SensorBioSDK14SB_HRDataPointV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoint",
+                "printedName": "SensorBioSDK.SB_HRDataPoint",
+                "usr": "s:12SensorBioSDK14SB_HRDataPointV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK14SB_HRDataPointV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s12SensorBioSDK14SB_HRDataPointV2eeoiySbAC_ACtFZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:12SensorBioSDK14SB_HRDataPointV",
+        "mangledName": "$s12SensorBioSDK14SB_HRDataPointV",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SB_HRDataPoints",
+        "printedName": "SB_HRDataPoints",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "points",
+            "printedName": "points",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[SensorBioSDK.SB_HRDataPoint]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRDataPoint",
+                    "printedName": "SensorBioSDK.SB_HRDataPoint",
+                    "usr": "s:12SensorBioSDK14SB_HRDataPointV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV6pointsSayAA0d1_E5PointVGvp",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV6pointsSayAA0d1_E5PointVGvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[SensorBioSDK.SB_HRDataPoint]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_HRDataPoint",
+                        "printedName": "SensorBioSDK.SB_HRDataPoint",
+                        "usr": "s:12SensorBioSDK14SB_HRDataPointV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV6pointsSayAA0d1_E5PointVGvg",
+                "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV6pointsSayAA0d1_E5PointVGvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(points:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoints",
+                "printedName": "SensorBioSDK.SB_HRDataPoints",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[SensorBioSDK.SB_HRDataPoint]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRDataPoint",
+                    "printedName": "SensorBioSDK.SB_HRDataPoint",
+                    "usr": "s:12SensorBioSDK14SB_HRDataPointV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV6pointsACSayAA0d1_E5PointVG_tcfc",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV6pointsACSayAA0d1_E5PointVG_tcfc",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "averageHR",
+            "printedName": "averageHR",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV9averageHRSiSgvp",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV9averageHRSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV9averageHRSiSgvg",
+                "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV9averageHRSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "averageRHR",
+            "printedName": "averageRHR",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV10averageRHRSiSgvp",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV10averageRHRSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV10averageRHRSiSgvg",
+                "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV10averageRHRSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "lowestHR",
+            "printedName": "lowestHR",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV8lowestHRSiSgvp",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV8lowestHRSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV8lowestHRSiSgvg",
+                "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV8lowestHRSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "highestHR",
+            "printedName": "highestHR",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV9highestHRSiSgvp",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV9highestHRSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV9highestHRSiSgvg",
+                "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV9highestHRSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoints",
+                "printedName": "SensorBioSDK.SB_HRDataPoints",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV6encode2toys7Encoder_p_tKF",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoints",
+                "printedName": "SensorBioSDK.SB_HRDataPoints",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoints",
+                "printedName": "SensorBioSDK.SB_HRDataPoints",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK15SB_HRDataPointsV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV2eeoiySbAC_ACtFZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:12SensorBioSDK15SB_HRDataPointsV",
+        "mangledName": "$s12SensorBioSDK15SB_HRDataPointsV",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "SB_HREffortZone",
         "printedName": "SB_HREffortZone",
         "children": [
@@ -44772,6 +45586,325 @@
             "printedName": "Escapable",
             "usr": "s:s9EscapableP",
             "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SB_HRPointType",
+        "printedName": "SB_HRPointType",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "awake",
+            "printedName": "awake",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_HRPointType.Type) -> SensorBioSDK.SB_HRPointType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRPointType",
+                    "printedName": "SensorBioSDK.SB_HRPointType",
+                    "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_HRPointType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_HRPointType",
+                        "printedName": "SensorBioSDK.SB_HRPointType",
+                        "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK14SB_HRPointTypeO5awakeyA2CmF",
+            "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO5awakeyA2CmF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "RawDocComment"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "asleep",
+            "printedName": "asleep",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_HRPointType.Type) -> SensorBioSDK.SB_HRPointType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRPointType",
+                    "printedName": "SensorBioSDK.SB_HRPointType",
+                    "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_HRPointType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_HRPointType",
+                        "printedName": "SensorBioSDK.SB_HRPointType",
+                        "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK14SB_HRPointTypeO6asleepyA2CmF",
+            "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO6asleepyA2CmF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "RawDocComment"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "hashValue",
+            "printedName": "hashValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK14SB_HRPointTypeO9hashValueSivp",
+            "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO9hashValueSivp",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO9hashValueSivg",
+                "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO9hashValueSivg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "hash",
+            "printedName": "hash(into:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hasher",
+                "printedName": "Swift.Hasher",
+                "paramValueOwnership": "InOut",
+                "usr": "s:s6HasherV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK14SB_HRPointTypeO4hash4intoys6HasherVz_tF",
+            "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO4hash4intoys6HasherVz_tF",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRPointType",
+                "printedName": "SensorBioSDK.SB_HRPointType",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK14SB_HRPointTypeO4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO4fromACs7Decoder_p_tKcfc",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK14SB_HRPointTypeO6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO6encode2toys7Encoder_p_tKF",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRPointType",
+                "printedName": "SensorBioSDK.SB_HRPointType",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRPointType",
+                "printedName": "SensorBioSDK.SB_HRPointType",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK14SB_HRPointTypeO2eeoiySbAC_ACtFZ",
+            "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO2eeoiySbAC_ACtFZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:12SensorBioSDK14SB_HRPointTypeO",
+        "mangledName": "$s12SensorBioSDK14SB_HRPointTypeO",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
           }
         ]
       },
@@ -48700,6 +49833,830 @@
             "usr": "s:s16SendableMetatypeP",
             "mangledName": "$ss16SendableMetatypeP"
           }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SB_HRVDataPoint",
+        "printedName": "SB_HRVDataPoint",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "epoch",
+            "printedName": "epoch",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRVDataPointV5epochs5Int64Vvp",
+            "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV5epochs5Int64Vvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRVDataPointV5epochs5Int64Vvg",
+                "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV5epochs5Int64Vvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "value",
+            "printedName": "value",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRVDataPointV5valueSivp",
+            "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV5valueSivp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRVDataPointV5valueSivg",
+                "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV5valueSivg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "type",
+            "printedName": "type",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRPointType",
+                "printedName": "SensorBioSDK.SB_HRPointType",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK15SB_HRVDataPointV4typeAA0D12_HRPointTypeOvp",
+            "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV4typeAA0D12_HRPointTypeOvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRPointType",
+                    "printedName": "SensorBioSDK.SB_HRPointType",
+                    "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK15SB_HRVDataPointV4typeAA0D12_HRPointTypeOvg",
+                "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV4typeAA0D12_HRPointTypeOvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(epoch:value:type:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoint",
+                "printedName": "SensorBioSDK.SB_HRVDataPoint",
+                "usr": "s:12SensorBioSDK15SB_HRVDataPointV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRPointType",
+                "printedName": "SensorBioSDK.SB_HRPointType",
+                "usr": "s:12SensorBioSDK14SB_HRPointTypeO"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK15SB_HRVDataPointV5epoch5value4typeACs5Int64V_SiAA0D12_HRPointTypeOtcfc",
+            "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV5epoch5value4typeACs5Int64V_SiAA0D12_HRPointTypeOtcfc",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoint",
+                "printedName": "SensorBioSDK.SB_HRVDataPoint",
+                "usr": "s:12SensorBioSDK15SB_HRVDataPointV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK15SB_HRVDataPointV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK15SB_HRVDataPointV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV6encode2toys7Encoder_p_tKF",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoint",
+                "printedName": "SensorBioSDK.SB_HRVDataPoint",
+                "usr": "s:12SensorBioSDK15SB_HRVDataPointV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoint",
+                "printedName": "SensorBioSDK.SB_HRVDataPoint",
+                "usr": "s:12SensorBioSDK15SB_HRVDataPointV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK15SB_HRVDataPointV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV2eeoiySbAC_ACtFZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:12SensorBioSDK15SB_HRVDataPointV",
+        "mangledName": "$s12SensorBioSDK15SB_HRVDataPointV",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SB_HRVDataPoints",
+        "printedName": "SB_HRVDataPoints",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "points",
+            "printedName": "points",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[SensorBioSDK.SB_HRVDataPoint]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRVDataPoint",
+                    "printedName": "SensorBioSDK.SB_HRVDataPoint",
+                    "usr": "s:12SensorBioSDK15SB_HRVDataPointV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV6pointsSayAA0d1_E5PointVGvp",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV6pointsSayAA0d1_E5PointVGvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[SensorBioSDK.SB_HRVDataPoint]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_HRVDataPoint",
+                        "printedName": "SensorBioSDK.SB_HRVDataPoint",
+                        "usr": "s:12SensorBioSDK15SB_HRVDataPointV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV6pointsSayAA0d1_E5PointVGvg",
+                "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV6pointsSayAA0d1_E5PointVGvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(points:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoints",
+                "printedName": "SensorBioSDK.SB_HRVDataPoints",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[SensorBioSDK.SB_HRVDataPoint]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_HRVDataPoint",
+                    "printedName": "SensorBioSDK.SB_HRVDataPoint",
+                    "usr": "s:12SensorBioSDK15SB_HRVDataPointV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV6pointsACSayAA0d1_E5PointVG_tcfc",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV6pointsACSayAA0d1_E5PointVG_tcfc",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "averageHRV",
+            "printedName": "averageHRV",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV10averageHRVSiSgvp",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV10averageHRVSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV10averageHRVSiSgvg",
+                "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV10averageHRVSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "averageRestingHRV",
+            "printedName": "averageRestingHRV",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV17averageRestingHRVSiSgvp",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV17averageRestingHRVSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV17averageRestingHRVSiSgvg",
+                "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV17averageRestingHRVSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "lowestHRV",
+            "printedName": "lowestHRV",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV9lowestHRVSiSgvp",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV9lowestHRVSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV9lowestHRVSiSgvg",
+                "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV9lowestHRVSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "highestHRV",
+            "printedName": "highestHRV",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Int?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV10highestHRVSiSgvp",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV10highestHRVSiSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.Int?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV10highestHRVSiSgvg",
+                "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV10highestHRVSiSgvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoints",
+                "printedName": "SensorBioSDK.SB_HRVDataPoints",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV6encode2toys7Encoder_p_tKF",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoints",
+                "printedName": "SensorBioSDK.SB_HRVDataPoints",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoints",
+                "printedName": "SensorBioSDK.SB_HRVDataPoints",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK16SB_HRVDataPointsV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV2eeoiySbAC_ACtFZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:12SensorBioSDK16SB_HRVDataPointsV",
+        "mangledName": "$s12SensorBioSDK16SB_HRVDataPointsV",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
         ]
       },
       {
@@ -89850,6 +91807,66 @@
           },
           {
             "kind": "Function",
+            "name": "getHRPoints",
+            "printedName": "getHRPoints(date:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRDataPoints",
+                "printedName": "SensorBioSDK.SB_HRDataPoints",
+                "usr": "s:12SensorBioSDK15SB_HRDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK03SB_C0C11getHRPoints4dateAA0D13_HRDataPointsV10Foundation4DateV_tYaKF",
+            "mangledName": "$s12SensorBioSDK03SB_C0C11getHRPoints4dateAA0D13_HRDataPointsV10Foundation4DateV_tYaKF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getHRVPoints",
+            "printedName": "getHRVPoints(date:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_HRVDataPoints",
+                "printedName": "SensorBioSDK.SB_HRVDataPoints",
+                "usr": "s:12SensorBioSDK16SB_HRVDataPointsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK03SB_C0C12getHRVPoints4dateAA0D14_HRVDataPointsV10Foundation4DateV_tYaKF",
+            "mangledName": "$s12SensorBioSDK03SB_C0C12getHRVPoints4dateAA0D14_HRVDataPointsV10Foundation4DateV_tYaKF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "updateUserProfile",
             "printedName": "updateUserProfile(_:)",
             "children": [
@@ -91870,6 +93887,16 @@
         "printedName": "Foundation",
         "declKind": "Import",
         "moduleName": "SensorBioSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
       },
       {
         "kind": "Import",
@@ -167367,21 +169394,21 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 4207,
+      "offset": 5102,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 24211,
+      "offset": 25106,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 24254,
+      "offset": 25149,
       "length": 5,
       "value": "false"
     },
@@ -169509,7 +171536,7 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 13958,
+      "offset": 15077,
       "length": 5,
       "value": "false"
     },
@@ -170118,56 +172145,56 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 72720,
+      "offset": 73474,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 76096,
+      "offset": 76850,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 76126,
+      "offset": 76880,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 87327,
+      "offset": 88081,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 87348,
+      "offset": 88102,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 87368,
+      "offset": 88122,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 87389,
+      "offset": 88143,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 88675,
+      "offset": 89429,
       "length": 5,
       "value": "false"
     },

@@ -977,6 +977,34 @@ public struct SB_HRDailyTrending : Swift.Codable, Swift.Equatable, Swift.Sendabl
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
+public struct SB_HRDataPoint : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public let epoch: Swift.Int64
+  public let value: Swift.Int
+  public let type: SensorBioSDK.SB_HRPointType
+  public init(epoch: Swift.Int64, value: Swift.Int, type: SensorBioSDK.SB_HRPointType)
+  public static func == (a: SensorBioSDK.SB_HRDataPoint, b: SensorBioSDK.SB_HRDataPoint) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct SB_HRDataPoints : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public let points: [SensorBioSDK.SB_HRDataPoint]
+  public init(points: [SensorBioSDK.SB_HRDataPoint])
+  public var averageHR: Swift.Int? {
+    get
+  }
+  public var averageRHR: Swift.Int? {
+    get
+  }
+  public var lowestHR: Swift.Int? {
+    get
+  }
+  public var highestHR: Swift.Int? {
+    get
+  }
+  public static func == (a: SensorBioSDK.SB_HRDataPoints, b: SensorBioSDK.SB_HRDataPoints) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
 public enum SB_HREffortZone : Swift.String {
   case coolDown
   case warmUp
@@ -1052,6 +1080,17 @@ extension SensorBioSDK.SB_HRMManager {
   final public func fetchAllRRDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
   final public func fetchAllBBIDataPointsForUpload() -> [SensorBioSDK.SB_BiometricsUpload.DataPoint]
 }
+public enum SB_HRPointType : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  case awake
+  case asleep
+  public static func == (a: SensorBioSDK.SB_HRPointType, b: SensorBioSDK.SB_HRPointType) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
 public struct SB_HRRangeGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var avgBpm: Swift.Float
   public var baseline: Swift.Float
@@ -1104,6 +1143,34 @@ public struct SB_HRVDailyTrending : Swift.Codable, Swift.Equatable, Swift.Sendab
   public var graph: SensorBioSDK.SB_HRVDailyGraph?
   public init(graph: SensorBioSDK.SB_HRVDailyGraph? = nil)
   public static func == (a: SensorBioSDK.SB_HRVDailyTrending, b: SensorBioSDK.SB_HRVDailyTrending) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct SB_HRVDataPoint : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public let epoch: Swift.Int64
+  public let value: Swift.Int
+  public let type: SensorBioSDK.SB_HRPointType
+  public init(epoch: Swift.Int64, value: Swift.Int, type: SensorBioSDK.SB_HRPointType)
+  public static func == (a: SensorBioSDK.SB_HRVDataPoint, b: SensorBioSDK.SB_HRVDataPoint) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct SB_HRVDataPoints : Swift.Codable, Swift.Equatable, Swift.Sendable {
+  public let points: [SensorBioSDK.SB_HRVDataPoint]
+  public init(points: [SensorBioSDK.SB_HRVDataPoint])
+  public var averageHRV: Swift.Int? {
+    get
+  }
+  public var averageRestingHRV: Swift.Int? {
+    get
+  }
+  public var lowestHRV: Swift.Int? {
+    get
+  }
+  public var highestHRV: Swift.Int? {
+    get
+  }
+  public static func == (a: SensorBioSDK.SB_HRVDataPoints, b: SensorBioSDK.SB_HRVDataPoints) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
 }
@@ -2290,6 +2357,10 @@ extension SensorBioSDK.SB_SDK {
   public func fetchPopulationInsightsMetricList() async throws -> SensorBioSDK.SB_PopulationInsightsFilterList
   public func fetchPopulationInsights(ageStart: Swift.Int32, ageEnd: Swift.Int32, gender: SensorBioSDK.SB_PopulationGender, metricType: SensorBioSDK.SB_PopulationMetricType) async throws -> (histogram: SensorBioSDK.SB_PopulationInsightsHistogram?, radarChart: SensorBioSDK.SB_PopulationInsightsRadarChart?)
   public func submitInsightsFeedback(insightId: Swift.Int64, feedback: SensorBioSDK.SB_InsightFeedback) async throws
+}
+extension SensorBioSDK.SB_SDK {
+  public func getHRPoints(date: Foundation.Date) async throws -> SensorBioSDK.SB_HRDataPoints
+  public func getHRVPoints(date: Foundation.Date) async throws -> SensorBioSDK.SB_HRVDataPoints
 }
 extension SensorBioSDK.SB_SDK {
   public func updateUserProfile(_ profile: SensorBioSDK.SB_UserProfileUpdate) async throws -> SensorBioSDK.SB_UpdateUserProfileOutcome
@@ -3677,6 +3748,7 @@ extension SensorBioSDK.SB_HREffortZone : Swift.Hashable {}
 extension SensorBioSDK.SB_HREffortZone : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_HRMCategory : Swift.Hashable {}
 extension SensorBioSDK.SB_HRMCategory : Swift.RawRepresentable {}
+extension SensorBioSDK.SB_HRPointType : Swift.Hashable {}
 extension SensorBioSDK.SB_HRVValueType : Swift.Hashable {}
 extension SensorBioSDK.SB_HRVValueType : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_InsightFeedback : Swift.Equatable {}

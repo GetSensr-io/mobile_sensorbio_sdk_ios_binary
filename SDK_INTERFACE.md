@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v1.2.1'
+    :tag => 'v1.3.0'
 end
 
 post_install do |installer|
@@ -704,6 +704,64 @@ public func fetchRangeRR(date: Date, granularity: SB_ViewGranularity, forceRemot
 public func fetchDailySpO2(date: Date, forceRemote: Bool = false)                                     async throws -> SB_SpO2DailyTrending
 public func fetchRangeSpO2(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)    async throws -> SB_SpO2RangeTrending
 ```
+
+#### Local-first HR points
+
+`getHRPoints(date:)` returns a day's HR samples **local-first**: it reads the day's on-device HR (local midnight→midnight in the device time zone) with **no** API round-trip when that data is already synced locally. Each point is tagged `.awake` / `.asleep` from the device's sleep sessions. Only when the day predates local sync (no local HR for the window) does it fall back to the API, backfill the HR + sleep locally, and rebuild — so a subsequent call for the same day is served entirely from the device.
+
+```swift
+public func getHRPoints(date: Date) async throws -> SB_HRDataPoints
+
+public struct SB_HRDataPoints: Codable, Equatable, Sendable {
+    public let points: [SB_HRDataPoint]
+    // Computed on the fly from `points`; each is nil when its input set is empty
+    // (and `averageRHR` is nil when there are no `.asleep` points — never a misleading 0).
+    public var averageHR: Int?   // mean value of all points
+    public var averageRHR: Int?  // mean value of .asleep points (resting HR)
+    public var lowestHR: Int?    // min value
+    public var highestHR: Int?   // max value
+}
+
+public struct SB_HRDataPoint: Codable, Equatable, Sendable {
+    public let epoch: Int64          // ms
+    public let value: Int            // bpm, rounded from the stored Float
+    public let type: SB_HRPointType
+}
+
+public enum SB_HRPointType: Codable, Equatable, Sendable {
+    case awake
+    case asleep
+}
+```
+
+`throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
+
+#### Local-first HRV points
+
+`getHRVPoints(date:)` is the HRV sibling of `getHRPoints(date:)`: it returns a day's HRV samples **local-first**, reading the day's on-device HRV (local midnight→midnight in the device time zone) with **no** API round-trip when that data is already synced locally. HRV shares the same per-epoch `PPGResult` rows as HR (its own `hrvValue`/`hrvValid` slot). Each point is tagged `.awake` / `.asleep` from the device's sleep sessions. Only when the day predates local sync (no local HRV for the window) does it fall back to the API, backfill the HRV + sleep locally, and rebuild — so a subsequent call for the same day is served entirely from the device.
+
+```swift
+public func getHRVPoints(date: Date) async throws -> SB_HRVDataPoints
+
+public struct SB_HRVDataPoints: Codable, Equatable, Sendable {
+    public let points: [SB_HRVDataPoint]
+    // Computed on the fly from `points`; each is nil when its input set is empty
+    // (and `averageRestingHRV` is nil when there are no `.asleep` points — never a misleading 0).
+    public var averageHRV: Int?         // mean value of all points (day average)
+    public var averageRestingHRV: Int?  // mean value of .asleep points (nocturnal resting HRV;
+                                        // offline proxy for the server's sleep-derived rMSSD)
+    public var lowestHRV: Int?          // min value
+    public var highestHRV: Int?         // max value
+}
+
+public struct SB_HRVDataPoint: Codable, Equatable, Sendable {
+    public let epoch: Int64          // ms
+    public let value: Int            // rMSSD in ms, rounded from the stored Float
+    public let type: SB_HRPointType  // .awake / .asleep (shared with HR)
+}
+```
+
+`throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
 
 ### 6.4 Sleep reads
 
