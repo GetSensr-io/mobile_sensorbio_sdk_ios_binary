@@ -4,7 +4,7 @@ import SensorBioSDK
 struct HRVDetailView: View {
     @Environment(AppDateContext.self) private var dateContext
     @State private var granularity: SB_ViewGranularity = .day
-    @State private var daily: SB_HRVDailyTrending?
+    @State private var daily: SB_BiometricDailyTrending?
     @State private var range: SB_HRVRangeTrending?
     @State private var isLoading: Bool = false
     @State private var errorMessage: String? = nil
@@ -17,24 +17,29 @@ struct HRVDetailView: View {
                 Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
-                    LabeledContent("rMSSD", value: "\(Int(graph.rMssd)) ms")
-                    LabeledContent("Average", value: "\(Int(graph.rawAvg)) ms")
-                    LabeledContent("Lowest", value: "\(Int(graph.rawLowest)) ms")
-                    LabeledContent("Highest", value: "\(Int(graph.rawHighest)) ms")
+                    LabeledContent("rMSSD", value: "\(Int(graph.resting)) ms")
+                    LabeledContent("Average", value: "\(Int(graph.average)) ms")
+                    LabeledContent("Lowest", value: "\(Int(graph.lowest)) ms")
+                    LabeledContent("Highest", value: "\(Int(graph.highest)) ms")
+                    LabeledContent("Baseline", value: "\(Int(graph.baseline)) ms")
                 }
                 Section("By Hour") {
-                    if graph.rawDatetimeHrvPoints.isEmpty {
+                    // One list now, sleep + awake merged and already sorted. This
+                    // shows both, where the pre-SB-1737 view could only reach the
+                    // awake half.
+                    let plotted = graph.points.filter { !$0.valueType.isOutlier }
+                    if plotted.isEmpty {
                         Text("No data").foregroundStyle(.secondary)
                     } else {
-                        ForEach(graph.rawDatetimeHrvPoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
-                            LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
+                        ForEach(plotted, id: \.timestamp) { point in
+                            LabeledContent(MetricFormatting.sampleTimeLabel(timestampMillis: point.timestamp),
                                            value: "\(Int(point.value)) ms")
                         }
                     }
                 }
             } else if granularity != .day, let graph = range?.graph {
                 Section("Summary") {
-                    LabeledContent("Average", value: "\(Int(graph.avg)) ms")
+                    LabeledContent("Average", value: "\(Int(graph.average)) ms")
                     LabeledContent("Lowest", value: "\(Int(graph.lowest)) ms")
                     LabeledContent("Highest", value: "\(Int(graph.highest)) ms")
                 }

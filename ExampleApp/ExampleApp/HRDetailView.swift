@@ -4,7 +4,7 @@ import SensorBioSDK
 struct HRDetailView: View {
     @Environment(AppDateContext.self) private var dateContext
     @State private var granularity: SB_ViewGranularity = .day
-    @State private var daily: SB_HRDailyTrending?
+    @State private var daily: SB_BiometricDailyTrending?
     @State private var range: SB_HRRangeTrending?
     @State private var isLoading: Bool = false
     @State private var errorMessage: String? = nil
@@ -17,24 +17,29 @@ struct HRDetailView: View {
                 Section { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange) }
             } else if granularity == .day, let graph = daily?.graph {
                 Section("Summary") {
-                    LabeledContent("Resting BPM", value: "\(Int(graph.restingBpm))")
-                    LabeledContent("Average", value: "\(Int(graph.rawAvg))")
-                    LabeledContent("Lowest", value: "\(Int(graph.rawLowest))")
-                    LabeledContent("Highest", value: "\(Int(graph.rawHighest))")
+                    LabeledContent("Resting BPM", value: "\(Int(graph.resting))")
+                    LabeledContent("Average", value: "\(Int(graph.average))")
+                    LabeledContent("Lowest", value: "\(Int(graph.lowest))")
+                    LabeledContent("Highest", value: "\(Int(graph.highest))")
+                    LabeledContent("Baseline", value: "\(Int(graph.baseline))")
                 }
                 Section("By Hour") {
-                    if graph.heartRateTimeseriesPoints.isEmpty {
+                    // `points` already arrives ascending by timestamp and tagged
+                    // sleep / awake; outliers are samples the server flagged as
+                    // unreliable, so they are skipped.
+                    let plotted = graph.points.filter { !$0.valueType.isOutlier }
+                    if plotted.isEmpty {
                         Text("No data").foregroundStyle(.secondary)
                     } else {
-                        ForEach(graph.heartRateTimeseriesPoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
-                            LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
+                        ForEach(plotted, id: \.timestamp) { point in
+                            LabeledContent(MetricFormatting.sampleTimeLabel(timestampMillis: point.timestamp),
                                            value: "\(Int(point.value)) bpm")
                         }
                     }
                 }
             } else if granularity != .day, let graph = range?.graph {
                 Section("Summary") {
-                    LabeledContent("Average", value: "\(Int(graph.avgBpm))")
+                    LabeledContent("Average", value: "\(Int(graph.averageBpm))")
                     LabeledContent("Lowest", value: "\(Int(graph.lowest))")
                     LabeledContent("Highest", value: "\(Int(graph.highest))")
                 }

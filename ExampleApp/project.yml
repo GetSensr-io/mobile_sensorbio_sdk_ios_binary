@@ -6,9 +6,14 @@ options:
     iOS: "18.0"
   generateEmptyDirectories: true
 
-# Reference SwiftUI integration of SensorBioSDK consumed as a binary
-# CocoaPod from ../SensorBio/SensorBioSDK.podspec. Demonstrates the
-# init pattern + sign-in flow on a real device.
+# Reference SwiftUI integration of SensorBioSDK, consumed as a CocoaPod from
+# the podspec one level up. Demonstrates the init pattern + sign-in flow on a
+# real device.
+#
+# This file is shared verbatim between the SDK source repo (where the app is
+# developed against SDK source) and the customer-facing binary repo (where it
+# is published built against the shipped xcframeworks) — the Podfile next to it
+# is what differs. Keep it free of repo-specific assumptions.
 #
 # After cloning, run:
 #   xcodegen generate

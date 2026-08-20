@@ -1,6 +1,8 @@
 import SwiftUI
 import SensorBioSDK
 
+/// Renders `sensorBio.pairingState` and makes the three pairing calls. The
+/// switch below is the whole flow — one case per state the SDK publishes.
 struct PairDeviceView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var state = PairDeviceState()
@@ -9,13 +11,13 @@ struct PairDeviceView: View {
         NavigationStack {
             List {
                 statusSection
-                if state.phase == .scanning || state.phase == .scanTimeout {
-                    deviceListSection
+                if case .scanning(let devices) = state.pairingState {
+                    deviceListSection(devices)
                 }
-                if state.phase == .allSet, let device = state.selectedDevice {
+                if case .paired(let device) = state.pairingState {
                     Section("Paired") {
                         LabeledContent("Device", value: device.name)
-                        LabeledContent("Type", value: device.deviceType.name)
+                        LabeledContent("Type", value: device.type.name)
                     }
                 }
             }
@@ -24,7 +26,7 @@ struct PairDeviceView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
-                        state.cancel()
+                        state.close()
                         dismiss()
                     }
                 }
@@ -39,55 +41,50 @@ struct PairDeviceView: View {
     @ViewBuilder
     private var statusSection: some View {
         Section {
-            switch state.phase {
-            case .idle:
-                Text("Idle")
+            switch state.pairingState {
             case .scanning:
                 HStack {
                     ProgressView()
                     Text("Scanning\u{2026}")
                         .foregroundStyle(.secondary)
                 }
-            case .scanTimeout:
-                Label("No device found. Tap Retry to scan again.", systemImage: "wifi.slash")
-                    .foregroundStyle(.orange)
-            case .connecting:
+            case .connecting(let device):
                 HStack {
                     ProgressView()
-                    Text("Connecting to \(state.selectedDevice?.name ?? "device")\u{2026}")
+                    Text("Connecting to \(device.name)\u{2026}")
                         .foregroundStyle(.secondary)
                 }
-            case .confirming:
+            case .awaitingConfirmation:
                 VStack(alignment: .leading, spacing: 4) {
                     Label("Press the button on your device to confirm.",
                           systemImage: "hand.tap.fill")
                         .foregroundStyle(.blue)
-                    Text("The light should blink blue. You have 30s.")
+                    Text("The light should blink blue.")
                         .font(.caption)
                         .foregroundStyle(.tertiary)
                 }
-            case .allSet:
+            case .paired:
                 Label("All set! Tap Done to finish.", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
-            case .error(let message):
-                Label(message, systemImage: "exclamationmark.triangle.fill")
+            case .failed(let reason):
+                Label(reason.message, systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.red)
-                @unknown default:
-                    EmptyView()
+            case nil:
+                Text("Idle")
             }
         }
     }
 
     @ViewBuilder
-    private var deviceListSection: some View {
-        Section("Devices Found (\(state.devices.count))") {
-            if state.devices.isEmpty {
+    private func deviceListSection(_ devices: [SB_DiscoveredDevice]) -> some View {
+        Section("Devices Found (\(devices.count))") {
+            if devices.isEmpty {
                 Text("Looking for nearby devices\u{2026}")
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(state.devices, id: \.id) { device in
+                ForEach(devices, id: \.id) { device in
                     Button {
-                        state.connect(device)
+                        state.select(device)
                     } label: {
                         HStack {
                             VStack(alignment: .leading) {
@@ -108,14 +105,17 @@ struct PairDeviceView: View {
 
     @ViewBuilder
     private var trailingButton: some View {
-        switch state.phase {
-        case .allSet:
+        switch state.pairingState {
+        case .paired:
+            // `endPairing()` — same call as Cancel. The pair is already
+            // persisted and registered by the time `.paired` is published;
+            // Done just closes the transaction.
             Button("Done") {
-                state.finish()
+                state.close()
                 dismiss()
             }
             .bold()
-        case .scanTimeout, .error:
+        case .failed:
             Button("Retry") {
                 state.start()
             }

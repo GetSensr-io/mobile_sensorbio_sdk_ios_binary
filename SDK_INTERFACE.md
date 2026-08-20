@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v1.3.0'
+    :tag => 'v2.0.0'
 end
 
 post_install do |installer|
@@ -203,6 +203,7 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 |---|---|---|
 | `pairedDevice` | `SB_PairedDeviceState?` | Pre-connection device snapshot (name, type, macAddress) |
 | `haveDevice` | `Bool` | A device is paired |
+| `pairingState` | `SB_PairingState?` | Where the open pairing transaction stands; `nil` when none is open (§5.1) |
 | `connected` | `Bool` | BLE connection is up |
 | `isFullyConfigured` | `Bool` | Device finished configuration and is usable |
 | `bluetoothAvailable` | `Bool` | BLE is available on the phone |
@@ -224,7 +225,7 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 | `batteryLevel` | `Int?` | 0–100 |
 | `charging` | `Bool?` | Device is on its charger |
 | `worn` | `Bool?` | Device is being worn |
-| `buttonTaps` | `Int?` | Last button-tap event (used during pairing) |
+| `buttonTaps` | `Int?` | Last button-tap event. Pairing no longer needs this — the SDK consumes it internally to detect the confirmation press (§5.1) |
 
 **Device identity & firmware**
 
@@ -265,10 +266,10 @@ public var developmentLogStats: (storeURL: URL, enginePacketCount: Int)
 Subscribe via `sensorBio.<subject>.sink { … }`.
 
 ```swift
-// Auth & pairing lifecycle
+// Auth & connection lifecycle
+// (Pairing is not here — it is one transaction reported on the
+//  `$pairingState` @Published property. See §5.1.)
 public let signOutComplete:             PassthroughSubject<Void, Never>
-public let deviceDiscovered:            PassthroughSubject<SB_DiscoveredDevice, Never>
-public let pairingConnection:           PassthroughSubject<String, Never>   // payload: macAddress
 public let deviceDisconnected:          PassthroughSubject<String, Never>   // payload: macAddress
 public let deviceConnected:             PassthroughSubject<Void, Never>     // low-level BLE connect
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
@@ -288,10 +289,46 @@ public let firmwareProgress:            PassthroughSubject<Float, Never>
 
 // Biometric-record & sleep-store results
 public let biometricRecordResult:       PassthroughSubject<SB_BiometricRecordResult, Never>
+public let spotCheckReport:             PassthroughSubject<SB_SpotCheckReportEvent, Never>   // local report, at finalize
 public let biometricRecordProcessed:    PassthroughSubject<Void, Never>
 public let sleepStored:                 PassthroughSubject<Void, Never>
 public let sleepDetected:               PassthroughSubject<SB_DetectedSleep, Never>  // valid on-device sleep finalized (start/end epoch ms)
 ```
+
+`biometricRecordResult` emits once for **every** accepted spot check, and the host has three outcomes to tell apart:
+
+| `id` | `error` | meaning | host should |
+|---|---|---|---|
+| non-nil | nil | scored — a report exists | show the report |
+| nil | non-nil | submit failed | retryable; the SDK keeps re-driving it |
+| nil | nil | accepted, but the server scored **no report** | tell the user there wasn't enough data — nothing further is coming |
+
+The third row is the one to handle explicitly. It previously emitted nothing at all (the publish guarded on the id being present), so a host waiting on this subject would wait forever for a report the server had already declined to produce. Note also that such a submission is marked terminal at submit time rather than entering the in-flight set, so it does **not** appear as a "Processing…" card — there is no pending server-side work for it to represent.
+
+#### `spotCheckReport` — the report, before the upload
+
+A spot check's report is **not** a server calculation. bioedge derives it on the phone from the recording's beat-to-beat intervals, the submit ships those numbers up as `spotCheckData`, the server persists them, and `fetchSpotCheckDetails(id:)` hands the same values back. A host that waits for the round trip is therefore holding the user on a spinner to retrieve numbers the device already produced.
+
+`spotCheckReport` fires once per finalized spot check, at the end of finalize — before the submit, and independent of whether it ever succeeds:
+
+```swift
+public enum SB_SpotCheckReportEvent: Sendable, Equatable {
+    case ready(SB_SpotCheckDetails)
+    case unscoreable
+    case deferred
+}
+```
+
+| case | meaning | host should |
+|---|---|---|
+| `.ready` | the report, built from the data being uploaded | show it now — no wait, works offline |
+| `.unscoreable` | data is all in and holds no beat-to-beat intervals: no report exists and none will | tell the user there wasn't enough data |
+| `.deferred` | the post-stop sync couldn't run, so the window's data may still be on the band | tell the user it'll appear on their timeline |
+
+`.ready` carries every field the server would return **except `pdfReportURL`**, which only exists once the server has rendered it. Keep any "share the PDF" affordance hidden until `biometricRecordResult` delivers an id for the same recording; that id is also what the timeline entry is keyed on, so a host showing a local report can refresh it in place when the id lands (the numbers are identical by construction — the shown report and the uploaded one are the same derive).
+
+`.deferred` and `.unscoreable` are both terminal for the in-session decision: neither will be followed by a `.ready` for that recording.
+
 
 
 ### 3.5 Recording submissions (optimistic timeline)
@@ -326,10 +363,9 @@ public func retrySubmission(localId: UUID)
 
 ## 4. Authentication
 
+
 ```swift
-// Sign-in / sign-up
-public func signIn(email: String, password: String) async throws -> SB_SignInOutcome
-public func createAccount(_ request: SB_CreateAccountRequest) async throws -> SB_CreateAccountOutcome
+// Account checks
 public func checkEmailAvailability(email: String) async throws -> SB_EmailAvailabilityOutcome
 public func validateAccountRequirements(
     _ request: SB_ValidateAccountRequirementsRequest
@@ -367,38 +403,12 @@ public func acceptCurrentAgreements() async throws
 
 
 
-Example:
-
-`signIn` never throws for a login error: bad credentials surface as
-`.passwordIncorrect` / `.unknownUsername`, and every other failure — a
-transport-level gRPC error or a non-credential in-band server code — surfaces as
-`.failed(code:)` carrying a typed `SB_ServiceErrorCode` (no raw gRPC message
-string crosses the boundary). Map the code to your own localized copy:
-
-```swift
-do {
-    switch try await sensorBio.signIn(email: email, password: password) {
-    case .success:           routeToHome()
-    case .passwordIncorrect,
-         .unknownUsername:   showError("Incorrect username or password")
-    case .failed(let code):
-        switch code {
-        case .unauthenticated:  showError("Incorrect username or password")
-        case .permissionDenied: showError("No active device subscription — contact your administrator.")
-        default:                showError("Something went wrong while signing in. (Error code: \(code.name))")
-        }
-    }
-} catch {
-    // Defensive only — `signIn` resolves login errors to `.failed(code:)`.
-    showError("Something went wrong while signing in.")
-}
-```
 
 > **`signOut()` side effects.** A successful sign-out disconnects any connected device, clears the paired-device state, nils out `pairedDevice` / `haveDevice` / `exerciseZoneAttributes`, and wipes the SDK's locally cached user data. `signOut()` is the **only** customer-facing way to clear SDK persistence — a wipe without a sign-out would leave in-memory `@Published` state and the BLE connection inconsistent with the cleared cache. Account-deletion flows should call `signOut()` after the delete-account call succeeds.
 
 ### 4.1 SDK-key registration (`registerUser`)
 
-For third-party apps embedding the SDK, `registerUser` is a **register-or-login** entry point for users your app has already authenticated by its own means (your login, SSO, OAuth — the SDK doesn't care which). These users have **no** Sensor Bio email/password. On success the SDK persists the returned session and publishes `session` / `userProfile`, exactly like `signIn`.
+For third-party apps embedding the SDK, `registerUser` is a **register-or-login** entry point for users your app has already authenticated by its own means (your login, SSO, OAuth — the SDK doesn't care which). These users have **no** Sensor Bio email/password. On success the SDK persists the returned session and publishes `session` / `userProfile`. It is the **only** registration path in the distributed SDK — there is no email/password entry point.
 
 **Configure your org credentials first.** The SDK reads your organization credentials from `SB_SDK.sdkKeyCredentials`, which you set **once** (like `SB_SDK.environment`) before registering. The SDK holds them **in memory only — it never persists them**, and it uses them on every authenticated call for the session (not just registration). Because they are not persisted, a host that relaunches into a **hydrated** session (restored from the keychain) **must set `sdkKeyCredentials` again at launch, before the first authenticated call** (e.g. in `App.init`, alongside `SB_SDK.environment`).
 
@@ -418,7 +428,7 @@ SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(orgId: orgId, sdkKey: sdkKey)
 - **`userId`** — your own stable identifier for the end-user (`client_sdk_user_id`). The first call for a given `userId` registers; subsequent calls log in. It is also recorded as the user's **username** (visible in the web dashboard).
 - **`email`** *(optional)* — a contact email. Omitted if nil/empty; when supplied it is recorded on the backend as the user's contact email (never used as the login identity).
 - **`birthday` / `sex` / `heightCm` / `weightKg` / `imperialUnits`** *(optional)* — demographics. **Any omitted value is filled with a dummy** before the request is sent: the platform requires height/weight/sex/birthday to compute higher-level metrics (recovery, calories, sleep scoring, …), so a user with none would break downstream processing. Pass real values when you have them.
-- **`activationCode`** *(optional)* — redeems a device-subscription activation code during a first registration (same flow as `createAccount`).
+- **`activationCode`** *(optional)* — redeems a device-subscription activation code during a first registration.
 
 > The org credentials come from `SB_SDK.sdkKeyCredentials`, **not** from parameters on `registerUser` — set them once (above) and pass only the user identity here. If `sdkKeyCredentials` is unset, `registerUser` returns `.failure(errorCode: "sdkKeyCredentialsNotSet")`.
 
@@ -441,38 +451,73 @@ public enum SB_RegisterUserOutcome: Sendable {
 
 ## 5. BLE Device Control
 
-### 5.1 Scan & connect
+### 5.1 Pairing
+
+Pairing is **one SDK-owned transaction**, not a sequence of host calls. Three methods open, advance, and close it; everything in between is reported on `$pairingState`.
 
 ```swift
-public func startScan()
-public func stopScan()
-public func connect(_ id: String, pairing: Bool = false)
-public func disconnect(_ id: String? = nil)
-public func removeDeviceFromPairedDevices(_ id: String)   // unpair: also clears the persisted paired-device store
-public func persistPairedDevice(macAddress: String, name: String, type: SB_BluetoothDeviceType)
-public func clearPairedDevice()
-public internal(set) var isSigningOut: Bool               // true from signOut() until the next signIn/createAccount
+public func beginPairing()                 // open a transaction, start scanning
+public func selectDevice(_ id: String)     // pair with one of the discovered bands
+public func endPairing()                   // cancel, or dismiss a terminal state; idempotent
+
+@Published public internal(set) var pairingState: SB_PairingState?
 ```
 
-The pairing flow uses the typed `SB_DiscoveredDevice` payload:
+```swift
+public enum SB_PairingState: Equatable, Sendable {
+    case scanning([SB_DiscoveredDevice])          // cumulative, de-duplicated
+    case connecting(SB_DiscoveredDevice)
+    case awaitingConfirmation(SB_DiscoveredDevice) // band is blinking; user must press its button
+    case paired(SB_PairedDeviceState)              // terminal
+    case failed(SB_PairingFailure)                 // terminal
+}
+
+public enum SB_PairingFailure: Equatable, Sendable {
+    case scanTimeout, connectTimeout, connectionLost,
+         notConfirmed, deviceUnavailable
+}
+```
+
+Render the state; make three calls:
 
 ```swift
-sensorBio.deviceDiscovered
-    .sink { (device: SB_DiscoveredDevice) in
-        print("found", device.macAddress, device.name, device.rssi)
+sensorBio.$pairingState
+    .receive(on: DispatchQueue.main)
+    .sink { state in
+        switch state {
+        case .scanning(let devices):    showList(devices)          // tap → selectDevice(id)
+        case .connecting:               showConnecting()
+        case .awaitingConfirmation:     showPressTheButton()
+        case .paired(let device):       showAllSet(device)         // dismiss → endPairing()
+        case .failed(let reason):       showCantReachBand(reason)  // dismiss → endPairing()
+        case nil:                       showStartScreen()
+        }
     }
     .store(in: &cancellables)
 
-sensorBio.startScan()
-// …user picks one…
-sensorBio.connect(macAddress, pairing: true)
-
-sensorBio.pairingConnection
-    .sink { mac in print("paired", mac) }
-    .store(in: &cancellables)
+sensorBio.beginPairing()
 ```
 
-The SDK owns paired-device persistence end-to-end — there is no app-built devices dictionary. On a successful pair the host calls `persistPairedDevice(macAddress:name:type:)`; the SDK serializes the identity to `devicesKey`, updates `pairedDevice`, and registers the device with the BLE layer. `clearPairedDevice()` wipes the paired snapshot (cancelled pair / pre-scan reset), and `removeDeviceFromPairedDevices(_:)` clears it on an explicit unpair; `signOut()` clears it too. `isSigningOut` is read-only state the SDK uses to gate BLE auto-reconnect across the signed-out window.
+**What the SDK does inside the transaction**, so the host doesn't: scanning and discovery de-duplication; re-issuing the scan when Bluetooth authorization is granted mid-scan (CoreBluetooth silently drops a scan issued before the central reaches `poweredOn`); connecting; the on-band confirmation choreography (blink + buzz, listening for the button, acknowledging the press, and refusing a late press once the window closes); persistence; server registration; configuring the band over the link that is already up; and every timeout.
+
+> **Nothing is persisted, registered, or reported to the server until the user confirms on the band.** A transaction that ends any way other than `.paired` — cancelled, timed out, dropped — leaves **no trace**: no persisted device, no BLE registration, no server-side link event. There is nothing for the host to undo, which is why no un-pair or reset call is needed on the failure paths.
+
+`.paired` means the band is fully ready: persisted, registered, reported, and **configured** — no reconnect is required. The two terminal states persist until `endPairing()`, so a host showing an "all set" or "can't reach the band" screen keeps the transaction open until that screen is dismissed. The SDK suppresses the forced-firmware prompt (`updateRequired`) and BLE auto-reconnect for the life of the transaction.
+
+**Connect, unpair & paired-device state**
+
+```swift
+public func connect(_ id: String)                          // manual reconnect; not needed for pairing
+public func disconnect(_ id: String? = nil)
+public func removeDeviceFromPairedDevices(_ id: String)    // unpair: also clears the persisted store
+public func clearPairedDevice()                            // wipe the paired snapshot (e.g. fresh-onboarding reset)
+public func reclassifyPairedDevice(macAddress: String, name: String, type: SB_BluetoothDeviceType)
+public internal(set) var isSigningOut: Bool                // true from signOut() until the next registerUser
+```
+
+The SDK owns paired-device persistence end-to-end — there is no app-built devices dictionary, and no host-side write on pair. `removeDeviceFromPairedDevices(_:)` clears it on an explicit unpair; `clearPairedDevice()` wipes the snapshot outright; `signOut()` clears it too. `isSigningOut` is read-only state the SDK uses to gate BLE auto-reconnect across the signed-out window.
+
+`reclassifyPairedDevice(…)` exists for one case: a band flashed onto different firmware **is** a different device type from then on, and the BLE layer reports a paired band's type from what was registered out of *storage*, not from the hardware. Leave storage alone after an Alter → Sensr migration and the band reconnects still classified as an Alter, `updateRequired` fires again, and the flash repeats forever. It is not part of pairing.
 
 Static bootstrap accessor (callable before `SB_SDK.shared` initializes):
 
@@ -492,6 +537,21 @@ public func reset()
 public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) async throws
 ```
 
+These are raw device commands. **Pairing does not require any of them** — `beginPairing()` runs the LED/haptic confirmation and the button listening itself (§5.1). Reach for `userLED` / `hapticMotor` / `setAskForDeviceResponse` only for your own device interactions outside a pair.
+
+**Firmware debug hooks.** Gated behind `SENSORBIO_INTERNAL`; absent from the binary.
+
+```swift
+public var debugOfferFirmwareUpdate: Bool                  // offer a reflash of the version already on the band
+public var debugFailFirmwareUpdate: Bool                   // drop the link ~20% into the next flash
+```
+
+Both exist to rehearse the firmware failure → band reset → retry path on demand, which is otherwise hard to provoke deliberately and easy to regress silently.
+
+`debugOfferFirmwareUpdate` forces `updateSuggested` and points `latestFirmwareVersion` at the device's current firmware, so an update can be triggered without a newer release existing. It takes effect immediately — the update decision re-runs on assignment rather than waiting for a reconnect — and deliberately overrides the white-label firmware gate and the Alter/UART-migration special cases, since it means "let me trigger an update now".
+
+`debugFailFirmwareUpdate` fails the next flash about 20% in by dropping the BLE link. Dropping the link rather than throwing is what makes it faithful to a real interrupted update: the band is left holding a partial image, the host takes its disconnect-during-update path, and the band reset that clears the partial image cannot be delivered until the band returns — so the host's deferral of that reset is exercised too. Leave it on to watch the failure, turn it off and retry to watch the recovery.
+
 ### 5.3 Recording
 
 Recording is fully SDK-orchestrated — there is no low-level start/stop surface; the SDK owns the BLE session lifecycle end-to-end.
@@ -499,11 +559,13 @@ Recording is fully SDK-orchestrated — there is no low-level start/stop surface
 **High-level orchestrations.** Each runs a session end-to-end: BLE start/stop, timer (fixed-duration countdown or open-ended count-up), post-stop sync wait, session build, and submission. Three completion paths each: natural completion (countdown modes only) / early-finish-with-submit via `finishCurrentRecording()` / cancellation via `Task.cancel()`. Submission is automatic — there is no separate "submit" call.
 
 ```swift
+@MainActor
 public func recordDetailedBiometrics(
     duration: TimeInterval,
     minDuration: TimeInterval
 ) async throws
 
+@MainActor
 public func recordMeditation(
     duration: TimeInterval,
     minDuration: TimeInterval,
@@ -511,18 +573,21 @@ public func recordMeditation(
     sessionNameAlreadyExists: Bool = false
 ) async throws
 
+@MainActor
 public func recordActivity(
     activityName: String,
     minDuration: TimeInterval
 ) async throws
 
-public func finishCurrentRecording()        // signal: "user tapped End Recording"
+public func finishCurrentRecording()        // signal: "user tapped End Recording"; persists the stop intent synchronously
 
 public func pauseRecording()                // freeze the timer + stop the device stream
 public func resumeRecording()               // restart the device stream + resume the timer
 ```
 
 `recordActivity(...)` is open-ended — it has no `duration:` parameter and runs until `finishCurrentRecording()` flips or the calling `Task` cancels. `recordingState` publishes `.recording(elapsed:, target: nil)` so countdown UIs render count-up format from the `nil` target.
+
+**All three are `@MainActor`.** They drive `recordingState` / `canFinalize` from a 250ms tick, and those are `@Published`, so the loop has to run on the main actor or SwiftUI observers get "Publishing changes from background threads is not allowed". `SB_SDK` itself is not main-actor-isolated, so a non-isolated `async` method would have hopped straight off the main actor and published from the cooperative pool. Source-compatible for callers: `await`ing from any context still works, and callers already on the main actor (the usual case for a UI-driven recording) see no change.
 
 **Pause / resume** (`recordActivity` + `recordMeditation`). `pauseRecording()` freezes the elapsed clock (`recordingState` holds its last `.recording(elapsed:, target:)` value and `canFinalize` stops advancing) and stops the device's manual PPG stream, so the paused span carries no biometric data. `resumeRecording()` restarts the stream and continues the clock. Both are no-ops outside an active recording; the device stop/start is a fire-and-forget BLE round-trip so the timer freezes/thaws instantly. Each paused window is submitted as the complement `activeWorkoutSegments` on the finished session, so downstream sees only the active spans.
 
@@ -557,7 +622,16 @@ public enum SB_RecordingError: Error {
 }
 ```
 
-**Persist + restore across app kill.** The SDK persists every in-flight `record*(...)` orchestration on entry and clears the envelope on every terminal path. If the host process is killed mid-recording, `SB_SDK.init()` re-publishes the matching `recordingState` synchronously on next launch and either resumes the countdown (fixed-duration, not expired), runs the auto-finalize path (fixed-duration, past expected end), or resumes the open-ended count-up (activity). Submission still flows automatically. Host viewmodels rebind via `awaitActiveRecordingCompletion()` — same `async throws` shape as the original `record*(...)` call.
+**Persist + restore across app kill.** The SDK persists every in-flight `record*(...)` orchestration on entry and clears the envelope on every terminal path. If the host process is killed mid-recording, `SB_SDK.init()` re-publishes the matching `recordingState` synchronously on next launch and decides what to do with the envelope, in this order:
+
+1. **Stop already requested** (`isStopRequested`, or a legacy stop-date newer than the envelope's start) — the user tapped End before the kill, so the recording is **over**. It is finalized at the persisted stop time and submitted; it is never resumed. `recordingState` comes up `.finalizing(...)`, not `.recording(...)`.
+2. **Abandoned** (`isAbandoned` — in flight longer than `SB_PersistedRecording.maxInFlightDuration`, 12h) — nobody ended it and there is no defensible end timestamp, so the *session* is discarded rather than invented. The window's packets still upload via the normal passive path, so no biometrics are lost.
+3. **Expired** (fixed-duration, past its expected end) — skip the remaining countdown and finalize.
+4. **Otherwise** — resume the countdown / open-ended count-up.
+
+Case 1 is the important one: `finishCurrentRecording()` persists the stop request **synchronously, at the moment it is called**, before it signals the orchestration and before any BLE stop goes out. So "the user tapped End" survives a kill anywhere from the tap onward — including the up-to-250ms gap before the recording loop notices the flag. Previously that fact lived only in memory, so a kill mid-finalize resurrected the recording on the next launch — and because `.activity` envelopes have no expiry, an activity recording could be resurrected on *every* launch indefinitely.
+
+Submission still flows automatically. Host viewmodels rebind via `awaitActiveRecordingCompletion()` — same `async throws` shape as the original `record*(...)` call.
 
 ```swift
 public var activeRecording: SB_PersistedRecording? { get }
@@ -585,11 +659,23 @@ public struct SB_PersistedRecording: Codable, Sendable, Equatable {
     public let sessionNameAlreadyExists: Bool
     public let activityType: SB_ActivityType?       // .activity only
     public let activityName: String?                // .activity only
+    public let stopRequestedEpochMs: Int64?         // nil while still running
+    public let stopConfirmedEpochMs: Int64?         // nil if the band never acked
     public var startDate: Date { get }
     public var endDate: Date? { get }               // nil for .activity
     public var isExpired: Bool { get }
+    public var stopRequestedDate: Date? { get }
+    public var stopConfirmedDate: Date? { get }
+    public var isStopRequested: Bool { get }
+    public var isAbandoned: Bool { get }
+    public static let maxInFlightDuration: TimeInterval  // 12h
 }
 ```
+
+- `stopRequestedEpochMs` is written **before** the BLE stop goes out, so the user's intent to end the recording is durable across a process kill. It is also the session's end timestamp — deliberately not "whenever finalize happened to complete", which after a kill can be a different day.
+- `stopConfirmedEpochMs` records that the *band* acknowledged the stop. Tracked separately because the remedies differ: user intent is final at the tap, whereas an unconfirmed device stop is re-delivered on the next full configure. Diagnostic — no finalize decision reads it.
+- `isAbandoned` bounds an envelope's lifetime. `.activity` is open-ended, so `endDate` (and therefore `isExpired`) is structurally `nil`/`false` for it and nothing else caps how long one may sit in flight.
+
 
 ### 5.4 Sync — automatic
 
@@ -601,7 +687,7 @@ Sync runs automatically once a paired device connects. No customer-side method c
 
 ## 6. Server APIs (async/await)
 
-Every method below is `async throws` on the `SB_SDK` facade. All return typed `SB_*` domain models; authentication is automatic once the user is signed in. Outcome-style methods (e.g. `signIn`, `updateGoals`) return discriminated enums rather than raw errors for common business cases.
+Every method below is `async throws` on the `SB_SDK` facade. All return typed `SB_*` domain models; authentication is automatic once the user is signed in. Outcome-style methods (e.g. `registerUser`, `updateGoals`) return discriminated enums rather than raw errors for common business cases.
 
 **Caching (dashboard + detail reads).** These reads are disk-cache-backed. The policy has three cases:
 
@@ -609,7 +695,7 @@ Every method below is `async throws` on the `SB_SDK` facade. All return typed `S
 - **A past date** is served straight from the on-disk cache with no network call — *but only once that cache is final*, i.e. it was written after the date's own calendar day ended. An entry cached while the date was still "today" is provisional (the day was still accumulating — a late device sync, a sleep the server scores hours later), so the first time you open that day *after it has passed* the SDK refetches once to finalize it, then serves from cache thereafter. This is transparent to the caller: keep calling `fetch…` on load and the SDK decides whether a network hit is needed.
 - **`forceRemote: true`** (pull-to-refresh) always fetches, regardless of the above.
 
-**Stale-while-revalidate streams.** Each cache-backed read also has an `…Updates(…)` variant returning `AsyncThrowingStream<T, Error>` that **yields the last cached value first (if any), then the fresh server value** — consume it with `for try await v in …`. This replaces the older synchronous `cachedX(for:)` peeks (removed): the peek read the store on the caller's (main) thread; the stream reads off-main and non-blocking (SB-1546), so `for try await` inside a `@MainActor` Task both paints instantly *and* keeps the UI thread free. On a fetch failure with a cached value present, the cached value is delivered and the stream finishes (no throw); with nothing cached it throws. `fetch…` (single value) is retained for pull-to-refresh (`forceRemote: true`) and one-shot reads. The stream variants: `dashboardUpdates(for:tzOffset:)`, `dailyHRUpdates(for:)` / `rangeHRUpdates(for:granularity:)` (and the HRV / RR / SpO2 equivalents), `stepsUpdates(for:granularity:)`, `caloriesUpdates(for:granularity:)`, `dailyActivityDetailUpdates(for:granularity:)`, `dailyRecoveryUpdates(for:)` / `rangeRecoveryUpdates(for:granularity:)`, `sleepDetailUpdates(endDate:endTimestamp:)`, and `sleepAggregationUpdates(for:granularity:)`. Each takes a trailing `forceRemote: Bool = false`.
+**Stale-while-revalidate streams.** Each cache-backed read also has an `…Updates(…)` variant returning `AsyncThrowingStream<T, Error>` that **yields the last cached value first (if any), then the fresh server value** — consume it with `for try await v in …`. This replaces the older synchronous `cachedX(for:)` peeks (removed): the peek read the store on the caller's (main) thread; the stream reads off-main and non-blocking (SB-1546), so `for try await` inside a `@MainActor` Task both paints instantly *and* keeps the UI thread free. On a fetch failure with a cached value present, the cached value is delivered and the stream finishes (no throw); with nothing cached it throws. `fetch…` (single value) is retained for pull-to-refresh (`forceRemote: true`) and one-shot reads. The stream variants: `dashboardUpdates(for:tzOffset:)`, `dailyHRUpdates(for:)` / `rangeHRUpdates(for:granularity:)` (and the HRV / RR / SpO2 equivalents), `stepsUpdates(for:granularity:)`, `caloriesUpdates(for:granularity:)`, `dailyActivityDetailUpdates(for:granularity:)`, `dailyRecoveryUpdates(for:)` / `rangeRecoveryUpdates(for:granularity:)`, `sleepDetailUpdates(endDate:endTimestamp:)`, and `sleepAggregationUpdates(for:granularity:)`. Each takes a trailing `forceRemote: Bool = false`. **Exceptions:** `dailyRecoveryUpdates` has no stale peek and yields once — its value is computed on-device, so a peek would only paint a stale server score first (see [Local-first recovery score](#local-first-recovery-score)). `dailyActivityDetailUpdates` is the same on its local-first `.day` path, and keeps the stale peek for `.week` / `.month` / `.year` (see [Local-first activity detail](#local-first-activity-detail)).
 
 > **Non-blocking store access (SB-1546).** All SDK SwiftData reads/writes on the async path (`getSkinTemperature`, the cache reads/writes behind the streams, and the packet-upload queue ops) now suspend on the store's serial queue rather than blocking the calling thread. `getSkinTemperature(date:)` is therefore `async`.
 
@@ -621,15 +707,32 @@ Every method below is `async throws` on the `SB_SDK` facade. All return typed `S
 public func fetchDashboardData(date: Date, tzOffset: Int32, forceRemote: Bool = false) async throws -> SB_DashboardData
 ```
 
+Each ring on the dashboard is an `SB_DashboardCircularItem`:
+
+```swift
+public struct SB_DashboardCircularItem: Codable, Equatable, Sendable {
+    public var value: Float
+    public var processing: Bool     // server's own "still working" flag
+}
+```
+
+> **`value` vs `processing` — read both.** `value` is **not** guaranteed to be `0…100`. The server sends `-100` for a sleep it has recorded but never scored, and negative recovery values are a documented sentinel meaning "no real score for the day" (pair with `SB_DashboardItemRecoveryStage.stageNotAvailable`). Treat **any non-positive `value` as "no score"**, and read **`processing`** for progress — the two are independent. Inferring progress from a missing or non-positive `value` is wrong: it cannot distinguish "recorded but unscoreable" from "still being worked on", and will leave a ring showing *Processing* forever.
+>
+> `data.sleep` is now populated whenever the server sends a sleep goal item, **including when its `value` is non-positive** (it was previously dropped to `nil` by a `value > 0` gate). `data.sleep != nil` therefore no longer implies "there is a score" — check `value > 0` for that, and use `data.sleeps` (the session list) to tell whether the server knows about any sleep session at all.
+
 ### 6.2 Activity reads
 
 ```swift
 public func fetchSteps(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)        async throws -> SB_StepsTrending
 public func fetchCalories(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)     async throws -> SB_CaloriesTrending
-public func fetchDailyActivityDetail(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false) async throws -> SB_DailyActivityDetail
-public func fetchDailyRecovery(date: Date, forceRemote: Bool = false)                                 async throws -> SB_DailyRecoveryTrending
+public func fetchDailyActivityDetail(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false, preferLocal: Bool = true) async throws -> SB_DailyActivityDetail
+public func fetchDailyRecovery(date: Date, forceRemote: Bool = false, preferLocal: Bool = true) async throws -> SB_DailyRecoveryTrending
 public func fetchRangeRecovery(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false) async throws -> SB_RecoveryRangeTrending
 ```
+
+> **`fetchDailyRecovery` is computed on-device where possible** — see [Local-first recovery score](#local-first-recovery-score) below. `fetchRangeRecovery` (week/month/year) is unchanged and stays server-served.
+>
+> **`fetchDailyActivityDetail` likewise, for `.day`** — see [Local-first activity detail](#local-first-activity-detail) below. `.week` / `.month` / `.year` stay server-served.
 
 `fetchDailyActivityDetail` returns the activity **score** plus a per-metric breakdown — steps, calories burned, distance, and active time — each carrying chart datapoints. The metrics reuse `SB_StepMetric` (switch on `metricType`: `.steps` / `.caloriesBurned` / `.distance` / `.totalDuration`):
 
@@ -637,15 +740,16 @@ public func fetchRangeRecovery(date: Date, granularity: SB_ViewGranularity, forc
 public struct SB_DailyActivityDetail: Codable, Equatable, Sendable {
     public var score: SB_ActivityScore?
     public var metrics: [SB_StepMetric]
+    public var isLocallyComputed: Bool       // true when this day was computed on-device
 }
 
 public struct SB_ActivityScore: Codable, Equatable, Sendable {
-    public var score: Float
+    public var score: Float                  // 0–100
     public var diffVsBaseline: Float
     public var diffVsLastGranularityValue: Float
     public var scoreDescription: String
     public var colorHex: String              // server-suggested; app may ignore
-    public var progressPercentage: Float     // 0–1 ring fill
+    public var progressPercentage: Float     // baseline-relative ring fill, NOT the score
 }
 ```
 
@@ -655,6 +759,7 @@ public struct SB_ActivityScore: Codable, Equatable, Sendable {
 public struct SB_DailyRecoveryTrending: Codable, Equatable, Sendable {
     public var graph: SB_DailyRecoveryGraph?
     public var joinedDate: Date?             // from the user profile, nil if unknown
+    public var isLocallyComputed: Bool       // true when this day's score was computed on-device
 }
 
 public struct SB_RecoveryRangeTrending: Codable, Equatable, Sendable {
@@ -668,6 +773,7 @@ public struct SB_DailyRecoveryGraph: Codable, Equatable, Sendable {
     public var sleepTimeSeconds: Float
     public var restingHr: Float
     public var scoreFactors: [SB_RecoveryScoreFactor]   // daily only
+    public var nocturnalHrv: Float?          // ms; local path only, nil when server-served
 }
 
 public struct SB_RecoveryRangeGraph: Codable, Equatable, Sendable {
@@ -690,20 +796,143 @@ public struct SB_RecoveryScoreFactor: Codable, Equatable, Sendable {
 }
 ```
 
+#### Local-first recovery score
+
+`fetchDailyRecovery(date:)` / `dailyRecoveryUpdates(for:)` keep their signatures and their `SB_DailyRecoveryTrending` return, but the **score behind them is now computed on-device** whenever the night is on the device (SB-1682). Unlike the `get…Points` family this is not a new entry point — it is the same trending read with a local source, so **no caller changes are required**.
+
+The daily recovery score ranks last night against the user's own recent nights (server `GenerateRecoveryScore`):
+
+```
+score = round(100 · (0.4·fracHRV + 0.4·fracBPM + 0.1·sleepGoalAchieved + 0.1·sleepEfficiency))
+```
+
+- **fracHRV / fracBPM** — the share of the prior 30 days' nights whose resting HRV was no higher than last night's / whose resting BPM was no lower (both comparisons **inclusive**). Each night's resting values are derived from that night's on-device PPG with the same server-parity math the sleep detail uses (`CalculateRestingBPM` — the mean of the 5 lowest outlier-free BPM; `CalculateRestingHRV` — the residual-outlier-free OLS HRV-vs-time line evaluated at the last epoch);
+- **sleepGoalAchieved** — `min(1, totalSleep / goal)` against the user's locally-cached sleep goal (an unset goal scores full credit);
+- **sleepEfficiency** — `totalSleep / (totalSleep + excessAwake + excessLatency)`, where awake time up to 5% of total sleep and latency up to 20 minutes are free. Both sleep terms read the same clamped stage minutes the local sleep detail reports.
+
+The returned graph carries the ring score + **stage** (`.restUp` <30 · `.goEasy` <50 · `.medium` <60 · `.ready` <75 · `.excellent` ≥75) and its message, the night's resting HR and total sleep, the **vs-average trend** (`variationPercentage`, measured against the mean of the last 30 days' locally-computed scores — which is why the read gathers 60 days of nights: each of those 30 prior days ranks against its *own* 30 priors), and the four **contributing factors** in the server's order — **Nocturnal HRV** (0.4), **Resting HR** (0.4), **Sleep Efficiency** (0.1), **Total Sleep Duration** (0.1, the sleep-*goal* term despite the name) — each with its percentile and its weighted point contribution.
+
+**Incomplete nights are backfilled, not skipped.** A prior night whose sleep *window* is on device but whose data is not — the partial day a fresh login leaves behind, or a window persisted only for vitals tagging — would otherwise drop silently out of the ranking and shrink its denominator, moving the score with nothing to signal it. Two misses are detected and repaired on read, each attempted at most once per night per process:
+
+- **no biometrics in the window** → the night's raw HR/HRV are fetched and persisted. A night straddles midnight, so **both** calendar days it touches are fetched;
+- **no stage minutes** → the night's server sleep detail is fetched and its stage minutes persisted, which is what makes the night scorable and keeps it in the 30-day average. Minutes come from the detail's typed stage intervals, so nothing depends on a localized label.
+
+Afterwards the night is served entirely from the device.
+
+The read **falls back to the server** for a day the device cannot score the server's way:
+
+- no on-device sleep for the day, or a night with a window but **no stage minutes** (such a night would evaluate both sleep terms to zero — a silent 20-point hole — so it is never scored, though it still counts as a *prior*, since it supplies resting values);
+- the night has no resting BPM or no resting HRV;
+- fewer than **four prior nights** with sleep / with resting BPM / with resting HRV — the server's five-nights-including-tonight gate. This window matters: the backend blends a population baseline to serve a **real** score on days 1–4, and that baseline is not on the device, so those days deliberately stay server-served rather than showing nothing.
+
+**`nocturnalHrv`** carries the night's raw resting HRV in ms — the value, not the percentile the `scoreFactors` carry. The recovery payload has never had this, so a host wanting to show it had to make a second pair of sleep reads per day view just to recover one number; on the local path the score has already derived it, so it is surfaced for free. It is `nil` on the server-served path, where the host should fall back to the sleep detail's `restingHrv` (the same figure). Note that fallback genuinely needs the network for a **server-backfilled** night: the local sleep detail deliberately skips stage-less rows, since it cannot draw a stage timeline for a night the device never recorded.
+
+`SB_DailyRecoveryTrending.isLocallyComputed` reports which source **actually** served the day, so a host can distinguish a genuine local score from a fallback rather than reporting the source it asked for. `preferLocal: false` (on both `fetchDailyRecovery` and `dailyRecoveryUpdates`) skips the on-device computation and reads the server's score; the default `true` keeps every existing caller local-first.
+
+`dailyRecoveryUpdates` has **no stale peek** — unlike the other `…Updates` streams it does not pre-yield the last cached value. The local computation is fast enough to be the first emission, so peeking would paint a stale *server* score for a frame and then swap it. It yields once.
+
+`forceRemote` applies to the **fallback fetch only** — it does not bypass the local computation, matching the rest of the offline-first family. Factor titles and stage messages are the SDK's own English strings (the server's are localized server-side) — the same trade-off the local sleep score makes.
+
+> The dashboard's recovery ring comes from a **different** read (`fetchDashboardData`), not this one, and is still server-served.
+
+#### Local-first activity detail
+
+`fetchDailyActivityDetail(date:granularity:)` / `dailyActivityDetailUpdates(for:granularity:)` keep their return type, but a **`.day`** read is now rebuilt **on-device** from the day's activity rows (SB-1684) — score, baseline comparison and all four metrics. As with the recovery score this is not a new entry point, so **no caller changes are required**.
+
+The daily activity score is a pure function of one day (server `GenerateActivityScore`) — no history, no statistical aggregation, no calibration, and so (unlike recovery) no gate it can fail:
+
+```
+score = round(100 · (0.8·min(1, activeCals/caloriesGoal) + 0.2·min(1, activeHours/12)))
+```
+
+- **activeCals** — the day's active calories, `Σ(totalStepCalories + workoutCalories − workoutStepCalories)` over the local activity rows. This is the same total the calories read reports as **Active** (`SB_CaloriesDataPoints.totalActiveCalories`), including the backend's per-minute `round(steps/10)` step-calorie cap — which the server applies in its DB row scan and **skips for workout minutes**. It is deliberately *not* `SB_StepsDataPoints.totalCalories`, which caps every minute including workout ones;
+- **activeHours** — local hours with **more than 250** steps (strictly greater), off the same hourly buckets the steps read exposes;
+- **caloriesGoal** — the user's active-calorie goal, cached locally from `fetchGoals()` / `updateGoals(…)`, with the server's 500 default substituted for an unset goal. Because the goal is the score's *divisor* rather than a soft term, a cold cache is warmed once per process from `fetchGoals()` rather than silently scoring against the default.
+
+The ring's **fill** is not the score: the server publishes `progressPercentage` relative to a rolling baseline, and `diffVsBaseline` alongside it. Both are reproduced — the baseline is the same score recomputed for each of the prior **30 days** and averaged, published only once **5** prior days have a score, matching the server's gate (below that the server omits `progressPercentage` too, and a host falls back to the raw score). `progressPercentage` is a full **100** at or above the baseline and the shortfall as a percentage below it (server `util.CalculateProgressPercentage` with no goal — activity has no goal term, the baseline IS the target). The prior days are read **local-only, with no backfill**: a 30-day baseline that fetched every missing day would cost 30 round-trips on first open, and a day with no local rows simply does not contribute, which is how the server treats a date with no stored score.
+
+> The Sensor Bio app fills its activity ring from **`score`**, not `progressPercentage`, so the baseline is reproduced here for API parity with the server payload (and with Android) rather than because the shipping app needs it.
+
+The four **metrics** — Calories, Duration, Distance, Steps, in the server's order — carry their day total in `avgValue` and hourly `timeDatapoints` in the API's wall-clock-encoded-as-UTC convention. `.distance` is emitted in the user's **display unit** (km, or miles for an imperial profile, rounded to two decimals), as the API sends it; every other metric is SI. `name` / `unit` / `barChartTitle` are left **empty** — those are localized server-side and the SDK owns no strings, so a host that shows them supplies its own (the app does, in `ActivityMetricFormat`).
+
+The read **falls back to the server** when the day has no activity rows on device even after a backfill attempt, and always for `.week` / `.month` / `.year` — those periods average the server's *stored* daily scores and aggregate from its rollup tables, which the device does not reproduce.
+
+`SB_DailyActivityDetail.isLocallyComputed` reports which source **actually** served the day, so a host can distinguish a genuine local score from a fallback rather than reporting the source it asked for. `preferLocal: false` (on both `fetchDailyActivityDetail` and `dailyActivityDetailUpdates`) skips the on-device computation and reads the server's payload; the default `true` keeps every existing caller local-first.
+
+As with recovery, `dailyActivityDetailUpdates` has **no stale peek on the local `.day` path** (it yields once) while the range granularities keep theirs, and `forceRemote` applies to the **fallback fetch only** — it does not bypass the local computation.
+
+> Org custom / white-label activity scoring stays server-computed.
+
 ### 6.3 Biometric reads — HR / HRV / RR · SpO2 🚧 WIP
 
 ```swift
-public func fetchDailyHR(date: Date, forceRemote: Bool = false)                                       async throws -> SB_HRDailyTrending
+public func fetchDailyHR(date: Date, forceRemote: Bool = false)                                       async throws -> SB_BiometricDailyTrending
 public func fetchRangeHR(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)      async throws -> SB_HRRangeTrending
-public func fetchDailyHRV(date: Date, forceRemote: Bool = false)                                      async throws -> SB_HRVDailyTrending
+public func fetchDailyHRV(date: Date, forceRemote: Bool = false)                                      async throws -> SB_BiometricDailyTrending
 public func fetchRangeHRV(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)     async throws -> SB_HRVRangeTrending
-public func fetchDailyRR(date: Date, forceRemote: Bool = false)                                       async throws -> SB_RRDailyTrending
+public func fetchDailyRR(date: Date, forceRemote: Bool = false)                                       async throws -> SB_BiometricDailyTrending
 public func fetchRangeRR(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)      async throws -> SB_RRRangeTrending
 
 // 🚧 WIP
-public func fetchDailySpO2(date: Date, forceRemote: Bool = false)                                     async throws -> SB_SpO2DailyTrending
+public func fetchDailySpO2(date: Date, forceRemote: Bool = false)                                     async throws -> SB_BiometricDailyTrending
 public func fetchRangeSpO2(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)    async throws -> SB_SpO2RangeTrending
 ```
+
+#### One daily shape for all four metrics (SB-1737) ⚠️ breaking
+
+All four daily reads return the same `SB_BiometricDailyTrending`; the per-metric
+`SB_HRDailyTrending` / `SB_HRVDailyTrending` / `SB_RRDailyTrending` /
+`SB_SpO2DailyTrending` and their four graph types are **gone**. The metric is
+identified by the call you made, not by the type. Range reads keep their
+per-metric types — those graphs genuinely differ.
+
+```swift
+public struct SB_BiometricDailyTrending: Codable, Equatable, Sendable {
+    public var graph: SB_BiometricDailyGraph?          // nil when the day has no processed data
+}
+
+public struct SB_BiometricDailyGraph: Codable, Equatable, Sendable {
+    public var resting: Float                          // HR: resting HR · HRV: RMSSD · RR/SpO2: nocturnal average
+    public var average: Float                          // whole-day mean, sleep included
+    public var lowest: Float
+    public var highest: Float
+    public var baseline: Float                         // 30-day median, server-computed
+    public var points: [SB_BiometricPoint]             // ascending by timestamp
+    public var linearFit: SB_TimeValueStraightLine?    // recovery-rate fit; HRV-only today
+}
+
+public struct SB_BiometricPoint: Codable, Equatable, Sendable {
+    public var timestamp: Int64                        // absolute ms epoch
+    public var value: Float
+    public var valueType: SB_BiometricValueType        // sleep / awake / outlier / abnormal-rhythm
+}
+```
+
+**Migrating:**
+
+| was | now |
+| --- | --- |
+| `graph.restingBpm` / `.rMssd` / `.brpm` / `.spo2` | `graph.resting` |
+| `graph.rawAvg` / `.rawLowest` / `.rawHighest` / `.rawBaseline` | `graph.average` / `.lowest` / `.highest` / `.baseline` |
+| `graph.heartRateTimeseriesPoints` | `graph.points` |
+| `graph.rawSleepPoints` + `graph.rawDatetimePoints` (and the `…HrvPoints` pair) | `graph.points`, split by `valueType` (`.sleep` / `.awake`) |
+| `graph.tzOffset`, `point.timezone` | **removed** — `timestamp` is an absolute ms epoch; render it in the viewer's own zone |
+| `graph.startTimestamp` | **removed** — derive the axis start as `min(localMidnight, floorToHour(points.first))` |
+| `graph.improvementVsBaseline` | **removed** — compute `resting - baseline`, sign-flipped where lower is better (HR, RR); `0` when `baseline <= 0` |
+| `SB_HeartRateValueType` / `SB_HRVValueType` | `SB_BiometricValueType` (HR's case list; HRV's `.hrvOutlier` maps to `.sleepOutlier`) |
+| `SB_HeartRateTimeValuePoint` / `SB_HRVTimeValuePoint` | `SB_BiometricPoint` |
+| `line.lineColor` (`SB_LineColor`) | `line.rating` (`SB_ImprovementRating`) — pick your own colours |
+
+`SB_TimeValuePoint` also loses `timezone`, so every graph that carries those
+points (sleep biometrics, workout, activity, meditation, spot check) now hands
+back `(timestamp, value)` only.
+
+Range graphs lose `improvementVsBaseline` too, spell `Avg` out
+(`averageBpm` / `average` / `averageBrpm` / `averageSpo2`, `rolling7DayAverage`),
+and `SB_HRVRangeGraph.rawBaseline` is dropped as a duplicate of `baseline`.
+
+Cached responses from an older build fail to decode once, are deleted, and
+refetch — no migration step needed.
 
 #### Local-first HR points
 
@@ -763,12 +992,173 @@ public struct SB_HRVDataPoint: Codable, Equatable, Sendable {
 
 `throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
 
+#### Local-first RR points
+
+`getRRPoints(date:)` is the respiratory-rate sibling of `getHRPoints(date:)` / `getHRVPoints(date:)`: it returns a day's RR samples **local-first**, reading the day's on-device RR (local midnight→midnight in the device time zone) with **no** API round-trip when that data is already synced locally. RR shares the same per-epoch `PPGResult` rows as HR/HRV (its own `rrValue`/`rrValid` slot). Each point is tagged `.awake` / `.asleep` from the device's sleep sessions. Only when the day predates local sync (no local RR for the window) does it fall back to the API, backfill the RR + sleep locally, and rebuild — so a subsequent call for the same day is served entirely from the device.
+
+Unlike HR/HRV (whole-number `Int`), RR is inherently fractional, so every RR value — each point and every aggregate — is an **unrounded `Float`** in breaths per minute (brpm), matching the API day chart's own `brpm` values.
+
+```swift
+public func getRRPoints(date: Date) async throws -> SB_RRDataPoints
+
+public struct SB_RRDataPoints: Codable, Equatable, Sendable {
+    public let points: [SB_RRDataPoint]
+    // Computed on the fly from `points`; each is nil when its input set is empty
+    // (and `averageRestingRR` is nil when there are no `.asleep` points — never a misleading 0).
+    public var averageRR: Float?         // mean value of all points (day average)
+    public var averageRestingRR: Float?  // mean value of .asleep points (nocturnal resting RR;
+                                         // offline proxy for the server's sleep-derived brpm)
+    public var lowestRR: Float?          // min value
+    public var highestRR: Float?         // max value
+}
+
+public struct SB_RRDataPoint: Codable, Equatable, Sendable {
+    public let epoch: Int64          // ms
+    public let value: Float          // breaths per minute (brpm), unrounded from the stored Float
+    public let type: SB_HRPointType  // .awake / .asleep (shared with HR)
+}
+```
+
+`throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
+
+#### Local-first Steps points
+
+`getStepsPoints(date:)` returns a day's step intervals **local-first**: it reads the day's on-device steps (local midnight→midnight in the device time zone) with **no** API round-trip when that data is already synced locally. Steps live in their own `EnginePacket` table (steps / distance / calories / active-seconds columns), **not** the vitals' `PPGResult`, so there is **no** awake/asleep tag — each point is a per-interval activity reading. Only when the day predates local sync (no local steps for the window) does it fall back to the API, backfill the intervals locally (server rows marked already-uploaded), and rebuild — so a subsequent call for the same day is served entirely from the device.
+
+The returned `SB_StepsDataPoints` computes the day totals and hourly buckets on the fly. Unlike the vitals aggregates these are **non-optional** (steps are counts, not a distribution) and default to `0`; use `points.isEmpty` to distinguish "no data on device" from a genuine zero-step day. Locally-synced points are per-minute, server-backfilled points per-hour; both aggregate identically.
+
+```swift
+public func getStepsPoints(date: Date) async throws -> SB_StepsDataPoints
+
+public struct SB_StepsDataPoints: Codable, Equatable, Sendable {
+    public let points: [SB_StepsDataPoint]
+    // Computed on the fly from `points`; non-optional, 0 when there are no points.
+    public var totalSteps: Int
+    public var totalDistanceMeters: Float
+    public var totalCalories: Float
+    public var totalActiveSeconds: Int
+    public var hourlyBuckets: [SB_StepsHourBucket]  // one per hour with points (gaps omitted)
+}
+
+public struct SB_StepsDataPoint: Codable, Equatable, Sendable {
+    public let epoch: Int64          // ms
+    public let steps: Int
+    public let distanceMeters: Float
+    public let calories: Float       // kcal, after the backend's per-minute round(steps/10) cap
+    public let activeSeconds: Int
+}
+
+public struct SB_StepsHourBucket: Codable, Equatable, Sendable {
+    public let hour: Int             // local hour of day 0…23
+    public let steps: Int
+    public let distanceMeters: Float
+    public let calories: Float
+    public let activeSeconds: Int
+}
+```
+
+`throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
+
+#### Local-first Calories points
+
+`getCaloriesPoints(date:)` is the calories sibling of `getStepsPoints(date:)`: it returns a day's calorie intervals **local-first**, reading them from the same on-device `EnginePacket` rows as steps (so there is **no** awake/asleep tag). It faithfully recreates the server's per-`PhysicalStats`-row calorie model — each interval's `totalStepCalories` is the **active** calories the band measured, split into a **step** and a **workout** part (`active = step + workout`). The band never reports the split on device, so it is reconstructed: on a locally-synced day from the day's on-device workout recordings (a minute inside a workout window counts as workout, otherwise step), and on a backfilled day from the server calories graph's authoritative per-hour split. Only when the day predates local sync does it fall back to the API — **one shared steps + calories backfill** (server rows marked already-uploaded) — then rebuild, so a subsequent call for the same day is served entirely from the device.
+
+The returned `SB_CaloriesDataPoints` computes the five day totals and hourly buckets on the fly, plus a day-level `restingCalories` (the user's BMR over the elapsed part of the day — full BMR for a completed past day, `BMR × elapsed/86400` for today, `0` when weight/height are unknown). `totalCalories = totalActiveCalories + restingCalories`; `totalActiveCalories` drives the calories ring. These aggregates are **non-optional** and default to `0`; use `points.isEmpty && restingCalories == 0` to distinguish "no data on device" from a genuine zero-calorie day. Locally-synced points are per-minute, server-backfilled points per-hour; both aggregate identically. (Ported to match Android's local-first calories, SB-1663.)
+
+```swift
+public func getCaloriesPoints(date: Date) async throws -> SB_CaloriesDataPoints
+
+public struct SB_CaloriesDataPoints: Codable, Equatable, Sendable {
+    public let points: [SB_CaloriesDataPoint]
+    public let restingCalories: Float       // kcal, day-level BMR over the elapsed day
+    // Computed on the fly from `points`; non-optional, 0 when there are no points.
+    public var totalStepCalories: Float     // server "Steps" tile
+    public var totalWorkoutCalories: Float  // server "Workout" tile
+    public var totalActiveCalories: Float   // server "Active" tile = step + workout; drives the ring
+    public var totalCalories: Float         // server "Total" tile = active + resting
+    public var hourlyBuckets: [SB_CaloriesHourBucket]  // one per hour with points (gaps omitted)
+}
+
+public struct SB_CaloriesDataPoint: Codable, Equatable, Sendable {
+    public let epoch: Int64          // ms
+    public let stepCalories: Float   // kcal (server: totalStepCalories − workoutStepCalories)
+    public let workoutCalories: Float // kcal
+    public var activeCalories: Float // step + workout
+}
+
+public struct SB_CaloriesHourBucket: Codable, Equatable, Sendable {
+    public let hour: Int             // local hour of day 0…23
+    public let stepCalories: Float
+    public let workoutCalories: Float
+    public var activeCalories: Float // step + workout
+}
+```
+
+`throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
+
 ### 6.4 Sleep reads
 
 ```swift
 public func fetchSleepDetail(endDate: Date, endTimestamp: Int64, forceRemote: Bool = false)                     async throws -> SB_SleepDetailDay
 public func fetchSleepAggregation(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)      async throws -> SB_SleepDetailAggregated
 ```
+
+#### Local-first sleep detail
+
+`getSleepDetail(date:sessionEndTimestamp:)` is the sleep member of the local-first family — same contract as the vitals reads, but sleep is stored on-device as **sessions** (the on-device sleep-session rows) rather than a per-epoch timeseries, so instead of a bespoke points container it returns the **same `SB_SleepDetailDay`** `fetchSleepDetail` returns. The sleep-detail screen renders it unchanged. Two paths:
+
+- **On-device day** (a device-recorded session with stages exists): the detail is **rebuilt entirely from the local row** — no API round-trip — with all the server-parity math below. A row is only surfaced once it has **settled with the server** and if its window is well-formed (positive `start`→`end` and positive `onset`→`wakeUp`); a not-yet-uploaded sleep is deliberately withheld so the local list matches server-first session-for-session, and a degenerate row — the sleep detector can persist one with `start == end` and a `wakeUp` *before* its `onset`, which the server rejects and never stores — is dropped rather than rendered as a 0-minute session.
+- **Old day** (no on-device sleep — it predates local sync): a **server-backed read**, like the vitals do — it fetches the day's server sleep, persists **every** session's window locally (marked already-uploaded; there may be several sleeps in a day, and the windows let the vitals reads tag against them), and returns the chosen session's **full server `SB_SleepDetailDay`** (server stages / score / factors / penalties / biometrics / disturbances). So old days show the real sleep rather than an empty shell.
+
+`nil` when neither the device nor the server has sleep for the day.
+
+A session is attributed to the day it **wakes up** — it may start the previous evening (or be a nap fully inside the day), but a session that starts in the day and wakes the next belongs to the next day, so an overnight sleep isn't double-counted on both days. Without `sessionEndTimestamp` the day's **longest** session (most time asleep) is surfaced.
+
+The returned `SB_SleepDetailDay` is populated with what the device stores, **recomputed to match server-first exactly** (the server re-derives its stage metrics after upload, and the iOS row never even stores its own per-stage totals — those columns are always `0` and the server fills them in from the timestamped stages):
+
+- **stage metrics** — the per-epoch stages are clamped to `[sleepOnset, wakeUp]` and re-counted (server `UpdateSleepDerivedMetricsUsingTimestampedStages`), so the leading sleep-latency awake and any trailing awake are excluded. Each stage's minutes are the epoch count divided by the device's epochs-per-minute with **integer truncation** (server `int32(count / multiplier)`), matching the server to the minute. This drives the four legend percentages (largest-remainder rounding, including the server's quirk that a sub-1% bucket is never bumped to 1), the per-stage duration tiles, `sleepTimeSec` = (light + deep + rem) × 60, and the in-window arousal count. The stage-timeline `stages.stages` intervals are likewise the in-window epochs;
+- **`sleepOnset` / `wakeUpTime` / `timezone`** (the device's current TZ offset in minutes — the same value the upload path stamps);
+- **biometrics from the on-device PPG over the sleep window, each reproduced the server's way**: **`restingHr`** (header — `CalculateRestingBPM`: mean of the 5 lowest lower-fence-outlier-free BPM), the **Average HR** tile (median of the same outlier-free BPM) and the **Nocturnal HRV** tile (`CalculateRestingHRV`: the residual-outlier-free OLS HRV-vs-time line evaluated at the last epoch, also mirrored into `restingHrv`). Each is `0`/omitted when there is too little data. As on the server these are **rounded to whole numbers for display** (`util.Round`) while the score is computed from the raw values — hosts render them with truncating formatters, so an unrounded value would read one lower than server-first;
+- **`metrics`** — the locally-derivable tiles, in the server's tile order with the server's labels: **Total Time in Bed** (= wakeUp − onset + 1 min), **Total Awake**, **Light**, **Deep**, **REM Sleep** (`.duration`), **Nocturnal HRV** (ms), **Average HR** (bpm), **Awakenings** (count), **Sleep Latency** (= onset − start), then the two editable `.timeTz` tiles **Sleep Onset** + **Wake up Time** — mirroring the only two tiles the server marks editable. The Nocturnal HRV + Average HR tiles are attached only to the day's **main** (longest) sleep, matching the server's `sl.MainSleep` guard, so a nap carries neither;
+- **the sleep score + contributing factors + penalties** (`sleepScore` / `scoreFactors` / `scorePenalty`), computed locally to match the server's `CalculateSleepMainScore`: `score = max(1, goalAchieved × efficiency × 100 − penalties)`. Factors = **Total Sleep** (vs the user's sleep goal), **Deep** (or **Deep And REM**), **Efficiency**; penalties (points > 0 only) = **Awakenings**, **Restlessness** (from the arm disturbances), **Latency**, and **Elevated Avg Heart Rate**. Every input is on-device: the **sleep goal** comes from the SDK's own cache, which the SDK keeps warm itself by refreshing goals on sign-in / auto-login (the same fire-and-forget refresh it does for white-label settings) and on every `fetchGoals()` / `updateGoals(...)` — so the local read path never pulls it over the network, and it only falls back to the server's 7 h default before the first successful refresh. And the HR penalty's **30-day resting-HR baseline** is recomputed from the last 30 nights' own sleep + PPG history, so the HR penalty is simply **omitted when there isn't enough history** (server parity; e.g. right after a fresh login). If the night has no resting HR at all, no score is produced and the header falls back to the empty "--" ring.
+
+Everything else the server owns and the local row does not hold is left empty and simply doesn't render: **bedtime recommendations**, **accounting**, **positions**, **apnea / breathing**, **bathroom breaks**, **survey** and the **temperature graph**. A **server-backfilled** window row (persisted for vitals tagging on a day that predated local sync) has no stages and is never rebuilt into a detail.
+
+`getSleepSessions(date:)` returns the day's sessions for the detail screen's multi-session grid — local-first, else the server's list for an old day, sorted by start. Key each session by `SB_SleepItem.endTimestamp` (its wake-up epoch) and pass it back as `getSleepDetail(date:sessionEndTimestamp:)`, or to the graph reads, to load that session.
+
+```swift
+public func getSleepDetail(date: Date, sessionEndTimestamp: Int64? = nil) async throws -> SB_SleepDetailDay?
+public func getSleepSessions(date: Date) async throws -> [SB_SleepItem]
+
+// The session's biometric-graph timeseries (HR / HRV / RR) for the sleep-detail charts.
+// The session is identified by its wake-up epoch (`SB_SleepItem.endTimestamp`, or
+// `SB_SleepDetailDay.wakeUpTime` from getSleepDetail).
+public func getSleepHR(sessionEndTimestamp: Int64) async throws -> [SB_TimeValuePoint]
+public func getSleepHRV(sessionEndTimestamp: Int64) async throws -> [SB_TimeValuePoint]
+public func getSleepRR(sessionEndTimestamp: Int64) async throws -> [SB_TimeValuePoint]
+```
+
+`getSleepHR` / `getSleepHRV` / `getSleepRR` return the session's per-epoch metric over its `[onset, wakeUp]` window, time-ordered with **real-epoch** timestamps (the convention the sleep biometric chart's bucketing expects), with each metric's server-parity outlier handling applied (HR **lower fence only**, so high spikes are kept; HRV a **two-sided** drop on the residuals of a least-squares fit, which removes the spikes; RR **unfiltered**, rounded to 1 dp). Local-first: read from the on-device PPG; if the day predates local sync (no on-device sleep) each falls back to the server sleep detail's matching graph — hence `async throws`. A device-recorded session whose PPG is simply missing returns empty rather than reaching the network. A host wraps each list in an `SB_SleepBiometricGraph` (points + mean average) to feed the same biometric chart the server path draws; there is no local SpO2 (that card stays hidden).
+
+`getSleepArmDisturbances(sessionEndTimestamp:)` returns the session's arm-restlessness severity timeline for the disturbance chart — **fully local**, so it never `throws`: bucketed from the on-device activity packets' motion value over `[onset, wakeUp]` with the server's fixed thresholds (`≤250000 none / ≤750000 mild / ≤1250000 moderate / else severe`), first + last forced `.none` (the awake bookends). It returns a colour-free `SB_SleepDisturbanceLevel` per epoch — the SDK deliberately does **not** return colours, so the host owns the palette (and its theming). `.none` points are included so the host can compute the level distribution for the legend; hosts typically drop them from the drawn series (server parity). No server fallback — the arm series is only ever local; empty when the session has no activity packets on device. (Leg / snoring disturbance graphs are dead on the server, so only the arm series is exposed.)
+
+It is `async` with nothing to await, purely so the store read happens off the caller's actor (a `@MainActor` view model never does the fetch on the main thread) — matching Android's `suspend` signature.
+
+```swift
+public func getSleepArmDisturbances(sessionEndTimestamp: Int64) async -> [SB_SleepDisturbancePoint]
+
+public enum SB_SleepDisturbanceLevel: Int32, Codable, Equatable, Sendable, CaseIterable {
+    case none = 0, mild = 1, moderate = 2, severe = 3
+}
+
+public struct SB_SleepDisturbancePoint: Codable, Equatable, Sendable {
+    public var timestamp: Int64                    // ms, real epoch
+    public var timezone: Int32                     // device TZ offset in minutes
+    public var level: SB_SleepDisturbanceLevel
+}
+```
+
+`getSleepDetail` / `getSleepSessions` / the three graph reads `throw` only on the server-backed path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network. (Ported to match Android's local-first sleep, SB-1677/SB-1678.)
 
 ### 6.5 Insights — personal + population + feedback
 
@@ -799,12 +1189,14 @@ public func deleteUserPhoto() async throws
 
 ### 6.7 Goals
 
-Steps / calories / sleep are the customer-facing goal surface. `SB_Goals` is returned with those three targets/currents public; its workout / routine-goal members are Sensr-Bio-only and absent from the binary.
+Steps / calories / sleep are the customer-facing goal surface. `SB_Goals` is returned with those three targets/currents public; its workout / routine-goal members are Sensr-Bio-only and absent from the binary. It is `Equatable, Sendable`.
 
 ```swift
 public func fetchGoals() async throws -> SB_Goals
 public func updateGoals(steps: Int, calories: Int, sleep: Int) async throws -> SB_UpdateGoalsOutcome
 ```
+
+Both cache the **sleep** target locally as a side effect (SB-1678), so the local-first sleep score can read the user's goal without a network round-trip. The SDK also refreshes goals itself on sign-in / account creation / auto-login (fire-and-forget, alongside the white-label refresh), so the cache is warm without the host having to call `fetchGoals()` at all — a host that never did would otherwise have left the local score scoring against the 7 h default. Nothing else about their behaviour changes, and the cache is only ever written with a non-zero goal.
 
 ### 6.8 Sleep writes
 
@@ -903,6 +1295,12 @@ public enum SDKConstants {
 }
 ```
 
+`DefaultUserMetrics.Sex` is in the SDK's **storage** convention — `0` male, `1`
+female, `2` undisclosed — the same numbering `SB_UserProfile.sex` persists. Note
+this is *not* the bioedge C numbering (`USER_SEX_MALE = 1`, `GENDER_MALE = 1`),
+which counts the same three cases from one; conflating the two silently shifts
+every user by one case (SB-1735).
+
 ### 7.4 Globals namespace
 
 ```swift
@@ -987,13 +1385,15 @@ final class HomeViewModel: ObservableObject {
             .assign(to: &$paired)
     }
 
-    func signIn(email: String, password: String) async {
+    // `registerUser` is register-OR-login: the first call for a given userId
+    // registers, later calls sign the same user back in.
+    func register(userId: String) async {
         do {
-            switch try await sensorBio.signIn(email: email, password: password) {
+            switch try await sensorBio.registerUser(userId: userId) {
             case .success:
                 await refreshDashboard()
-            case .passwordIncorrect, .unknownUsername, .failed:
-                break
+            case .failure(let errorCode):
+                print("register failed: \(errorCode)")
             }
         } catch { print(error) }
     }
@@ -1008,10 +1408,14 @@ final class HomeViewModel: ObservableObject {
     }
 
     func discoverAndPair() {
-        sensorBio.deviceDiscovered
-            .sink { (d: SB_DiscoveredDevice) in print("found", d.macAddress) }
+        sensorBio.$pairingState
+            .receive(on: DispatchQueue.main)
+            .sink { state in
+                if case .scanning(let devices) = state { print("found", devices.count) }
+                if case .paired(let device) = state { print("paired", device.macAddress) }
+            }
             .store(in: &bag)
-        sensorBio.startScan()
+        sensorBio.beginPairing()
     }
 }
 ```

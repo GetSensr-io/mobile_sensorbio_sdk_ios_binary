@@ -39,13 +39,44 @@ extension SB_ViewGranularity {
     }
 }
 
+extension SB_BiometricValueType {
+    /// Whether the server flagged this sample as an unreliable measurement.
+    ///
+    /// Lives here rather than on the SDK type: which samples a host chooses to
+    /// hide is a presentation decision, and the SDK deliberately hands back
+    /// every sample it received.
+    var isOutlier: Bool {
+        switch self {
+        case .awakeOutlier, .sleepOutlier:
+            return true
+        case .awake, .sleep, .unknown,
+             .awakeAbnormalRhythmSingleOccurrence, .awakeAbnormalRhythmClusteredOccurrence,
+             .sleepAbnormalRhythmSingleOccurrence, .sleepAbnormalRhythmClusteredOccurrence:
+            return false
+        }
+    }
+}
+
 enum MetricFormatting {
-    /// SDK time-value points encode `timestamp` as a *local epoch* — the
-    /// recording's local-time digits packed as if they were UTC. To render
-    /// "what time did the device say it was when this sample was taken",
-    /// extract h:mm via a UTC calendar so the digits come out literally.
-    /// (`timezoneOffsetMinutes` is metadata only; not applied as a shift.)
-    static func dayTimeLabel(timestampMillis: Int64, timezoneOffsetMinutes: Int32) -> String {
+    /// h:mm for a sample whose `timestamp` is an **absolute** millisecond epoch,
+    /// rendered in the viewer's own time zone. This is the convention the daily
+    /// biometric graphs use (`SB_BiometricPoint`) since SB-1737 dropped their
+    /// per-sample timezone — a day recorded elsewhere lands at the viewer's
+    /// clock position, which is the point of the change.
+    static func sampleTimeLabel(timestampMillis: Int64) -> String {
+        let date = Date(timeIntervalSince1970: TimeInterval(timestampMillis) / 1000)
+        let comps = Calendar.current.dateComponents([.hour, .minute], from: date)
+        return String(format: "%02d:%02d", comps.hour ?? 0, comps.minute ?? 0)
+    }
+
+    /// h:mm for an **hourly bucket** on the calories / steps reads, whose
+    /// `timestamp` the API encodes as wall-clock-packed-as-UTC rather than as a
+    /// real epoch (the local-first path pre-shifts its buckets to match). Extract
+    /// h:mm via a UTC calendar so those digits come out literally.
+    ///
+    /// Deliberately separate from `sampleTimeLabel` — the two point families no
+    /// longer share a timestamp convention, so one formatter cannot serve both.
+    static func hourBucketLabel(timestampMillis: Int64) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestampMillis) / 1000)
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "UTC") ?? .current

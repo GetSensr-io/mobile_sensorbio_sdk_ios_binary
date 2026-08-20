@@ -1280,7 +1280,7 @@ PODS:
   - KeychainAccess (4.2.2)
   - MqttCocoaAsyncSocket (1.0.8)
   - Protobuf (4.33.6)
-  - SensorBioSDK (1.2.0):
+  - SensorBioSDK (1.3.0):
     - CocoaMQTT (~> 2.2)
     - gRPC-ProtoRPC
     - KeychainAccess (~> 4.0)
@@ -1325,7 +1325,7 @@ SPEC CHECKSUMS:
   KeychainAccess: c0c4f7f38f6fc7bbe58f5702e25f7bd2f65abf51
   MqttCocoaAsyncSocket: 77d3b74f76228dd5a05d1f9526eab101d415b30c
   Protobuf: a58fa4a5f4f70163753779228d7789ce8e197468
-  SensorBioSDK: 8fbd56ac46a0f57a25efe2fd6591eaa1ed6044e5
+  SensorBioSDK: bac5015938afa0ce06e9db2c0bb0b831d86ddeb0
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
   SwiftProtobuf: 409d3aaec90e51b1705b1dd8065b56893450e77c
   SwiftQueue: ce8ff8194f3318bedea023b14277091e8a6887a3

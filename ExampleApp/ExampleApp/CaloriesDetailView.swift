@@ -41,7 +41,7 @@ struct CaloriesDetailView: View {
                     Text("No data").foregroundStyle(.secondary)
                 } else {
                     ForEach(metric.timeDatapoints.sorted { $0.timestamp < $1.timestamp }, id: \.timestamp) { point in
-                        LabeledContent(MetricFormatting.dayTimeLabel(timestampMillis: point.timestamp, timezoneOffsetMinutes: point.timezone),
+                        LabeledContent(MetricFormatting.hourBucketLabel(timestampMillis: point.timestamp),
                                        value: "\(Int(point.value).formatted(.number)) \(metric.unit)")
                     }
                 }

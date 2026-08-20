@@ -3,157 +3,72 @@ import Combine
 import Observation
 import SensorBioSDK
 
+/// Host side of a pairing transaction.
+///
+/// Pairing is one transaction owned by the SDK, so this type is almost
+/// entirely a pass-through: it republishes `sensorBio.$pairingState` for
+/// SwiftUI to render, and makes the three calls that drive it —
+/// `beginPairing()`, `selectDevice(_:)`, `endPairing()`.
+///
+/// Note what is *absent*. No scan start/stop, no connect, no LED or haptic
+/// choreography, no button-tap subscription, no persistence call, no server
+/// registration, and no timeout watchdogs — the SDK owns all of it, including
+/// every timeout that produces a `.failed` state. A host that finds itself
+/// sequencing those steps is working against the API rather than with it.
 @Observable
 final class PairDeviceState {
-    enum Phase: Equatable {
-        case idle
-        case scanning
-        case scanTimeout
-        case connecting
-        case confirming
-        case allSet
-        case error(String)
 
-        var displayName: String {
-            switch self {
-            case .idle:        return "Idle"
-            case .scanning:    return "Scanning"
-            case .scanTimeout: return "Scan Timeout"
-            case .connecting:  return "Connecting"
-            case .confirming:  return "Confirming"
-            case .allSet:      return "All Set"
-            case .error:       return "Error"
-                @unknown default:
-                    return "?"
-            }
-        }
-    }
-
-    var phase: Phase = .idle
-    var devices: [SB_DiscoveredDevice] = []
-    var selectedDevice: SB_DiscoveredDevice?
+    /// Mirrors `sensorBio.pairingState`. `nil` means no transaction is open.
+    var pairingState: SB_PairingState?
 
     private var subscriptions: Set<AnyCancellable> = []
-    private var watchdog: Task<Void, Never>?
 
     init() {
-        sensorBio.deviceDiscovered
+        sensorBio.$pairingState
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] device in
-                guard let self else { return }
-                guard self.phase == .scanning else { return }
-                if !self.devices.contains(where: { $0.id == device.id }) {
-                    self.devices.append(device)
-                }
-            }
-            .store(in: &subscriptions)
-
-        sensorBio.pairingConnection
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self, self.phase == .connecting else { return }
-                self.cancelWatchdog()
-                sensorBio.stopScan()
-                self.phase = .confirming
-                Task { try? await sensorBio.userLED(blue: true, blink: true, for: 5) }
-                sensorBio.setAskForDeviceResponse(true)
-                self.startWatchdog(after: 30) { [weak self] in
-                    self?.phase = .error("Timed out waiting for button press on the device.")
-                }
-            }
-            .store(in: &subscriptions)
-
-        sensorBio.deviceDisconnected
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else { return }
-                if self.phase == .connecting || self.phase == .confirming {
-                    self.cancelWatchdog()
-                    self.phase = .error("Device disconnected before pairing finished.")
-                }
-            }
-            .store(in: &subscriptions)
-
-        sensorBio.$buttonTaps
-            .compactMap { $0 }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self, self.phase == .confirming else { return }
-                self.cancelWatchdog()
-                sensorBio.setAskForDeviceResponse(false)
-                self.phase = .allSet
+            .sink { [weak self] state in
+                self?.pairingState = state
             }
             .store(in: &subscriptions)
     }
 
-    deinit {
-        watchdog?.cancel()
-    }
-
+    /// Open the transaction and start scanning. Also the Retry path — calling
+    /// it again restarts a transaction that is already open.
     @MainActor
     func start() {
-        devices.removeAll()
-        selectedDevice = nil
-        phase = .scanning
-        sensorBio.startScan()
-        startWatchdog(after: 30) { [weak self] in
-            sensorBio.stopScan()
-            self?.phase = .scanTimeout
-        }
+        sensorBio.beginPairing()
     }
 
+    /// Pair with one of the bands from the current `.scanning` payload.
     @MainActor
-    func cancel() {
-        cancelWatchdog()
-        sensorBio.stopScan()
-        if sensorBio.isDeviceConnected {
-            sensorBio.disconnect()
-        }
-        devices.removeAll()
-        selectedDevice = nil
-        phase = .idle
+    func select(_ device: SB_DiscoveredDevice) {
+        sensorBio.selectDevice(device.id)
     }
 
+    /// Close the transaction — cancels one still in flight, or dismisses one
+    /// that already reached `.paired` / `.failed`. Idempotent and safe from
+    /// any state, so Cancel and Done are the same call.
     @MainActor
-    func connect(_ device: SB_DiscoveredDevice) {
-        cancelWatchdog()
-        selectedDevice = device
-        phase = .connecting
-        sensorBio.connect(device.id, pairing: true)
-        startWatchdog(after: 30) { [weak self] in
-            self?.phase = .error("Timed out connecting to the device.")
+    func close() {
+        sensorBio.endPairing()
+    }
+}
+
+extension SB_PairingFailure {
+    /// Failure copy is the host's call — the SDK reports the reason, the app
+    /// decides how to say it.
+    var message: String {
+        switch self {
+        case .scanTimeout:
+            return "No device found. Tap Retry to scan again."
+        case .connectTimeout:
+            return "Couldn't connect to the device. Move closer and retry."
+        case .connectionLost:
+            return "The device disconnected before pairing finished."
+        case .notConfirmed:
+            return "No button press received. Tap Retry and press the button on the device."
+        case .deviceUnavailable:
+            return "That device is no longer nearby. Tap Retry to scan again."
         }
-    }
-
-    /// Persists the freshly-paired device via the SDK. `persistPairedDevice`
-    /// serializes the identity, flips `sensorBio.haveDevice` + `pairedDevice`
-    /// on, and registers the device with the BLE layer — the SDK owns
-    /// paired-device persistence end-to-end (no app-built devices dictionary).
-    @MainActor
-    func finish() {
-        sensorBio.setAskForDeviceResponse(false)
-        guard let device = selectedDevice else { return }
-        sensorBio.persistPairedDevice(
-            macAddress: device.id,
-            name: device.name,
-            type: device.deviceType
-        )
-        sensorBio.disconnect()
-    }
-
-    // MARK: - watchdog
-
-    private func startWatchdog(after seconds: TimeInterval, action: @escaping () -> Void) {
-        watchdog?.cancel()
-        watchdog = Task { @MainActor in
-            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
-            guard !Task.isCancelled else { return }
-            action()
-        }
-    }
-
-    private func cancelWatchdog() {
-        watchdog?.cancel()
-        watchdog = nil
     }
 }

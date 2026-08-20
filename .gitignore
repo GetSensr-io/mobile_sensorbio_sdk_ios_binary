@@ -11,5 +11,8 @@
 ExampleApp/Pods/
 ExampleApp/*.xcworkspace/
 
+# Xcode DerivedData from the release verify build (scripts/publish-example-app.sh)
+ExampleApp/build/
+
 # Local agent worktrees / files
 .claude/

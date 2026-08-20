@@ -24,33 +24,12 @@ struct ContentView: View {
         }
     }
 
+    // Signed out, the register screen IS the app: a customer integration has
+    // exactly one way in — `registerUser(userId:)` with an org SDK key — so
+    // there is nothing to choose between and no menu to show.
     private var signedOut: some View {
         NavigationStack {
-            List {
-                Section("Auth") {
-                    NavigationLink {
-                        RegisterView()
-                    } label: {
-                        Label("Register", systemImage: "person.crop.circle.badge.plus")
-                    }
-                }
-                Section {
-                    Picker("Server", selection: $envIsDev) {
-                        Text("Staging").tag(true)
-                        Text("Prod").tag(false)
-                    }
-                    .pickerStyle(.segmented)
-                } header: {
-                    Text("Environment")
-                } footer: {
-                    Text("Flip before signing in. Changes after the first RPC take full effect on next launch.")
-                }
-                Section("About") {
-                    LabeledContent("SDK", value: "SensorBioSDK")
-                    LabeledContent("Linked as", value: "local SPM (../..)")
-                }
-            }
-            .navigationTitle("SDK Example")
+            RegisterView()
         }
     }
 }

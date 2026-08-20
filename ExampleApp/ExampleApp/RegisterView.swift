@@ -1,16 +1,35 @@
 import SwiftUI
 import SensorBioSDK
 
-/// Single entry point for the SDK-key `registerUser` flow. Replaces the old
-/// email/password Sign In + Create Account screens: for embedding apps the
-/// user is already authenticated by the host, so there is one register-or-login
-/// call keyed on `orgId` + `sdkKey` + `userId`.
+/// The signed-out root screen, and the SDK's only way in.
+///
+/// `registerUser` is the single entry point for an embedding app: the end-user
+/// is already authenticated by the host (its own login / SSO / OAuth), so the
+/// SDK takes one register-or-login call keyed on `orgId` + `sdkKey` + `userId`.
+/// There is no email/password surface in the distributed SDK — `signIn` and
+/// `createAccount` are compile-gated behind `SENSORBIO_INTERNAL` and absent
+/// from the shipped xcframework — so this screen has no alternative to offer
+/// and stands alone rather than sitting behind a menu.
 struct RegisterView: View {
     @State private var form = RegisterFormState()
     @State private var showSDKKey: Bool = false
+    // Shared with ContentView, which applies it to `SB_SDK.environment`.
+    @AppStorage("envIsDev") private var envIsDev: Bool = true
 
     var body: some View {
         Form {
+            Section {
+                Picker("Server", selection: $envIsDev) {
+                    Text("Staging").tag(true)
+                    Text("Prod").tag(false)
+                }
+                .pickerStyle(.segmented)
+            } header: {
+                Text("Environment")
+            } footer: {
+                Text("Flip before registering. Changes after the first RPC take full effect on next launch.")
+            }
+
             Section {
                 TextField("Org ID", text: $form.orgId)
                     .textInputAutocapitalization(.never)
@@ -126,7 +145,6 @@ struct RegisterView: View {
             }
         }
         .navigationTitle("Register")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
