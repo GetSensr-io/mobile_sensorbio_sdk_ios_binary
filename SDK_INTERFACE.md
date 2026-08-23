@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.17.0'
+    :tag => 'v0.17.1'
 end
 
 post_install do |installer|
@@ -822,6 +822,12 @@ public enum SDKConstants {
     }
 }
 ```
+
+`DefaultUserMetrics.Sex` is in the SDK's **storage** convention — `0` male, `1`
+female, `2` undisclosed — the same numbering `SB_UserProfile.sex` persists. Note
+this is *not* the bioedge C numbering (`USER_SEX_MALE = 1`, `GENDER_MALE = 1`),
+which counts the same three cases from one; conflating the two silently shifts
+every user by one case (SB-1735).
 
 ### 7.4 Globals namespace
 
