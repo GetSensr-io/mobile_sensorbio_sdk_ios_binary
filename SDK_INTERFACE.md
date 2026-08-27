@@ -22,7 +22,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v2.0.0'
+    :tag => 'v2.1.0'
 end
 
 post_install do |installer|
@@ -197,6 +197,16 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 | `organization` | `SB_OrgMembership?` | User's org / group membership |
 | `featureFlags` | `[String]` | Server-driven feature flags |
 
+> **An absent birthday is null, not a sentinel.** `SB_UserProfile.birthday` is
+> `DateComponents?` — nil when the server has no birthday for the user — and
+> `SB_UserProfile.age` is `Int?` for the same reason. Neither is ever the zero
+> calendar date. Before SB-1837 both platforms represented "no birthday" as that
+> zero date, which no type check could distinguish from a real one: iOS computed an
+> age around 2025 from it (a max HR of roughly -912), and Android threw
+> `IllegalFieldValueException` out of `age`, `BMR` and `CFF`. Host code that has to
+> produce a number should substitute `SDKConstants.DefaultUserMetrics.Age`, which is
+> what the SDK's own internal compute uses and is the same on both platforms.
+
 **Pairing, connection & reachability**
 
 | Property | Type | Description |
@@ -274,7 +284,7 @@ public let deviceDisconnected:          PassthroughSubject<String, Never>   // p
 public let deviceConnected:             PassthroughSubject<Void, Never>     // low-level BLE connect
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
 public let deviceLinkFailed:            PassthroughSubject<SB_DeviceLinkFailure, Never>  // server rejected the device-link (serial-enforced subscription)
-public let subscriptionLost:            PassthroughSubject<Void, Never>     // an authenticated RPC was rejected for no active subscription — host should alert + force logout
+public let subscriptionLost:            PassthroughSubject<Void, Never>     // server rejected an authenticated RPC for no active subscription — host should alert + force logout (see §3.4.1)
 
 // Streaming biometrics — timestamp + value
 public let hr:    PassthroughSubject<(Int, Int),     Never>                 // bpm
@@ -294,6 +304,43 @@ public let biometricRecordProcessed:    PassthroughSubject<Void, Never>
 public let sleepStored:                 PassthroughSubject<Void, Never>
 public let sleepDetected:               PassthroughSubject<SB_DetectedSleep, Never>  // valid on-device sleep finalized (start/end epoch ms)
 ```
+
+#### 3.4.1 `subscriptionLost` and the subscription block
+
+When the server rejects an authenticated RPC because the user has no active
+device subscription, the SDK does two things: it fires `subscriptionLost`, and
+it enters a **subscription block** — it disconnects the band and refuses to
+auto-connect or sync until the block lifts. The block is a data-exfil guard, not
+a UI state: BLE sync pulls data off the band with no server round-trip, so the
+gate is persisted and deliberately survives relaunch.
+
+What a host needs to know about it:
+
+- **The band is inert while blocked.** No auto-connect on launch, no reconnect
+  after a drop. `pairedDevice` stays populated and pairing a *new* band still
+  works, so "paired but never connects" is the shape the user sees.
+- **The signal can arrive in any app state, and not only after a call you
+  made.** Background uploads and the SDK's own foreground re-verification both
+  reach the server, so `subscriptionLost` can land mid-session, while
+  backgrounded, or moments after a launch. A host must therefore be able to act
+  on it without a screen to present on: sign the user out first and explain
+  afterwards, rather than gating the sign-out behind a modal that a backgrounded
+  app cannot show. MySensr signs out immediately, states the reason on the
+  onboarding landing, and adds a local notification when the app was not in
+  front of the user.
+- **It lifts by itself when the subscription is genuinely fine.** Any successful
+  authenticated RPC clears the block and reconnects the band — the server gates
+  its whole authenticated surface on the subscription, so a `200` is proof. A
+  block that was armed by a transient server condition therefore heals on the
+  next successful call or the next foreground, with no alert and no user action.
+- **Inconclusive is not "cleared".** Offline or a transport failure leaves the
+  block standing and re-checks next foreground, rather than freeing the band on
+  no evidence.
+
+So the host's job is only the alert + forced sign-out on `subscriptionLost`.
+Do not build a local mirror of the blocked state, and do not treat one
+`subscriptionLost` as permanent — the SDK owns the lifecycle and will stop
+re-firing once the server stops rejecting.
 
 `biometricRecordResult` emits once for **every** accepted spot check, and the host has three outcomes to tell apart:
 
@@ -404,7 +451,7 @@ public func acceptCurrentAgreements() async throws
 
 
 
-> **`signOut()` side effects.** A successful sign-out disconnects any connected device, clears the paired-device state, nils out `pairedDevice` / `haveDevice` / `exerciseZoneAttributes`, and wipes the SDK's locally cached user data. `signOut()` is the **only** customer-facing way to clear SDK persistence — a wipe without a sign-out would leave in-memory `@Published` state and the BLE connection inconsistent with the cleared cache. Account-deletion flows should call `signOut()` after the delete-account call succeeds.
+> **`signOut()` side effects.** A successful sign-out **unlinks the paired device from the account server-side**, disconnects any connected device, clears the paired-device state, nils out `pairedDevice` / `haveDevice` / `exerciseZoneAttributes`, and wipes the SDK's locally cached user data. The unlink is awaited before the logout RPC (it needs the session's credentials) and is best-effort — if it fails it is logged and the local teardown still completes, so the user is never stranded mid-sign-out. Signing out therefore costs the user their pairing: they re-pair the band on the next sign-in, which is deliberate and matches Android. `signOut()` is the **only** customer-facing way to clear SDK persistence — a wipe without a sign-out would leave in-memory `@Published` state and the BLE connection inconsistent with the cleared cache. Account-deletion flows should call `signOut()` after the delete-account call succeeds.
 
 ### 4.1 SDK-key registration (`registerUser`)
 
@@ -414,13 +461,13 @@ For third-party apps embedding the SDK, `registerUser` is a **register-or-login*
 
 ```swift
 public struct SB_SDKKeyCredentials: Sendable, Equatable {
-    public let orgId: String   // server-issued organization UUID (from your Sensor Bio dashboard)
-    public let sdkKey: String  // server-issued SDK key; validated as active and belonging to orgId
-    public init(orgId: String, sdkKey: String)
+    public let org_id: String     // server-issued organization UUID (from your Sensor Bio dashboard)
+    public let sdk_token: String  // server-issued SDK token; validated as active and belonging to org_id
+    public init(org_id: String, sdk_token: String)
 }
 
 // e.g. in App.init, and again after a cold launch that hydrates a session:
-SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(orgId: orgId, sdkKey: sdkKey)
+SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: orgId, sdk_token: sdkToken)
 ```
 
 `registerUser` parameters:
@@ -515,7 +562,7 @@ public func reclassifyPairedDevice(macAddress: String, name: String, type: SB_Bl
 public internal(set) var isSigningOut: Bool                // true from signOut() until the next registerUser
 ```
 
-The SDK owns paired-device persistence end-to-end — there is no app-built devices dictionary, and no host-side write on pair. `removeDeviceFromPairedDevices(_:)` clears it on an explicit unpair; `clearPairedDevice()` wipes the snapshot outright; `signOut()` clears it too. `isSigningOut` is read-only state the SDK uses to gate BLE auto-reconnect across the signed-out window.
+The SDK owns paired-device persistence end-to-end — there is no app-built devices dictionary, and no host-side write on pair. `removeDeviceFromPairedDevices(_:)` clears it on an explicit unpair; `clearPairedDevice()` wipes the snapshot outright; `signOut()` clears it too, and additionally unlinks the device server-side. Hosts do **not** need to call `updateUserDeviceInfo(…, unlinkDevice: true)` themselves on logout. `isSigningOut` is read-only state the SDK uses to gate BLE auto-reconnect across the signed-out window.
 
 `reclassifyPairedDevice(…)` exists for one case: a band flashed onto different firmware **is** a different device type from then on, and the BLE layer reports a paired band's type from what was registered out of *storage*, not from the hardware. Leave storage alone after an Alter → Sensr migration and the band reconnects still classified as an Alter, `updateRequired` fires again, and the flash repeats forever. It is not part of pairing.
 
@@ -1233,8 +1280,18 @@ public func deleteRecordingMeta(id: String, name: String, type: SB_RecordingMeta
 Brief surveys are the real sleep / workout / meditation survey responses the device collects; they stay on the public surface.
 
 ```swift
-public func submitBriefSurvey(_ survey: SB_BriefSurvey)
+public func submitBriefSurvey(_ survey: SB_BriefSurvey) async throws -> String
 ```
+
+**Await it before refetching.** The submit suspends until the survey lands server-side. If your survey UI refetches anything on dismissal, do that *after* this returns — otherwise the refetch races the upload, goes out before the survey exists, and the dependent UI stays stale until some later fetch. This was fire-and-forget before SB-1835, and every caller had exactly that race.
+
+**A throw means "not landed yet", not "lost."** On failure the SDK persists the survey to its retry queue (waits for connectivity, survives relaunch) *before* rethrowing. So the survey will still land; treat the error as retry-in-progress rather than a discarded response, and gate your submit button while the call is in flight so a double-tap can't send twice.
+
+**You usually don't need to refetch at all.** `UploadBriefSurvey` stores the answers and links the returned id onto the sleep record — it recomputes nothing, and the response carries only the id. So the survey you submitted, with `id` set to the returned value, *is* the new server state: assign it into your displayed model and skip the round-trip entirely. Whatever you have cached on disk still holds the pre-submit payload, so reconcile that in the background rather than making the user wait on it.
+
+**Keep the returned id.** A submit whose `survey.id` is nil creates a *new* survey server-side instead of updating the existing one. If a user can edit the same survey twice in one session and your second submit reuses a copy that never had the id stamped on it, you silently duplicate rather than update.
+
+Android's equivalent is `suspend (SB_BriefSurvey) -> String` and iOS now matches it. Android's own caller currently discards the id and refetches on dismissal instead, so it still pays the round-trip iOS no longer needs — worth aligning.
 
 ### 6.12 Devices, services & global state
 
@@ -1307,7 +1364,7 @@ every user by one case (SB-1735).
 public enum SDKGlobals {
     public static let defaultPPGDuration: Int
     public static let noOfDaysToSavePPGAndActivityPackets: Int
-    public static func getUserAge(birthday: DateComponents) -> Int
+    public static func getUserAge(birthday: DateComponents) -> Int?
     public static func calcBMR(male: Bool, weight: Double, height: Double, age: Int) -> Double
     public static func calcCFF(age: Int, rhr: Int) -> Double
 }

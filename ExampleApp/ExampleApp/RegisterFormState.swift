@@ -29,7 +29,7 @@ final class RegisterFormState {
     // MARK: Required SDK-key credentials
     //
     // For a real integration these come from your Sensor Bio dashboard
-    // (`orgId` + `sdkKey`) and your own user store (`userId`). The example
+    // (`org_id` + `sdk_token`) and your own user store (`userId`). The example
     // persists them across launches so relaunch-and-register logs you straight
     // back into the same demo user.
     var orgId: String = ""
@@ -109,9 +109,9 @@ final class RegisterFormState {
         persistCredentials()
 
         // Configure the SDK-key credentials once, then register with just the
-        // user identity. The SDK reads org_id/sdk_key from here for the
+        // user identity. The SDK reads org_id/sdk_token from here for the
         // register call and every authenticated call after it.
-        SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(orgId: trimmed(orgId), sdkKey: trimmed(sdkKey))
+        SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: trimmed(orgId), sdk_token: trimmed(sdkKey))
 
         // Optional demographics — only sent when the profile section is on and
         // the field parses. Everything left nil is dummy-filled by the SDK.

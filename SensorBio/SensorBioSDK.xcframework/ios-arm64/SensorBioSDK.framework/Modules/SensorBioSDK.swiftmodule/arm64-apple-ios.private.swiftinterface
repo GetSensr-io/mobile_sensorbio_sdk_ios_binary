@@ -514,8 +514,7 @@ public enum SB_BriefSurveyType : Swift.String, Swift.Codable, Swift.Equatable, S
 public struct SB_CalibrationInfo : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var totalDays: Swift.Int32
   public var pendingDays: Swift.Int32
-  public var message: Swift.String
-  public init(totalDays: Swift.Int32 = 0, pendingDays: Swift.Int32 = 0, message: Swift.String = "")
+  public init(totalDays: Swift.Int32 = 0, pendingDays: Swift.Int32 = 0)
   public static func == (a: SensorBioSDK.SB_CalibrationInfo, b: SensorBioSDK.SB_CalibrationInfo) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -2304,9 +2303,9 @@ extension SensorBioSDK.SB_SDK {
   }
 }
 public struct SB_SDKKeyCredentials : Swift.Sendable, Swift.Equatable {
-  public let orgId: Swift.String
-  public let sdkKey: Swift.String
-  public init(orgId: Swift.String, sdkKey: Swift.String)
+  public let org_id: Swift.String
+  public let sdk_token: Swift.String
+  public init(org_id: Swift.String, sdk_token: Swift.String)
   public static func == (a: SensorBioSDK.SB_SDKKeyCredentials, b: SensorBioSDK.SB_SDKKeyCredentials) -> Swift.Bool
 }
 extension SensorBioSDK.SB_SDK {
@@ -2434,7 +2433,8 @@ extension SensorBioSDK.SB_SDK {
   public func reprocessSleep(endDate: Swift.Int32, endTimestamp: Swift.Int64) async throws
 }
 extension SensorBioSDK.SB_SDK {
-  public func submitBriefSurvey(_ survey: SensorBioSDK.SB_BriefSurvey)
+  @discardableResult
+  public func submitBriefSurvey(_ survey: SensorBioSDK.SB_BriefSurvey) async throws -> Swift.String
 }
 public struct SB_SkinTemperature : Swift.Sendable {
   public let min: Swift.Float
@@ -3266,7 +3266,7 @@ public struct SB_UserProfile : Swift.Equatable, Swift.Sendable {
   public let email: Swift.String
   public let fullName: Swift.String
   public let photoURL: Swift.String
-  public let birthday: Foundation.DateComponents
+  public let birthday: Foundation.DateComponents?
   public let sex: SensorBioSDK.SB_Gender
   public let location: Swift.String
   public let joinedTime: Swift.Int64
@@ -3279,10 +3279,13 @@ public struct SB_UserProfile : Swift.Equatable, Swift.Sendable {
   public let computedMaxHr: Swift.Float
   public let shouldUseComputedMaxHr: Swift.Bool
   public let imperialUnits: Swift.Bool
+  public var age: Swift.Int? {
+    get
+  }
   public var registrationDate: Foundation.Date {
     get
   }
-  public init(id: Swift.String, email: Swift.String, fullName: Swift.String, photoURL: Swift.String, birthday: Foundation.DateComponents, sex: SensorBioSDK.SB_Gender, location: Swift.String, joinedTime: Swift.Int64, metricHeight: Swift.Float, metricWeight: Swift.Float, walkStride: Swift.Float, runStride: Swift.Float, vo2Max: Swift.Float, maxHr: Swift.Float, computedMaxHr: Swift.Float, shouldUseComputedMaxHr: Swift.Bool, imperialUnits: Swift.Bool)
+  public init(id: Swift.String, email: Swift.String, fullName: Swift.String, photoURL: Swift.String, birthday: Foundation.DateComponents?, sex: SensorBioSDK.SB_Gender, location: Swift.String, joinedTime: Swift.Int64, metricHeight: Swift.Float, metricWeight: Swift.Float, walkStride: Swift.Float, runStride: Swift.Float, vo2Max: Swift.Float, maxHr: Swift.Float, computedMaxHr: Swift.Float, shouldUseComputedMaxHr: Swift.Bool, imperialUnits: Swift.Bool)
   public static func == (a: SensorBioSDK.SB_UserProfile, b: SensorBioSDK.SB_UserProfile) -> Swift.Bool
 }
 public struct SB_UserProfileUpdate {
@@ -3691,7 +3694,7 @@ public enum SDKGlobals {
   nonisolated(unsafe) public static var defaultMetricsOnlyPages: Swift.Int
   nonisolated(unsafe) public static var SequenceNumber: Swift.Int
   public static let noOfDaysToSavePPGAndActivityPackets: Swift.Int
-  public static func getUserAge(birthday: Foundation.DateComponents) -> Swift.Int
+  public static func getUserAge(birthday: Foundation.DateComponents) -> Swift.Int?
   public static func calcBMR(male: Swift.Bool, weight: Swift.Double, height: Swift.Double, age: Swift.Int) -> Swift.Double
   public static func calcCFF(age: Swift.Int, rhr: Swift.Int) -> Swift.Double
 }

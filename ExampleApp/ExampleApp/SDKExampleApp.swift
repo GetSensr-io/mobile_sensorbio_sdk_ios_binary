@@ -21,14 +21,14 @@ struct SDKExampleApp: App {
         let isDev = UserDefaults.standard.bool(forKey: "envIsDev")
         SB_SDK.environment = isDev ? .staging : .production
 
-        // SDK-key mode: the SDK holds org_id/sdk_key in memory only, so on a
+        // SDK-key mode: the SDK holds org_id/sdk_token in memory only, so on a
         // cold launch that hydrates a prior SDK-key session we must re-supply
         // them before the first authenticated call (dashboard fetch). We read
         // them from the same UserDefaults the register form persisted.
         let orgId = UserDefaults.standard.string(forKey: "register.orgId") ?? ""
         let sdkKey = UserDefaults.standard.string(forKey: "register.sdkKey") ?? ""
         if !orgId.isEmpty && !sdkKey.isEmpty {
-            SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(orgId: orgId, sdkKey: sdkKey)
+            SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: orgId, sdk_token: sdkKey)
         }
     }
 

@@ -5,7 +5,7 @@ import SensorBioSDK
 ///
 /// `registerUser` is the single entry point for an embedding app: the end-user
 /// is already authenticated by the host (its own login / SSO / OAuth), so the
-/// SDK takes one register-or-login call keyed on `orgId` + `sdkKey` + `userId`.
+/// SDK takes one register-or-login call keyed on `org_id` + `sdk_token` + `userId`.
 /// There is no email/password surface in the distributed SDK — `signIn` and
 /// `createAccount` are compile-gated behind `SENSORBIO_INTERNAL` and absent
 /// from the shipped xcframework — so this screen has no alternative to offer
@@ -37,11 +37,11 @@ struct RegisterView: View {
                 HStack {
                     Group {
                         if showSDKKey {
-                            TextField("SDK Key", text: $form.sdkKey)
+                            TextField("SDK Token", text: $form.sdkKey)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                         } else {
-                            SecureField("SDK Key", text: $form.sdkKey)
+                            SecureField("SDK Token", text: $form.sdkKey)
                         }
                     }
                     Button {
