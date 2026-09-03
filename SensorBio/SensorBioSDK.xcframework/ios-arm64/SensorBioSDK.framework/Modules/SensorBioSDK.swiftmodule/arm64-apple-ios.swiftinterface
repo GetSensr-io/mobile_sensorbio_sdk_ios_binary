@@ -553,6 +553,12 @@ public struct SB_CaloriesDataPoint : Swift.Codable, Swift.Equatable, Swift.Senda
   public var activeCalories: Swift.Float {
     get
   }
+  public var displayWorkoutCalories: Swift.Float {
+    get
+  }
+  public var displayStepCalories: Swift.Float {
+    get
+  }
   public static func == (a: SensorBioSDK.SB_CaloriesDataPoint, b: SensorBioSDK.SB_CaloriesDataPoint) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -1000,11 +1006,9 @@ public struct SB_HRDataPoint : Swift.Codable, Swift.Equatable, Swift.Sendable {
 }
 public struct SB_HRDataPoints : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public let points: [SensorBioSDK.SB_HRDataPoint]
-  public init(points: [SensorBioSDK.SB_HRDataPoint])
+  public let restingHR: Swift.Int?
+  public init(points: [SensorBioSDK.SB_HRDataPoint], restingHR: Swift.Int? = nil)
   public var averageHR: Swift.Int? {
-    get
-  }
-  public var averageRHR: Swift.Int? {
     get
   }
   public var lowestHR: Swift.Int? {
@@ -1074,6 +1078,9 @@ public struct SB_HRMExerciseZone : Swift.Codable, Swift.Equatable, Swift.Sendabl
 extension SensorBioSDK.SB_HRMManager {
   final public func saveHR(_ packets: [SensorBioSDK.StreamingPacket])
   final public func hasUnprocessedHR(before endTime: Swift.Int64) -> Swift.Bool
+  final public func hrPoints(from startTime: Swift.Int64, to endTime: Swift.Int64) -> [SensorBioSDK.SB_TimeValuePoint]
+  final public func hrvPoints(from startTime: Swift.Int64, to endTime: Swift.Int64) -> [SensorBioSDK.SB_TimeValuePoint]
+  final public func rrPoints(from startTime: Swift.Int64, to endTime: Swift.Int64) -> [SensorBioSDK.SB_TimeValuePoint]
   final public func measureCount(from startTime: Swift.Int64, to endTime: Swift.Int64) -> Swift.Int
   final public func markHRProcessed(timestamps: [Swift.Int64])
 }
@@ -1145,11 +1152,9 @@ public struct SB_HRVDataPoint : Swift.Codable, Swift.Equatable, Swift.Sendable {
 }
 public struct SB_HRVDataPoints : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public let points: [SensorBioSDK.SB_HRVDataPoint]
-  public init(points: [SensorBioSDK.SB_HRVDataPoint])
+  public let restingHRV: Swift.Int?
+  public init(points: [SensorBioSDK.SB_HRVDataPoint], restingHRV: Swift.Int? = nil)
   public var averageHRV: Swift.Int? {
-    get
-  }
-  public var averageRestingHRV: Swift.Int? {
     get
   }
   public var lowestHRV: Swift.Int? {
@@ -1233,6 +1238,19 @@ public struct SB_LiveMetric : Swift.Sendable {
   public var unit: Swift.String
   public init(type: SensorBioSDK.SB_DashboardMetricType, epoch: Swift.Int, value: Swift.Float, unit: Swift.String)
 }
+public struct SB_LocalRecordingEntry : Swift.Identifiable, Swift.Equatable, Swift.Sendable {
+  public let localId: Foundation.UUID
+  public var id: Foundation.UUID {
+    get
+  }
+  public let entry: SensorBioSDK.SB_WorkoutEntry
+  public let status: SensorBioSDK.SB_RecordingSubmissionStatus
+  public let dateInt: Swift.Int32
+  public let scoredNoResult: Swift.Bool
+  public init(localId: Foundation.UUID, entry: SensorBioSDK.SB_WorkoutEntry, dateInt: Swift.Int32, status: SensorBioSDK.SB_RecordingSubmissionStatus, scoredNoResult: Swift.Bool)
+  public static func == (a: SensorBioSDK.SB_LocalRecordingEntry, b: SensorBioSDK.SB_LocalRecordingEntry) -> Swift.Bool
+  public typealias ID = Foundation.UUID
+}
 public struct SB_MeditationGraph : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public var duration: Swift.Int32
   public var minBpm: Swift.Float
@@ -1258,7 +1276,9 @@ public struct SB_MeditationGraph : Swift.Codable, Swift.Equatable, Swift.Sendabl
   public var scoreFactors: [SensorBioSDK.SB_MeditationScoreFactor]
   public var scorePenalty: [SensorBioSDK.SB_MeditationScorePenalty]
   public var pauseSegments: [SensorBioSDK.SB_TimeSegment]
-  public init(duration: Swift.Int32, minBpm: Swift.Float, maxBpm: Swift.Float, medianBpm: Swift.Float, minHrv: Swift.Float, maxHrv: Swift.Float, medianHrv: Swift.Float, minBrpm: Swift.Float, maxBrpm: Swift.Float, medianBrpm: Swift.Float, minSpo2: Swift.Float, maxSpo2: Swift.Float, medianSpo2: Swift.Float, bpms: [SensorBioSDK.SB_TimeValuePoint], hrvs: [SensorBioSDK.SB_TimeValuePoint], brpms: [SensorBioSDK.SB_TimeValuePoint], spo2s: [SensorBioSDK.SB_TimeValuePoint], sessionStart: Swift.Int64, sessionEnd: Swift.Int64, survey: SensorBioSDK.SB_BriefSurvey?, score: SensorBioSDK.SB_MeditationScore? = nil, scoreFactors: [SensorBioSDK.SB_MeditationScoreFactor] = [], scorePenalty: [SensorBioSDK.SB_MeditationScorePenalty] = [], pauseSegments: [SensorBioSDK.SB_TimeSegment] = [])
+  public var hrLinearFit: SensorBioSDK.SB_TimeValueStraightLine?
+  public var hrvLinearFit: SensorBioSDK.SB_TimeValueStraightLine?
+  public init(duration: Swift.Int32, minBpm: Swift.Float, maxBpm: Swift.Float, medianBpm: Swift.Float, minHrv: Swift.Float, maxHrv: Swift.Float, medianHrv: Swift.Float, minBrpm: Swift.Float, maxBrpm: Swift.Float, medianBrpm: Swift.Float, minSpo2: Swift.Float, maxSpo2: Swift.Float, medianSpo2: Swift.Float, bpms: [SensorBioSDK.SB_TimeValuePoint], hrvs: [SensorBioSDK.SB_TimeValuePoint], brpms: [SensorBioSDK.SB_TimeValuePoint], spo2s: [SensorBioSDK.SB_TimeValuePoint], sessionStart: Swift.Int64, sessionEnd: Swift.Int64, survey: SensorBioSDK.SB_BriefSurvey?, score: SensorBioSDK.SB_MeditationScore? = nil, scoreFactors: [SensorBioSDK.SB_MeditationScoreFactor] = [], scorePenalty: [SensorBioSDK.SB_MeditationScorePenalty] = [], pauseSegments: [SensorBioSDK.SB_TimeSegment] = [], hrLinearFit: SensorBioSDK.SB_TimeValueStraightLine? = nil, hrvLinearFit: SensorBioSDK.SB_TimeValueStraightLine? = nil)
   public static func == (a: SensorBioSDK.SB_MeditationGraph, b: SensorBioSDK.SB_MeditationGraph) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
@@ -1508,7 +1528,9 @@ public struct SB_PersistedRecording : Swift.Codable, Swift.Sendable, Swift.Equat
   public let activityName: Swift.String?
   public let stopRequestedEpochMs: Swift.Int64?
   public let stopConfirmedEpochMs: Swift.Int64?
-  public init(kind: SensorBioSDK.SB_PersistedRecordingKind, startEpochMs: Swift.Int64, duration: Foundation.TimeInterval?, minDuration: Foundation.TimeInterval, sessionName: Swift.String?, sessionNameAlreadyExists: Swift.Bool, activityType: SensorBioSDK.SB_ActivityType?, activityName: Swift.String?, stopRequestedEpochMs: Swift.Int64? = nil, stopConfirmedEpochMs: Swift.Int64? = nil)
+  public let pauseSegments: [SensorBioSDK.SB_TimeSegment]?
+  public let pausedAtEpochMs: Swift.Int64?
+  public init(kind: SensorBioSDK.SB_PersistedRecordingKind, startEpochMs: Swift.Int64, duration: Foundation.TimeInterval?, minDuration: Foundation.TimeInterval, sessionName: Swift.String?, sessionNameAlreadyExists: Swift.Bool, activityType: SensorBioSDK.SB_ActivityType?, activityName: Swift.String?, stopRequestedEpochMs: Swift.Int64? = nil, stopConfirmedEpochMs: Swift.Int64? = nil, pauseSegments: [SensorBioSDK.SB_TimeSegment]? = nil, pausedAtEpochMs: Swift.Int64? = nil)
   public var startDate: Foundation.Date {
     get
   }
@@ -1669,9 +1691,8 @@ public struct SB_RecordingSubmissionInfo : Swift.Identifiable, Swift.Equatable, 
   public let lastErrorMessage: Swift.String?
   public let createdAt: Foundation.Date
   public let updatedAt: Foundation.Date
-  public let autoPresentOnProcessed: Swift.Bool
-  public let presentedAt: Foundation.Date?
-  public init(localId: Foundation.UUID, type: SensorBioSDK.SB_FinishedRecordingType, startTsMillis: Swift.Int64, endTsMillis: Swift.Int64, tzOffsetSeconds: Swift.Int32, status: SensorBioSDK.SB_RecordingSubmissionStatus, serverRecordingId: Swift.String?, metadata: [Swift.String : Swift.String], scoredNoResult: Swift.Bool = false, attemptCount: Swift.Int, lastErrorMessage: Swift.String?, createdAt: Foundation.Date, updatedAt: Foundation.Date, autoPresentOnProcessed: Swift.Bool, presentedAt: Foundation.Date?)
+  public let hasLocalReport: Swift.Bool
+  public init(localId: Foundation.UUID, type: SensorBioSDK.SB_FinishedRecordingType, startTsMillis: Swift.Int64, endTsMillis: Swift.Int64, tzOffsetSeconds: Swift.Int32, status: SensorBioSDK.SB_RecordingSubmissionStatus, serverRecordingId: Swift.String?, metadata: [Swift.String : Swift.String], scoredNoResult: Swift.Bool = false, attemptCount: Swift.Int, lastErrorMessage: Swift.String?, createdAt: Foundation.Date, updatedAt: Foundation.Date, hasLocalReport: Swift.Bool = false)
   public static func == (a: SensorBioSDK.SB_RecordingSubmissionInfo, b: SensorBioSDK.SB_RecordingSubmissionInfo) -> Swift.Bool
   public typealias ID = Foundation.UUID
 }
@@ -1756,11 +1777,9 @@ public struct SB_RRDataPoint : Swift.Codable, Swift.Equatable, Swift.Sendable {
 }
 public struct SB_RRDataPoints : Swift.Codable, Swift.Equatable, Swift.Sendable {
   public let points: [SensorBioSDK.SB_RRDataPoint]
-  public init(points: [SensorBioSDK.SB_RRDataPoint])
+  public let restingRR: Swift.Float?
+  public init(points: [SensorBioSDK.SB_RRDataPoint], restingRR: Swift.Float? = nil)
   public var averageRR: Swift.Float? {
-    get
-  }
-  public var averageRestingRR: Swift.Float? {
     get
   }
   public var lowestRR: Swift.Float? {
@@ -2080,6 +2099,18 @@ public let sensorBio: SensorBioSDK.SB_SDK
   public var $isRecordingPaused: Combine.Published<Swift.Bool>.Publisher {
     get
   }
+  @Combine.Published<[SensorBioSDK.SB_TimeValuePoint]> @_projectedValueProperty($recordingHRSeries) public var recordingHRSeries: [SensorBioSDK.SB_TimeValuePoint] {
+    get
+  }
+  public var $recordingHRSeries: Combine.Published<[SensorBioSDK.SB_TimeValuePoint]>.Publisher {
+    get
+  }
+  @Combine.Published<[SensorBioSDK.SB_TimeSegment]> @_projectedValueProperty($recordingPauseSegments) public var recordingPauseSegments: [SensorBioSDK.SB_TimeSegment] {
+    get
+  }
+  public var $recordingPauseSegments: Combine.Published<[SensorBioSDK.SB_TimeSegment]>.Publisher {
+    get
+  }
   @Combine.Published<SensorBioSDK.SB_NetworkStatus> @_projectedValueProperty($networkStatus) public var networkStatus: SensorBioSDK.SB_NetworkStatus {
     get
   }
@@ -2154,6 +2185,8 @@ public let sensorBio: SensorBioSDK.SB_SDK
   }
   final public let biometricRecordResult: Combine.PassthroughSubject<SensorBioSDK.SB_BiometricRecordResult, Swift.Never>
   final public let spotCheckReport: Combine.PassthroughSubject<SensorBioSDK.SB_SpotCheckReportEvent, Swift.Never>
+  final public let activityReport: Combine.PassthroughSubject<SensorBioSDK.SB_WorkoutDetail, Swift.Never>
+  final public let meditationReport: Combine.PassthroughSubject<SensorBioSDK.SB_MeditationGraph, Swift.Never>
   @Combine.Published<Swift.Int> @_projectedValueProperty($percentSynced) public var percentSynced: Swift.Int {
     get
     @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
@@ -2405,6 +2438,10 @@ extension SensorBioSDK.SB_SDK {
   }
   public func pendingSubmissions() -> [SensorBioSDK.SB_RecordingSubmissionInfo]
   public func reconcileSubmissions(against entries: [SensorBioSDK.SB_WorkoutEntry])
+  public func localRecordingEntries() -> [SensorBioSDK.SB_LocalRecordingEntry]
+  public func localWorkoutDetail(startTsMillis: Swift.Int64) -> SensorBioSDK.SB_WorkoutDetail?
+  public func localMeditationGraph(startTsMillis: Swift.Int64) -> SensorBioSDK.SB_MeditationGraph?
+  public func localSpotCheckDetails(startTsMillis: Swift.Int64) -> SensorBioSDK.SB_SpotCheckDetails?
   public func retrySubmission(localId: Foundation.UUID)
 }
 extension SensorBioSDK.SB_SDK {
@@ -2459,6 +2496,7 @@ extension SensorBioSDK.SB_SDK {
   public func fetchWorkoutSummary(date: Foundation.Date, granularity: SensorBioSDK.SB_SummaryGranularity, workoutName: Swift.String, workoutTime: Foundation.Date) async throws -> [SensorBioSDK.SB_WorkoutSummaryMetric]
   public func fetchWorkoutDetail(workoutTime: Foundation.Date) async throws -> SensorBioSDK.SB_WorkoutDetail?
   public func fetchWorkoutTimeline(date: Foundation.Date, searchTerm: Swift.String = "", pageNumber: Swift.Int32 = 1, fetchDirection: SensorBioSDK.SB_PageFetchDirection = .down, cursor: Swift.String? = nil) async throws -> SensorBioSDK.SB_WorkoutTimelineResult
+  public func workoutTimelineUpdates(for date: Foundation.Date) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_WorkoutTimelineResult, any Swift.Error>
   public func modifyWorkout(action: SensorBioSDK.SB_ModifyAction, date: Foundation.Date, timestamp: Foundation.Date, workoutName: Swift.String, params: [Swift.String : Swift.String] = [:]) async throws -> SensorBioSDK.SB_ModifyOutcome
   public func fetchMeditationGraph(date: Foundation.Date, sessionTimestamp: Swift.Int64) async throws -> SensorBioSDK.SB_MeditationGraph
 }
