@@ -45,16 +45,8 @@ post_install do |installer|
     target.build_configurations.each do |config|
       # Required: SensorBioSDK is iOS 18+; transitive pods default lower
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']     = '18.0'
-      # Retained, no longer load-bearing: this existed because abseil arrived
-      # as a transitive pod and static-asserts C++17 on every translation
-      # unit. abseil now lives inside the xcframework and your build compiles
-      # no C++ of its own. Harmless to keep.
-      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD']    = 'c++17'
-      config.build_settings['CLANG_CXX_LIBRARY']              = 'libc++'
-      # Required: SensorBioSDK.xcframework was built with library-evolution
-      # mode, so its Job subclasses reference SwiftQueue's `Job.onRetry` via
-      # Swift method descriptors. The transitive pods (SwiftQueue, etc.) must
-      # also be built with library-evolution for those descriptors to exist.
+      # Required: the SDK is built with library evolution and extends types
+      # from the pods below, so they must be built the same way.
       config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
     end
   end
@@ -127,6 +119,14 @@ identifies your organization on every authenticated call and is required
 (`registerUser` fails with `sdkKeyCredentialsNotSet` without it), while
 `sdkTokenProvider` supplies the short-lived, single-use token each registration
 consumes. There is no email/password sign-in in the shipped SDK.
+
+> **This part is changing.** `sdkKeyCredentials.sdk_token` currently holds your
+> organization SDK Key, so the key has to be present in the app. We are removing
+> that requirement — a coming release takes `org_id` plus the single-use token
+> your backend mints and nothing else, so the key stays on your server. If you
+> are integrating now, keep the key somewhere you can swap out easily; the
+> change will be a small edit at this one call site, and the field's misleading
+> name goes with it.
 
 Your backend mints those single-use tokens by exchanging your SDK Key against
 `POST /sdk/v1/token`; § 5 of [`SDK_INTERFACE.md`](./SDK_INTERFACE.md) covers the
