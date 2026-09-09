@@ -6,6 +6,7 @@ import CocoaMQTT
 import Combine
 import CoreBluetooth
 import Foundation
+import GRPCClient
 import KeychainAccess
 import LibFXC
 import Network
@@ -820,45 +821,6 @@ public struct SB_DateValuePoint : Swift.Codable, Swift.Equatable, Swift.Sendable
   public static func == (a: SensorBioSDK.SB_DateValuePoint, b: SensorBioSDK.SB_DateValuePoint) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
   public init(from decoder: any Swift.Decoder) throws
-}
-public struct SB_DetectedActivityInfo : Swift.Identifiable, Swift.Equatable, Swift.Sendable {
-  public let startTsMillis: Swift.Int64
-  public var id: Swift.Int64 {
-    get
-  }
-  public let endTsMillis: Swift.Int64
-  public let tzOffsetMinutes: Swift.Int32
-  public let source: SensorBioSDK.SB_DetectedActivitySource
-  public let createdAt: Foundation.Date
-  public var durationMillis: Swift.Int64 {
-    get
-  }
-  public init(startTsMillis: Swift.Int64, endTsMillis: Swift.Int64, tzOffsetMinutes: Swift.Int32, source: SensorBioSDK.SB_DetectedActivitySource, createdAt: Foundation.Date)
-  public static func == (a: SensorBioSDK.SB_DetectedActivityInfo, b: SensorBioSDK.SB_DetectedActivityInfo) -> Swift.Bool
-  public typealias ID = Swift.Int64
-}
-public enum SB_DetectedActivitySource : Swift.Int, Swift.Codable, Swift.Sendable {
-  case motion
-  case cadence
-  case motionAndCadence
-  public init?(rawValue: Swift.Int)
-  public typealias RawValue = Swift.Int
-  public var rawValue: Swift.Int {
-    get
-  }
-}
-public enum SB_DetectedActivityStatus : Swift.String, Swift.Codable, Swift.Sendable {
-  case pending
-  case ready
-  case accepted
-  case ignored
-  case overlapped
-  case expired
-  public init?(rawValue: Swift.String)
-  public typealias RawValue = Swift.String
-  public var rawValue: Swift.String {
-    get
-  }
 }
 public struct SB_DetectedSleep : Swift.Equatable, Swift.Sendable {
   public let startEpochInms: Swift.Int64
@@ -2330,7 +2292,7 @@ public enum SB_RegisterUserOutcome : Swift.Sendable {
   case failure(errorCode: Swift.String)
 }
 extension SensorBioSDK.SB_SDK {
-  public func registerUser(userId: Swift.String, email: Swift.String? = nil, birthday: Foundation.DateComponents? = nil, sex: SensorBioSDK.SB_Gender? = nil, heightCm: Swift.Float? = nil, weightKg: Swift.Float? = nil, imperialUnits: Swift.Bool = false, activationCode: Swift.String? = nil, sdkToken: Swift.String? = nil) async throws -> SensorBioSDK.SB_RegisterUserOutcome
+  public func registerUser(userId: Swift.String, email: Swift.String? = nil, birthday: Foundation.DateComponents? = nil, sex: SensorBioSDK.SB_Gender? = nil, heightCm: Swift.Float? = nil, weightKg: Swift.Float? = nil, imperialUnits: Swift.Bool = false, activationCode: Swift.String? = nil) async throws -> SensorBioSDK.SB_RegisterUserOutcome
   public var isAuthenticated: Swift.Bool {
     get
   }
@@ -2372,12 +2334,7 @@ extension SensorBioSDK.SB_SDK {
     get
     set
   }
-  public static var sdkTokenProvider: SensorBioSDK.SB_SDKTokenProvider? {
-    get
-    set
-  }
 }
-public typealias SB_SDKTokenProvider = @Sendable () async throws -> Swift.String
 public struct SB_SDKKeyCredentials : Swift.Sendable, Swift.Equatable {
   public let org_id: Swift.String
   public let sdk_token: Swift.String
@@ -2390,16 +2347,6 @@ extension SensorBioSDK.SB_SDK {
 extension SensorBioSDK.SB_SDK {
   public func fetchDashboardData(date: Foundation.Date, tzOffset: Swift.Int32, forceRemote: Swift.Bool = false) async throws -> SensorBioSDK.SB_DashboardData
   public func dashboardUpdates(for date: Foundation.Date, tzOffset: Swift.Int32, forceRemote: Swift.Bool = false) -> _Concurrency.AsyncThrowingStream<SensorBioSDK.SB_DashboardData, any Swift.Error>
-}
-extension SensorBioSDK.SB_SDK {
-  public var detectedActivitiesPublisher: Combine.AnyPublisher<[SensorBioSDK.SB_DetectedActivityInfo], Swift.Never> {
-    get
-  }
-  public func detectedActivities() -> [SensorBioSDK.SB_DetectedActivityInfo]
-  @discardableResult
-  @_Concurrency.MainActor public func confirmDetectedActivity(startTsMillis: Swift.Int64, activityName: Swift.String) -> Swift.Bool
-  @discardableResult
-  public func dismissDetectedActivity(startTsMillis: Swift.Int64) -> Swift.Bool
 }
 extension SensorBioSDK.SB_SDK {
   public func updateUserDeviceInfo(macAddress: Swift.String, metadata: [Swift.String : Swift.String], unlinkDevice: Swift.Bool)
@@ -3726,7 +3673,6 @@ public struct sdkDefaults {
   public static let userLocation: Swift.String
   public static let userRegistrationDate: Swift.String
   public static let webAppCookie: Swift.String
-  public static let clientSDKUserId: Swift.String
   public static let userMetricWeight: Swift.String
   public static let userMetricHeight: Swift.String
   public static let userWalkStride: Swift.String
@@ -3884,12 +3830,6 @@ extension SensorBioSDK.SB_DashboardItemRecoveryStage : Swift.Hashable {}
 extension SensorBioSDK.SB_DashboardItemRecoveryStage : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_DashboardMetricType : Swift.Hashable {}
 extension SensorBioSDK.SB_DashboardMetricType : Swift.RawRepresentable {}
-extension SensorBioSDK.SB_DetectedActivitySource : Swift.Equatable {}
-extension SensorBioSDK.SB_DetectedActivitySource : Swift.Hashable {}
-extension SensorBioSDK.SB_DetectedActivitySource : Swift.RawRepresentable {}
-extension SensorBioSDK.SB_DetectedActivityStatus : Swift.Equatable {}
-extension SensorBioSDK.SB_DetectedActivityStatus : Swift.Hashable {}
-extension SensorBioSDK.SB_DetectedActivityStatus : Swift.RawRepresentable {}
 extension SensorBioSDK.SB_DeviceConnectionState : Swift.Equatable {}
 extension SensorBioSDK.SB_DeviceConnectionState : Swift.Hashable {}
 extension SensorBioSDK.SB_DeviceLinkFailure : Swift.Equatable {}

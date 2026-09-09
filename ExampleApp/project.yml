@@ -29,10 +29,8 @@ settings:
     # — the SDK itself is Swift 6, customers can pick their own mode.
     SWIFT_VERSION: "5"
     IPHONEOS_DEPLOYMENT_TARGET: "18.0"
-    # Retained but no longer load-bearing: abseil used to arrive as a
-    # transitive pod and static-asserts __cplusplus >= 201703L on every
-    # translation unit. Since SB-2090 it is linked inside
-    # SensorBioSDK.xcframework and this app compiles no C++ of its own.
+    # Required for transitive abseil (pulled in by gRPC-Core) — static-asserts
+    # __cplusplus >= 201703L on every translation unit.
     CLANG_CXX_LANGUAGE_STANDARD: "c++17"
     CLANG_CXX_LIBRARY: "libc++"
     # FXCBridge's fx_datatypes.h (inside SensorBioSDK.xcframework's Headers/)

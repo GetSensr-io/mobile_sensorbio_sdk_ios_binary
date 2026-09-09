@@ -25,8 +25,8 @@ struct ContentView: View {
     }
 
     // Signed out, the register screen IS the app: a customer integration has
-    // exactly one way in — `registerUser(userId:sdkToken:)` with a single-use
-    // SDK token — so there is nothing to choose between and no menu to show.
+    // exactly one way in — `registerUser(userId:)` with an org SDK key — so
+    // there is nothing to choose between and no menu to show.
     private var signedOut: some View {
         NavigationStack {
             RegisterView()
