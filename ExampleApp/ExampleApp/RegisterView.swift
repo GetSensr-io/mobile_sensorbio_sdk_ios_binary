@@ -5,7 +5,11 @@ import SensorBioSDK
 ///
 /// `registerUser` is the single entry point for an embedding app: the end-user
 /// is already authenticated by the host (its own login / SSO / OAuth), so the
-/// SDK takes one register-or-login call keyed on `org_id` + `sdk_token` + `userId`.
+/// SDK takes one register-or-login call keyed on `organization_id` +
+/// `sdk_token` + `userId`, where the token is single-use and minted by the
+/// host's backend. This screen types in an SDK Key and exchanges it locally
+/// (`SDKTokenExchange`) because it has no backend to ask — a shipping app
+/// never holds the key.
 /// There is no email/password surface in the distributed SDK — `signIn` and
 /// `createAccount` are compile-gated behind `SENSORBIO_INTERNAL` and absent
 /// from the shipped xcframework — so this screen has no alternative to offer
@@ -31,17 +35,23 @@ struct RegisterView: View {
             }
 
             Section {
-                TextField("Org ID", text: $form.orgId)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                // Deliberately a row, not footer text: the footer is where
+                // people's eyes skip, and copying this app's in-app exchange
+                // into a real app ships the org's SDK Key to every install.
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                    Text("Dev stand-in — **your backend** does this exchange. A shipping app never holds the SDK Key.")
+                        .font(.footnote)
+                }
                 HStack {
                     Group {
                         if showSDKKey {
-                            TextField("SDK Token", text: $form.sdkKey)
+                            TextField("SDK Key (sbsk_…)", text: $form.sdkKey)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                         } else {
-                            SecureField("SDK Token", text: $form.sdkKey)
+                            SecureField("SDK Key (sbsk_…)", text: $form.sdkKey)
                         }
                     }
                     Button {
@@ -59,7 +69,7 @@ struct RegisterView: View {
             } header: {
                 Text("SDK Credentials")
             } footer: {
-                Text("Org ID and SDK Key come from your Sensor Bio dashboard. User ID is your own stable identifier for the end-user — the first register for a User ID creates it, later calls log it back in.")
+                Text("The SDK Key comes from your Sensor Bio dashboard (Developer Settings). Registering exchanges it for a single-use SDK token, which also resolves your Org ID — so there's nothing else to type. User ID is your own stable identifier for the end-user: the first register for a User ID creates it, later calls log it back in.")
             }
 
             Section {
@@ -140,6 +150,11 @@ struct RegisterView: View {
 
             if let result = form.result {
                 Section("Result") {
+                    if let exchange = form.lastExchange {
+                        LabeledContent("Org", value: exchange.organizationId)
+                            .textSelection(.enabled)
+                        LabeledContent("Token", value: "\(exchange.sdkToken.prefix(9))… (\(exchange.expiresInSeconds)s, single use)")
+                    }
                     resultView(result)
                 }
             }
@@ -171,6 +186,16 @@ struct RegisterView: View {
                   systemImage: "xmark.octagon.fill")
                 .foregroundStyle(.red)
                 .textSelection(.enabled)
+        case .exchangeFailed(let description):
+            VStack(alignment: .leading, spacing: 4) {
+                Label("Couldn't mint an SDK token — no register call was made.",
+                      systemImage: "key.slash.fill")
+                    .foregroundStyle(.red)
+                Text(description)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+            }
         case .threw(let description):
             VStack(alignment: .leading, spacing: 4) {
                 Label(friendlyMessage(for: description), systemImage: "bolt.trianglebadge.exclamationmark.fill")

@@ -18,11 +18,13 @@ final class DashboardState {
         do {
             data = try await sensorBio.fetchDashboardData(date: date, tzOffset: tzOffset)
         } catch SB_AuthError.refreshTokenExpired {
-            // The refresh token itself is expired/revoked — the session is over
-            // (access-token expiry is handled transparently by the SDK's
-            // refresh-and-retry; this is the terminal case). Sign out so the app
-            // routes back to the Register screen. A real integration would do
-            // this centrally for every authenticated call.
+            // Reaching here now means recovery itself failed. Access-token
+            // expiry is refreshed transparently, and a dead refresh chain is
+            // rebuilt transparently too — the SDK mints a fresh token through
+            // `SB_SDK.sdkTokenProvider` and logs the same user back in. This
+            // case is what's left: no provider, or the provider declined (no
+            // key saved, backend down, host's own user no longer authenticated).
+            // The session really is over, so sign out and route to Register.
             try? await sensorBio.signOut()
         } catch {
             errorMessage = error.localizedDescription
