@@ -7,8 +7,9 @@ Pod::Spec.new do |s|
     the binary podspec — it vendors the three xcframeworks under SensorBio/
     (SensorBioSDK + SensorBioBTSDK + LibFXC) and declares the third-party
     CocoaPods that have to be pulled fresh from CocoaPods trunk
-    (gRPC-Core/ProtoRPC, SwiftProtobuf, the keychain helpers, SwiftQueue,
-    CocoaMQTT).
+    (SwiftProtobuf, the keychain helpers, SwiftQueue, CocoaMQTT). gRPC is
+    NOT among them — it is linked inside SensorBioSDK.xcframework with its
+    symbols hidden, so it cannot collide with a gRPC your app links itself.
 
     Customer Podfile:
 
