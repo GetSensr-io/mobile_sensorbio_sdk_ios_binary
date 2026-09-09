@@ -10,9 +10,9 @@ Customer-facing binary distribution of the Sensr-Bio iOS SDK. This repository co
 
 | File | Size | Contents |
 |------|------|----------|
-| `SensorBio/SensorBioSDK.xcframework` | 215 MB | The customer-facing Swift API — auth, dashboard / sleep / activity / biometric reads, recording orchestration, upload pipeline. Bundles the on-device DSP (HRV / sleep / activity computation) and SwiftProtobuf-compiled wire types. |
+| `SensorBio/SensorBioSDK.xcframework` | 159 MB | The customer-facing Swift API — auth, dashboard / sleep / activity / biometric reads, recording orchestration, upload pipeline. Bundles the on-device DSP (HRV / sleep / activity computation) and SwiftProtobuf-compiled wire types. |
 | `SensorBio/SensorBioBTSDK.xcframework` | 20 MB | The Sensr-Bio BLE pairing + sync pipeline. Talks to Sensr-Bio wearables over CoreBluetooth. Linked transitively — you don't call into it directly. |
-| `SensorBio/LibFXC.xcframework` | 704 KB | Philips proprietary FXC sleep-staging engine. Linked transitively from `SensorBioBTSDK`. |
+| `SensorBio/LibFXC.xcframework` | 400 KB | Philips proprietary FXC sleep-staging engine. Linked transitively from `SensorBioBTSDK`. |
 | `SensorBioSDK.podspec` (repo root) | — | Umbrella binary podspec — vendors the three xcframeworks above and declares the third-party CocoaPods that have to come from CocoaPods trunk. |
 
 All three xcframeworks are iOS-only (device + arm64 simulator). They cannot run on macOS or Intel Mac simulators.
@@ -114,15 +114,31 @@ struct YourApp: App {
         SB_SDK.environment = .production
         SB_SDK.bootstrapKeychain()
         SB_SDK.runDefaultsMigratorIfNeeded()
+        // Your organization credentials. `sdk_token` here is your organization
+        // SDK Key — the SDK exchanges it for a single-use registration token.
+        // Held in memory only, never persisted.
+        SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: orgId, sdk_token: orgSDKKey)
+        // Preferred: let the SDK ask your backend for tokens, so the SDK Key
+        // never ships inside the app at all.
+        SB_SDK.sdkTokenProvider = { try await yourBackend.mintSDKToken() }
     }
     var body: some Scene {
         WindowGroup { ContentView() }
     }
 }
 
-// Anywhere in your app:
-let result = try await sensorBio.signIn(email: email, password: password)
+// Anywhere in your app — register a user against your organization:
+let outcome = try await sensorBio.registerUser(userId: yourUserId)
 ```
+
+`registerUser` is the customer entry point, and it is register-OR-login — there
+is no email/password sign-in in the shipped SDK (`signIn` / `createAccount` are
+first-party-only and compile-stripped from this binary). Identity comes from
+your organization credentials, and the SDK takes a single-use token per
+registration rather than holding your SDK Key: supply `SB_SDK.sdkTokenProvider`
+and it asks your backend when it needs one. See § 4 of
+[`SDK_INTERFACE.md`](./SDK_INTERFACE.md) for the token exchange, and
+`ExampleApp/` for a working provider.
 
 See **[`SDK_INTERFACE.md`](./SDK_INTERFACE.md)** for the full public surface.
 
@@ -134,11 +150,12 @@ See **[`SDK_INTERFACE.md`](./SDK_INTERFACE.md)** for the full public surface.
 
 When a new SDK version drops:
 
-1. Pull the latest tag of this repo.
-2. Replace the three `.xcframework` directories in your project's `SensorBio/` with the new ones.
-3. Bump the version pin in your `Podfile` if you reference a specific tag (`pod 'SensorBioSDK', :git => '...', :tag => 'vX.Y.Z'`).
-4. `pod update SensorBioSDK`.
-5. Open the workspace, rebuild.
+1. Bump the `:tag` in your `Podfile` to the new version (`:tag => 'vX.Y.Z'`).
+2. `pod update SensorBioSDK`.
+3. Open the workspace, rebuild.
+
+There are no files to copy by hand — CocoaPods clones this repo at the tag and
+links the xcframeworks out of it.
 
 `SDK_INTERFACE.md` documents any breaking changes per release.
 
