@@ -71,28 +71,6 @@ The single `pod 'SensorBioSDK'` line transitively brings:
 - `SwiftQueue` (persistent job-queue runtime)
 - `CocoaMQTT` (MQTT client for the license-key broker)
 
-**No gRPC.** gRPC-Core, abseil and BoringSSL are linked inside
-`SensorBioSDK.xcframework` with their symbols demoted to `private_extern`, so
-they never enter your dependency graph and cannot collide with a gRPC your app
-links for its own reasons. This matters most for Firestore users: Firebase
-pins its own prebuilt gRPC via SPM, and two gRPC C-cores in one process
-coalesce — gRPC's C symbols carry no version namespace the way abseil's
-`absl::lts_YYYYMMDD` does — leaving one stack executing against the other's
-objects. Do not add a gRPC pod to work around anything; there is nothing to
-reconcile, and adding one brings the collision back.
-
-You can confirm what you received:
-
-```bash
-nm -m SensorBio/SensorBioSDK.xcframework/ios-arm64/SensorBioSDK.framework/SensorBioSDK \
-  | grep -vE 'non-external|private external' | grep -v '(undefined)' \
-  | grep -oE '_[A-Za-z0-9_$.]+$' \
-  | grep -iE 'grpc|absl|openssl' | grep -v '12SensorBioSDK'
-```
-
-That prints nothing. A plain `nm | grep grpc` shows thousands of hits and
-means nothing — the code is there, it is simply unreachable by your linker.
-
 ### 2. Run `pod install`
 
 ```bash
@@ -113,14 +91,19 @@ import SensorBioSDK
 struct YourApp: App {
     init() {
         SB_SDK.environment = .production
-        SB_SDK.bootstrapKeychain()
-        SB_SDK.runDefaultsMigratorIfNeeded()
-        // Your organization credentials. `sdk_token` here is your organization
-        // SDK Key — the SDK exchanges it for a single-use registration token.
-        // Held in memory only, never persisted.
+
+        // Required. `org_id` is the `organization_id` the token exchange
+        // returns; `sdk_token` is your organization SDK Key. The SDK holds
+        // these in memory only and never persists them, so set them on every
+        // launch — including a cold launch that hydrates a stored session,
+        // before the first authenticated call.
         SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: orgId, sdk_token: orgSDKKey)
-        // Preferred: let the SDK ask your backend for tokens, so the SDK Key
-        // never ships inside the app at all.
+
+        // Recommended. The SDK calls this when it needs a single-use
+        // registration token: at `registerUser`, and again if a session dies
+        // beyond recovery. It stores your closure, never a token. Throw to
+        // refuse. Without it, pass `sdkToken:` to every `registerUser` call
+        // and handle `SB_AuthError.refreshTokenExpired` yourself.
         SB_SDK.sdkTokenProvider = { try await yourBackend.mintSDKToken() }
     }
     var body: some Scene {
@@ -128,20 +111,28 @@ struct YourApp: App {
     }
 }
 
-// Anywhere in your app — register a user against your organization:
-func signIn(userId: String) async throws {
-    let outcome = try await sensorBio.registerUser(userId: userId)
+// `registerUser` is register-or-login for a user your app has already
+// authenticated by its own means. First call for a `userId` registers;
+// later ones log in.
+func startSensorBioSession(userId: String) async throws {
+    switch try await sensorBio.registerUser(userId: userId) {
+    case .success(let session):    routeToHome(session)
+    case .failure(let errorCode):  showError(errorCode)
+    }
 }
 ```
 
-`registerUser` is the customer entry point, and it is register-OR-login — there
-is no email/password sign-in in the shipped SDK (`signIn` / `createAccount` are
-first-party-only and compile-stripped from this binary). Identity comes from
-your organization credentials, and the SDK takes a single-use token per
-registration rather than holding your SDK Key: supply `SB_SDK.sdkTokenProvider`
-and it asks your backend when it needs one. See § 4 of
-[`SDK_INTERFACE.md`](./SDK_INTERFACE.md) for the token exchange, and
-`ExampleApp/` for a working provider.
+Those two properties are **complementary, not alternatives** — `sdkKeyCredentials`
+identifies your organization on every authenticated call and is required
+(`registerUser` fails with `sdkKeyCredentialsNotSet` without it), while
+`sdkTokenProvider` supplies the short-lived, single-use token each registration
+consumes. There is no email/password sign-in in the shipped SDK.
+
+Your backend mints those single-use tokens by exchanging your SDK Key against
+`POST /sdk/v1/token`; § 5 of [`SDK_INTERFACE.md`](./SDK_INTERFACE.md) covers the
+endpoint, Node and Go implementations, and the errors it returns. `ExampleApp/`
+mocks that exchange in-process so the SDK can be run without a backend — it is a
+stand-in, not a pattern to copy.
 
 See **[`SDK_INTERFACE.md`](./SDK_INTERFACE.md)** for the full public surface.
 
