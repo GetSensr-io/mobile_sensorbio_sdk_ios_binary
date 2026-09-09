@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'SensorBioSDK'
-  s.version          = '2.2.0'
+  s.version          = '2.3.0'
   s.summary          = 'Sensr-Bio SDK for iOS — binary distribution.'
   s.description      = <<~DESC
     Customer-facing iOS SDK for the Sensr-Bio biometric platform. This is
@@ -46,12 +46,28 @@ Pod::Spec.new do |s|
   # MACH_O_TYPE=staticlib, so symbols from these libraries stay UNDEFINED
   # in the binary and get resolved at the customer's link step. The
   # customer's `pod install` resolves each via CocoaPods trunk.
-  s.dependency 'gRPC-ProtoRPC'                    # brings gRPC-Core + abseil + BoringSSL-GRPC + Protobuf
+  #
+  # gRPC is deliberately NOT among them (SB-2090). gRPC-Core, abseil and
+  # BoringSSL are linked inside SensorBioSDK.xcframework with every one of
+  # their symbols demoted to private_extern, so they resolve internally and
+  # never reach the customer's linker. Two copies of gRPC in one process
+  # coalesce — its C-core symbols carry no version namespace the way abseil's
+  # `absl::lts_YYYYMMDD` does — and one stack then runs against the other's
+  # objects. That is unavoidable for any app that also links gRPC and cannot
+  # repoint it, which is every Firestore user: Firebase pins its own prebuilt
+  # gRPC via SPM. Adding a gRPC pod back here reintroduces the crash.
   s.dependency 'SwiftProtobuf',         '~> 1.37'
   s.dependency 'SwiftKeychainWrapper',  '~> 4.0'
   s.dependency 'KeychainAccess',        '~> 4.0'
   s.dependency 'SwiftQueue',            '~> 6.0'
   s.dependency 'CocoaMQTT',             '~> 2.2'
+
+  # The gRPC/abseil/BoringSSL merged into the xcframework is C++ and uses
+  # zlib. gRPC-Core's own podspec used to declare these ('libraries' => c++,
+  # z) and the customer inherited them transitively; with the pod gone we
+  # declare them or the customer's link fails on std::logic_error and friends
+  # out of the merged object.
+  s.libraries = 'c++', 'z'
 
   # Push `FX_PLATFORM_UNIX=1` into the customer's compile too. The
   # fx_datatypes.h header inside SensorBioSDK.xcframework/Headers/ `#error`s

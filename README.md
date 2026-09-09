@@ -37,7 +37,7 @@ target 'YourApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v0.4.0'
+    :tag => 'v2.3.0'
 end
 
 post_install do |installer|
@@ -45,7 +45,10 @@ post_install do |installer|
     target.build_configurations.each do |config|
       # Required: SensorBioSDK is iOS 18+; transitive pods default lower
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']     = '18.0'
-      # Required: abseil (pulled in transitively by gRPC-Core) needs C++17
+      # Retained, no longer load-bearing: this existed because abseil arrived
+      # as a transitive pod and static-asserts C++17 on every translation
+      # unit. abseil now lives inside the xcframework and your build compiles
+      # no C++ of its own. Harmless to keep.
       config.build_settings['CLANG_CXX_LANGUAGE_STANDARD']    = 'c++17'
       config.build_settings['CLANG_CXX_LIBRARY']              = 'libc++'
       # Required: SensorBioSDK.xcframework was built with library-evolution
@@ -63,11 +66,32 @@ CocoaPods clones the binary repo at the pinned tag, finds the umbrella `SensorBi
 The single `pod 'SensorBioSDK'` line transitively brings:
 
 - The 3 SensorBio xcframeworks (via `vendored_frameworks` inside the podspec)
-- `gRPC-ProtoRPC` (which transitively brings gRPC-Core + abseil + BoringSSL-GRPC + the ObjC Protobuf runtime)
 - `SwiftProtobuf` (Swift wire-type runtime)
 - `SwiftKeychainWrapper` + `KeychainAccess` (keychain helpers)
 - `SwiftQueue` (persistent job-queue runtime)
 - `CocoaMQTT` (MQTT client for the license-key broker)
+
+**No gRPC.** gRPC-Core, abseil and BoringSSL are linked inside
+`SensorBioSDK.xcframework` with their symbols demoted to `private_extern`, so
+they never enter your dependency graph and cannot collide with a gRPC your app
+links for its own reasons. This matters most for Firestore users: Firebase
+pins its own prebuilt gRPC via SPM, and two gRPC C-cores in one process
+coalesce — gRPC's C symbols carry no version namespace the way abseil's
+`absl::lts_YYYYMMDD` does — leaving one stack executing against the other's
+objects. Do not add a gRPC pod to work around anything; there is nothing to
+reconcile, and adding one brings the collision back.
+
+You can confirm what you received:
+
+```bash
+nm -m SensorBio/SensorBioSDK.xcframework/ios-arm64/SensorBioSDK.framework/SensorBioSDK \
+  | grep -vE 'non-external|private external' | grep -v '(undefined)' \
+  | grep -oE '_[A-Za-z0-9_$.]+$' \
+  | grep -iE 'grpc|absl|openssl' | grep -v '12SensorBioSDK'
+```
+
+That prints nothing. A plain `nm | grep grpc` shows thousands of hits and
+means nothing — the code is there, it is simply unreachable by your linker.
 
 ### 2. Run `pod install`
 
