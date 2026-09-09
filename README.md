@@ -106,6 +106,7 @@ Open `YourApp.xcworkspace` (not `.xcodeproj`) in Xcode going forward.
 The customer-facing entry point is a top-level `sensorBio` accessor (the singleton `SB_SDK.shared`). The framework module is `SensorBioSDK`; the singleton class inside it is `SB_SDK`.
 
 ```swift
+import SwiftUI
 import SensorBioSDK
 
 @main
@@ -128,7 +129,9 @@ struct YourApp: App {
 }
 
 // Anywhere in your app — register a user against your organization:
-let outcome = try await sensorBio.registerUser(userId: yourUserId)
+func signIn(userId: String) async throws {
+    let outcome = try await sensorBio.registerUser(userId: userId)
+}
 ```
 
 `registerUser` is the customer entry point, and it is register-OR-login — there
@@ -160,6 +163,21 @@ links the xcframeworks out of it.
 `SDK_INTERFACE.md` documents any breaking changes per release.
 
 ## Release notes
+
+Only notable releases are itemised here. Every published version is a tag in
+this repo — `git tag --sort=v:refname` for the full list, and
+[`SDK_INTERFACE.md`](./SDK_INTERFACE.md) always describes the surface of the
+tag you have checked out.
+
+### v2.3.0 — September 9, 2026
+
+- **gRPC no longer enters your dependency graph.** gRPC-Core, abseil and BoringSSL are linked inside `SensorBioSDK.xcframework` with their symbols hidden, so they cannot collide with a gRPC your app links for its own reasons. If you use Firebase/Firestore, this fixes an EXC_BAD_ACCESS a few seconds after launch on the first Firestore request. Remove any gRPC pod you added to work around it — there is nothing left to reconcile.
+- **`s.libraries = 'c++', 'z'`** is now declared by the podspec. gRPC-Core used to supply these transitively; nothing did once it left.
+- **`sensorBio.sdkVersion` works.** It returned `"UNKNOWN"` in every previous binary release — it read a bundled resource that a statically linked framework never receives. It is compiled in now.
+- **New: detected-activity API** — `detectedActivitiesPublisher`, `detectedActivities()`, `confirmDetectedActivity(startTsMillis:activityName:)`, `dismissDetectedActivity(startTsMillis:)`. Detected activities are stored and offered rather than auto-uploaded.
+- **New: `SB_SDK.sdkTokenProvider`** — the SDK asks your backend for a single-use registration token instead of holding your SDK Key. See § 4.2 of `SDK_INTERFACE.md`.
+- **Breaking:** `SB_SDKKeyCredentials.sdk_token` is now your organization **SDK Key**, exchanged for a single-use token at registration — not a server-issued token. An integration passing the previously documented value will stop working.
+- Raw sync no longer pulls on a trickle of queued packets; packet-upload drain hardened; the processed sync is the only upload trigger.
 
 ### v0.4.0 — May 22, 2026
 
