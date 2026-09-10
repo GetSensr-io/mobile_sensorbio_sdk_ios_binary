@@ -37,7 +37,7 @@ target 'YourApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v2.2.0'
+    :tag => 'v2.3.0'
 end
 
 post_install do |installer|
@@ -134,12 +134,20 @@ links the xcframeworks out of it.
 
 ## Release notes
 
-> **v2.3.0 was withdrawn on September 9, 2026 and its tag removed.** It shipped
-> a build in which gRPC is linked inside the framework, and that build cannot
-> resolve the API host — every RPC fails with `UNAVAILABLE ("empty address
-> list")`. Nothing pins it any more; if you cloned it, move back to `v2.2.0`.
-> **`v2.2.0` is the current release.** The gRPC-isolation work it was carrying
-> will return in a later version once the transport fault is fixed.
+> **An earlier, different `v2.3.0` was published and withdrawn on September 9, 2026.**
+> That build linked gRPC inside the framework and could not resolve the API host —
+> every RPC failed with `UNAVAILABLE ("empty address list")` — and its tag was deleted.
+> The `v2.3.0` below is a **new build, cut on September 10, 2026**, and does not contain
+> that change. If you installed the withdrawn one, run `pod cache clean SensorBioSDK`
+> and re-install to pick up the replacement.
+
+### v2.3.0 — September 10, 2026
+
+- **Detected activities are now stored and offered rather than uploaded automatically.** New API: `detectedActivities()`, `detectedActivitiesPublisher`, `confirmDetectedActivity(startTsMillis:activityName:)` and `dismissDetectedActivity(startTsMillis:)` — show your user the activity the band detected and upload only what they confirm. The surface matches the Android SDK.
+- **Register on a single-use token instead of putting your SDK Key on the device.** Your backend exchanges your organization SDK Key (`sbsk_…`) for a short-lived, single-use `sdk_token` (`sbst_…`), and your app passes it to `registerUser(userId:sdkToken:)` — or you set `SB_SDK.sdkTokenProvider` and let the SDK ask for one when it needs it. **No change is required to upgrade**: the existing org-key path still works. `SDK_INTERFACE.md` §5 documents the exchange endpoint in full, with Node and Go reference implementations.
+- **New `reauthenticationRequired` event.** It fires when an authenticated call has no stored credential to send, so you can route the user to sign-in. Such a call is now refused rather than sent without credentials and failing opaquely.
+- Packet upload has exactly one trigger — the processed sync — and the drain itself is hardened. Fewer redundant uploads, and raw sync no longer pulls on a trickle of queued packets.
+- Fixed: the sensor-config tracker cleared the wrong preferences store, and the `Codable` preference helpers ignored the store they were called on.
 
 
 ### v0.4.0 — May 22, 2026

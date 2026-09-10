@@ -11056,6 +11056,64 @@
             "moduleName": "SensorBioSDK",
             "implicit": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "errorDescription",
+            "printedName": "errorDescription",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK12SB_AuthErrorO16errorDescriptionSSSgvp",
+            "mangledName": "$s12SensorBioSDK12SB_AuthErrorO16errorDescriptionSSSgvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK12SB_AuthErrorO16errorDescriptionSSSgvg",
+                "mangledName": "$s12SensorBioSDK12SB_AuthErrorO16errorDescriptionSSSgvg",
+                "moduleName": "SensorBioSDK",
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
           }
         ],
         "declKind": "Enum",
@@ -11067,6 +11125,13 @@
           "RawDocComment"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "LocalizedError",
+            "printedName": "LocalizedError",
+            "usr": "s:10Foundation14LocalizedErrorP",
+            "mangledName": "$s10Foundation14LocalizedErrorP"
+          },
           {
             "kind": "Conformance",
             "name": "Copyable",
@@ -11083,13 +11148,6 @@
           },
           {
             "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
             "name": "Hashable",
             "printedName": "Hashable",
             "usr": "s:SH",
@@ -11101,6 +11159,13 @@
             "printedName": "Error",
             "usr": "s:s5ErrorP",
             "mangledName": "$ss5ErrorP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
           },
           {
             "kind": "Conformance",
@@ -33157,6 +33222,1221 @@
         ]
       },
       {
+        "kind": "Import",
+        "name": "SwiftData",
+        "printedName": "SwiftData",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SB_DetectedActivityInfo",
+        "printedName": "SB_DetectedActivityInfo",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "startTsMillis",
+            "printedName": "startTsMillis",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV13startTsMilliss5Int64Vvp",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV13startTsMilliss5Int64Vvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV13startTsMilliss5Int64Vvg",
+                "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV13startTsMilliss5Int64Vvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV2ids5Int64Vvp",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV2ids5Int64Vvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV2ids5Int64Vvg",
+                "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV2ids5Int64Vvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "endTsMillis",
+            "printedName": "endTsMillis",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV11endTsMilliss5Int64Vvp",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV11endTsMilliss5Int64Vvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV11endTsMilliss5Int64Vvg",
+                "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV11endTsMilliss5Int64Vvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "tzOffsetMinutes",
+            "printedName": "tzOffsetMinutes",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV15tzOffsetMinutess5Int32Vvp",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV15tzOffsetMinutess5Int32Vvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int32",
+                    "printedName": "Swift.Int32",
+                    "usr": "s:s5Int32V"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV15tzOffsetMinutess5Int32Vvg",
+                "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV15tzOffsetMinutess5Int32Vvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "source",
+            "printedName": "source",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_DetectedActivitySource",
+                "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV6sourceAA0d1_eF6SourceOvp",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV6sourceAA0d1_eF6SourceOvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivitySource",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV6sourceAA0d1_eF6SourceOvg",
+                "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV6sourceAA0d1_eF6SourceOvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "createdAt",
+            "printedName": "createdAt",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV9createdAt10Foundation4DateVvp",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV9createdAt10Foundation4DateVvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Date",
+                    "printedName": "Foundation.Date",
+                    "usr": "s:10Foundation4DateV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV9createdAt10Foundation4DateVvg",
+                "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV9createdAt10Foundation4DateVvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "durationMillis",
+            "printedName": "durationMillis",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV14durationMilliss5Int64Vvp",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV14durationMilliss5Int64Vvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV14durationMilliss5Int64Vvg",
+                "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV14durationMilliss5Int64Vvg",
+                "moduleName": "SensorBioSDK",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(startTsMillis:endTsMillis:tzOffsetMinutes:source:createdAt:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SB_DetectedActivityInfo",
+                "printedName": "SensorBioSDK.SB_DetectedActivityInfo",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_DetectedActivitySource",
+                "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV13startTsMillis03endiJ015tzOffsetMinutes6source9createdAtACs5Int64V_AJs5Int32VAA0d1_eF6SourceO10Foundation4DateVtcfc",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV13startTsMillis03endiJ015tzOffsetMinutes6source9createdAtACs5Int64V_AJs5Int32VAA0d1_eF6SourceO10Foundation4DateVtcfc",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_DetectedActivityInfo",
+                "printedName": "SensorBioSDK.SB_DetectedActivityInfo",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SB_DetectedActivityInfo",
+                "printedName": "SensorBioSDK.SB_DetectedActivityInfo",
+                "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV2eeoiySbAC_ACtFZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV",
+        "mangledName": "$s12SensorBioSDK23SB_DetectedActivityInfoV",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Identifiable",
+            "printedName": "Identifiable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ID",
+                "printedName": "ID",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s12IdentifiableP",
+            "mangledName": "$ss12IdentifiableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "SwiftData",
+        "printedName": "SwiftData",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "SensorBioBTSDK",
+        "printedName": "SensorBioBTSDK",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SB_DetectedActivitySource",
+        "printedName": "SB_DetectedActivitySource",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "motion",
+            "printedName": "motion",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivitySource.Type) -> SensorBioSDK.SB_DetectedActivitySource",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivitySource",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivitySource",
+                        "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO6motionyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivitySourceO6motionyA2CmF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "RawDocComment"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "cadence",
+            "printedName": "cadence",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivitySource.Type) -> SensorBioSDK.SB_DetectedActivitySource",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivitySource",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivitySource",
+                        "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO7cadenceyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivitySourceO7cadenceyA2CmF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "RawDocComment"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "motionAndCadence",
+            "printedName": "motionAndCadence",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivitySource.Type) -> SensorBioSDK.SB_DetectedActivitySource",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivitySource",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivitySource",
+                        "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO16motionAndCadenceyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivitySourceO16motionAndCadenceyA2CmF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "RawDocComment"
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SensorBioSDK.SB_DetectedActivitySource?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivitySource",
+                    "printedName": "SensorBioSDK.SB_DetectedActivitySource",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO8rawValueACSgSi_tcfc",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivitySourceO8rawValueACSgSi_tcfc",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO8rawValueSivp",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivitySourceO8rawValueSivp",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO8rawValueSivg",
+                "mangledName": "$s12SensorBioSDK25SB_DetectedActivitySourceO8rawValueSivg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:12SensorBioSDK25SB_DetectedActivitySourceO",
+        "mangledName": "$s12SensorBioSDK25SB_DetectedActivitySourceO",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "enumRawTypeName": "Int",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SY",
+            "mangledName": "$sSY"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SB_DetectedActivityStatus",
+        "printedName": "SB_DetectedActivityStatus",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "pending",
+            "printedName": "pending",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivityStatus.Type) -> SensorBioSDK.SB_DetectedActivityStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityStatus",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivityStatus",
+                        "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO7pendingyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO7pendingyA2CmF",
+            "moduleName": "SensorBioSDK"
+          },
+          {
+            "kind": "Var",
+            "name": "ready",
+            "printedName": "ready",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivityStatus.Type) -> SensorBioSDK.SB_DetectedActivityStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityStatus",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivityStatus",
+                        "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO5readyyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO5readyyA2CmF",
+            "moduleName": "SensorBioSDK"
+          },
+          {
+            "kind": "Var",
+            "name": "accepted",
+            "printedName": "accepted",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivityStatus.Type) -> SensorBioSDK.SB_DetectedActivityStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityStatus",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivityStatus",
+                        "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO8acceptedyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO8acceptedyA2CmF",
+            "moduleName": "SensorBioSDK"
+          },
+          {
+            "kind": "Var",
+            "name": "ignored",
+            "printedName": "ignored",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivityStatus.Type) -> SensorBioSDK.SB_DetectedActivityStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityStatus",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivityStatus",
+                        "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO7ignoredyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO7ignoredyA2CmF",
+            "moduleName": "SensorBioSDK"
+          },
+          {
+            "kind": "Var",
+            "name": "overlapped",
+            "printedName": "overlapped",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivityStatus.Type) -> SensorBioSDK.SB_DetectedActivityStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityStatus",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivityStatus",
+                        "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO10overlappedyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO10overlappedyA2CmF",
+            "moduleName": "SensorBioSDK"
+          },
+          {
+            "kind": "Var",
+            "name": "expired",
+            "printedName": "expired",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(SensorBioSDK.SB_DetectedActivityStatus.Type) -> SensorBioSDK.SB_DetectedActivityStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityStatus",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivityStatus",
+                        "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                        "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO7expiredyA2CmF",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO7expiredyA2CmF",
+            "moduleName": "SensorBioSDK"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "SensorBioSDK.SB_DetectedActivityStatus?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityStatus",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityStatus",
+                    "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO8rawValueACSgSS_tcfc",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO8rawValueACSgSS_tcfc",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO8rawValueSSvp",
+            "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO8rawValueSSvp",
+            "moduleName": "SensorBioSDK",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO8rawValueSSvg",
+                "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO8rawValueSSvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:12SensorBioSDK25SB_DetectedActivityStatusO",
+        "mangledName": "$s12SensorBioSDK25SB_DetectedActivityStatusO",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "AccessControl"
+        ],
+        "enumRawTypeName": "String",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SY",
+            "mangledName": "$sSY"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
         "kind": "TypeDecl",
         "name": "SB_DetectedSleep",
         "printedName": "SB_DetectedSleep",
@@ -51072,6 +52352,26 @@
         "printedName": "SwiftData",
         "declKind": "Import",
         "moduleName": "SensorBioSDK"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "SwiftQueue",
+        "printedName": "SwiftQueue",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "Preconcurrency"
+        ]
       },
       {
         "kind": "Import",
@@ -84108,6 +85408,82 @@
           },
           {
             "kind": "Var",
+            "name": "reauthenticationRequired",
+            "printedName": "reauthenticationRequired",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PassthroughSubject",
+                "printedName": "Combine.PassthroughSubject<(), Swift.Never>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Never",
+                    "printedName": "Swift.Never",
+                    "usr": "s:s5NeverO"
+                  }
+                ],
+                "usr": "s:7Combine18PassthroughSubjectC"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK03SB_C0C24reauthenticationRequired7Combine18PassthroughSubjectCyyts5NeverOGvp",
+            "mangledName": "$s12SensorBioSDK03SB_C0C24reauthenticationRequired7Combine18PassthroughSubjectCyyts5NeverOGvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "PassthroughSubject",
+                    "printedName": "Combine.PassthroughSubject<(), Swift.Never>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Never",
+                        "printedName": "Swift.Never",
+                        "usr": "s:s5NeverO"
+                      }
+                    ],
+                    "usr": "s:7Combine18PassthroughSubjectC"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK03SB_C0C24reauthenticationRequired7Combine18PassthroughSubjectCyyts5NeverOGvg",
+                "mangledName": "$s12SensorBioSDK03SB_C0C24reauthenticationRequired7Combine18PassthroughSubjectCyyts5NeverOGvg",
+                "moduleName": "SensorBioSDK",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "signOutComplete",
             "printedName": "signOutComplete",
             "children": [
@@ -86888,7 +88264,7 @@
           {
             "kind": "Function",
             "name": "registerUser",
-            "printedName": "registerUser(userId:email:birthday:sex:heightCm:weightKg:imperialUnits:activationCode:)",
+            "printedName": "registerUser(userId:email:birthday:sex:heightCm:weightKg:imperialUnits:activationCode:sdkToken:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -86998,11 +88374,26 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Func",
-            "usr": "s:12SensorBioSDK03SB_C0C12registerUser6userId5email8birthday3sex8heightCm8weightKg13imperialUnits14activationCodeAA0d9_RegisterF7OutcomeOSS_SSSg10Foundation14DateComponentsVSgAA0D7_GenderOSgSfSgAWSbAOtYaKF",
-            "mangledName": "$s12SensorBioSDK03SB_C0C12registerUser6userId5email8birthday3sex8heightCm8weightKg13imperialUnits14activationCodeAA0d9_RegisterF7OutcomeOSS_SSSg10Foundation14DateComponentsVSgAA0D7_GenderOSgSfSgAWSbAOtYaKF",
+            "usr": "s:12SensorBioSDK03SB_C0C12registerUser6userId5email8birthday3sex8heightCm8weightKg13imperialUnits14activationCode8sdkTokenAA0d9_RegisterF7OutcomeOSS_SSSg10Foundation14DateComponentsVSgAA0D7_GenderOSgSfSgAXSbA2PtYaKF",
+            "mangledName": "$s12SensorBioSDK03SB_C0C12registerUser6userId5email8birthday3sex8heightCm8weightKg13imperialUnits14activationCode8sdkTokenAA0d9_RegisterF7OutcomeOSS_SSSg10Foundation14DateComponentsVSgAA0D7_GenderOSgSfSgAXSbA2PtYaKF",
             "moduleName": "SensorBioSDK",
             "declAttributes": [
               "AccessControl",
@@ -88272,6 +89663,166 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "sdkTokenProvider",
+            "printedName": "sdkTokenProvider",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(() async throws -> Swift.String)?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() async throws -> Swift.String",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvpZ",
+            "mangledName": "$s12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvpZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "(() async throws -> Swift.String)?",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "() async throws -> Swift.String",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvgZ",
+                "mangledName": "$s12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvgZ",
+                "moduleName": "SensorBioSDK",
+                "static": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "isFromExtension": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "(() async throws -> Swift.String)?",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "() async throws -> Swift.String",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ]
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvsZ",
+                "mangledName": "$s12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvsZ",
+                "moduleName": "SensorBioSDK",
+                "static": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "isFromExtension": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvMZ",
+                "mangledName": "$s12SensorBioSDK03SB_C0C16sdkTokenProviderSSyYaYbKcSgvMZ",
+                "moduleName": "SensorBioSDK",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "isFromExtension": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "fetchDailyStats",
             "printedName": "fetchDailyStats(startDate:days:includeBiometrics:includeSleep:includeSteps:)",
@@ -88418,6 +89969,191 @@
             "moduleName": "SensorBioSDK",
             "declAttributes": [
               "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "detectedActivitiesPublisher",
+            "printedName": "detectedActivitiesPublisher",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "AnyPublisher",
+                "printedName": "Combine.AnyPublisher<[SensorBioSDK.SB_DetectedActivityInfo], Swift.Never>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[SensorBioSDK.SB_DetectedActivityInfo]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SB_DetectedActivityInfo",
+                        "printedName": "SensorBioSDK.SB_DetectedActivityInfo",
+                        "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Never",
+                    "printedName": "Swift.Never",
+                    "usr": "s:s5NeverO"
+                  }
+                ],
+                "usr": "s:7Combine12AnyPublisherV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK03SB_C0C27detectedActivitiesPublisher7Combine03AnyG0VySayAA0D21_DetectedActivityInfoVGs5NeverOGvp",
+            "mangledName": "$s12SensorBioSDK03SB_C0C27detectedActivitiesPublisher7Combine03AnyG0VySayAA0D21_DetectedActivityInfoVGs5NeverOGvp",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "AnyPublisher",
+                    "printedName": "Combine.AnyPublisher<[SensorBioSDK.SB_DetectedActivityInfo], Swift.Never>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Array",
+                        "printedName": "[SensorBioSDK.SB_DetectedActivityInfo]",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SB_DetectedActivityInfo",
+                            "printedName": "SensorBioSDK.SB_DetectedActivityInfo",
+                            "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV"
+                          }
+                        ],
+                        "usr": "s:Sa"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Never",
+                        "printedName": "Swift.Never",
+                        "usr": "s:s5NeverO"
+                      }
+                    ],
+                    "usr": "s:7Combine12AnyPublisherV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK03SB_C0C27detectedActivitiesPublisher7Combine03AnyG0VySayAA0D21_DetectedActivityInfoVGs5NeverOGvg",
+                "mangledName": "$s12SensorBioSDK03SB_C0C27detectedActivitiesPublisher7Combine03AnyG0VySayAA0D21_DetectedActivityInfoVGs5NeverOGvg",
+                "moduleName": "SensorBioSDK",
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "detectedActivities",
+            "printedName": "detectedActivities()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[SensorBioSDK.SB_DetectedActivityInfo]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SB_DetectedActivityInfo",
+                    "printedName": "SensorBioSDK.SB_DetectedActivityInfo",
+                    "usr": "s:12SensorBioSDK23SB_DetectedActivityInfoV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK03SB_C0C18detectedActivitiesSayAA0D21_DetectedActivityInfoVGyF",
+            "mangledName": "$s12SensorBioSDK03SB_C0C18detectedActivitiesSayAA0D21_DetectedActivityInfoVGyF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "confirmDetectedActivity",
+            "printedName": "confirmDetectedActivity(startTsMillis:activityName:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK03SB_C0C23confirmDetectedActivity13startTsMillis12activityNameSbs5Int64V_SStF",
+            "mangledName": "$s12SensorBioSDK03SB_C0C23confirmDetectedActivity13startTsMillis12activityNameSbs5Int64V_SStF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "Custom",
+              "DiscardableResult",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "dismissDetectedActivity",
+            "printedName": "dismissDetectedActivity(startTsMillis:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:12SensorBioSDK03SB_C0C23dismissDetectedActivity13startTsMillisSbs5Int64V_tF",
+            "mangledName": "$s12SensorBioSDK03SB_C0C23dismissDetectedActivity13startTsMillisSbs5Int64V_tF",
+            "moduleName": "SensorBioSDK",
+            "declAttributes": [
+              "AccessControl",
+              "DiscardableResult",
               "RawDocComment"
             ],
             "isFromExtension": true,
@@ -91904,6 +93640,43 @@
         "declAttributes": [
           "RawDocComment"
         ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Combine",
+        "printedName": "Combine",
+        "declKind": "Import",
+        "moduleName": "SensorBioSDK"
       },
       {
         "kind": "Import",
@@ -152253,6 +154026,54 @@
           },
           {
             "kind": "Var",
+            "name": "clientSDKUserId",
+            "printedName": "clientSDKUserId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:12SensorBioSDK11sdkDefaultsV15clientSDKUserIdSSvpZ",
+            "mangledName": "$s12SensorBioSDK11sdkDefaultsV15clientSDKUserIdSSvpZ",
+            "moduleName": "SensorBioSDK",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:12SensorBioSDK11sdkDefaultsV15clientSDKUserIdSSvgZ",
+                "mangledName": "$s12SensorBioSDK11sdkDefaultsV15clientSDKUserIdSSvgZ",
+                "moduleName": "SensorBioSDK",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "userMetricWeight",
             "printedName": "userMetricWeight",
             "children": [
@@ -167018,6 +168839,13 @@
       "value": "0"
     },
     {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Models\/SwiftData\/PacketBytesModel.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2729,
+      "length": 1,
+      "value": "0"
+    },
+    {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensrProtos\/Generated\/population_insights.pb.swift",
       "kind": "IntegerLiteral",
       "offset": 2183,
@@ -167937,70 +169765,70 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "BooleanLiteral",
-      "offset": 22117,
+      "offset": 28305,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24169,
+      "offset": 30357,
       "length": 1,
       "value": "1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24231,
+      "offset": 30419,
       "length": 1,
       "value": "4"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24301,
+      "offset": 30489,
       "length": 1,
       "value": "5"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24363,
+      "offset": 30551,
       "length": 1,
       "value": "7"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24447,
+      "offset": 30635,
       "length": 2,
       "value": "13"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24508,
+      "offset": 30696,
       "length": 2,
       "value": "14"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24572,
+      "offset": 30760,
       "length": 2,
       "value": "16"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 24640,
+      "offset": 30828,
       "length": 2,
       "value": "-1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_APIClient.swift",
       "kind": "IntegerLiteral",
-      "offset": 26037,
+      "offset": 32225,
       "length": 4,
       "value": "4015"
     },
@@ -168434,49 +170262,49 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothPacketDecoder.swift",
       "kind": "Array",
-      "offset": 25142,
+      "offset": 26036,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothPacketDecoder.swift",
       "kind": "Array",
-      "offset": 25182,
+      "offset": 26076,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothPacketDecoder.swift",
       "kind": "Array",
-      "offset": 25227,
+      "offset": 26121,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothPacketDecoder.swift",
       "kind": "Array",
-      "offset": 25267,
+      "offset": 26161,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothPacketDecoder.swift",
       "kind": "Array",
-      "offset": 25307,
+      "offset": 26201,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothPacketDecoder.swift",
       "kind": "Array",
-      "offset": 25355,
+      "offset": 26249,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothPacketDecoder.swift",
       "kind": "Array",
-      "offset": 25397,
+      "offset": 26291,
       "length": 2,
       "value": "[]"
     },
@@ -168651,14 +170479,14 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 26904,
+      "offset": 27405,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_BluetoothSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 26947,
+      "offset": 27448,
       "length": 5,
       "value": "false"
     },
@@ -169232,7 +171060,7 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_DataStore.swift",
       "kind": "StringLiteral",
-      "offset": 20367,
+      "offset": 23001,
       "length": 36,
       "value": "\"io.getsensr.SensorBioSDK.SwiftData\""
     },
@@ -169248,7 +171076,35 @@
       "kind": "IntegerLiteral",
       "offset": 1665,
       "length": 1,
-      "value": "5"
+      "value": "6"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_DetectedActivityManager.swift",
+      "kind": "Array",
+      "offset": 3111,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Enums\/SB_DetectedActivitySource.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1496,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Enums\/SB_DetectedActivitySource.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1554,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Enums\/SB_DetectedActivitySource.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1635,
+      "length": 1,
+      "value": "2"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Structs\/SB_DeviceDataPacketUpload.swift",
@@ -170168,9 +172024,23 @@
       "value": "3"
     },
     {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/Jobs\/SB_JobRetryPolicy.swift",
+      "kind": "IntegerLiteral",
+      "offset": 896,
+      "length": 1,
+      "value": "2"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/Jobs\/SB_JobRetryPolicy.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1143,
+      "length": 3,
+      "value": "300"
+    },
+    {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_JobsManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 10616,
+      "offset": 11802,
       "length": 5,
       "value": "false"
     },
@@ -171017,70 +172887,70 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "IntegerLiteral",
-      "offset": 1980,
+      "offset": 2143,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "IntegerLiteral",
-      "offset": 2088,
+      "offset": 2251,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 2399,
+      "offset": 2562,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "IntegerLiteral",
-      "offset": 2529,
+      "offset": 2692,
       "length": 2,
       "value": "-1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "IntegerLiteral",
-      "offset": 2572,
+      "offset": 2735,
       "length": 2,
       "value": "-1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 2615,
+      "offset": 2778,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 2661,
+      "offset": 2824,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "IntegerLiteral",
-      "offset": 2780,
+      "offset": 2943,
       "length": 2,
       "value": "30"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "StringLiteral",
-      "offset": 2954,
+      "offset": 3117,
       "length": 23,
       "value": "\"RawSyncingSerialQueue\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_RawSyncController.swift",
       "kind": "BooleanLiteral",
-      "offset": 15077,
+      "offset": 18026,
       "length": 5,
       "value": "false"
     },
@@ -171605,133 +173475,140 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 7954,
+      "offset": 8270,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 7983,
+      "offset": 8299,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 8015,
+      "offset": 8331,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 8056,
+      "offset": 8372,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 8095,
+      "offset": 8411,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 8132,
+      "offset": 8448,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 8170,
+      "offset": 8486,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 8213,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
-      "kind": "BooleanLiteral",
-      "offset": 8244,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
-      "kind": "BooleanLiteral",
-      "offset": 10121,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
-      "kind": "IntegerLiteral",
-      "offset": 12676,
+      "offset": 8529,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "BooleanLiteral",
-      "offset": 12847,
+      "offset": 8560,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "BooleanLiteral",
-      "offset": 15359,
+      "offset": 10437,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 15756,
+      "offset": 12401,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
+      "kind": "IntegerLiteral",
+      "offset": 14494,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "BooleanLiteral",
-      "offset": 15919,
+      "offset": 14665,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "BooleanLiteral",
-      "offset": 15970,
+      "offset": 17264,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 20480,
+      "offset": 17661,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
+      "kind": "BooleanLiteral",
+      "offset": 17824,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
+      "kind": "BooleanLiteral",
+      "offset": 17875,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
+      "kind": "IntegerLiteral",
+      "offset": 24799,
       "length": 1,
       "value": "2"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 22229,
+      "offset": 26548,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SchemaVersions.swift",
       "kind": "IntegerLiteral",
-      "offset": 22763,
+      "offset": 27291,
       "length": 1,
       "value": "1"
     },
@@ -171955,105 +173832,119 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 37290,
+      "offset": 38414,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "IntegerLiteral",
-      "offset": 37581,
+      "offset": 38705,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 37965,
+      "offset": 39089,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 39817,
+      "offset": 40941,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 40071,
+      "offset": 41195,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "IntegerLiteral",
-      "offset": 40471,
+      "offset": 41595,
       "length": 2,
       "value": "-1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "IntegerLiteral",
-      "offset": 41297,
+      "offset": 42421,
       "length": 2,
       "value": "10"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
+      "kind": "IntegerLiteral",
+      "offset": 43662,
+      "length": 4,
+      "value": "1000"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 75236,
+      "offset": 78177,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 88514,
+      "offset": 91187,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 88544,
+      "offset": 94224,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
+      "kind": "BooleanLiteral",
+      "offset": 94254,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 99745,
+      "offset": 105455,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 99766,
+      "offset": 105476,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 99786,
+      "offset": 105496,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 99807,
+      "offset": 105517,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/SB_SDK.swift",
       "kind": "BooleanLiteral",
-      "offset": 101093,
+      "offset": 106803,
       "length": 5,
       "value": "false"
     },
@@ -172158,7 +174049,7 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Auth.swift",
       "kind": "BooleanLiteral",
-      "offset": 7282,
+      "offset": 8360,
       "length": 5,
       "value": "false"
     },
@@ -172277,56 +174168,56 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2696,
+      "offset": 4685,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2725,
+      "offset": 4714,
       "length": 1,
       "value": "1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2745,
+      "offset": 4734,
       "length": 1,
       "value": "2"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2766,
+      "offset": 4755,
       "length": 1,
       "value": "3"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2791,
+      "offset": 4780,
       "length": 1,
       "value": "4"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2812,
+      "offset": 4801,
       "length": 1,
       "value": "5"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2836,
+      "offset": 4825,
       "length": 1,
       "value": "6"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/API\/SB_SDK+Brand.swift",
       "kind": "IntegerLiteral",
-      "offset": 2855,
+      "offset": 4844,
       "length": 1,
       "value": "7"
     },
@@ -172438,287 +174329,301 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 2299,
+      "offset": 2450,
       "length": 40,
       "value": "\"com.sensr.sensorPacketProcessor.buffer\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 3555,
+      "offset": 3706,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 3647,
+      "offset": 3798,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 4131,
+      "offset": 4282,
       "length": 18,
       "value": "\"iOS \""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 4148,
+      "offset": 4299,
       "length": 1,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "BooleanLiteral",
-      "offset": 4529,
+      "offset": 4680,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "BooleanLiteral",
-      "offset": 11886,
+      "offset": 5183,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
+      "kind": "BooleanLiteral",
+      "offset": 5345,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
+      "kind": "BooleanLiteral",
+      "offset": 17596,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 11988,
+      "offset": 17698,
       "length": 35,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 12014,
+      "offset": 17724,
       "length": 7,
       "value": "\" packets\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 12611,
+      "offset": 18321,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 12739,
+      "offset": 18449,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 12814,
+      "offset": 18524,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 12838,
+      "offset": 18548,
       "length": 2,
       "value": "-1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 12982,
+      "offset": 18692,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 13119,
+      "offset": 18829,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 13329,
+      "offset": 19039,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 13476,
+      "offset": 19186,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 13549,
+      "offset": 19259,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 13572,
+      "offset": 19282,
       "length": 2,
       "value": "-1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 13712,
+      "offset": 19422,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 13845,
+      "offset": 19555,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 14050,
+      "offset": 19760,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 14097,
+      "offset": 19807,
       "length": 32,
       "value": "\"First: \""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 14113,
+      "offset": 19823,
       "length": 1,
       "value": "\", Last: \""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 14128,
+      "offset": 19838,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 14355,
+      "offset": 20065,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 14420,
+      "offset": 20130,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 14831,
+      "offset": 20541,
       "length": 5,
       "value": "\"iOS\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 15015,
+      "offset": 20725,
       "length": 2,
       "value": "-1"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "Dictionary",
-      "offset": 16373,
+      "offset": 22083,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 16651,
+      "offset": 22361,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 16738,
+      "offset": 22448,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 16760,
+      "offset": 22470,
       "length": 4,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 16767,
+      "offset": 22477,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 16809,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
-      "kind": "Array",
-      "offset": 17318,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
-      "kind": "IntegerLiteral",
-      "offset": 17390,
+      "offset": 22519,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "Array",
-      "offset": 17482,
+      "offset": 23028,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 18273,
+      "offset": 23100,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
+      "kind": "Array",
+      "offset": 23192,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 23983,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "StringLiteral",
-      "offset": 18302,
+      "offset": 24012,
       "length": 80,
       "value": "\"No epochs found in packets and don't have a previous date to use.  Not storing\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Services\/SB_SensorPacketProcessor.swift",
       "kind": "IntegerLiteral",
-      "offset": 19864,
+      "offset": 25574,
       "length": 1,
       "value": "0"
     },
@@ -176085,350 +177990,357 @@
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 2484,
+      "offset": 2812,
+      "length": 17,
+      "value": "\"clientSdkUserId\""
+    },
+    {
+      "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
+      "kind": "StringLiteral",
+      "offset": 2928,
       "length": 21,
       "value": "\"profileMetricWeight\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 2563,
+      "offset": 3007,
       "length": 21,
       "value": "\"profileMetricHeight\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 2642,
+      "offset": 3086,
       "length": 19,
       "value": "\"profileWalkStrike\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 2770,
+      "offset": 3214,
       "length": 18,
       "value": "\"profileRunStride\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 2846,
+      "offset": 3290,
       "length": 12,
       "value": "\"userVo2Max\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 2916,
+      "offset": 3360,
       "length": 11,
       "value": "\"userMaxHr\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 2985,
+      "offset": 3429,
       "length": 19,
       "value": "\"userComputedMaxHr\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3062,
+      "offset": 3506,
       "length": 17,
       "value": "\"userHRVBaseline\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3171,
+      "offset": 3615,
       "length": 16,
       "value": "\"OrganizationId\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3245,
+      "offset": 3689,
       "length": 18,
       "value": "\"OrganizationName\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3321,
+      "offset": 3765,
       "length": 23,
       "value": "\"OrganizationGroupName\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3468,
+      "offset": 3912,
       "length": 11,
       "value": "\"is_metric\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3537,
+      "offset": 3981,
       "length": 24,
       "value": "\"shouldUseComputedMaxHr\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3619,
+      "offset": 4063,
       "length": 27,
       "value": "\"forceUserToUpdatePassword\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3704,
+      "offset": 4148,
       "length": 26,
       "value": "\"forceUserToUpdateProfile\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3788,
+      "offset": 4232,
       "length": 22,
       "value": "\"userRegistrationDate\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 3955,
+      "offset": 4399,
       "length": 14,
       "value": "\"featureFlags\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 4493,
+      "offset": 4937,
       "length": 24,
       "value": "\"cachedSleepGoalSeconds\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 5043,
+      "offset": 5487,
       "length": 20,
       "value": "\"cachedCaloriesGoal\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 5763,
+      "offset": 6207,
       "length": 23,
       "value": "\"recoveryHrvRepairDone\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 5885,
+      "offset": 6329,
       "length": 9,
       "value": "\"logoKey\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 5990,
+      "offset": 6434,
       "length": 12,
       "value": "\"logoURLKey\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 6516,
+      "offset": 6960,
       "length": 21,
       "value": "\"surveyLoginBoundary\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 6838,
+      "offset": 7282,
       "length": 14,
       "value": "\"devices_data\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7302,
+      "offset": 7746,
       "length": 23,
       "value": "\"pendingAlterMigration\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7383,
+      "offset": 7827,
       "length": 11,
       "value": "\"lastSyncd\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7452,
+      "offset": 7896,
       "length": 20,
       "value": "\"airplaneModeStatus\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7530,
+      "offset": 7974,
       "length": 32,
       "value": "\"haveGrantedBluetoothPermission\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7620,
+      "offset": 8064,
       "length": 21,
       "value": "\"subscriptionBlocked\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7699,
+      "offset": 8143,
       "length": 26,
       "value": "\"sensorConfigurationState\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7828,
+      "offset": 8272,
       "length": 20,
       "value": "\"recordingStartDate\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 7906,
+      "offset": 8350,
       "length": 19,
       "value": "\"recordingStopDate\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 8283,
+      "offset": 8727,
       "length": 19,
       "value": "\"pendingDeviceStop\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 8360,
+      "offset": 8804,
       "length": 27,
       "value": "\"latestValidBookendPackets\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 8445,
+      "offset": 8889,
       "length": 29,
       "value": "\"lastCustomEpochAsPrimaryKey\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 8866,
+      "offset": 9310,
       "length": 20,
       "value": "\"persistedRecording\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 8971,
+      "offset": 9415,
       "length": 21,
       "value": "\"interimSleepObjects\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 9236,
+      "offset": 9680,
       "length": 28,
       "value": "\"didDrainLegacyInterimSleep\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 9322,
+      "offset": 9766,
       "length": 29,
       "value": "\"currentPhilipsActivityEpoch\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 9409,
+      "offset": 9853,
       "length": 23,
       "value": "\"fxcSleepAlgorithmData\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 9490,
+      "offset": 9934,
       "length": 24,
       "value": "\"fxcPacketsIndicesArray\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 9572,
+      "offset": 10016,
       "length": 30,
       "value": "\"upperLimitEpochForFXCPackets\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 9690,
+      "offset": 10134,
       "length": 29,
       "value": "\"devOptionsLastActivityEpoch\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 9777,
+      "offset": 10221,
       "length": 30,
       "value": "\"devOptionsDataSyncErrorCodes\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 10033,
+      "offset": 10477,
       "length": 17,
       "value": "\"lastSyncedEpoch\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 10483,
+      "offset": 10927,
       "length": 20,
       "value": "\"lastSyncedEpochRaw\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 10865,
+      "offset": 11309,
       "length": 22,
       "value": "\"lastPacketSyncTimeMs\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 11141,
+      "offset": 11585,
       "length": 17,
       "value": "\"nextPacketRowID\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 11435,
+      "offset": 11879,
       "length": 14,
       "value": "\"hasRunBefore\""
     },
     {
       "filePath": "\/Users\/josephbennett\/Development\/sensr\/mobile_sensorbio_sdk_ios\/Sources\/SensorBioSDK\/Top Level\/sdkDefaults.swift",
       "kind": "StringLiteral",
-      "offset": 11839,
+      "offset": 12283,
       "length": 30,
       "value": "\"didMigrateSQLiteToAppSupport\""
     },

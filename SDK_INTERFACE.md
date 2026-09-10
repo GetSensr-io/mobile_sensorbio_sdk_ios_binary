@@ -6,6 +6,8 @@ This document describes the **public** customer-facing surface of `SensorBioSDK`
 
 > **Visibility note.** This document covers the customer-facing API surface only. SDK-internal symbols are filtered out of the binary framework's Swift interface and are not documented here.
 
+> **Backend guide.** Registration needs one endpoint on your own server, which mints the single-use SDK token your app hands to the SDK. [§5](#5-minting-sdk-tokens--your-backend) is the guide for whoever builds it: the exchange contract, reference implementations, error handling, and key rotation.
+
 ---
 
 ## 1. Adding the SDK
@@ -22,7 +24,7 @@ target 'MyApp' do
 
   pod 'SensorBioSDK',
     :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v2.2.0'
+    :tag => 'v2.3.0'
 end
 
 post_install do |installer|
@@ -213,7 +215,7 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 |---|---|---|
 | `pairedDevice` | `SB_PairedDeviceState?` | Pre-connection device snapshot (name, type, macAddress) |
 | `haveDevice` | `Bool` | A device is paired |
-| `pairingState` | `SB_PairingState?` | Where the open pairing transaction stands; `nil` when none is open (§5.1) |
+| `pairingState` | `SB_PairingState?` | Where the open pairing transaction stands; `nil` when none is open (§6.1) |
 | `connected` | `Bool` | BLE connection is up |
 | `isFullyConfigured` | `Bool` | Device finished configuration and is usable |
 | `bluetoothAvailable` | `Bool` | BLE is available on the phone |
@@ -235,7 +237,7 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 | `batteryLevel` | `Int?` | 0–100 |
 | `charging` | `Bool?` | Device is on its charger |
 | `worn` | `Bool?` | Device is being worn |
-| `buttonTaps` | `Int?` | Last button-tap event. Pairing no longer needs this — the SDK consumes it internally to detect the confirmation press (§5.1) |
+| `buttonTaps` | `Int?` | Last button-tap event. Pairing no longer needs this — the SDK consumes it internally to detect the confirmation press (§6.1) |
 
 **Device identity & firmware**
 
@@ -278,13 +280,14 @@ Subscribe via `sensorBio.<subject>.sink { … }`.
 ```swift
 // Auth & connection lifecycle
 // (Pairing is not here — it is one transaction reported on the
-//  `$pairingState` @Published property. See §5.1.)
+//  `$pairingState` @Published property. See §6.1.)
 public let signOutComplete:             PassthroughSubject<Void, Never>
 public let deviceDisconnected:          PassthroughSubject<String, Never>   // payload: macAddress
 public let deviceConnected:             PassthroughSubject<Void, Never>     // low-level BLE connect
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
 public let deviceLinkFailed:            PassthroughSubject<SB_DeviceLinkFailure, Never>  // server rejected the device-link (serial-enforced subscription)
 public let subscriptionLost:            PassthroughSubject<Void, Never>     // server rejected an authenticated RPC for no active subscription — host should alert + force logout (see §3.4.1)
+public let reauthenticationRequired:    PassthroughSubject<Void, Never>     // the SDK has no stored credential for an authenticated RPC — host should route to sign-in (see §3.4.2)
 
 // Streaming biometrics — timestamp + value
 public let hr:    PassthroughSubject<(Int, Int),     Never>                 // bpm
@@ -402,6 +405,43 @@ Manually-logged sessions (`createActivitySession`) fire neither — there is no 
 `SB_MeditationGraph` gains `hrLinearFit` / `hrvLinearFit` (`SB_TimeValueStraightLine?`). The server has always sent them; the SDK simply never surfaced them. They are bridged from the proto as well as built locally, so a fetched graph and a local one carry the same fields — and they are the endpoints the HR and HRV penalties are computed from, which is why a fit that can't be made (fewer than 2 points, or more than 3600) is what produces the "regression not established" sentinel.
 
 
+#### 3.4.2 `reauthenticationRequired` — no credential to send
+
+Fires when the SDK is asked to make an **authenticated** RPC while no stored
+credential exists. The host should route the user to sign-in.
+
+This is a distinct failure from the two neighbouring ones, and the distinction
+is the point:
+
+| signal | what happened | who rejected |
+| -- | -- | -- |
+| `subscriptionLost` | live session, no active subscription | server |
+| `SB_AuthError.refreshTokenExpired` | refresh token rotated / revoked / expired | server |
+| `reauthenticationRequired` | no credential existed to send | the SDK, before the wire |
+
+The SDK now refuses to dispatch an authenticated RPC without a credential
+rather than sending a headerless request. The server's authentication
+gatekeeper rejects any request carrying neither `auth` nor `access_token`, so
+such a call can never succeed — and from the persistent upload queue it is
+retried indefinitely. In SB-2105 that produced ~78,000 rejected uploads per
+affected device with no user-visible symptom, because reads pre-check the
+credential and return early while uploads did not: nothing reached the wire to
+fail visibly, and the app rendered a normal dashboard for three days.
+
+Behaviour a host can rely on:
+
+* The blocked call throws `SB_AuthError.missingAuthToken`.
+* The event is sent **at most once per episode**, and re-arms after the next
+  authenticated RPC that succeeds — so a draining upload queue produces one
+  event, not one per job.
+* Queued uploads stop retrying (`SB_JobRetryPolicy` treats a missing credential
+  as terminal). Nothing that carries user data is discarded: the packet,
+  biometrics, temperature, engine-result, sleep and recording-submit paths all
+  mark their rows processed only on a successful upload, so the rows stay put
+  and the post-sync sweep re-queues them once the user has signed back in.
+* For an SDK-key host that supplied `sdkTokenProvider`, the SDK first tries to
+  rebuild the session itself and only signals if that fails.
+
 ### 3.5 Recording submissions (optimistic timeline)
 
 In-flight finished-recording submissions the SDK is still uploading /
@@ -485,6 +525,92 @@ report exists. Submissions where it is `false` — a manually-logged session, an
 `.unscoreable` / `.deferred` recording, a row predating this version — are the
 only ones with nothing to render but a status.
 
+### 3.6 Detected activities (confirm-or-dismiss)
+
+The band's firmware can decide by itself that an activity has started — from
+accelerometer motion, from cadence, or from both agreeing — switch the PPG into
+continuous mode to capture it, and stop when it thinks the activity is over. On
+the next sync that arrives as a single activity bookend, and the SDK stores it.
+
+**Nothing is uploaded on its own.** A detection is an *offer*: the SDK holds it
+in the durable `SB_DetectedActivity` store and publishes it, and the user either
+confirms it (which submits it as a real activity) or dismisses it. Values cross
+the boundary as the `SB_DetectedActivityInfo` value type (no SwiftData leak).
+
+```swift
+// Detections that are ready to be confirmed, oldest first;
+// CurrentValueSubject-backed, so new subscribers get the state immediately.
+public var detectedActivitiesPublisher: AnyPublisher<[SB_DetectedActivityInfo], Never> { get }
+
+// One-shot snapshot of the same set (e.g. on .onAppear).
+public func detectedActivities() -> [SB_DetectedActivityInfo]
+
+// Confirm a detection under `activityName`: submits it as a real general-cardio
+// session and retires the detection. Returns false when the detection is unknown
+// or already answered, so a second call for the same detection is a no-op.
+@discardableResult @MainActor
+public func confirmDetectedActivity(startTsMillis: Int64, activityName: String) -> Bool
+
+// Dismiss a detection. Marked ignored on-device and never published again,
+// including when its bookend re-syncs (which it will). Nothing is uploaded.
+@discardableResult
+public func dismissDetectedActivity(startTsMillis: Int64) -> Bool
+```
+
+`SB_DetectedActivityInfo` carries `startTsMillis` (its identity — pass it back
+to either call), `endTsMillis`, `durationMillis`, the `tzOffsetMinutes` in force
+when it was ingested, an `SB_DetectedActivitySource` (`motion` / `cadence` /
+`motionAndCadence`), and `createdAt` (when the bookend synced, not when the
+activity happened). Field-for-field the same as Android's type of the same name,
+so a host porting between them has nothing to translate. Render the activity's time from `tzOffsetMinutes`, not the
+phone's current zone, so an activity confirmed after travelling still reads at
+the wall-clock time it happened.
+
+**Everything published is answerable now — that is the whole contract.** There
+is no status on the type and no state machine for a host to reproduce, because
+a detection is only published once:
+
+* the band has synced past the activity's end, **and**
+* the passive uploads covering its window have all landed (PPG-metrics results,
+  raw activity packets, engine/step packets), **and**
+* it is still today's, **and**
+* it does not overlap a recording the user made themselves — the detection
+  algorithm keeps running during a manual recording, so the same minutes can
+  arrive twice, and the user's own recording wins.
+
+A detection that fails any of those is simply absent. Ones from an earlier day
+are retired automatically (there is nowhere left to answer them), as are ones
+already answered.
+
+Both of the first two conditions matter, and the first is not redundant: every
+"is it all uploaded?" predicate is vacuously true for a window holding no rows,
+and a window the band has not sent yet holds none — so without the sync-frontier
+check a detection would be published the instant its bookend arrived, which is
+when its data is *least* likely to have reached the server.
+
+That gate is what makes `confirmDetectedActivity` a submit-now rather than a
+submit-eventually, and it is why the confirmed activity is indistinguishable
+from one the user recorded: same `SB_RecordingSubmission` row, same job queue,
+same locally-built report, same `pendingSubmissionsPublisher` /
+`localRecordingEntries()` surfaces described in §3.5. A host that already
+renders those needs no extra work for the tail of this flow — only the card that
+asks the question.
+
+The session is stamped `used_hrm`, because unlike a manually-logged session
+there genuinely are biometrics behind the window: the band turned the PPG on for
+it. The per-second continuous HR it captured uploads as **part of that submit**,
+attributed to the workout — which is exactly why it is not one of the uploads
+the readiness gate waits on. Uploading it early to satisfy the gate would send
+it with no workout to attribute it to and cost the activity its HR graph.
+
+`activityName` decides whether steps and distance belong on the report, so
+prefer a name from your activity catalogue over free text.
+
+> Detection is a device-side behaviour: bookends only arrive when the
+> organisation's sensor configuration has the auto-activity algorithm enabled.
+> Where it isn't, these calls are inert and the publisher stays empty.
+
+
 ---
 
 ## 4. Authentication
@@ -497,10 +623,13 @@ public func validateAccountRequirements(
     _ request: SB_ValidateAccountRequirementsRequest
 ) async throws -> SB_ValidateAccountRequirementsResult
 
-// SDK-key auth (externally-authenticated, password-less users — SB-957).
-// Configure `SB_SDK.sdkKeyCredentials` once (like `SB_SDK.environment`),
-// then register with just the user identity — see §4.1.
+// SDK auth (externally-authenticated, password-less users — SB-957, SB-1933).
+// Configure `SB_SDK.sdkKeyCredentials` once (like `SB_SDK.environment`), then
+// register with the user identity plus a single-use `sdkToken` your own
+// backend minted — see §4.1.
 public static var sdkKeyCredentials: SB_SDKKeyCredentials?   // host-supplied org creds; in-memory only, never persisted
+public static var sdkTokenProvider: SB_SDKTokenProvider?     // how the SDK asks YOU for a single-use token
+public typealias SB_SDKTokenProvider = @Sendable () async throws -> String
 public func registerUser(
     userId: String,
     email: String? = nil,
@@ -509,7 +638,8 @@ public func registerUser(
     heightCm: Float? = nil,
     weightKg: Float? = nil,
     imperialUnits: Bool = false,
-    activationCode: String? = nil
+    activationCode: String? = nil,
+    sdkToken: String? = nil        // single-use token from your backend; preferred credential
 ) async throws -> SB_RegisterUserOutcome
 
 // Session
@@ -532,22 +662,52 @@ public func acceptCurrentAgreements() async throws
 
 > **`signOut()` side effects.** A successful sign-out **unlinks the paired device from the account server-side**, disconnects any connected device, clears the paired-device state, nils out `pairedDevice` / `haveDevice` / `exerciseZoneAttributes`, and wipes the SDK's locally cached user data. The unlink is awaited before the logout RPC (it needs the session's credentials) and is best-effort — if it fails it is logged and the local teardown still completes, so the user is never stranded mid-sign-out. Signing out therefore costs the user their pairing: they re-pair the band on the next sign-in, which is deliberate and matches Android. `signOut()` is the **only** customer-facing way to clear SDK persistence — a wipe without a sign-out would leave in-memory `@Published` state and the BLE connection inconsistent with the cleared cache. Account-deletion flows should call `signOut()` after the delete-account call succeeds.
 
-### 4.1 SDK-key registration (`registerUser`)
+### 4.1 SDK registration (`registerUser`)
 
 For third-party apps embedding the SDK, `registerUser` is a **register-or-login** entry point for users your app has already authenticated by its own means (your login, SSO, OAuth — the SDK doesn't care which). These users have **no** Sensor Bio email/password. On success the SDK persists the returned session and publishes `session` / `userProfile`. It is the **only** registration path in the distributed SDK — there is no email/password entry point.
 
-**Configure your org credentials first.** The SDK reads your organization credentials from `SB_SDK.sdkKeyCredentials`, which you set **once** (like `SB_SDK.environment`) before registering. The SDK holds them **in memory only — it never persists them**, and it uses them on every authenticated call for the session (not just registration). Because they are not persisted, a host that relaunches into a **hydrated** session (restored from the keychain) **must set `sdkKeyCredentials` again at launch, before the first authenticated call** (e.g. in `App.init`, alongside `SB_SDK.environment`).
+**Your backend mints a single-use token first.** Your organization SDK Key (`sbsk_…`) is long-lived, org-wide, and identical for every one of your users, so it should be held by your backend and handed out as little as possible. Your backend exchanges it for a single-use, minutes-long `sdk_token` (`sbst_…`) and hands that to the app:
+
+```
+POST https://api.sensorbio.com/sdk/v1/token
+Authorization: SDKKey sbsk_...
+Content-Type: application/json
+
+{}                                    # body optional; omit for the 5-minute default TTL
+```
+
+```json
+{
+  "sdk_token": "sbst_...",
+  "organization_id": "uuid",
+  "sdk_key_id": "uuid",
+  "expires_at": "2026-09-03T12:34:56Z",
+  "expires_in_seconds": 300
+}
+```
+
+`sdk_token` and `organization_id` are the only two fields your backend has to return to your app. The flow is: your backend authenticates **its own** user however it already does → it calls the exchange → it returns those two values to your app → your app passes them to the SDK. Staging is `https://staging.api.sensorbio.com`.
+
+> **Building that endpoint:** [§5](#5-minting-sdk-tokens--your-backend) covers it in full — the contract to serve your app, Node and Go implementations, every error the exchange returns and what to do about it, TTL choice, and how to rotate a key without signing your users out. The example app in this repo mocks that backend in-process so the SDK can be run without one; it is marked as a stand-in everywhere, because it holds an SDK Key on a device, which is the one thing the exchange exists to prevent.
+
+A token is good for **exactly one** register-or-login and expires within minutes. **Mint a fresh one for every `registerUser` call, and never cache or reuse one** — a spent token fails inside `registerUser` as an authentication error, which is confusing to debug because the failure surfaces far from its cause. Revoking an SDK Key in the dashboard signs out every user currently signed in through it, on every device, in addition to preventing new sign-ins.
+
+**Configure your org credentials too.** The SDK reads your organization credentials from `SB_SDK.sdkKeyCredentials`, which you set **once** (like `SB_SDK.environment`) before registering. The SDK holds them **in memory only — it never persists them**, and it uses them on every authenticated call for the session (not just registration). Because they are not persisted, a host that relaunches into a **hydrated** session (restored from the keychain) **must set `sdkKeyCredentials` again at launch, before the first authenticated call** (e.g. in `App.init`, alongside `SB_SDK.environment`).
 
 ```swift
 public struct SB_SDKKeyCredentials: Sendable, Equatable {
-    public let org_id: String     // server-issued organization UUID (from your Sensor Bio dashboard)
-    public let sdk_token: String  // server-issued SDK token; validated as active and belonging to org_id
+    public let org_id: String     // organization UUID — the `organization_id` the exchange returned
+    public let sdk_token: String  // your organization SDK Key; validated as active and belonging to org_id
     public init(org_id: String, sdk_token: String)
 }
 
 // e.g. in App.init, and again after a cold launch that hydrates a session:
-SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: orgId, sdk_token: sdkToken)
+SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: organizationId, sdk_token: orgSDKKey)
 ```
+
+> **`sdk_token` here is not a token.** The field name predates the token exchange and carries the **organization SDK Key**: it is what the authenticated RPCs *after* a register present, and the server only derives the SDK app source from a key there. The single-use token goes to the `sdkToken` parameter of `registerUser` and nowhere else.
+>
+> This does mean the SDK Key currently has to reach the device, which the token exchange otherwise exists to avoid. The exchange still buys you the important part — the key never crosses the register RPC, a leaked single-use token is worth one login for a few minutes, and revoking a key cuts off every session signed under it. Treat the key in your app as a credential worth protecting rather than a public value, and prefer `sdkTokenProvider` so your backend stays the thing that mints. The field will be renamed and this requirement removed when the authenticated path stops needing a key.
 
 `registerUser` parameters:
 
@@ -555,12 +715,14 @@ SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: orgId, sdk_token: sdkTok
 - **`email`** *(optional)* — a contact email. Omitted if nil/empty; when supplied it is recorded on the backend as the user's contact email (never used as the login identity).
 - **`birthday` / `sex` / `heightCm` / `weightKg` / `imperialUnits`** *(optional)* — demographics. **Any omitted value is filled with a dummy** before the request is sent: the platform requires height/weight/sex/birthday to compute higher-level metrics (recovery, calories, sleep scoring, …), so a user with none would break downstream processing. Pass real values when you have them.
 - **`activationCode`** *(optional)* — redeems a device-subscription activation code during a first registration.
+- **`sdkToken`** *(optional, strongly preferred)* — the single-use `sdk_token` your backend just minted. When supplied, it is the credential this call presents and your long-lived SDK Key never reaches the register RPC. Omitting it falls back to presenting the SDK Key itself, which is **deprecated** and can be refused per environment.
 
-> The org credentials come from `SB_SDK.sdkKeyCredentials`, **not** from parameters on `registerUser` — set them once (above) and pass only the user identity here. If `sdkKeyCredentials` is unset, `registerUser` returns `.failure(errorCode: "sdkKeyCredentialsNotSet")`.
+> Everything except `sdkToken` comes from `SB_SDK.sdkKeyCredentials` or the user identity — set the credentials once (above) and pass the fresh token per call. If `sdkKeyCredentials` is unset, `registerUser` returns `.failure(errorCode: "sdkKeyCredentialsNotSet")`.
 
 ```swift
 // SB_SDK.sdkKeyCredentials must already be set (see above).
-switch try await sensorBio.registerUser(userId: userId) {
+// `sdkToken` is a fresh one from your backend, used by this one call only.
+switch try await sensorBio.registerUser(userId: userId, sdkToken: sdkToken) {
 case .success(let session):        routeToHome(session)
 case .failure(let errorCode):      showError(errorCode)   // e.g. "clientSdkUserIDAlreadyInUse"
 }
@@ -573,11 +735,225 @@ public enum SB_RegisterUserOutcome: Sendable {
 }
 ```
 
+#### Let the SDK ask you for tokens instead (`sdkTokenProvider`)
+
+Passing `sdkToken:` per call means handling re-authentication yourself at every call site. The alternative is to give the SDK a way to *ask*:
+
+```swift
+// once, next to SB_SDK.environment
+SB_SDK.sdkTokenProvider = { try await myBackend.mintSDKToken() }
+
+// then this is the whole flow, for the life of the integration
+try await sensorBio.registerUser(userId: user.id)
+```
+
+The SDK calls the provider in exactly two situations, and holds nothing in between — it stores your closure, never a token:
+
+1. **`registerUser` with no `sdkToken:`.** The provider supplies it.
+2. **A live session died beyond recovery** — refresh token past its 60-day inactivity window, revoked, or the SDK Key it was signed under was revoked. The SDK mints a fresh token, logs the same `client_sdk_user_id` back in, and retries the authenticated call that hit the wall. Your app sees a successful call instead of `SB_AuthError.refreshTokenExpired`.
+
+The closure runs off the main actor, and concurrent needs are single-flighted into one call (a dead session fails every in-flight RPC at once; they share one mint). **Throw to refuse** — a host whose own user is no longer authenticated should not mint a token, and the refusal surfaces as the auth error the call would have produced anyway. That decision being yours is exactly why this is a closure and not a credential: the SDK cannot mint a token itself, and must not be able to.
+
+For (2) the SDK remembers your `client_sdk_user_id` in its keychain, so it can name the user to log back in. It is an identifier, not a credential — worthless without a freshly minted token — and `signOut()` erases it, so a deliberate sign-out is never undone by a re-establish.
+
+Leave `sdkTokenProvider` nil and nothing changes: pass `sdkToken:` per call, catch `SB_AuthError.refreshTokenExpired`, and sign out plus re-register by hand.
+
+**What is transparent to your app, and what is not:**
+
+| Event | Handled by | Your app sees |
+| --- | --- | --- |
+| Access token expires (15 min) | SDK refreshes and retries | Nothing |
+| Refresh token rotates | SDK | Nothing |
+| Refresh chain dies (60-day inactivity, revoked, SDK Key revoked) | SDK, **if** `sdkTokenProvider` is set | Nothing — one provider call |
+| Same, with no provider (or the provider throws) | You | `SB_AuthError.refreshTokenExpired` → sign out, re-register with a fresh token |
+
 ---
 
-## 5. BLE Device Control
+## 5. Minting SDK tokens — your backend
 
-### 5.1 Pairing
+§ 4 is the app side. This is the other half: the one endpoint **your server** implements, and the rules that come with it. Written for whoever runs that server, who may not be the person integrating the app.
+
+### Why this lives on your server
+
+Your SDK Key (`sbsk_…`) is one long-lived credential for your whole organization, identical for every one of your users. Anyone holding it can create or sign into accounts in your organization — for any user id they can obtain, and user ids are not secret (your own support staff see them in the dashboard, as does anyone who has ever had that access).
+
+So the key must never be somewhere an attacker can reach it, and "inside your mobile app" is somewhere an attacker can always reach it: a shipped binary is not a secret, whether the key is compiled in or fetched from an endpoint of yours at runtime.
+
+The exchange makes possession of a key insufficient. Your backend keeps the key, authenticates your own user, and mints a token worth exactly **one** sign-in for **one** user for a few minutes.
+
+| Credential | Who holds it | Lifetime | Worth if leaked |
+| --- | --- | --- | --- |
+| SDK Key (`sbsk_…`) | your backend, only | until you revoke it | the ability to mint tokens; revocable, and revoking it signs out live sessions |
+| SDK token (`sbst_…`) | your app, briefly | 5 min default, **single use** | one register-or-login, one user, inside that window |
+| Access token | your app | 15 min | that one user's data until it expires |
+| Refresh token | your app | 60 days of inactivity | that one user's session until sign-out or key revocation |
+
+Nothing the app holds is organization-wide.
+
+### The contract you serve to your app
+
+Your app needs two values from you. Everything else is your choice — path, auth, shape:
+
+```json
+{
+  "sdk_token": "sbst_…",
+  "organization_id": "3f7c1a20-9b4e-4c11-a0d2-71f0c9a8e512"
+}
+```
+
+A workable default is `POST /sdk/token` on your existing API, authenticated the way the rest of your API is (session cookie, bearer token, whatever you already use). It takes no request body: the user is whoever your own authentication says they are.
+
+### The call you make to Sensor Bio
+
+The request and response are the ones shown in §4.1. The request body is optional and every field in it is optional too — an empty object, or no body at all, is the common case:
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| `expires_in_seconds` | no | 30 to 1800. Omit for the 5-minute default. |
+| `sdk_key_id` | no | Which of your SDK Keys the token is anchored to. Only meaningful on the `APIKey` path below. |
+
+The response carries `Cache-Control: no-store`. The raw token is shown exactly once — only a hash of it is stored on our side, so there is no way to look it up again.
+
+**Authentication.** Send exactly one of:
+
+- `Authorization: SDKKey sbsk_…` — your SDK Key. The key you present is itself the anchor, so nothing is ambiguous. **Preferred.**
+- `Authorization: APIKey sbak_…` — your organization API Key, offered so a backend that already holds one need not also deploy an SDK Key. The anchor is then resolved from your usable SDK Keys, and you must pass `sdk_key_id` if you have more than one.
+
+**Protocol.** The API requires HTTP/2. Every modern HTTP client uses it automatically over TLS. If you get an HTTP `464`, something in your stack forced HTTP/1.x — check for an explicit version flag, a proxy, or a load balancer in front of your egress.
+
+**Verify your key before writing any code:**
+
+```bash
+curl -sS -X POST https://staging.api.sensorbio.com/sdk/v1/token \
+  -H "Authorization: SDKKey $SENSORBIO_SDK_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+A token back means your credential works and the exchange is reachable. That separates "my key is wrong" from "my integration is wrong", which is worth knowing before you debug anything else.
+
+### Four rules that actually bite
+
+**Authenticate your own user first.** This endpoint cannot do it for you, and the token it returns is enough to create an account in your organization. Mint only after your own authentication has succeeded, and only for the user it succeeded for. An endpoint of yours that mints for any caller is the leak you just eliminated, wearing a different hat.
+
+**One token per sign-in. Never cache one.** Tokens are single-use. A cache hands an already-spent token to the next caller, and the failure surfaces as an authentication error *inside* `registerUser` — far from the cache that caused it. Mint fresh every time, including every time the SDK asks again.
+
+**Don't put the user id in the request.** Sensor Bio does not need to know your user. The token is anchored to your organization; your app tells the SDK which of your users it is registering.
+
+**Prefer a random, opaque user id.** The identifier your app hands the SDK (`client_sdk_user_id`) is yours to choose. Generate a random one per user and keep the mapping on your side, and Sensor Bio never holds an identifier that means anything in your systems. Whatever you choose must be **stable for that user** — the first register for an id creates the account, and every later call with the same id signs the same person back in.
+
+### Errors
+
+The error body is `{"status": …, "title": …, "detail": …}`.
+
+| Status | Meaning | What to do |
+| --- | --- | --- |
+| `401` | The credential was rejected. Unknown, revoked and expired keys answer **identically**, by design. | Check all three: the whole key was copied, it has not been revoked, it has not expired. |
+| `403` | Your organization has no usable SDK Key. | Create one under Developer Settings. |
+| `400` | An out-of-range `expires_in_seconds`, or an `sdk_key_id` that is unknown or was required and omitted. | Fix the parameter. `expires_in_seconds` must be 30–1800. |
+| `464` | The request arrived over HTTP/1.x. | Enable HTTP/2 (see above). |
+| `5xx` | Our problem, almost certainly not your credential. | Retry; if it persists, contact developers@sensorbio.com. |
+
+Surface the upstream status to your app rather than collapsing everything into "token error" — a 401 from us and a failure of your own user authentication want different handling, and only your backend can tell them apart.
+
+### Reference implementations
+
+Both do the same three things: authenticate your user, exchange, return two fields.
+
+**Node (Express):**
+
+```js
+app.post("/sdk/token", requireYourAuth, async (req, res) => {
+  const upstream = await fetch("https://api.sensorbio.com/sdk/v1/token", {
+    method: "POST",
+    headers: {
+      Authorization: `SDKKey ${process.env.SENSORBIO_SDK_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: "{}",
+  });
+
+  if (!upstream.ok) {
+    const detail = await upstream.text();
+    return res.status(502).json({ error: "sdk_token_exchange_failed", upstream_status: upstream.status, detail });
+  }
+
+  const { sdk_token, organization_id } = await upstream.json();
+  res.set("Cache-Control", "no-store").json({ sdk_token, organization_id });
+});
+```
+
+**Go:**
+
+```go
+func mintSDKToken(ctx context.Context, sdkKey string) (token, orgID string, err error) {
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost,
+		"https://api.sensorbio.com/sdk/v1/token", strings.NewReader("{}"))
+	req.Header.Set("Authorization", "SDKKey "+sdkKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4<<10))
+		return "", "", fmt.Errorf("exchange failed (HTTP %d): %s", resp.StatusCode, body)
+	}
+
+	var out struct {
+		SDKToken       string `json:"sdk_token"`
+		OrganizationID string `json:"organization_id"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return "", "", err
+	}
+	return out.SDKToken, out.OrganizationID, nil
+}
+```
+
+Keep the key in your secret manager or environment, never in source control, and never log it. Log tokens by prefix only (`sbst_ABCD…`) if at all — we store that same prefix, so it is the half worth quoting in a support request.
+
+### Choosing a lifetime
+
+The default 300 seconds is generous, because the token should be minted at the moment it is used: your app asks, you mint, it registers, the token is spent. Seconds, not minutes.
+
+Longer lifetimes only widen the window in which a token intercepted in transit is still worth something. Mint on demand and leave the default alone; reach for `expires_in_seconds` mainly when testing what your app does with an expired token.
+
+### Revoking and rotating keys
+
+Revoking an SDK Key in the dashboard **signs out every user currently signed in through it**, immediately and on every device, as well as preventing new sign-ins. Accounts and data are untouched, and people sign back in as soon as your backend is minting with a working key. That makes revocation your mass-logout lever for a suspected compromise, and it makes an unplanned revocation disruptive.
+
+To rotate without signing everyone out at once, do it in this order:
+
+1. Create the new SDK Key.
+2. Switch your backend to it and confirm tokens mint.
+3. Only then revoke the old one — the sessions anchored to it end at that moment.
+
+Multiple keys are also how you separate environments: a "staging app" key and a "production app" key can be revoked independently.
+
+### Evaluating before you have a backend
+
+The **example app in this repository does the exchange in-process**, mocking the backend described here so the SDK can be run end to end without one. It is marked as a stand-in everywhere it appears — in `SDKTokenExchange.swift`, in the example app's README, and on the register screen itself — because it does the one thing this section exists to prevent: it holds an SDK Key on a device.
+
+Read it as a worked example of the request, the response, and what the app does with the result. Do not copy it into an app you ship. If you would rather run the stand-in outside your app while you integrate, ask developers@sensorbio.com — a throwaway local server that serves exactly the contract above is available.
+
+### Checklist
+
+- [ ] SDK Key lives in your secret manager, is not in source control, and is never logged.
+- [ ] Your minting endpoint requires your own authentication and mints only for that user.
+- [ ] Nothing caches, stores, or reuses a token.
+- [ ] Your app receives only `sdk_token` + `organization_id`.
+- [ ] The upstream status reaches your app in a form it can act on.
+- [ ] `client_sdk_user_id` is stable per user, and ideally random and opaque.
+- [ ] Rotation is create → switch → revoke, and you know revocation signs out live sessions.
+
+---
+
+## 6. BLE Device Control
+
+### 6.1 Pairing
 
 Pairing is **one SDK-owned transaction**, not a sequence of host calls. Three methods open, advance, and close it; everything in between is reported on `$pairingState`.
 
@@ -651,7 +1027,7 @@ Static bootstrap accessor (callable before `SB_SDK.shared` initializes):
 public static var persistedDevicesDictionary: [String: AnyObject]?      // persisted devices dict (devicesKey)
 ```
 
-### 5.2 Device commands
+### 6.2 Device commands
 
 ```swift
 public func userLED(red: Bool = false, green: Bool = false, blue: Bool = false,
@@ -663,7 +1039,7 @@ public func reset()
 public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) async throws
 ```
 
-These are raw device commands. **Pairing does not require any of them** — `beginPairing()` runs the LED/haptic confirmation and the button listening itself (§5.1). Reach for `userLED` / `hapticMotor` / `setAskForDeviceResponse` only for your own device interactions outside a pair.
+These are raw device commands. **Pairing does not require any of them** — `beginPairing()` runs the LED/haptic confirmation and the button listening itself (§6.1). Reach for `userLED` / `hapticMotor` / `setAskForDeviceResponse` only for your own device interactions outside a pair.
 
 **Firmware debug hooks.** Gated behind `SENSORBIO_INTERNAL`; absent from the binary.
 
@@ -678,7 +1054,7 @@ Both exist to rehearse the firmware failure → band reset → retry path on dem
 
 `debugFailFirmwareUpdate` fails the next flash about 20% in by dropping the BLE link. Dropping the link rather than throwing is what makes it faithful to a real interrupted update: the band is left holding a partial image, the host takes its disconnect-during-update path, and the band reset that clears the partial image cannot be delivered until the band returns — so the host's deferral of that reset is exercised too. Leave it on to watch the failure, turn it off and retry to watch the recovery.
 
-### 5.3 Recording
+### 6.3 Recording
 
 Recording is fully SDK-orchestrated — there is no low-level start/stop surface; the SDK owns the BLE session lifecycle end-to-end.
 
@@ -836,7 +1212,7 @@ public struct SB_PersistedRecording: Codable, Sendable, Equatable {
 - `isAbandoned` bounds an envelope's lifetime. `.activity` is open-ended, so `endDate` (and therefore `isExpired`) is structurally `nil`/`false` for it and nothing else caps how long one may sit in flight.
 
 
-### 5.4 Sync — automatic
+### 6.4 Sync — automatic
 
 Sync runs automatically once a paired device connects. No customer-side method call is required to trigger it; the SDK manages the sync lifecycle internally and emits state changes via the `@Published` `deviceSyncing` / `percentSynced` / `lastSyncd` properties (see §3.2).
 
@@ -844,7 +1220,7 @@ Sync runs automatically once a paired device connects. No customer-side method c
 
 ---
 
-## 6. Server APIs (async/await)
+## 7. Server APIs (async/await)
 
 Every method below is `async throws` on the `SB_SDK` facade. All return typed `SB_*` domain models; authentication is automatic once the user is signed in. Outcome-style methods (e.g. `registerUser`, `updateGoals`) return discriminated enums rather than raw errors for common business cases.
 
@@ -860,7 +1236,7 @@ Every method below is `async throws` on the `SB_SDK` facade. All return typed `S
 
 > **`forceRemote` (pull-to-refresh).** Every cache-backed `fetch…` read takes a trailing `forceRemote: Bool = false`. When `true`, every cache shortcut is bypassed and the read always hits the network (still writing the fresh result to the cache, and still falling back to the cached payload on a network failure). Pass `forceRemote: true` from a user-initiated refresh. This is the escape hatch for data that changes after the fact — a device synced days later, or sleep/recovery **scores** the server finishes processing asynchronously after upload — on top of the automatic provisional-cache refetch described above.
 
-### 6.1 Dashboard
+### 7.1 Dashboard
 
 ```swift
 public func fetchDashboardData(date: Date, tzOffset: Int32, forceRemote: Bool = false) async throws -> SB_DashboardData
@@ -879,7 +1255,7 @@ public struct SB_DashboardCircularItem: Codable, Equatable, Sendable {
 >
 > `data.sleep` is now populated whenever the server sends a sleep goal item, **including when its `value` is non-positive** (it was previously dropped to `nil` by a `value > 0` gate). `data.sleep != nil` therefore no longer implies "there is a score" — check `value > 0` for that, and use `data.sleeps` (the session list) to tell whether the server knows about any sleep session at all.
 
-### 6.2 Activity reads
+### 7.2 Activity reads
 
 ```swift
 public func fetchSteps(date: Date, granularity: SB_ViewGranularity, forceRemote: Bool = false)        async throws -> SB_StepsTrending
@@ -1022,7 +1398,7 @@ As with recovery, `dailyActivityDetailUpdates` has **no stale peek on the local 
 
 > Org custom / white-label activity scoring stays server-computed.
 
-### 6.3 Biometric reads — HR / HRV / RR · SpO2 🚧 WIP
+### 7.3 Biometric reads — HR / HRV / RR · SpO2 🚧 WIP
 
 ```swift
 public func fetchDailyHR(date: Date, forceRemote: Bool = false)                                       async throws -> SB_BiometricDailyTrending
@@ -1284,7 +1660,7 @@ public struct SB_CaloriesHourBucket: Codable, Equatable, Sendable {
 
 `throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
 
-### 6.4 Sleep reads
+### 7.4 Sleep reads
 
 ```swift
 public func fetchSleepDetail(endDate: Date, endTimestamp: Int64, forceRemote: Bool = false)                     async throws -> SB_SleepDetailDay
@@ -1348,7 +1724,7 @@ public struct SB_SleepDisturbancePoint: Codable, Equatable, Sendable {
 
 `getSleepDetail` / `getSleepSessions` / the three graph reads `throw` only on the server-backed path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network. (Ported to match Android's local-first sleep, SB-1677/SB-1678.)
 
-### 6.5 Insights — personal + population + feedback
+### 7.5 Insights — personal + population + feedback
 
 ```swift
 public func fetchNewInsights() async throws -> SB_NewInsights
@@ -1360,7 +1736,7 @@ public func fetchPopulationInsights(
 public func submitInsightsFeedback(insightId: Int64, feedback: SB_InsightFeedback) async throws
 ```
 
-### 6.6 User profile
+### 7.6 User profile
 
 ```swift
 public func updateUserProfile(_ profile: SB_UserProfileUpdate) async throws -> SB_UpdateUserProfileOutcome
@@ -1375,7 +1751,7 @@ public func deleteUserPhoto() async throws
 > `sensorBio.userProfile?.location` and pass it back in on every update; sending `""` (or omitting it)
 > overwrites the stored value on the server.
 
-### 6.7 Goals
+### 7.7 Goals
 
 Steps / calories / sleep are the customer-facing goal surface. `SB_Goals` is returned with those three targets/currents public; its workout / routine-goal members are Sensr-Bio-only and absent from the binary. It is `Equatable, Sendable`.
 
@@ -1386,7 +1762,7 @@ public func updateGoals(steps: Int, calories: Int, sleep: Int) async throws -> S
 
 Both cache the **sleep** target locally as a side effect (SB-1678), so the local-first sleep score can read the user's goal without a network round-trip. The SDK also refreshes goals itself on sign-in / account creation / auto-login (fire-and-forget, alongside the white-label refresh), so the cache is warm without the host having to call `fetchGoals()` at all — a host that never did would otherwise have left the local score scoring against the 7 h default. Nothing else about their behaviour changes, and the cache is only ever written with a non-zero goal.
 
-### 6.8 Sleep writes
+### 7.8 Sleep writes
 
 ```swift
 public func fetchSleepSessions(date: Date) async throws -> [SB_SleepItem]
@@ -1396,7 +1772,7 @@ public func deleteSleepSession(endTimestamp: Int64, date: Date) async throws
 public func reprocessSleep(endDate: Int32, endTimestamp: Int64) async throws
 ```
 
-### 6.9 Workouts & activities
+### 7.9 Workouts & activities
 
 ```swift
 public func fetchActivityList() async throws -> SB_ActivityRecordingList
@@ -1417,7 +1793,7 @@ Page 1 is always "today", so the cache never *replaces* the network read the way
 
 The cached copy has its **pagination cursor stripped**. A restored cursor would page the host into a window the server no longer recognises; with it empty, a host gating its infinite-scroll loader on `cursor != nil` simply has paging unavailable for the moment before the authoritative page lands, rather than wrong.
 
-### 6.10 Spot-check & recording metadata
+### 7.10 Spot-check & recording metadata
 
 ```swift
 public func fetchSpotCheckDetails(id: String) async throws -> SB_SpotCheckDetails?
@@ -1425,7 +1801,7 @@ public func fetchRecordingMetaInfo(_ type: SB_RecordingMetaType) async throws ->
 public func deleteRecordingMeta(id: String, name: String, type: SB_RecordingMetaType) async throws
 ```
 
-### 6.11 Surveys & questionnaires
+### 7.11 Surveys & questionnaires
 
 Brief surveys are the real sleep / workout / meditation survey responses the device collects; they stay on the public surface.
 
@@ -1443,7 +1819,7 @@ public func submitBriefSurvey(_ survey: SB_BriefSurvey) async throws -> String
 
 Android's equivalent is `suspend (SB_BriefSurvey) -> String` and iOS now matches it. Android's own caller currently discards the id and refetches on dismissal instead, so it still pays the round-trip iOS no longer needs — worth aligning.
 
-### 6.12 Devices, services & global state
+### 7.12 Devices, services & global state
 
 ```swift
 public func updateUserDeviceInfo(macAddress: String, metadata: [String: String], unlinkDevice: Bool)
@@ -1454,9 +1830,9 @@ public func fetchDailyStats(startDate: Int32, days: Int32, metrics: [String]) as
 
 ---
 
-## 7. Top-Level Symbols & Namespaces
+## 8. Top-Level Symbols & Namespaces
 
-### 7.1 Logging
+### 8.1 Logging
 
 ```swift
 public enum LogLevel { case verbose, debug, info, warning, error }
@@ -1468,7 +1844,7 @@ extension SB_SDK {
 
 Subscribe `SB_SDK.log` to forward SDK log entries into your own logging pipeline (Crashlytics, OSLog, custom file sink, etc.).
 
-### 7.2 Environment
+### 8.2 Environment
 
 ```swift
 extension SB_SDK {
@@ -1479,7 +1855,7 @@ extension SB_SDK {
 }
 ```
 
-### 7.3 Constants namespace
+### 8.3 Constants namespace
 
 ```swift
 public enum SDKConstants {
@@ -1508,7 +1884,7 @@ this is *not* the bioedge C numbering (`USER_SEX_MALE = 1`, `GENDER_MALE = 1`),
 which counts the same three cases from one; conflating the two silently shifts
 every user by one case (SB-1735).
 
-### 7.4 Globals namespace
+### 8.4 Globals namespace
 
 ```swift
 public enum SDKGlobals {
@@ -1522,7 +1898,7 @@ public enum SDKGlobals {
 public var gblIsMetric: Bool { get set }
 ```
 
-### 7.5 Dependency-injection container
+### 8.5 Dependency-injection container
 
 ```swift
 public struct Injectable<T> {
@@ -1538,7 +1914,7 @@ public final class Container: @unchecked Sendable {
 }
 ```
 
-### 7.6 Diagnostic logger
+### 8.6 Diagnostic logger
 
 ```swift
 public class SB_FXCLogging: NSObject {
@@ -1558,7 +1934,7 @@ public class SB_FXCLogging: NSObject {
 
 ---
 
-## 8. Putting it together — minimal example
+## 9. Putting it together — minimal example
 
 ```swift
 import SwiftUI
@@ -1593,10 +1969,11 @@ final class HomeViewModel: ObservableObject {
     }
 
     // `registerUser` is register-OR-login: the first call for a given userId
-    // registers, later calls sign the same user back in.
-    func register(userId: String) async {
+    // registers, later calls sign the same user back in. `sdkToken` is a fresh
+    // single-use token from your backend — one per call, never cached.
+    func register(userId: String, sdkToken: String) async {
         do {
-            switch try await sensorBio.registerUser(userId: userId) {
+            switch try await sensorBio.registerUser(userId: userId, sdkToken: sdkToken) {
             case .success:
                 await refreshDashboard()
             case .failure(let errorCode):
