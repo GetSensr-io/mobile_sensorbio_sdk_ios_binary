@@ -14,11 +14,57 @@ struct ProfileView: View {
     @State private var presentingPair: Bool = false
     @State private var unpairError: String? = nil
     @State private var now: Date = Date()
+    @State private var presentingToken: Bool = false
+    // The token this launch minted, if the session came from a register rather
+    // than from a keychain hydrate. In-memory only — see `SDKTokenRecord`.
+    @State private var tokenRecord = SDKTokenRecord.shared
 
     var body: some View {
         List {
             Section("Account") {
                 LabeledContent("Username", value: session.username)
+            }
+
+            Section {
+                LabeledContent("SensorBioSDK", value: sensorBio.sdkVersion)
+            } header: {
+                Text("SDK")
+            } footer: {
+                Text("Reported by `sensorBio.sdkVersion`. Compiled into the framework — if this ever reads UNKNOWN, the build is wrong.")
+            }
+
+            Section {
+                if let token = tokenRecord.token {
+                    Button {
+                        presentingToken = true
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("sdk_token")
+                                    .foregroundStyle(.primary)
+                                Text(token.sdkToken)
+                                    .font(.system(.caption2, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                            }
+                            Spacer(minLength: 12)
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                } else {
+                    Label("Session restored — no register this launch",
+                          systemImage: "key.slash")
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("Registered With")
+            } footer: {
+                Text(tokenRecord.token == nil
+                     ? "A relaunch does not re-register: the SDK restored the access/refresh pair from the keychain, so no token was minted and none was needed. A token is a bootstrap credential, spent by the one register that used it. Sign out and register to see a fresh one."
+                     : "The single-use token the register call presented, exchanged from your SDK Key. Tap to see the whole thing.")
             }
 
             if haveDevice, let device = pairedDevice {
@@ -83,6 +129,9 @@ struct ProfileView: View {
         .onReceive(sensorBio.$percentSynced) { percentSynced = $0 }
         .sheet(isPresented: $presentingPair) {
             PairDeviceView()
+        }
+        .sheet(isPresented: $presentingToken) {
+            SDKTokenSheet(record: tokenRecord)
         }
     }
 

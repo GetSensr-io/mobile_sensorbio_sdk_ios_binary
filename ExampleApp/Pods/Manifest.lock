@@ -1,0 +1,45 @@
+PODS:
+  - CocoaMQTT (2.3.0):
+    - CocoaMQTT/Core (= 2.3.0)
+  - CocoaMQTT/Core (2.3.0):
+    - MqttCocoaAsyncSocket (~> 1.0.8)
+  - KeychainAccess (4.2.2)
+  - MqttCocoaAsyncSocket (1.0.8)
+  - SensorBioSDK (2.3.0):
+    - CocoaMQTT (~> 2.2)
+    - KeychainAccess (~> 4.0)
+    - SwiftKeychainWrapper (~> 4.0)
+    - SwiftProtobuf (~> 1.37)
+    - SwiftQueue (~> 6.0)
+  - SwiftKeychainWrapper (4.0.1)
+  - SwiftProtobuf (1.38.1)
+  - SwiftQueue (6.0.0)
+
+DEPENDENCIES:
+  - SensorBioSDK (from `..`)
+
+SPEC REPOS:
+  trunk:
+    - CocoaMQTT
+    - KeychainAccess
+    - MqttCocoaAsyncSocket
+    - SwiftKeychainWrapper
+    - SwiftProtobuf
+    - SwiftQueue
+
+EXTERNAL SOURCES:
+  SensorBioSDK:
+    :path: ".."
+
+SPEC CHECKSUMS:
+  CocoaMQTT: f97a1da91f9fa99649aeb466518dc5bbb0cea5d2
+  KeychainAccess: c0c4f7f38f6fc7bbe58f5702e25f7bd2f65abf51
+  MqttCocoaAsyncSocket: 77d3b74f76228dd5a05d1f9526eab101d415b30c
+  SensorBioSDK: ef9c75f368e6b010d9208949b90a887a4218c9b0
+  SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
+  SwiftProtobuf: 409d3aaec90e51b1705b1dd8065b56893450e77c
+  SwiftQueue: ce8ff8194f3318bedea023b14277091e8a6887a3
+
+PODFILE CHECKSUM: dc2fb80e14469b60c6a008ad16749a503bd0da86
+
+COCOAPODS: 1.16.2

@@ -1,0 +1,3 @@
+${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorBioSDK/SensorBioSDK.framework
+${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorBioSDK/SensorBioBTSDK.framework
+${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorBioSDK/LibFXC.framework

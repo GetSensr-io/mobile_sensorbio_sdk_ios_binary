@@ -1,0 +1,2667 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		F1F11D5408CC21BC2049E9E875E77BC5 /* SensorBioSDK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 9E68BEC86AD4A32918057E7175FBE1DD /* Build configuration list for PBXAggregateTarget "SensorBioSDK" */;
+			buildPhases = (
+				D8A2A448F1748E9C924BE493D42C4A1D /* [CP] Copy XCFrameworks */,
+			);
+			dependencies = (
+				2BB0C614738C89C3AB46F6A738BB7454 /* PBXTargetDependency */,
+				9913EC04C59787FB4C75AA285CE3824F /* PBXTargetDependency */,
+				4E1B4A30ADA618B778B55FC3AF61C259 /* PBXTargetDependency */,
+				E62B179F13685468BC43508453F4CD76 /* PBXTargetDependency */,
+				9617FF1142C8E58E191A031312AA9DC4 /* PBXTargetDependency */,
+			);
+			name = SensorBioSDK;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		00FB4CE14BF2424AE9B15DF8E1BB69E2 /* FieldTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A374B9A3FF8BB46BBE07A10B3DA69A67 /* FieldTypes.swift */; };
+		01461285DFE546C71E99B49A3BF32601 /* CocoaMQTT5.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6125DCACA8DD8D8A34DE9F4C9FDB7 /* CocoaMQTT5.swift */; };
+		039D6521A439844BD8713B8130BAD9C5 /* KeychainItemAccessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97B2B6C0CDC347268A8D797821502F64 /* KeychainItemAccessibility.swift */; };
+		09421AE71CA21669A0D30A374076B39A /* MathUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97165A08790D2E2F6371AC1811F71542 /* MathUtils.swift */; };
+		0B0A3A1044D081A95821B26BF0C69B68 /* FramePubRec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0B306F7B0CB55EE88CA1AFB3FEA334 /* FramePubRec.swift */; };
+		0D1DE2BA47B9CE1A86A905C656C4D522 /* SwiftKeychainWrapper-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = AFA21B30ED618C6C28CD2DBDB0D58DA7 /* SwiftKeychainWrapper-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0E00C7CEBDFB947AD68A75B1D59E0AAC /* KeychainWrapperSubscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3D5D1520B504B9333DE828154FCDF4 /* KeychainWrapperSubscript.swift */; };
+		1085DA54C32DA44E559963B4F22F60D0 /* Google_Protobuf_FieldMask+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6AFC548C0709CD51E5EBF51750D68A /* Google_Protobuf_FieldMask+Extensions.swift */; };
+		10B684B36BCCAE650F0500E938E3FF45 /* Constraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75E533FC794C5BC5BC39748F19C80B4 /* Constraint.swift */; };
+		13F77DF21F42BFA21A5AA775A0D3C385 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256346A2F22643AA8E8A4D931A36C4B8 /* Utils.swift */; };
+		1751EF064A19294727AC1E55CCE8A475 /* JSONEncodingVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C72FF8F6D4A025E6D9D67506B9A2841A /* JSONEncodingVisitor.swift */; };
+		17FDB967C97398B13098ED55C4C07F0B /* JSONDecodingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C04F28F40729BD34A1E6311719F3B9 /* JSONDecodingError.swift */; };
+		1891BF826CC39358C6A23CD76A394299 /* Google_Protobuf_Wrappers+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6BF868C60231268A6B19D18AFA524D /* Google_Protobuf_Wrappers+Extensions.swift */; };
+		1AB8EBFA23F1F8B18A7FC060E57900AB /* Message+JSONAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9CFCAF41576CD613E85DAFC58C32AEB /* Message+JSONAdditions.swift */; };
+		1AE0CBEC2DABE5F380CA303672E4BE90 /* SwiftProtobufContiguousBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F146DE67CA4F09C75CED0C70B61BE4 /* SwiftProtobufContiguousBytes.swift */; };
+		1B8B0B4CBE880754AE339A68E6F22506 /* Google_Protobuf_NullValue+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10E09ECF252D1438E817FA90C4F19D8 /* Google_Protobuf_NullValue+Extensions.swift */; };
+		1B9EE2974DF89028A02E2C0B6414B3F2 /* Constraint+Repeat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356ED6491B9542C7BD10185EEB60AA3B /* Constraint+Repeat.swift */; };
+		1C9A958EB890D014155D8AF589D692EC /* Google_Protobuf_Timestamp+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA28552567E01DBD9E168F4E55218C3 /* Google_Protobuf_Timestamp+Extensions.swift */; };
+		1D7EFD1EF54E31C9F040682B6CE45E27 /* JobBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA45C2813F5D8DB35A3FF519B1A4691 /* JobBuilder.swift */; };
+		1F674A07F2A9090E99FED1DDA6AF0B2C /* duration.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6F8FD9EB76579462046DF9143C5518 /* duration.pb.swift */; };
+		20D8D2C1254B0DCF38CD4E3F0997E52A /* KeychainAccess-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 543F8EB4A95E454C97246292A16C0074 /* KeychainAccess-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		25E4CB060AC2320D18192C7880C798E1 /* TextFormatEncodingVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9655C0755A3F2899A7416B3777D9CEF5 /* TextFormatEncodingVisitor.swift */; };
+		26549EB1F6459B3699ABD51AE930F58F /* ZigZag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F003F6B616BBFBB6F2360630914B9D0 /* ZigZag.swift */; };
+		2766A0AB3369985D257881D7137D0FFD /* SwiftQueueManager+BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4BEF0339B815DEDC7028329BDC859F4 /* SwiftQueueManager+BackgroundTask.swift */; };
+		28AEF9436C31C397C090282AC245F2E5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */; };
+		28EC8D62D53563664C296729A5C77F68 /* ProtoNameProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85BF4F1AEA61B28EE0A5B4CA6C07018A /* ProtoNameProviding.swift */; };
+		29770E50D4BF1A431370549F1113D083 /* any.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E0C12BD9DAE3DF0BE75F775A05D8AED /* any.pb.swift */; };
+		29833ED9B730EDC53AB20C27436BE7A2 /* Google_Protobuf_Any+Registry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED2B0A1616AE5B11E88E464A82538A1 /* Google_Protobuf_Any+Registry.swift */; };
+		299F22B8F40B2E96DFC21D918AF91B00 /* ExtensionFieldValueSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FAB98F82350E50DE7A7014DCECEE884 /* ExtensionFieldValueSet.swift */; };
+		2C853947B2C1CF4C1E74C9225F771934 /* Message+JSONArrayAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742F979071656E282F3A4D3629D57F07 /* Message+JSONArrayAdditions.swift */; };
+		2CB07140AD68E5DA0649E35A07BD1852 /* BytecodeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D607B96E8CD81D6BB92BEE5BD535F421 /* BytecodeReader.swift */; };
+		2D2B8B61A967F4E944B9F7F4F882B5E0 /* Constraint+Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9005BB61715622C6663595BCBED5B84A /* Constraint+Network.swift */; };
+		2E4E045E7CC7D41B738ECF3E0006D998 /* BinaryDecodingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0E562CD9D2D99FE4EC8B387C8A7558 /* BinaryDecodingOptions.swift */; };
+		2ECCBCEA46DA2ED4E32A97D73AC9B5CA /* MGCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 0CC23B73EF4D85ABDED61F0E2E4DE285 /* MGCDAsyncUdpSocket.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
+		2F9DEC097168A97EFAEA9D8AE5AE2123 /* Message+BinaryAdditions_Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC901C1220AD3606900289B21F7B26D /* Message+BinaryAdditions_Data.swift */; };
+		2FE4A0E82AB34733957D567F619B1B45 /* ProtobufAPIVersionCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CE9849AAE39BB799684D2DDD9D6906F /* ProtobufAPIVersionCheck.swift */; };
+		30617D7947DF3FBD9154F1CA87D3DBEE /* CocoaMQTTMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2554097520F68982E816E1964D9A7078 /* CocoaMQTTMessage.swift */; };
+		313DDDB8E698E4A295DABE966FBDD9FE /* Constraint+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E63BB7C38AF576B1570E248386AE6C12 /* Constraint+Timeout.swift */; };
+		33AD49781D7A50856E8AA4DB07F6A14F /* ExtensionFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A060B1E4C8917345FDB52F59BCAC6FC /* ExtensionFields.swift */; };
+		35A239381A3CBFB1A778628BB23E95DB /* UnsafeRawPointer+Shims.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90D53E0EB5E3C59B01A72EAF2FE4071 /* UnsafeRawPointer+Shims.swift */; };
+		3770DEFD9CEA23D6FE156E9C345BD415 /* SwiftKeychainWrapper-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEEB4F08DF8995359DD65E4CAFA17D02 /* SwiftKeychainWrapper-dummy.m */; };
+		387049C63C4DFB44F959E84E4F39C15E /* source_context.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE657566942FF8741E79EC5273D62056 /* source_context.pb.swift */; };
+		387C67699D01993ED5481D35A565BA45 /* Google_Protobuf_Duration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8873973F691F094B33BFF046C36380AA /* Google_Protobuf_Duration+Extensions.swift */; };
+		3A09AD03DE7D57F8E929AFE11E492A66 /* Enum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BFC06BEB79C58010741D150D9D3E924 /* Enum.swift */; };
+		3D80D0457EB3BF7D449CA995F30CF2CA /* CocoaMQTT5Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA38520260CB5628E808E72B612EE4FE /* CocoaMQTT5Message.swift */; };
+		3E60A4E27EAB17314064C7FB54A499D7 /* UnknownStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81121128C3C8D968FE45370814F6EEE /* UnknownStorage.swift */; };
+		3F5BA699ED641A4B6BF74B3031396337 /* AnyMessageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A5835BC3AA839A2003CD44E4E7CAD0 /* AnyMessageStorage.swift */; };
+		404D80B53E9C980A387C1B242A9B7C4A /* JSONEncodingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 294659332E4B1775B670D38CD79C1AC0 /* JSONEncodingError.swift */; };
+		4063405C03CCB96E39645F8F991E75FA /* MqttDecodePublish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F5F82350341472291D5DA61890DB312 /* MqttDecodePublish.swift */; };
+		412CB448778757D8D44D1D52B1B33545 /* Constraint+Delay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF88F02386AAF8C88874EBEC12E3CD6F /* Constraint+Delay.swift */; };
+		41EAB079E787B4FA6866FC48FC7D187B /* MqttDecodePubRec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485CF3916826424D4D4F2E1BBEE229E3 /* MqttDecodePubRec.swift */; };
+		42C239023D0E3E51179F8C8B39D95E48 /* BytecodeInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6727E7F6CDE84B07929E6676789E596C /* BytecodeInterpreter.swift */; };
+		4320FD6EB73871471158E49835DDE7FD /* CustomJSONCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70715CDCD432B3446976DE3E64C0390 /* CustomJSONCodable.swift */; };
+		4362AB5158ED823AC0E8EF16F2340355 /* WireFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBDBEDC31B63ACADDC1C3F1BF867C8 /* WireFormat.swift */; };
+		43D84EBCE8220F637D8BE1C473BF9188 /* FrameConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC543CC07086652CB526DE09732D246 /* FrameConnect.swift */; };
+		442DD6F7F04F79AFB55DA015C625CEA9 /* DoubleParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDAF259A4504D4737A07720D5DFD3729 /* DoubleParser.swift */; };
+		4431DB7D2739D4D1701F63BA42F1ECC5 /* FrameSubscribe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A4F02C88BB5C0B250FE9C421E9B9BE /* FrameSubscribe.swift */; };
+		4501636244237C850616353EBD1C8189 /* CocoaMQTTProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 275C4A5B6D6372E5C00BCAE8B2FB05B2 /* CocoaMQTTProperty.swift */; };
+		453CB5E8B81F432DBD99BD674E41F79F /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220D9E7D1F3D550B8E1247896B703ADC /* Keychain.swift */; };
+		45851261F1201EBACA2DE7CA220A66CD /* BinaryDelimited.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DACE17DBD72098FBDD67D4ABBBAAFA /* BinaryDelimited.swift */; };
+		47F8811B5427A0E93A230232C573B68C /* MqttDecodePubAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22EDB4DBA5DC4248F130EEF7BA6A433 /* MqttDecodePubAck.swift */; };
+		4B1C0A08511CD18328B7AD065B6447F8 /* MqttDecodeSubAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BE8CCBBCE9443233C1135F48DEE9E7 /* MqttDecodeSubAck.swift */; };
+		4D9D64A44A47842BE7D49FC4816F981A /* SwiftQueue-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = F72333DE2B613AD4A393485B2A858F67 /* SwiftQueue-dummy.m */; };
+		4F6B3206EAC33EDC484A5BA68FB70B2E /* JobInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F9A3962E7A5E14D1685E9A94BF9F88 /* JobInfo.swift */; };
+		4FF8783877577C434D39E6A0940A27B8 /* JSONEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52BD3BD2FE8DCE72EB353FD1BB943CB9 /* JSONEncoder.swift */; };
+		50E0B8B52F6C012C647A877DE161AD0B /* MqttConnectProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E2AD9C072A9E5F16670013CD0A9752 /* MqttConnectProperties.swift */; };
+		516257D32981B163CE284AC65F9BDB9C /* BinaryEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E64EE49D87BFE7FF399EEB25D1A6E89C /* BinaryEncoder.swift */; };
+		52AE90DCF99EC8AF4FFC1FE6BC40CB29 /* TextFormatEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F31E38B3347BA8F4091B402014418B9 /* TextFormatEncoder.swift */; };
+		54B23189603BB4747B3E00B2311A575D /* TextFormatDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B4C604F7B362D453EF7CC691C0AB093 /* TextFormatDecoder.swift */; };
+		57AD313741969102750AB3CB3976BC97 /* CocoaMQTT-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 73D9A9740E464CE4A516DC10961AB6DF /* CocoaMQTT-dummy.m */; };
+		57C14BE4B40760C361A3368DDC91BB4E /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 386E34FC20D180F266668E515832E957 /* StringUtils.swift */; };
+		58113BE15462E1B2ACBB1A6A483E802C /* timestamp.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF3528F72882B9D7D5CCC0FA0C4E62A2 /* timestamp.pb.swift */; };
+		583E4573E2BD9C1F4EE47307C53A7C30 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 68E6332E759E530412ECBB9EF99A0F82 /* PrivacyInfo.xcprivacy */; };
+		5C577E5C5D13313BF4E90DA27CCE1BFB /* MqttDecodeUnsubAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5463B4B8BBB382B9740FD8CC8FEFBFF /* MqttDecodeUnsubAck.swift */; };
+		5C7FEABF31C25B3E9E0909AD67CE0F2C /* JSONScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EF33D65149A5F507387A571721F149 /* JSONScanner.swift */; };
+		5D3C273D086399E47CA9BF3B420AD4E9 /* MGCDAsyncUdpSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = D135740EF80DEB230399BD4BE6A3C7B2 /* MGCDAsyncUdpSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5E1CD661F9FC277B7E32DA348FE0DD1F /* MqttDecodePubComp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B966360A71C3D7F1E28D6CF3DD7DE3F9 /* MqttDecodePubComp.swift */; };
+		5E558455B862C4CE21399D45C2CBC479 /* FrameUnsubscribe.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF21F0C75752E706A061D148AD6271E2 /* FrameUnsubscribe.swift */; };
+		5E9A46852D15D82DD13151FE7056B155 /* TextFormatDecodingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79F301F5ABB207B1BC8E8CE9A53440F /* TextFormatDecodingOptions.swift */; };
+		5F31979657943BBF33B324DC06F72E15 /* struct.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8D44C37BBEAA208DF64A5B4902E3B3 /* struct.pb.swift */; };
+		6158EE4029691FD08F12BCF76999F060 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */; };
+		65366905185C307A62CD5D0B3155E33D /* AnyUnpackError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 129CA3E80F397DE36C14A41027C511E8 /* AnyUnpackError.swift */; };
+		66FFFE08A794C9D517C793FC44BA455A /* SimpleExtensionMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63E4293B0A2617C988C3BBC0EA05BF9 /* SimpleExtensionMap.swift */; };
+		679001028A77318B46DA97BD4C5F5F50 /* MGCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 787F60AFF503359B8D108516210881A9 /* MGCDAsyncSocket.m */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
+		68CC450D8E75936097B39239DDCDC2F5 /* Pods-ExampleApp-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = BD28FF55990A77EFD783B0C9B9A76E9B /* Pods-ExampleApp-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		68E68A27B40B870FD813C31638042430 /* empty.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = A65B12987B68F7420C452DD69F38379E /* empty.pb.swift */; };
+		6927B0145927C8D15E376B4CA3F120DB /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D326EF5E0EBD3DA4F2B6DB4F0990F560 /* CFNetwork.framework */; };
+		6B2841E82B48BE6268DB476EC61B3E42 /* BinaryEncodingSizeVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03398ECD5F80BD3C8015C497F8EF240B /* BinaryEncodingSizeVisitor.swift */; };
+		6B941416EE670C58DF41E7EC5DF55206 /* Google_Protobuf_Struct+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DACC6B0FCFC74A9DFBAA8BB2A7623754 /* Google_Protobuf_Struct+Extensions.swift */; };
+		6C84F58C9F0E7A6D8B14E70E74138CDD /* TimeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36956D8C4ADF12FBBF604A0ABB21DB8 /* TimeUtils.swift */; };
+		6C9E4124129EBA01A46BC58D63017EC3 /* CocoaMQTT-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 0924540A88F146ADD6AE79F754CC3748 /* CocoaMQTT-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6DDB9996F3DC82516B026BD0AC2E8157 /* JSONMapEncodingVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318FAC563A2DFB3154750A6889F2532F /* JSONMapEncodingVisitor.swift */; };
+		6E501734E40473BC374436D78500A579 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */; };
+		72F6A25CE72ACCAEED2B4D8BF9D6C9DF /* type.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6C5003A86AD1C56F50C48FCAC08E51 /* type.pb.swift */; };
+		763C7F9349D4D88B6DF0E7E536A92041 /* JobInfoSerializer+Decodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA7D23E5790F2BB458AD5466FA6100E /* JobInfoSerializer+Decodable.swift */; };
+		77653F391930F90A5C0B4DCF36DE978F /* Visitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F78B9C6D83912F8FC6BCF85633AC66 /* Visitor.swift */; };
+		776DEC60AF1576B5F99C9F3E1825EFFD /* Constraint+Retry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1482342685EEBD29D713E8E84F8F12 /* Constraint+Retry.swift */; };
+		7A271B71FDDDC1BC3FF970EDAD5E98C4 /* CocoaMQTTReasonCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4367614D1531BAF9C5D700BF57A1A723 /* CocoaMQTTReasonCode.swift */; };
+		7B845572152301170E2CDF0BE542D870 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */; };
+		7C2A80F638C3DC9242ADE52177DF3DD7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */; };
+		7CF2A972F2443BD1B774F8330E12FE50 /* CocoaMQTTSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F5BFB03CDFDC4F69125DE524411A90 /* CocoaMQTTSocket.swift */; };
+		7D3F42BD41F124E613A70A09171C6DAF /* FrameAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE7671E3ADF055F407239505979F5392 /* FrameAuth.swift */; };
+		7E105C0F1C97F0A9E8482988E078FDA9 /* CocoaMQTTDeliver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAAB943879534C7E1C7FB7C4AC896941 /* CocoaMQTTDeliver.swift */; };
+		7E8564C6AB165875F3B5D8CF096F95B0 /* PathDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98161A070664F3FD3BC7E1F41C33623E /* PathDecoder.swift */; };
+		7EAA83C312561AB4317FD6C58187AEFB /* FrameDisconnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FC4036C72583E58F7EB38F764585DA /* FrameDisconnect.swift */; };
+		803ADB27319B16C7824F31A1D8CBB966 /* MqttCocoaAsyncSocket-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A3529AEB4E79F798CC0E3B3F1F3C627 /* MqttCocoaAsyncSocket-dummy.m */; };
+		804627DCD44D3DACAAFCFF136261069C /* Message+TextFormatAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB06255438808773AF14DFE6DD8AA180 /* Message+TextFormatAdditions.swift */; };
+		818F3E8FD0698973029B8AA3DBDAAEC4 /* ExtensibleMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87F48D78B97C151DD2B31E1C649A4FA /* ExtensibleMessage.swift */; };
+		82DA7F3D5A287251DB25A4FC3F19FC93 /* CocoaMQTTTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8B81E5E31DD2DDE7AE4B7210799E8F /* CocoaMQTTTimer.swift */; };
+		82DDB13ECAAF4BC08A115696162BED6A /* FramePingResp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFE5B32CEB63725703F6C080B9C5772 /* FramePingResp.swift */; };
+		84DD0D2E255A14CA49FC8BECD960D4A1 /* BinaryEncodingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49AB2DBC45930FE68AB4752653D0A03A /* BinaryEncodingOptions.swift */; };
+		8690DEC4B00EC34DC177644594F02817 /* CocoaMQTTLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21BA751200F1AB9126B6BA384329259 /* CocoaMQTTLogger.swift */; };
+		87633152F08A5387F74BF77C7454CD5C /* Varint.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8BB5D4122971C10AE217034BB57462 /* Varint.swift */; };
+		8AE640439F0C94295E509ED320B648C0 /* MqttSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D388A3D38C914AB9E06601E25EA3002 /* MqttSubscription.swift */; };
+		8B194760C4583AB3D5E17DB95679E3F6 /* CocoaMQTTStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5632DF9878021969926506B615BB8C89 /* CocoaMQTTStorage.swift */; };
+		8C85165A16DE95F1580BAA6BCB4E9B3D /* field_mask.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F2F1FAACF6B85DA8FEFD30E598BBA9 /* field_mask.pb.swift */; };
+		8F794C768FC626530FA4EBC99F406603 /* SqOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E506174258908C8525879AD1119F362E /* SqOperationQueue.swift */; };
+		909C544B79175483251BC46FB225BEBA /* CocoaMQTTTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95D6B4FF1721A6FEA976FE4FB4085C6A /* CocoaMQTTTypes.swift */; };
+		9162EF894ECC79E2524927E8EDD3A5F6 /* MqttPublishProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F65D73CBC477CC9898E148CAC54046B /* MqttPublishProperties.swift */; };
+		9291818FA7B6073B5D9A332A96FF4FAA /* Constraint+Deadline.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB70C9F46203BE1045C22FFE0D1C534D /* Constraint+Deadline.swift */; };
+		92F619B07D3D91F74CDA3CA4B000807C /* MqttDecodeConnAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B83EEB4FFBCE33355B06BC448B99348 /* MqttDecodeConnAck.swift */; };
+		950E476D03409A4455A089411ABD8CD4 /* ConstraintMaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BC7907DE5195F8E7D1F727C04ED53E /* ConstraintMaker.swift */; };
+		9542BC97F490CB6D4671C68776DC2B9A /* FrameConnAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85575B5414DE1FAB2617D49218348062 /* FrameConnAck.swift */; };
+		9580426B3FAE1096400DEFC273FA6C1D /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E5A482D5FB49611D82D3F2870D3918 /* KeychainWrapper.swift */; };
+		972F587652763DD279137867DBF2B3BD /* SwiftQueue-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = AF069A2578D69E022A3C4D4C709652BB /* SwiftQueue-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9A0A2B1D84592EFE3E2C776EC27BF519 /* Pods-ExampleApp-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F2064B510F1867A88922C3518DCE1BF /* Pods-ExampleApp-dummy.m */; };
+		9A64AA527A1156361FEFF89E58AA8A43 /* FramePingReq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F41B4D897FE3C6F3FC0C7E18405FE7 /* FramePingReq.swift */; };
+		9A9AC451F329D1F5125F46125725BF58 /* UserDefaultsPersister.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80F6597A3E8E208528FDCE0C4E966DB8 /* UserDefaultsPersister.swift */; };
+		9AF2B7C409813C11DECFFE53E35E9389 /* BinaryEncodingVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE1D77AFA9A018DAC30F8B42AE7C6FD /* BinaryEncodingVisitor.swift */; };
+		9BEF4902FF326622C07134E887423C4B /* SwiftQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A18222B710A77D9461BEB9309406BE4 /* SwiftQueueManager.swift */; };
+		A1C11C1B1EDE7A70358779E1B35A950D /* Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9180646BBA2D6962B1C31B7EEE5E692F /* Version.swift */; };
+		A1C4A5BFC605FBBE2DC1EC33A4A69495 /* SwiftQueueLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1113A7C2764D1FFEEB67D309376322 /* SwiftQueueLogger.swift */; };
+		A328E5154FF32B5EACB619BBD10B496F /* Constraint+Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F651EDAB9F81AC8807BD0411BAA21A6 /* Constraint+Tag.swift */; };
+		A409D2185F10148E0A052B4FD1510584 /* PathVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712A094F050CA1583C36BB680E58F0C7 /* PathVisitor.swift */; };
+		A5D076CED6783EF4AF19633149C394A6 /* HashVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69E5A8871B8EE599E9ED74A0E89768B8 /* HashVisitor.swift */; };
+		A8E511BB71265948156489427E7F786A /* Constraint+UniqueUUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = E251C1FAEAD62874745CB812128C178C /* Constraint+UniqueUUID.swift */; };
+		A96175A1AF13B36244B416A0DE6B0658 /* Google_Protobuf_ListValue+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A5C5D6D813ED8988C67B3D6B03D614C /* Google_Protobuf_ListValue+Extensions.swift */; };
+		A9C391F31B37D43F2E5C457A606CEF14 /* SelectiveVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E005866474DC72BDE639AA986C5ECB /* SelectiveVisitor.swift */; };
+		AD26129949E8E8B29A5203FEFC45B63F /* JSONDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80A74F5DCFF149DE9CABB1B3B25D6F94 /* JSONDecoder.swift */; };
+		AF2ABE6FDD3F70320024969E414C97AD /* MqttAuthProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B61DD36FB24891B9A98955ADD8392DB /* MqttAuthProperties.swift */; };
+		AFCA288AE0DE819FE6CE288067C9A82A /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6068D4E443778F7BF54B6182458339 /* Frame.swift */; };
+		B34F9A2254F41AF628FF3DF80F50FA47 /* SwiftKeychainWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = AB70CF8ECCCAC3755AC48CD9096EAAD5 /* SwiftKeychainWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B5499DD483895830868621217311D8FD /* MessageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC8BC034CF7563046771AD5058758D6 /* MessageExtension.swift */; };
+		B66ACDDE35BA701654C0019CCFDBB140 /* Message+FieldMask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F606C12307DD9A5383B40BD92545DE1 /* Message+FieldMask.swift */; };
+		B7977C02C32F6D8A01124B9540B46463 /* SwiftProtobufError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA36CAB07E34648CA40F4A73526517A /* SwiftProtobufError.swift */; };
+		B85F46FC4689546E49553EA149956064 /* FieldTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1283E60A61F07B1EEFE4394715C8E7 /* FieldTag.swift */; };
+		BA76235961947F402695F8A346265B6C /* FramePubComp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED7B6968AC56376B570A531E4CD401E /* FramePubComp.swift */; };
+		BB9663727F1154B67FE78531F9D27411 /* ThreadSafeDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DCC643E16741A0FB2AA82827FCC662F /* ThreadSafeDictionary.swift */; };
+		BEE5BD469A22136FDB080579A06A50F0 /* ExtensionMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D5C24336079629C661CBF5C354B569 /* ExtensionMap.swift */; };
+		C0321FC806BD1EF661237DCA8CFD8902 /* TextFormatEncodingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44FC308A3EB0DC7DD77311DD08D6622 /* TextFormatEncodingOptions.swift */; };
+		C3240989A1025DE9F0A1DDB9B1C46441 /* TextFormatDecodingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA30A1404F8015B023142F9EBCDE480 /* TextFormatDecodingError.swift */; };
+		C758B1B13C6DE72132FB1517F1D58E53 /* NameMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5039184D64F2D6B80C5DDF479170306D /* NameMap.swift */; };
+		C8FC64A2B994CD3B42286A94E4741D9C /* ProtobufMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32510440206F852FCD678D7282BD21D9 /* ProtobufMap.swift */; };
+		C95071E3409CD69DF52F4A241B6087D6 /* BinaryDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988F221E719E4CA5129876B0F71F0904 /* BinaryDecoder.swift */; };
+		C974B6776CCE38B02D6FD883378FC0C7 /* MGCDAsyncSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = EDCC29BAE813028017DB95BAB88DD27E /* MGCDAsyncSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CF34C51C73AB57E0A296EB54D516C0E4 /* MqttDecodePubRel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B1410DEEAE127BF7B99F9486E09A4A /* MqttDecodePubRel.swift */; };
+		D057095C4E0D38C0EAC03EB93EBBE1FD /* descriptor.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06830D3EDBFABD3B6BE2A1B11C64F81 /* descriptor.pb.swift */; };
+		D0D8EAFBEAEE4B82131FD5FB9AE6D236 /* FramePublish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D3EA8426BEEAE6407CA8BA106DB3F3 /* FramePublish.swift */; };
+		D155C3E1639556B533D15A61A83F802F /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71506E8B44C854B2E91F8BCE9064B62 /* Message.swift */; };
+		D1AD112DE63A8B9BB7CF2FC031A246D6 /* MqttCocoaAsyncSocket-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = BE04352715C32AD6A38684D66B1941B7 /* MqttCocoaAsyncSocket-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D2D7EECB20A6425FAE8A53E6A596E066 /* AsyncMessageSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB43DDCF2C9471AA58942EE07D66295 /* AsyncMessageSequence.swift */; };
+		D2E8021567CF14BF6FBCC59F59872361 /* SwiftProtobuf-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D864938EC4D6A532884E17A1B09230A /* SwiftProtobuf-dummy.m */; };
+		D406CEB0F4B6D456B2470747DBE795A1 /* Message+JSONArrayAdditions_Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E0D35296B1F151F36FD373451D4283 /* Message+JSONArrayAdditions_Data.swift */; };
+		D709F79AA7CA7FCDABC685A8CCE7BE9B /* Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD4DBE3900DD35D12D92F297D95A235 /* Decoder.swift */; };
+		D846CC8B7F46E5963423432E17522B32 /* Message+BinaryAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA208C104014AB5D193806BF395DE3E /* Message+BinaryAdditions.swift */; };
+		D8618126534C2A979792F8DAC08C65A9 /* wrappers.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = A69589978CB5B6A3FB52463939C253AD /* wrappers.pb.swift */; };
+		DBB57C107320712AED5E949B138697B8 /* Google_Protobuf_Any+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 242CAFF63D14AFC769D0111F2CB9ABEC /* Google_Protobuf_Any+Extensions.swift */; };
+		DD464C3E0C9EB277E53E8DD6E67693CF /* JSONDecodingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7438030B3C2CA155CC57E9B0BD5F303E /* JSONDecodingOptions.swift */; };
+		E2EA5D15C15D16580E4A7FCC41694567 /* FramePubRel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8BBB0716429D60F9C369609433C1B5 /* FramePubRel.swift */; };
+		E4180B507E0C530F0D7CAEFA1FAEA06F /* KeychainAccess-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CBF7F7AF72FCB9C3503DD1ED64F8D01 /* KeychainAccess-dummy.m */; };
+		E4605FB0095E4192A16FF1D9DA917679 /* Message+AnyAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A69E11CF0FE893175C13710D654B66A8 /* Message+AnyAdditions.swift */; };
+		E5BF2AB8656CA887F79D52992434A581 /* Google_Protobuf_Value+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABA16A84ADE5815A404DAA5655A803 /* Google_Protobuf_Value+Extensions.swift */; };
+		E64AB27F856603F2B46CA1D47601DA3C /* BinaryDecodingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D3EBB247B4B2631BB897570F3F36C2 /* BinaryDecodingError.swift */; };
+		E65A36300F19A5F46A4F5FCC24E2B6DC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */; };
+		E671A07A819A0DC2FB1F7CBEB91CC886 /* api.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E12F553B339244A57BE5D1AD67B75C9 /* api.pb.swift */; };
+		E82B4F97BB52300AF382AC4E2E2A3A1E /* FrameUnsubAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39C4537B0320DCAC59B237FA87D07CC6 /* FrameUnsubAck.swift */; };
+		EA12176C6EB3DCC5A643ACE2E917A46C /* SwiftProtobuf-SwiftProtobuf in Resources */ = {isa = PBXBuildFile; fileRef = 38DFD12C0DE83AD51C78858605BBA299 /* SwiftProtobuf-SwiftProtobuf */; };
+		EA5357AF55AF337FF457C0046C668852 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74C5F737A1EBAC18257D3F8209A71C4A /* Security.framework */; };
+		EBE464FB498DF27B8B5F5CDD706C8B53 /* JSONEncodingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF705B555DFABDC7719C96666CE0A1B /* JSONEncodingOptions.swift */; };
+		EF47D27845BE5CE35E23F734AA550E8C /* Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC93279F8B9C109D61AD208A1F3256D /* Internal.swift */; };
+		F05192CEB06CD70D1D3E8ED9E4B7C15F /* CocoaMQTT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F695526F4A56B22E492126C08FD652A /* CocoaMQTT.swift */; };
+		F13EE7AF76B07EBEEA93EECFAE6B0A4D /* Message+JSONAdditions_Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C831CA8B6449D4DA5FF7DFA188226C6 /* Message+JSONAdditions_Data.swift */; };
+		F25B4631466C4D70AE0DCE3D75D0DB44 /* TextFormatScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C984AFBCF46E9ADAA44D436273967D2 /* TextFormatScanner.swift */; };
+		F2E5A6404AB84C1417F31C076A0EA8F6 /* ConcurrentAtomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = C831F7963C2721B0A70D3EA3F9298D43 /* ConcurrentAtomic.swift */; };
+		F39AB662CDC4C299D4B1737519E106C7 /* FramePubAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C13CC3C8F5A1F55FEA652228AC9DF3 /* FramePubAck.swift */; };
+		F4A703B0312FA076FEFFA31444B8FEE6 /* FrameSubAck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F938F05859F0B0277AA5AA6F3D3B59F7 /* FrameSubAck.swift */; };
+		F55EF159A495A5ACBE2FB37AD63EB496 /* BinaryEncodingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F4FCFD7BD861F36B955AEE1B368467 /* BinaryEncodingError.swift */; };
+		F5BCEAF07494B8EE4407A4048C70170B /* CocoaMQTTReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542AC7757A3C750D70E85A5C6990C4A3 /* CocoaMQTTReader.swift */; };
+		F6D2E1C15179ECE27B0C2BCD00344996 /* Constraint+Charging.swift in Sources */ = {isa = PBXBuildFile; fileRef = C974402219911D5D39F02A203FDD5528 /* Constraint+Charging.swift */; };
+		F7E7C25D29373AB39CDDA3B17B131170 /* SwiftQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E23E72EC2F8DEAC39F892F84D9156A3 /* SwiftQueue.swift */; };
+		F84D9A2B0E8242BC96D9A1DE10001ABA /* Constraint+Persister.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19077821B4C6AB41644D87E4C8C6AA9 /* Constraint+Persister.swift */; };
+		F959025B30243043633EC91AD0FC360D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */; };
+		FAE6FF53089736A031AE287085ED8A1B /* SwiftProtobuf-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CF463823FB48A0FD9C9B733F4A15568 /* SwiftProtobuf-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FB1C9740D523C37C30A1511C6C8DC990 /* SqOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CDA689765E01E95C360878E92352CB2 /* SqOperation.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1C1640170313E10EDB515FE40BFC3788 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EB168A830EFA6136FA93357D1F1511A;
+			remoteInfo = CocoaMQTT;
+		};
+		439C9EB353AFD93C31363E57FD6FAC57 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F3A62A44750BDEA87BFF69035A5373DB;
+			remoteInfo = SwiftQueue;
+		};
+		5CA19824432915CBFA7F993F3FF72364 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A5F702E0DA383BC1479572581615A916;
+			remoteInfo = SwiftProtobuf;
+		};
+		80360930AD15B1D101FEE98E2EAEB402 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B017CC75E2704C686AA0A2203247D9C7;
+			remoteInfo = MqttCocoaAsyncSocket;
+		};
+		93B0D92D3F3D88F319BB2D901618C1FB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA0CBCD9613A8E95F24D86AAD4A86E26;
+			remoteInfo = "SwiftProtobuf-SwiftProtobuf";
+		};
+		A34E557E84F36D274F23E1AF92DDB1D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A5F702E0DA383BC1479572581615A916;
+			remoteInfo = SwiftProtobuf;
+		};
+		A52AB956FAB46FB5F17BF4D3BE4BAC4A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F3A62A44750BDEA87BFF69035A5373DB;
+			remoteInfo = SwiftQueue;
+		};
+		BE465A4AE75710F3E5B924BFC7796B50 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 615C831BCE925ED486B225B87E44926D;
+			remoteInfo = KeychainAccess;
+		};
+		C16FD1BDDF1D638EE5E530DCA06BE5DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CF903DF43E111410ECA0C288D36FA21A;
+			remoteInfo = SwiftKeychainWrapper;
+		};
+		CF1BF80C1515E7007212E364D6D017D7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 615C831BCE925ED486B225B87E44926D;
+			remoteInfo = KeychainAccess;
+		};
+		CF62F0883754D09F3D0A127B917D8C75 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CF903DF43E111410ECA0C288D36FA21A;
+			remoteInfo = SwiftKeychainWrapper;
+		};
+		EA092BB434950AD884587B350DE9E469 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EB168A830EFA6136FA93357D1F1511A;
+			remoteInfo = CocoaMQTT;
+		};
+		F0833C0709E86EEC61376957E568CA39 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F1F11D5408CC21BC2049E9E875E77BC5;
+			remoteInfo = SensorBioSDK;
+		};
+		FD641E057993C0F5DF8D3F6D30D63885 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B017CC75E2704C686AA0A2203247D9C7;
+			remoteInfo = MqttCocoaAsyncSocket;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		00886A736711CB248C3186C621830E65 /* SwiftProtobuf-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "SwiftProtobuf-Info.plist"; sourceTree = "<group>"; };
+		00F2F1FAACF6B85DA8FEFD30E598BBA9 /* field_mask.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = field_mask.pb.swift; path = Sources/SwiftProtobuf/field_mask.pb.swift; sourceTree = "<group>"; };
+		03398ECD5F80BD3C8015C497F8EF240B /* BinaryEncodingSizeVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryEncodingSizeVisitor.swift; path = Sources/SwiftProtobuf/BinaryEncodingSizeVisitor.swift; sourceTree = "<group>"; };
+		07E00C59A7DE6D89459FF2DDE1EB610D /* SwiftQueue-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftQueue-prefix.pch"; sourceTree = "<group>"; };
+		08DE826BB58AC8456D39338C267DB337 /* MqttCocoaAsyncSocket */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = MqttCocoaAsyncSocket; path = MqttCocoaAsyncSocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0924540A88F146ADD6AE79F754CC3748 /* CocoaMQTT-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "CocoaMQTT-umbrella.h"; sourceTree = "<group>"; };
+		0AE1D77AFA9A018DAC30F8B42AE7C6FD /* BinaryEncodingVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryEncodingVisitor.swift; path = Sources/SwiftProtobuf/BinaryEncodingVisitor.swift; sourceTree = "<group>"; };
+		0CC23B73EF4D85ABDED61F0E2E4DE285 /* MGCDAsyncUdpSocket.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MGCDAsyncUdpSocket.m; path = Source/GCD/MGCDAsyncUdpSocket.m; sourceTree = "<group>"; };
+		0CE82B428D4A5BFF5A9CC4393918BB53 /* Pods-ExampleApp */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-ExampleApp"; path = Pods_ExampleApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D864938EC4D6A532884E17A1B09230A /* SwiftProtobuf-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SwiftProtobuf-dummy.m"; sourceTree = "<group>"; };
+		0EF705B555DFABDC7719C96666CE0A1B /* JSONEncodingOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONEncodingOptions.swift; path = Sources/SwiftProtobuf/JSONEncodingOptions.swift; sourceTree = "<group>"; };
+		0F5F82350341472291D5DA61890DB312 /* MqttDecodePublish.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodePublish.swift; path = Source/MqttDecodePublish.swift; sourceTree = "<group>"; };
+		129CA3E80F397DE36C14A41027C511E8 /* AnyUnpackError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AnyUnpackError.swift; path = Sources/SwiftProtobuf/AnyUnpackError.swift; sourceTree = "<group>"; };
+		13F3AB4CA1FF016901069514095CE449 /* SensorBioSDK-xcframeworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "SensorBioSDK-xcframeworks.sh"; sourceTree = "<group>"; };
+		14542BE144A2EECF6A334702FCC8B4D4 /* KeychainAccess.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = KeychainAccess.release.xcconfig; sourceTree = "<group>"; };
+		16EF33D65149A5F507387A571721F149 /* JSONScanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONScanner.swift; path = Sources/SwiftProtobuf/JSONScanner.swift; sourceTree = "<group>"; };
+		1973DBBCE68B857DC75B2BCE7BACEBD8 /* MqttCocoaAsyncSocket-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "MqttCocoaAsyncSocket-Info.plist"; sourceTree = "<group>"; };
+		1A060B1E4C8917345FDB52F59BCAC6FC /* ExtensionFields.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtensionFields.swift; path = Sources/SwiftProtobuf/ExtensionFields.swift; sourceTree = "<group>"; };
+		1F1B4722E8E63D44F46301393E191B1B /* SensorBioSDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SensorBioSDK.debug.xcconfig; sourceTree = "<group>"; };
+		1F3D5D1520B504B9333DE828154FCDF4 /* KeychainWrapperSubscript.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainWrapperSubscript.swift; path = SwiftKeychainWrapper/KeychainWrapperSubscript.swift; sourceTree = "<group>"; };
+		220D9E7D1F3D550B8E1247896B703ADC /* Keychain.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = Lib/KeychainAccess/Keychain.swift; sourceTree = "<group>"; };
+		229D79684684E3F3DEA5D9C857D52B68 /* KeychainAccess.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = KeychainAccess.modulemap; sourceTree = "<group>"; };
+		22B9CED159052FF5360B68937742A9E8 /* MqttCocoaAsyncSocket.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = MqttCocoaAsyncSocket.modulemap; sourceTree = "<group>"; };
+		23D48E1EDBB156B7835C842C7BDCA71B /* SwiftQueue.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftQueue.release.xcconfig; sourceTree = "<group>"; };
+		242CAFF63D14AFC769D0111F2CB9ABEC /* Google_Protobuf_Any+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_Any+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_Any+Extensions.swift"; sourceTree = "<group>"; };
+		2554097520F68982E816E1964D9A7078 /* CocoaMQTTMessage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTMessage.swift; path = Source/CocoaMQTTMessage.swift; sourceTree = "<group>"; };
+		256346A2F22643AA8E8A4D931A36C4B8 /* Utils.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Utils.swift; path = Sources/SwiftQueue/Utils.swift; sourceTree = "<group>"; };
+		2586CA0EAB8D1C7582AA30C9F4399E3F /* CocoaMQTT-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "CocoaMQTT-prefix.pch"; sourceTree = "<group>"; };
+		275C4A5B6D6372E5C00BCAE8B2FB05B2 /* CocoaMQTTProperty.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTProperty.swift; path = Source/CocoaMQTTProperty.swift; sourceTree = "<group>"; };
+		294659332E4B1775B670D38CD79C1AC0 /* JSONEncodingError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONEncodingError.swift; path = Sources/SwiftProtobuf/JSONEncodingError.swift; sourceTree = "<group>"; };
+		2A4CFAF9FEFB7EFFD400460F256C2D33 /* CocoaMQTT-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "CocoaMQTT-Info.plist"; sourceTree = "<group>"; };
+		2A5C5D6D813ED8988C67B3D6B03D614C /* Google_Protobuf_ListValue+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_ListValue+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_ListValue+Extensions.swift"; sourceTree = "<group>"; };
+		2CA7D23E5790F2BB458AD5466FA6100E /* JobInfoSerializer+Decodable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "JobInfoSerializer+Decodable.swift"; path = "Sources/SwiftQueue/JobInfoSerializer+Decodable.swift"; sourceTree = "<group>"; };
+		2CB903D6B910B525FFE1A754E33C34C9 /* SensorBioSDK.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = SensorBioSDK.xcframework; path = SensorBio/SensorBioSDK.xcframework; sourceTree = "<group>"; };
+		2CD1A6A14E2DFB7A517A1D64826E023E /* KeychainAccess-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "KeychainAccess-Info.plist"; sourceTree = "<group>"; };
+		2F003F6B616BBFBB6F2360630914B9D0 /* ZigZag.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ZigZag.swift; path = Sources/SwiftProtobuf/ZigZag.swift; sourceTree = "<group>"; };
+		2F2064B510F1867A88922C3518DCE1BF /* Pods-ExampleApp-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-ExampleApp-dummy.m"; sourceTree = "<group>"; };
+		2FAB98F82350E50DE7A7014DCECEE884 /* ExtensionFieldValueSet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtensionFieldValueSet.swift; path = Sources/SwiftProtobuf/ExtensionFieldValueSet.swift; sourceTree = "<group>"; };
+		318FAC563A2DFB3154750A6889F2532F /* JSONMapEncodingVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONMapEncodingVisitor.swift; path = Sources/SwiftProtobuf/JSONMapEncodingVisitor.swift; sourceTree = "<group>"; };
+		32510440206F852FCD678D7282BD21D9 /* ProtobufMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtobufMap.swift; path = Sources/SwiftProtobuf/ProtobufMap.swift; sourceTree = "<group>"; };
+		3289A9E065AD1B4D2B23E0B4E957F366 /* SwiftKeychainWrapper-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "SwiftKeychainWrapper-Info.plist"; sourceTree = "<group>"; };
+		356ED6491B9542C7BD10185EEB60AA3B /* Constraint+Repeat.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Repeat.swift"; path = "Sources/SwiftQueue/Constraint+Repeat.swift"; sourceTree = "<group>"; };
+		386E34FC20D180F266668E515832E957 /* StringUtils.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StringUtils.swift; path = Sources/SwiftProtobuf/StringUtils.swift; sourceTree = "<group>"; };
+		38DFD12C0DE83AD51C78858605BBA299 /* SwiftProtobuf-SwiftProtobuf */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "SwiftProtobuf-SwiftProtobuf"; path = SwiftProtobuf.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		39C4537B0320DCAC59B237FA87D07CC6 /* FrameUnsubAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameUnsubAck.swift; path = Source/FrameUnsubAck.swift; sourceTree = "<group>"; };
+		3AA28552567E01DBD9E168F4E55218C3 /* Google_Protobuf_Timestamp+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_Timestamp+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_Timestamp+Extensions.swift"; sourceTree = "<group>"; };
+		3BD4DBE3900DD35D12D92F297D95A235 /* Decoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Decoder.swift; path = Sources/SwiftProtobuf/Decoder.swift; sourceTree = "<group>"; };
+		3CF463823FB48A0FD9C9B733F4A15568 /* SwiftProtobuf-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftProtobuf-umbrella.h"; sourceTree = "<group>"; };
+		3D5C584197A9186B74DC130A2060BEEF /* SwiftQueue */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = SwiftQueue; path = SwiftQueue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		408417FC92BD257B0124FCDF0C3BF474 /* SwiftProtobuf.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftProtobuf.debug.xcconfig; sourceTree = "<group>"; };
+		41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		43339305291A59B57239FF5B4242DE49 /* SwiftProtobuf-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftProtobuf-prefix.pch"; sourceTree = "<group>"; };
+		4367614D1531BAF9C5D700BF57A1A723 /* CocoaMQTTReasonCode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTReasonCode.swift; path = Source/CocoaMQTTReasonCode.swift; sourceTree = "<group>"; };
+		47CAF5040257A974DC9F248BF2E3E881 /* MqttCocoaAsyncSocket.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MqttCocoaAsyncSocket.debug.xcconfig; sourceTree = "<group>"; };
+		47E005866474DC72BDE639AA986C5ECB /* SelectiveVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SelectiveVisitor.swift; path = Sources/SwiftProtobuf/SelectiveVisitor.swift; sourceTree = "<group>"; };
+		485CF3916826424D4D4F2E1BBEE229E3 /* MqttDecodePubRec.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodePubRec.swift; path = Source/MqttDecodePubRec.swift; sourceTree = "<group>"; };
+		48775F24FA5E1B26C1D6A91DA67A5EFD /* SensorBioSDK.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SensorBioSDK.release.xcconfig; sourceTree = "<group>"; };
+		49AB2DBC45930FE68AB4752653D0A03A /* BinaryEncodingOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryEncodingOptions.swift; path = Sources/SwiftProtobuf/BinaryEncodingOptions.swift; sourceTree = "<group>"; };
+		4A18222B710A77D9461BEB9309406BE4 /* SwiftQueueManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwiftQueueManager.swift; path = Sources/SwiftQueue/SwiftQueueManager.swift; sourceTree = "<group>"; };
+		4A3529AEB4E79F798CC0E3B3F1F3C627 /* MqttCocoaAsyncSocket-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MqttCocoaAsyncSocket-dummy.m"; sourceTree = "<group>"; };
+		4BFC06BEB79C58010741D150D9D3E924 /* Enum.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Enum.swift; path = Sources/SwiftProtobuf/Enum.swift; sourceTree = "<group>"; };
+		4C1113A7C2764D1FFEEB67D309376322 /* SwiftQueueLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwiftQueueLogger.swift; path = Sources/SwiftQueue/SwiftQueueLogger.swift; sourceTree = "<group>"; };
+		4C984AFBCF46E9ADAA44D436273967D2 /* TextFormatScanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextFormatScanner.swift; path = Sources/SwiftProtobuf/TextFormatScanner.swift; sourceTree = "<group>"; };
+		4D58B2BEAE2004F9B80FD340EC64A31E /* Pods-ExampleApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-ExampleApp.debug.xcconfig"; sourceTree = "<group>"; };
+		4DCC643E16741A0FB2AA82827FCC662F /* ThreadSafeDictionary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThreadSafeDictionary.swift; path = Source/ThreadSafeDictionary.swift; sourceTree = "<group>"; };
+		4E0C12BD9DAE3DF0BE75F775A05D8AED /* any.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = any.pb.swift; path = Sources/SwiftProtobuf/any.pb.swift; sourceTree = "<group>"; };
+		5039184D64F2D6B80C5DDF479170306D /* NameMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NameMap.swift; path = Sources/SwiftProtobuf/NameMap.swift; sourceTree = "<group>"; };
+		5069D199AB328CCD047E61C632CD7C32 /* SwiftKeychainWrapper */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = SwiftKeychainWrapper; path = SwiftKeychainWrapper.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		52BD3BD2FE8DCE72EB353FD1BB943CB9 /* JSONEncoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONEncoder.swift; path = Sources/SwiftProtobuf/JSONEncoder.swift; sourceTree = "<group>"; };
+		52F78B9C6D83912F8FC6BCF85633AC66 /* Visitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Visitor.swift; path = Sources/SwiftProtobuf/Visitor.swift; sourceTree = "<group>"; };
+		531F8FB4AB915D7C28A64426D1172502 /* SwiftKeychainWrapper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftKeychainWrapper.debug.xcconfig; sourceTree = "<group>"; };
+		542AC7757A3C750D70E85A5C6990C4A3 /* CocoaMQTTReader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTReader.swift; path = Source/CocoaMQTTReader.swift; sourceTree = "<group>"; };
+		543F8EB4A95E454C97246292A16C0074 /* KeychainAccess-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "KeychainAccess-umbrella.h"; sourceTree = "<group>"; };
+		5548AFD34416A48D6C1492AD2DB7A482 /* Pods-ExampleApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-ExampleApp.release.xcconfig"; sourceTree = "<group>"; };
+		5632DF9878021969926506B615BB8C89 /* CocoaMQTTStorage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTStorage.swift; path = Source/CocoaMQTTStorage.swift; sourceTree = "<group>"; };
+		56A4F02C88BB5C0B250FE9C421E9B9BE /* FrameSubscribe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameSubscribe.swift; path = Source/FrameSubscribe.swift; sourceTree = "<group>"; };
+		58BC7907DE5195F8E7D1F727C04ED53E /* ConstraintMaker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConstraintMaker.swift; path = Sources/SwiftQueue/ConstraintMaker.swift; sourceTree = "<group>"; };
+		5A3E05815B3B8C691C0F5FB4AC11EC8B /* SwiftKeychainWrapper-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftKeychainWrapper-prefix.pch"; sourceTree = "<group>"; };
+		5B6068D4E443778F7BF54B6182458339 /* Frame.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Frame.swift; path = Source/Frame.swift; sourceTree = "<group>"; };
+		5C9A8DA7F1C1C19C2FB85AB53A245D68 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
+		5CBF7F7AF72FCB9C3503DD1ED64F8D01 /* KeychainAccess-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "KeychainAccess-dummy.m"; sourceTree = "<group>"; };
+		5D0E562CD9D2D99FE4EC8B387C8A7558 /* BinaryDecodingOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryDecodingOptions.swift; path = Sources/SwiftProtobuf/BinaryDecodingOptions.swift; sourceTree = "<group>"; };
+		5D388A3D38C914AB9E06601E25EA3002 /* MqttSubscription.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttSubscription.swift; path = Source/MqttSubscription.swift; sourceTree = "<group>"; };
+		5DFE5B32CEB63725703F6C080B9C5772 /* FramePingResp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FramePingResp.swift; path = Source/FramePingResp.swift; sourceTree = "<group>"; };
+		5E12F553B339244A57BE5D1AD67B75C9 /* api.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = api.pb.swift; path = Sources/SwiftProtobuf/api.pb.swift; sourceTree = "<group>"; };
+		63E5A482D5FB49611D82D3F2870D3918 /* KeychainWrapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainWrapper.swift; path = SwiftKeychainWrapper/KeychainWrapper.swift; sourceTree = "<group>"; };
+		6727E7F6CDE84B07929E6676789E596C /* BytecodeInterpreter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BytecodeInterpreter.swift; path = Sources/SwiftProtobuf/BytecodeInterpreter.swift; sourceTree = "<group>"; };
+		67D3EA8426BEEAE6407CA8BA106DB3F3 /* FramePublish.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FramePublish.swift; path = Source/FramePublish.swift; sourceTree = "<group>"; };
+		68E6332E759E530412ECBB9EF99A0F82 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Sources/SwiftProtobuf/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		69E5A8871B8EE599E9ED74A0E89768B8 /* HashVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HashVisitor.swift; path = Sources/SwiftProtobuf/HashVisitor.swift; sourceTree = "<group>"; };
+		6AC901C1220AD3606900289B21F7B26D /* Message+BinaryAdditions_Data.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+BinaryAdditions_Data.swift"; path = "Sources/SwiftProtobuf/Message+BinaryAdditions_Data.swift"; sourceTree = "<group>"; };
+		6B4C604F7B362D453EF7CC691C0AB093 /* TextFormatDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextFormatDecoder.swift; path = Sources/SwiftProtobuf/TextFormatDecoder.swift; sourceTree = "<group>"; };
+		6C0B306F7B0CB55EE88CA1AFB3FEA334 /* FramePubRec.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FramePubRec.swift; path = Source/FramePubRec.swift; sourceTree = "<group>"; };
+		6CE9849AAE39BB799684D2DDD9D6906F /* ProtobufAPIVersionCheck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtobufAPIVersionCheck.swift; path = Sources/SwiftProtobuf/ProtobufAPIVersionCheck.swift; sourceTree = "<group>"; };
+		6EA30A1404F8015B023142F9EBCDE480 /* TextFormatDecodingError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextFormatDecodingError.swift; path = Sources/SwiftProtobuf/TextFormatDecodingError.swift; sourceTree = "<group>"; };
+		6F606C12307DD9A5383B40BD92545DE1 /* Message+FieldMask.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+FieldMask.swift"; path = "Sources/SwiftProtobuf/Message+FieldMask.swift"; sourceTree = "<group>"; };
+		6F651EDAB9F81AC8807BD0411BAA21A6 /* Constraint+Tag.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Tag.swift"; path = "Sources/SwiftQueue/Constraint+Tag.swift"; sourceTree = "<group>"; };
+		6F65D73CBC477CC9898E148CAC54046B /* MqttPublishProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttPublishProperties.swift; path = Source/MqttPublishProperties.swift; sourceTree = "<group>"; };
+		6F695526F4A56B22E492126C08FD652A /* CocoaMQTT.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTT.swift; path = Source/CocoaMQTT.swift; sourceTree = "<group>"; };
+		712A094F050CA1583C36BB680E58F0C7 /* PathVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PathVisitor.swift; path = Sources/SwiftProtobuf/PathVisitor.swift; sourceTree = "<group>"; };
+		71D3EBB247B4B2631BB897570F3F36C2 /* BinaryDecodingError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryDecodingError.swift; path = Sources/SwiftProtobuf/BinaryDecodingError.swift; sourceTree = "<group>"; };
+		73D9A9740E464CE4A516DC10961AB6DF /* CocoaMQTT-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "CocoaMQTT-dummy.m"; sourceTree = "<group>"; };
+		742F979071656E282F3A4D3629D57F07 /* Message+JSONArrayAdditions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+JSONArrayAdditions.swift"; path = "Sources/SwiftProtobuf/Message+JSONArrayAdditions.swift"; sourceTree = "<group>"; };
+		7438030B3C2CA155CC57E9B0BD5F303E /* JSONDecodingOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONDecodingOptions.swift; path = Sources/SwiftProtobuf/JSONDecodingOptions.swift; sourceTree = "<group>"; };
+		74C5F737A1EBAC18257D3F8209A71C4A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		787F60AFF503359B8D108516210881A9 /* MGCDAsyncSocket.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MGCDAsyncSocket.m; path = Source/GCD/MGCDAsyncSocket.m; sourceTree = "<group>"; };
+		78C04F28F40729BD34A1E6311719F3B9 /* JSONDecodingError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONDecodingError.swift; path = Sources/SwiftProtobuf/JSONDecodingError.swift; sourceTree = "<group>"; };
+		78F5BFB03CDFDC4F69125DE524411A90 /* CocoaMQTTSocket.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTSocket.swift; path = Source/CocoaMQTTSocket.swift; sourceTree = "<group>"; };
+		7B61DD36FB24891B9A98955ADD8392DB /* MqttAuthProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttAuthProperties.swift; path = Source/MqttAuthProperties.swift; sourceTree = "<group>"; };
+		7B83EEB4FFBCE33355B06BC448B99348 /* MqttDecodeConnAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodeConnAck.swift; path = Source/MqttDecodeConnAck.swift; sourceTree = "<group>"; };
+		80A74F5DCFF149DE9CABB1B3B25D6F94 /* JSONDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONDecoder.swift; path = Sources/SwiftProtobuf/JSONDecoder.swift; sourceTree = "<group>"; };
+		80F6597A3E8E208528FDCE0C4E966DB8 /* UserDefaultsPersister.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDefaultsPersister.swift; path = Sources/SwiftQueue/UserDefaultsPersister.swift; sourceTree = "<group>"; };
+		847C7CC3B70F8D4298BFBE860E4E7314 /* LibFXC.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = LibFXC.xcframework; path = SensorBio/LibFXC.xcframework; sourceTree = "<group>"; };
+		85575B5414DE1FAB2617D49218348062 /* FrameConnAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameConnAck.swift; path = Source/FrameConnAck.swift; sourceTree = "<group>"; };
+		85BF4F1AEA61B28EE0A5B4CA6C07018A /* ProtoNameProviding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtoNameProviding.swift; path = Sources/SwiftProtobuf/ProtoNameProviding.swift; sourceTree = "<group>"; };
+		8873973F691F094B33BFF046C36380AA /* Google_Protobuf_Duration+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_Duration+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_Duration+Extensions.swift"; sourceTree = "<group>"; };
+		8CDA689765E01E95C360878E92352CB2 /* SqOperation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SqOperation.swift; path = Sources/SwiftQueue/SqOperation.swift; sourceTree = "<group>"; };
+		8E1283E60A61F07B1EEFE4394715C8E7 /* FieldTag.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FieldTag.swift; path = Sources/SwiftProtobuf/FieldTag.swift; sourceTree = "<group>"; };
+		8E23E72EC2F8DEAC39F892F84D9156A3 /* SwiftQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwiftQueue.swift; path = Sources/SwiftQueue/SwiftQueue.swift; sourceTree = "<group>"; };
+		8E54D25E71309147963FAD81921D9703 /* SensorBioSDK.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = SensorBioSDK.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		8F31E38B3347BA8F4091B402014418B9 /* TextFormatEncoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextFormatEncoder.swift; path = Sources/SwiftProtobuf/TextFormatEncoder.swift; sourceTree = "<group>"; };
+		9005BB61715622C6663595BCBED5B84A /* Constraint+Network.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Network.swift"; path = "Sources/SwiftQueue/Constraint+Network.swift"; sourceTree = "<group>"; };
+		916CC725169C98628674CAAF29998FA9 /* Pods-ExampleApp-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-ExampleApp-acknowledgements.markdown"; sourceTree = "<group>"; };
+		9180646BBA2D6962B1C31B7EEE5E692F /* Version.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Version.swift; path = Sources/SwiftProtobuf/Version.swift; sourceTree = "<group>"; };
+		91E0D35296B1F151F36FD373451D4283 /* Message+JSONArrayAdditions_Data.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+JSONArrayAdditions_Data.swift"; path = "Sources/SwiftProtobuf/Message+JSONArrayAdditions_Data.swift"; sourceTree = "<group>"; };
+		93FC4036C72583E58F7EB38F764585DA /* FrameDisconnect.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameDisconnect.swift; path = Source/FrameDisconnect.swift; sourceTree = "<group>"; };
+		943D347E61A2E181A4FA2CA894307B6E /* SwiftProtobuf */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = SwiftProtobuf; path = SwiftProtobuf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		95D6B4FF1721A6FEA976FE4FB4085C6A /* CocoaMQTTTypes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTTypes.swift; path = Source/CocoaMQTTTypes.swift; sourceTree = "<group>"; };
+		9655C0755A3F2899A7416B3777D9CEF5 /* TextFormatEncodingVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextFormatEncodingVisitor.swift; path = Sources/SwiftProtobuf/TextFormatEncodingVisitor.swift; sourceTree = "<group>"; };
+		96F4FCFD7BD861F36B955AEE1B368467 /* BinaryEncodingError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryEncodingError.swift; path = Sources/SwiftProtobuf/BinaryEncodingError.swift; sourceTree = "<group>"; };
+		97165A08790D2E2F6371AC1811F71542 /* MathUtils.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MathUtils.swift; path = Sources/SwiftProtobuf/MathUtils.swift; sourceTree = "<group>"; };
+		97B2B6C0CDC347268A8D797821502F64 /* KeychainItemAccessibility.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainItemAccessibility.swift; path = SwiftKeychainWrapper/KeychainItemAccessibility.swift; sourceTree = "<group>"; };
+		98161A070664F3FD3BC7E1F41C33623E /* PathDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PathDecoder.swift; path = Sources/SwiftProtobuf/PathDecoder.swift; sourceTree = "<group>"; };
+		988F221E719E4CA5129876B0F71F0904 /* BinaryDecoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryDecoder.swift; path = Sources/SwiftProtobuf/BinaryDecoder.swift; sourceTree = "<group>"; };
+		9AC8BC034CF7563046771AD5058758D6 /* MessageExtension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageExtension.swift; path = Sources/SwiftProtobuf/MessageExtension.swift; sourceTree = "<group>"; };
+		9C6C5003A86AD1C56F50C48FCAC08E51 /* type.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = type.pb.swift; path = Sources/SwiftProtobuf/type.pb.swift; sourceTree = "<group>"; };
+		9C831CA8B6449D4DA5FF7DFA188226C6 /* Message+JSONAdditions_Data.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+JSONAdditions_Data.swift"; path = "Sources/SwiftProtobuf/Message+JSONAdditions_Data.swift"; sourceTree = "<group>"; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9FA45C2813F5D8DB35A3FF519B1A4691 /* JobBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobBuilder.swift; path = Sources/SwiftQueue/JobBuilder.swift; sourceTree = "<group>"; };
+		9FC93279F8B9C109D61AD208A1F3256D /* Internal.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Internal.swift; path = Sources/SwiftProtobuf/Internal.swift; sourceTree = "<group>"; };
+		A374B9A3FF8BB46BBE07A10B3DA69A67 /* FieldTypes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FieldTypes.swift; path = Sources/SwiftProtobuf/FieldTypes.swift; sourceTree = "<group>"; };
+		A4BEF0339B815DEDC7028329BDC859F4 /* SwiftQueueManager+BackgroundTask.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "SwiftQueueManager+BackgroundTask.swift"; path = "Sources/ios/SwiftQueueManager+BackgroundTask.swift"; sourceTree = "<group>"; };
+		A5463B4B8BBB382B9740FD8CC8FEFBFF /* MqttDecodeUnsubAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodeUnsubAck.swift; path = Source/MqttDecodeUnsubAck.swift; sourceTree = "<group>"; };
+		A5B28DA6CB4862FDDF6B2EB9FCF758FF /* CocoaMQTT.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = CocoaMQTT.debug.xcconfig; sourceTree = "<group>"; };
+		A65B12987B68F7420C452DD69F38379E /* empty.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = empty.pb.swift; path = Sources/SwiftProtobuf/empty.pb.swift; sourceTree = "<group>"; };
+		A69589978CB5B6A3FB52463939C253AD /* wrappers.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = wrappers.pb.swift; path = Sources/SwiftProtobuf/wrappers.pb.swift; sourceTree = "<group>"; };
+		A69E11CF0FE893175C13710D654B66A8 /* Message+AnyAdditions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+AnyAdditions.swift"; path = "Sources/SwiftProtobuf/Message+AnyAdditions.swift"; sourceTree = "<group>"; };
+		A75E533FC794C5BC5BC39748F19C80B4 /* Constraint.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Constraint.swift; path = Sources/SwiftQueue/Constraint.swift; sourceTree = "<group>"; };
+		A9CFCAF41576CD613E85DAFC58C32AEB /* Message+JSONAdditions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+JSONAdditions.swift"; path = "Sources/SwiftProtobuf/Message+JSONAdditions.swift"; sourceTree = "<group>"; };
+		AB70CF8ECCCAC3755AC48CD9096EAAD5 /* SwiftKeychainWrapper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SwiftKeychainWrapper.h; path = SwiftKeychainWrapper/SwiftKeychainWrapper.h; sourceTree = "<group>"; };
+		ACA36CAB07E34648CA40F4A73526517A /* SwiftProtobufError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwiftProtobufError.swift; path = Sources/SwiftProtobuf/SwiftProtobufError.swift; sourceTree = "<group>"; };
+		AE6BF868C60231268A6B19D18AFA524D /* Google_Protobuf_Wrappers+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_Wrappers+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_Wrappers+Extensions.swift"; sourceTree = "<group>"; };
+		AF01A9D506C66EA242021EC1AFDCDE78 /* CocoaMQTT.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = CocoaMQTT.release.xcconfig; sourceTree = "<group>"; };
+		AF069A2578D69E022A3C4D4C709652BB /* SwiftQueue-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftQueue-umbrella.h"; sourceTree = "<group>"; };
+		AF3528F72882B9D7D5CCC0FA0C4E62A2 /* timestamp.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = timestamp.pb.swift; path = Sources/SwiftProtobuf/timestamp.pb.swift; sourceTree = "<group>"; };
+		AFA21B30ED618C6C28CD2DBDB0D58DA7 /* SwiftKeychainWrapper-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftKeychainWrapper-umbrella.h"; sourceTree = "<group>"; };
+		B045BB08A5B32A21671BB01C70A0F09E /* MqttCocoaAsyncSocket.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MqttCocoaAsyncSocket.release.xcconfig; sourceTree = "<group>"; };
+		B15CF08CF62442D95672C3F686269F36 /* SwiftQueue.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SwiftQueue.modulemap; sourceTree = "<group>"; };
+		B1B1410DEEAE127BF7B99F9486E09A4A /* MqttDecodePubRel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodePubRel.swift; path = Source/MqttDecodePubRel.swift; sourceTree = "<group>"; };
+		B1F9A3962E7A5E14D1685E9A94BF9F88 /* JobInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JobInfo.swift; path = Sources/SwiftQueue/JobInfo.swift; sourceTree = "<group>"; };
+		B21BA751200F1AB9126B6BA384329259 /* CocoaMQTTLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTLogger.swift; path = Source/CocoaMQTTLogger.swift; sourceTree = "<group>"; };
+		B36956D8C4ADF12FBBF604A0ABB21DB8 /* TimeUtils.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimeUtils.swift; path = Sources/SwiftProtobuf/TimeUtils.swift; sourceTree = "<group>"; };
+		B3A37EC1BDD14DFAE5B584E4FD3BCC60 /* Pods-ExampleApp-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-ExampleApp-frameworks.sh"; sourceTree = "<group>"; };
+		B3A5835BC3AA839A2003CD44E4E7CAD0 /* AnyMessageStorage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AnyMessageStorage.swift; path = Sources/SwiftProtobuf/AnyMessageStorage.swift; sourceTree = "<group>"; };
+		B4DACE17DBD72098FBDD67D4ABBBAAFA /* BinaryDelimited.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryDelimited.swift; path = Sources/SwiftProtobuf/BinaryDelimited.swift; sourceTree = "<group>"; };
+		B70715CDCD432B3446976DE3E64C0390 /* CustomJSONCodable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomJSONCodable.swift; path = Sources/SwiftProtobuf/CustomJSONCodable.swift; sourceTree = "<group>"; };
+		B87F48D78B97C151DD2B31E1C649A4FA /* ExtensibleMessage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtensibleMessage.swift; path = Sources/SwiftProtobuf/ExtensibleMessage.swift; sourceTree = "<group>"; };
+		B8F41B4D897FE3C6F3FC0C7E18405FE7 /* FramePingReq.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FramePingReq.swift; path = Source/FramePingReq.swift; sourceTree = "<group>"; };
+		B966360A71C3D7F1E28D6CF3DD7DE3F9 /* MqttDecodePubComp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodePubComp.swift; path = Source/MqttDecodePubComp.swift; sourceTree = "<group>"; };
+		BA38520260CB5628E808E72B612EE4FE /* CocoaMQTT5Message.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTT5Message.swift; path = Source/CocoaMQTT5Message.swift; sourceTree = "<group>"; };
+		BD28FF55990A77EFD783B0C9B9A76E9B /* Pods-ExampleApp-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-ExampleApp-umbrella.h"; sourceTree = "<group>"; };
+		BE04352715C32AD6A38684D66B1941B7 /* MqttCocoaAsyncSocket-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MqttCocoaAsyncSocket-umbrella.h"; sourceTree = "<group>"; };
+		BE657566942FF8741E79EC5273D62056 /* source_context.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = source_context.pb.swift; path = Sources/SwiftProtobuf/source_context.pb.swift; sourceTree = "<group>"; };
+		BE6F8FD9EB76579462046DF9143C5518 /* duration.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = duration.pb.swift; path = Sources/SwiftProtobuf/duration.pb.swift; sourceTree = "<group>"; };
+		BE7F3B24A953755E8A218EC219A701C1 /* SwiftQueue-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "SwiftQueue-Info.plist"; sourceTree = "<group>"; };
+		BE8BB5D4122971C10AE217034BB57462 /* Varint.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Varint.swift; path = Sources/SwiftProtobuf/Varint.swift; sourceTree = "<group>"; };
+		BF8B81E5E31DD2DDE7AE4B7210799E8F /* CocoaMQTTTimer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTTimer.swift; path = Source/CocoaMQTTTimer.swift; sourceTree = "<group>"; };
+		C1168A43A29BD56F0F23C69B0A19206B /* KeychainAccess.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = KeychainAccess.debug.xcconfig; sourceTree = "<group>"; };
+		C23768B59B846711F95EA7AA6228D000 /* MqttCocoaAsyncSocket-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MqttCocoaAsyncSocket-prefix.pch"; sourceTree = "<group>"; };
+		C38797CF694520C68D9F7CA71B3A3D43 /* CocoaMQTT.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = CocoaMQTT.modulemap; sourceTree = "<group>"; };
+		C5BBA8D6A190490CB9CD034D11DE183B /* Pods-ExampleApp.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-ExampleApp.modulemap"; sourceTree = "<group>"; };
+		C63E4293B0A2617C988C3BBC0EA05BF9 /* SimpleExtensionMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SimpleExtensionMap.swift; path = Sources/SwiftProtobuf/SimpleExtensionMap.swift; sourceTree = "<group>"; };
+		C71506E8B44C854B2E91F8BCE9064B62 /* Message.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Message.swift; path = Sources/SwiftProtobuf/Message.swift; sourceTree = "<group>"; };
+		C72FF8F6D4A025E6D9D67506B9A2841A /* JSONEncodingVisitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JSONEncodingVisitor.swift; path = Sources/SwiftProtobuf/JSONEncodingVisitor.swift; sourceTree = "<group>"; };
+		C79F301F5ABB207B1BC8E8CE9A53440F /* TextFormatDecodingOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextFormatDecodingOptions.swift; path = Sources/SwiftProtobuf/TextFormatDecodingOptions.swift; sourceTree = "<group>"; };
+		C81121128C3C8D968FE45370814F6EEE /* UnknownStorage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UnknownStorage.swift; path = Sources/SwiftProtobuf/UnknownStorage.swift; sourceTree = "<group>"; };
+		C831F7963C2721B0A70D3EA3F9298D43 /* ConcurrentAtomic.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConcurrentAtomic.swift; path = Source/utilities/ConcurrentAtomic.swift; sourceTree = "<group>"; };
+		C90D53E0EB5E3C59B01A72EAF2FE4071 /* UnsafeRawPointer+Shims.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UnsafeRawPointer+Shims.swift"; path = "Sources/SwiftProtobuf/UnsafeRawPointer+Shims.swift"; sourceTree = "<group>"; };
+		C925D18072DCFE2789BE159D164DBA36 /* SwiftKeychainWrapper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftKeychainWrapper.release.xcconfig; sourceTree = "<group>"; };
+		C974402219911D5D39F02A203FDD5528 /* Constraint+Charging.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Charging.swift"; path = "Sources/SwiftQueue/Constraint+Charging.swift"; sourceTree = "<group>"; };
+		C9F189C25798BF4A95A53090F2139D4E /* SwiftProtobuf.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftProtobuf.release.xcconfig; sourceTree = "<group>"; };
+		CCA208C104014AB5D193806BF395DE3E /* Message+BinaryAdditions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+BinaryAdditions.swift"; path = "Sources/SwiftProtobuf/Message+BinaryAdditions.swift"; sourceTree = "<group>"; };
+		CCA213EB65D46FD62DC780F4C581DD6A /* KeychainAccess-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "KeychainAccess-prefix.pch"; sourceTree = "<group>"; };
+		CD661860DB8EEF53BB809AC4B5EA3E5C /* SensorBioBTSDK.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = SensorBioBTSDK.xcframework; path = SensorBio/SensorBioBTSDK.xcframework; sourceTree = "<group>"; };
+		CD8BBB0716429D60F9C369609433C1B5 /* FramePubRel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FramePubRel.swift; path = Source/FramePubRel.swift; sourceTree = "<group>"; };
+		CED2B0A1616AE5B11E88E464A82538A1 /* Google_Protobuf_Any+Registry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_Any+Registry.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_Any+Registry.swift"; sourceTree = "<group>"; };
+		CEEB4F08DF8995359DD65E4CAFA17D02 /* SwiftKeychainWrapper-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SwiftKeychainWrapper-dummy.m"; sourceTree = "<group>"; };
+		D06830D3EDBFABD3B6BE2A1B11C64F81 /* descriptor.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = descriptor.pb.swift; path = Sources/SwiftProtobuf/descriptor.pb.swift; sourceTree = "<group>"; };
+		D135740EF80DEB230399BD4BE6A3C7B2 /* MGCDAsyncUdpSocket.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MGCDAsyncUdpSocket.h; path = Source/GCD/MGCDAsyncUdpSocket.h; sourceTree = "<group>"; };
+		D1BE8CCBBCE9443233C1135F48DEE9E7 /* MqttDecodeSubAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodeSubAck.swift; path = Source/MqttDecodeSubAck.swift; sourceTree = "<group>"; };
+		D257343C7A49D26AAE0EFAED054F868B /* SwiftKeychainWrapper.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SwiftKeychainWrapper.modulemap; sourceTree = "<group>"; };
+		D326EF5E0EBD3DA4F2B6DB4F0990F560 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		D607B96E8CD81D6BB92BEE5BD535F421 /* BytecodeReader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BytecodeReader.swift; path = Sources/SwiftProtobuf/BytecodeReader.swift; sourceTree = "<group>"; };
+		D71D954E401CCB44DF6F8D2C1FEE14FA /* Pods-ExampleApp-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-ExampleApp-Info.plist"; sourceTree = "<group>"; };
+		D72CADBF59371FC5A3C177C1358F01F6 /* ResourceBundle-SwiftProtobuf-SwiftProtobuf-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "ResourceBundle-SwiftProtobuf-SwiftProtobuf-Info.plist"; sourceTree = "<group>"; };
+		D8F146DE67CA4F09C75CED0C70B61BE4 /* SwiftProtobufContiguousBytes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwiftProtobufContiguousBytes.swift; path = Sources/SwiftProtobuf/SwiftProtobufContiguousBytes.swift; sourceTree = "<group>"; };
+		D8F6125DCACA8DD8D8A34DE9F4C9FDB7 /* CocoaMQTT5.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTT5.swift; path = Source/CocoaMQTT5.swift; sourceTree = "<group>"; };
+		DA6AFC548C0709CD51E5EBF51750D68A /* Google_Protobuf_FieldMask+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_FieldMask+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_FieldMask+Extensions.swift"; sourceTree = "<group>"; };
+		DACC6B0FCFC74A9DFBAA8BB2A7623754 /* Google_Protobuf_Struct+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_Struct+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_Struct+Extensions.swift"; sourceTree = "<group>"; };
+		DD1482342685EEBD29D713E8E84F8F12 /* Constraint+Retry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Retry.swift"; path = "Sources/SwiftQueue/Constraint+Retry.swift"; sourceTree = "<group>"; };
+		DED7B6968AC56376B570A531E4CD401E /* FramePubComp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FramePubComp.swift; path = Source/FramePubComp.swift; sourceTree = "<group>"; };
+		DFC543CC07086652CB526DE09732D246 /* FrameConnect.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameConnect.swift; path = Source/FrameConnect.swift; sourceTree = "<group>"; };
+		E10E09ECF252D1438E817FA90C4F19D8 /* Google_Protobuf_NullValue+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_NullValue+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_NullValue+Extensions.swift"; sourceTree = "<group>"; };
+		E19077821B4C6AB41644D87E4C8C6AA9 /* Constraint+Persister.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Persister.swift"; path = "Sources/SwiftQueue/Constraint+Persister.swift"; sourceTree = "<group>"; };
+		E22EDB4DBA5DC4248F130EEF7BA6A433 /* MqttDecodePubAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttDecodePubAck.swift; path = Source/MqttDecodePubAck.swift; sourceTree = "<group>"; };
+		E251C1FAEAD62874745CB812128C178C /* Constraint+UniqueUUID.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+UniqueUUID.swift"; path = "Sources/SwiftQueue/Constraint+UniqueUUID.swift"; sourceTree = "<group>"; };
+		E2ABA16A84ADE5815A404DAA5655A803 /* Google_Protobuf_Value+Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Google_Protobuf_Value+Extensions.swift"; path = "Sources/SwiftProtobuf/Google_Protobuf_Value+Extensions.swift"; sourceTree = "<group>"; };
+		E2FBDBEDC31B63ACADDC1C3F1BF867C8 /* WireFormat.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WireFormat.swift; path = Sources/SwiftProtobuf/WireFormat.swift; sourceTree = "<group>"; };
+		E44FC308A3EB0DC7DD77311DD08D6622 /* TextFormatEncodingOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TextFormatEncodingOptions.swift; path = Sources/SwiftProtobuf/TextFormatEncodingOptions.swift; sourceTree = "<group>"; };
+		E506174258908C8525879AD1119F362E /* SqOperationQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SqOperationQueue.swift; path = Sources/SwiftQueue/SqOperationQueue.swift; sourceTree = "<group>"; };
+		E63BB7C38AF576B1570E248386AE6C12 /* Constraint+Timeout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Timeout.swift"; path = "Sources/SwiftQueue/Constraint+Timeout.swift"; sourceTree = "<group>"; };
+		E64EE49D87BFE7FF399EEB25D1A6E89C /* BinaryEncoder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BinaryEncoder.swift; path = Sources/SwiftProtobuf/BinaryEncoder.swift; sourceTree = "<group>"; };
+		E6A4E1627379D6540B81A470C575D716 /* CocoaMQTT */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = CocoaMQTT; path = CocoaMQTT.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E8EE7F078656FABB8F6821D10FF994BB /* KeychainAccess */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = KeychainAccess; path = KeychainAccess.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAAB943879534C7E1C7FB7C4AC896941 /* CocoaMQTTDeliver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CocoaMQTTDeliver.swift; path = Source/CocoaMQTTDeliver.swift; sourceTree = "<group>"; };
+		ECB43DDCF2C9471AA58942EE07D66295 /* AsyncMessageSequence.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AsyncMessageSequence.swift; path = Sources/SwiftProtobuf/AsyncMessageSequence.swift; sourceTree = "<group>"; };
+		EDCC29BAE813028017DB95BAB88DD27E /* MGCDAsyncSocket.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MGCDAsyncSocket.h; path = Source/GCD/MGCDAsyncSocket.h; sourceTree = "<group>"; };
+		EE7671E3ADF055F407239505979F5392 /* FrameAuth.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameAuth.swift; path = Source/FrameAuth.swift; sourceTree = "<group>"; };
+		EF21F0C75752E706A061D148AD6271E2 /* FrameUnsubscribe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameUnsubscribe.swift; path = Source/FrameUnsubscribe.swift; sourceTree = "<group>"; };
+		F2E2AD9C072A9E5F16670013CD0A9752 /* MqttConnectProperties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttConnectProperties.swift; path = Source/MqttConnectProperties.swift; sourceTree = "<group>"; };
+		F59FE532F6C0416EFE1E0E1830D4D09C /* SwiftProtobuf.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SwiftProtobuf.modulemap; sourceTree = "<group>"; };
+		F72333DE2B613AD4A393485B2A858F67 /* SwiftQueue-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SwiftQueue-dummy.m"; sourceTree = "<group>"; };
+		F871921466A3281C4C2FE2C336DFD930 /* SwiftQueue.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftQueue.debug.xcconfig; sourceTree = "<group>"; };
+		F938F05859F0B0277AA5AA6F3D3B59F7 /* FrameSubAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrameSubAck.swift; path = Source/FrameSubAck.swift; sourceTree = "<group>"; };
+		F943EB76D250FC4D638167B8E0303732 /* Pods-ExampleApp-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-ExampleApp-acknowledgements.plist"; sourceTree = "<group>"; };
+		F9C13CC3C8F5A1F55FEA652228AC9DF3 /* FramePubAck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FramePubAck.swift; path = Source/FramePubAck.swift; sourceTree = "<group>"; };
+		F9D5C24336079629C661CBF5C354B569 /* ExtensionMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtensionMap.swift; path = Sources/SwiftProtobuf/ExtensionMap.swift; sourceTree = "<group>"; };
+		FB06255438808773AF14DFE6DD8AA180 /* Message+TextFormatAdditions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Message+TextFormatAdditions.swift"; path = "Sources/SwiftProtobuf/Message+TextFormatAdditions.swift"; sourceTree = "<group>"; };
+		FB70C9F46203BE1045C22FFE0D1C534D /* Constraint+Deadline.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Deadline.swift"; path = "Sources/SwiftQueue/Constraint+Deadline.swift"; sourceTree = "<group>"; };
+		FB8D44C37BBEAA208DF64A5B4902E3B3 /* struct.pb.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = struct.pb.swift; path = Sources/SwiftProtobuf/struct.pb.swift; sourceTree = "<group>"; };
+		FDAF259A4504D4737A07720D5DFD3729 /* DoubleParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DoubleParser.swift; path = Sources/SwiftProtobuf/DoubleParser.swift; sourceTree = "<group>"; };
+		FF88F02386AAF8C88874EBEC12E3CD6F /* Constraint+Delay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Constraint+Delay.swift"; path = "Sources/SwiftQueue/Constraint+Delay.swift"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0FD546A70F9E3AB529847CBF744F37C1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6158EE4029691FD08F12BCF76999F060 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100BADD2EF3123955FB2716D4D075AC3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6E501734E40473BC374436D78500A579 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1E0B58E7CD01C7EAFF1CFEACD9C66917 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E65A36300F19A5F46A4F5FCC24E2B6DC /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		277FF12C2651061512FB3A26F0AD2308 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B845572152301170E2CDF0BE542D870 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		32051C672349D165B1E53D61AA064CD2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28AEF9436C31C397C090282AC245F2E5 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		635C8A9CBE5D2B81B4C9E2D3CF8CBE39 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C2A80F638C3DC9242ADE52177DF3DD7 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65D95D4EA402B68555838740CCC52A69 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91CEC312717220B9ABF53B2C595C0DD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6927B0145927C8D15E376B4CA3F120DB /* CFNetwork.framework in Frameworks */,
+				F959025B30243043633EC91AD0FC360D /* Foundation.framework in Frameworks */,
+				EA5357AF55AF337FF457C0046C668852 /* Security.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		03C5C200A0787E300053CFA8F53CA094 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BA9C458257F9092BA9AE133CBC614DAC /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		12025099757C29853745A03DF63C8B7D /* Pod */ = {
+			isa = PBXGroup;
+			children = (
+				5C9A8DA7F1C1C19C2FB85AB53A245D68 /* README.md */,
+				8E54D25E71309147963FAD81921D9703 /* SensorBioSDK.podspec */,
+			);
+			name = Pod;
+			sourceTree = "<group>";
+		};
+		1F453D37949854CE08B38E3EFB4E50C7 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				D257343C7A49D26AAE0EFAED054F868B /* SwiftKeychainWrapper.modulemap */,
+				CEEB4F08DF8995359DD65E4CAFA17D02 /* SwiftKeychainWrapper-dummy.m */,
+				3289A9E065AD1B4D2B23E0B4E957F366 /* SwiftKeychainWrapper-Info.plist */,
+				5A3E05815B3B8C691C0F5FB4AC11EC8B /* SwiftKeychainWrapper-prefix.pch */,
+				AFA21B30ED618C6C28CD2DBDB0D58DA7 /* SwiftKeychainWrapper-umbrella.h */,
+				531F8FB4AB915D7C28A64426D1172502 /* SwiftKeychainWrapper.debug.xcconfig */,
+				C925D18072DCFE2789BE159D164DBA36 /* SwiftKeychainWrapper.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/SwiftKeychainWrapper";
+			sourceTree = "<group>";
+		};
+		4A94992754AA23D4FAAF5AA36F73DE87 /* SensorBioSDK */ = {
+			isa = PBXGroup;
+			children = (
+				A43B7A773CEEA74A9A2BF39FB166FA8F /* Frameworks */,
+				12025099757C29853745A03DF63C8B7D /* Pod */,
+				CC54D3FEFA4E789DD14184EF87FCA6F2 /* Support Files */,
+			);
+			name = SensorBioSDK;
+			path = ../..;
+			sourceTree = "<group>";
+		};
+		5216780F08C35B4B172B2A839765A261 /* SwiftQueue */ = {
+			isa = PBXGroup;
+			children = (
+				A75E533FC794C5BC5BC39748F19C80B4 /* Constraint.swift */,
+				C974402219911D5D39F02A203FDD5528 /* Constraint+Charging.swift */,
+				FB70C9F46203BE1045C22FFE0D1C534D /* Constraint+Deadline.swift */,
+				FF88F02386AAF8C88874EBEC12E3CD6F /* Constraint+Delay.swift */,
+				9005BB61715622C6663595BCBED5B84A /* Constraint+Network.swift */,
+				E19077821B4C6AB41644D87E4C8C6AA9 /* Constraint+Persister.swift */,
+				356ED6491B9542C7BD10185EEB60AA3B /* Constraint+Repeat.swift */,
+				DD1482342685EEBD29D713E8E84F8F12 /* Constraint+Retry.swift */,
+				6F651EDAB9F81AC8807BD0411BAA21A6 /* Constraint+Tag.swift */,
+				E63BB7C38AF576B1570E248386AE6C12 /* Constraint+Timeout.swift */,
+				E251C1FAEAD62874745CB812128C178C /* Constraint+UniqueUUID.swift */,
+				58BC7907DE5195F8E7D1F727C04ED53E /* ConstraintMaker.swift */,
+				9FA45C2813F5D8DB35A3FF519B1A4691 /* JobBuilder.swift */,
+				B1F9A3962E7A5E14D1685E9A94BF9F88 /* JobInfo.swift */,
+				2CA7D23E5790F2BB458AD5466FA6100E /* JobInfoSerializer+Decodable.swift */,
+				8CDA689765E01E95C360878E92352CB2 /* SqOperation.swift */,
+				E506174258908C8525879AD1119F362E /* SqOperationQueue.swift */,
+				8E23E72EC2F8DEAC39F892F84D9156A3 /* SwiftQueue.swift */,
+				4C1113A7C2764D1FFEEB67D309376322 /* SwiftQueueLogger.swift */,
+				4A18222B710A77D9461BEB9309406BE4 /* SwiftQueueManager.swift */,
+				A4BEF0339B815DEDC7028329BDC859F4 /* SwiftQueueManager+BackgroundTask.swift */,
+				80F6597A3E8E208528FDCE0C4E966DB8 /* UserDefaultsPersister.swift */,
+				256346A2F22643AA8E8A4D931A36C4B8 /* Utils.swift */,
+				5E5A625FC953D60192F59176E5A71442 /* Support Files */,
+			);
+			name = SwiftQueue;
+			path = SwiftQueue;
+			sourceTree = "<group>";
+		};
+		541CFD93806E87C608719CA4E29874F4 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				C38797CF694520C68D9F7CA71B3A3D43 /* CocoaMQTT.modulemap */,
+				73D9A9740E464CE4A516DC10961AB6DF /* CocoaMQTT-dummy.m */,
+				2A4CFAF9FEFB7EFFD400460F256C2D33 /* CocoaMQTT-Info.plist */,
+				2586CA0EAB8D1C7582AA30C9F4399E3F /* CocoaMQTT-prefix.pch */,
+				0924540A88F146ADD6AE79F754CC3748 /* CocoaMQTT-umbrella.h */,
+				A5B28DA6CB4862FDDF6B2EB9FCF758FF /* CocoaMQTT.debug.xcconfig */,
+				AF01A9D506C66EA242021EC1AFDCDE78 /* CocoaMQTT.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/CocoaMQTT";
+			sourceTree = "<group>";
+		};
+		5E5A625FC953D60192F59176E5A71442 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				B15CF08CF62442D95672C3F686269F36 /* SwiftQueue.modulemap */,
+				F72333DE2B613AD4A393485B2A858F67 /* SwiftQueue-dummy.m */,
+				BE7F3B24A953755E8A218EC219A701C1 /* SwiftQueue-Info.plist */,
+				07E00C59A7DE6D89459FF2DDE1EB610D /* SwiftQueue-prefix.pch */,
+				AF069A2578D69E022A3C4D4C709652BB /* SwiftQueue-umbrella.h */,
+				F871921466A3281C4C2FE2C336DFD930 /* SwiftQueue.debug.xcconfig */,
+				23D48E1EDBB156B7835C842C7BDCA71B /* SwiftQueue.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/SwiftQueue";
+			sourceTree = "<group>";
+		};
+		63CD6F7D4C4E12443239012E99B62972 /* SwiftProtobuf */ = {
+			isa = PBXGroup;
+			children = (
+				4E0C12BD9DAE3DF0BE75F775A05D8AED /* any.pb.swift */,
+				B3A5835BC3AA839A2003CD44E4E7CAD0 /* AnyMessageStorage.swift */,
+				129CA3E80F397DE36C14A41027C511E8 /* AnyUnpackError.swift */,
+				5E12F553B339244A57BE5D1AD67B75C9 /* api.pb.swift */,
+				ECB43DDCF2C9471AA58942EE07D66295 /* AsyncMessageSequence.swift */,
+				988F221E719E4CA5129876B0F71F0904 /* BinaryDecoder.swift */,
+				71D3EBB247B4B2631BB897570F3F36C2 /* BinaryDecodingError.swift */,
+				5D0E562CD9D2D99FE4EC8B387C8A7558 /* BinaryDecodingOptions.swift */,
+				B4DACE17DBD72098FBDD67D4ABBBAAFA /* BinaryDelimited.swift */,
+				E64EE49D87BFE7FF399EEB25D1A6E89C /* BinaryEncoder.swift */,
+				96F4FCFD7BD861F36B955AEE1B368467 /* BinaryEncodingError.swift */,
+				49AB2DBC45930FE68AB4752653D0A03A /* BinaryEncodingOptions.swift */,
+				03398ECD5F80BD3C8015C497F8EF240B /* BinaryEncodingSizeVisitor.swift */,
+				0AE1D77AFA9A018DAC30F8B42AE7C6FD /* BinaryEncodingVisitor.swift */,
+				6727E7F6CDE84B07929E6676789E596C /* BytecodeInterpreter.swift */,
+				D607B96E8CD81D6BB92BEE5BD535F421 /* BytecodeReader.swift */,
+				B70715CDCD432B3446976DE3E64C0390 /* CustomJSONCodable.swift */,
+				3BD4DBE3900DD35D12D92F297D95A235 /* Decoder.swift */,
+				D06830D3EDBFABD3B6BE2A1B11C64F81 /* descriptor.pb.swift */,
+				FDAF259A4504D4737A07720D5DFD3729 /* DoubleParser.swift */,
+				BE6F8FD9EB76579462046DF9143C5518 /* duration.pb.swift */,
+				A65B12987B68F7420C452DD69F38379E /* empty.pb.swift */,
+				4BFC06BEB79C58010741D150D9D3E924 /* Enum.swift */,
+				B87F48D78B97C151DD2B31E1C649A4FA /* ExtensibleMessage.swift */,
+				1A060B1E4C8917345FDB52F59BCAC6FC /* ExtensionFields.swift */,
+				2FAB98F82350E50DE7A7014DCECEE884 /* ExtensionFieldValueSet.swift */,
+				F9D5C24336079629C661CBF5C354B569 /* ExtensionMap.swift */,
+				00F2F1FAACF6B85DA8FEFD30E598BBA9 /* field_mask.pb.swift */,
+				8E1283E60A61F07B1EEFE4394715C8E7 /* FieldTag.swift */,
+				A374B9A3FF8BB46BBE07A10B3DA69A67 /* FieldTypes.swift */,
+				242CAFF63D14AFC769D0111F2CB9ABEC /* Google_Protobuf_Any+Extensions.swift */,
+				CED2B0A1616AE5B11E88E464A82538A1 /* Google_Protobuf_Any+Registry.swift */,
+				8873973F691F094B33BFF046C36380AA /* Google_Protobuf_Duration+Extensions.swift */,
+				DA6AFC548C0709CD51E5EBF51750D68A /* Google_Protobuf_FieldMask+Extensions.swift */,
+				2A5C5D6D813ED8988C67B3D6B03D614C /* Google_Protobuf_ListValue+Extensions.swift */,
+				E10E09ECF252D1438E817FA90C4F19D8 /* Google_Protobuf_NullValue+Extensions.swift */,
+				DACC6B0FCFC74A9DFBAA8BB2A7623754 /* Google_Protobuf_Struct+Extensions.swift */,
+				3AA28552567E01DBD9E168F4E55218C3 /* Google_Protobuf_Timestamp+Extensions.swift */,
+				E2ABA16A84ADE5815A404DAA5655A803 /* Google_Protobuf_Value+Extensions.swift */,
+				AE6BF868C60231268A6B19D18AFA524D /* Google_Protobuf_Wrappers+Extensions.swift */,
+				69E5A8871B8EE599E9ED74A0E89768B8 /* HashVisitor.swift */,
+				9FC93279F8B9C109D61AD208A1F3256D /* Internal.swift */,
+				80A74F5DCFF149DE9CABB1B3B25D6F94 /* JSONDecoder.swift */,
+				78C04F28F40729BD34A1E6311719F3B9 /* JSONDecodingError.swift */,
+				7438030B3C2CA155CC57E9B0BD5F303E /* JSONDecodingOptions.swift */,
+				52BD3BD2FE8DCE72EB353FD1BB943CB9 /* JSONEncoder.swift */,
+				294659332E4B1775B670D38CD79C1AC0 /* JSONEncodingError.swift */,
+				0EF705B555DFABDC7719C96666CE0A1B /* JSONEncodingOptions.swift */,
+				C72FF8F6D4A025E6D9D67506B9A2841A /* JSONEncodingVisitor.swift */,
+				318FAC563A2DFB3154750A6889F2532F /* JSONMapEncodingVisitor.swift */,
+				16EF33D65149A5F507387A571721F149 /* JSONScanner.swift */,
+				97165A08790D2E2F6371AC1811F71542 /* MathUtils.swift */,
+				C71506E8B44C854B2E91F8BCE9064B62 /* Message.swift */,
+				A69E11CF0FE893175C13710D654B66A8 /* Message+AnyAdditions.swift */,
+				CCA208C104014AB5D193806BF395DE3E /* Message+BinaryAdditions.swift */,
+				6AC901C1220AD3606900289B21F7B26D /* Message+BinaryAdditions_Data.swift */,
+				6F606C12307DD9A5383B40BD92545DE1 /* Message+FieldMask.swift */,
+				A9CFCAF41576CD613E85DAFC58C32AEB /* Message+JSONAdditions.swift */,
+				9C831CA8B6449D4DA5FF7DFA188226C6 /* Message+JSONAdditions_Data.swift */,
+				742F979071656E282F3A4D3629D57F07 /* Message+JSONArrayAdditions.swift */,
+				91E0D35296B1F151F36FD373451D4283 /* Message+JSONArrayAdditions_Data.swift */,
+				FB06255438808773AF14DFE6DD8AA180 /* Message+TextFormatAdditions.swift */,
+				9AC8BC034CF7563046771AD5058758D6 /* MessageExtension.swift */,
+				5039184D64F2D6B80C5DDF479170306D /* NameMap.swift */,
+				98161A070664F3FD3BC7E1F41C33623E /* PathDecoder.swift */,
+				712A094F050CA1583C36BB680E58F0C7 /* PathVisitor.swift */,
+				6CE9849AAE39BB799684D2DDD9D6906F /* ProtobufAPIVersionCheck.swift */,
+				32510440206F852FCD678D7282BD21D9 /* ProtobufMap.swift */,
+				85BF4F1AEA61B28EE0A5B4CA6C07018A /* ProtoNameProviding.swift */,
+				47E005866474DC72BDE639AA986C5ECB /* SelectiveVisitor.swift */,
+				C63E4293B0A2617C988C3BBC0EA05BF9 /* SimpleExtensionMap.swift */,
+				BE657566942FF8741E79EC5273D62056 /* source_context.pb.swift */,
+				386E34FC20D180F266668E515832E957 /* StringUtils.swift */,
+				FB8D44C37BBEAA208DF64A5B4902E3B3 /* struct.pb.swift */,
+				D8F146DE67CA4F09C75CED0C70B61BE4 /* SwiftProtobufContiguousBytes.swift */,
+				ACA36CAB07E34648CA40F4A73526517A /* SwiftProtobufError.swift */,
+				6B4C604F7B362D453EF7CC691C0AB093 /* TextFormatDecoder.swift */,
+				6EA30A1404F8015B023142F9EBCDE480 /* TextFormatDecodingError.swift */,
+				C79F301F5ABB207B1BC8E8CE9A53440F /* TextFormatDecodingOptions.swift */,
+				8F31E38B3347BA8F4091B402014418B9 /* TextFormatEncoder.swift */,
+				E44FC308A3EB0DC7DD77311DD08D6622 /* TextFormatEncodingOptions.swift */,
+				9655C0755A3F2899A7416B3777D9CEF5 /* TextFormatEncodingVisitor.swift */,
+				4C984AFBCF46E9ADAA44D436273967D2 /* TextFormatScanner.swift */,
+				AF3528F72882B9D7D5CCC0FA0C4E62A2 /* timestamp.pb.swift */,
+				B36956D8C4ADF12FBBF604A0ABB21DB8 /* TimeUtils.swift */,
+				9C6C5003A86AD1C56F50C48FCAC08E51 /* type.pb.swift */,
+				C81121128C3C8D968FE45370814F6EEE /* UnknownStorage.swift */,
+				C90D53E0EB5E3C59B01A72EAF2FE4071 /* UnsafeRawPointer+Shims.swift */,
+				BE8BB5D4122971C10AE217034BB57462 /* Varint.swift */,
+				9180646BBA2D6962B1C31B7EEE5E692F /* Version.swift */,
+				52F78B9C6D83912F8FC6BCF85633AC66 /* Visitor.swift */,
+				E2FBDBEDC31B63ACADDC1C3F1BF867C8 /* WireFormat.swift */,
+				A69589978CB5B6A3FB52463939C253AD /* wrappers.pb.swift */,
+				2F003F6B616BBFBB6F2360630914B9D0 /* ZigZag.swift */,
+				F6A278F5D58A080AF470055EDE54C994 /* Resources */,
+				C8B6828556F3DAA89BDFE2BA9557AD7C /* Support Files */,
+			);
+			name = SwiftProtobuf;
+			path = SwiftProtobuf;
+			sourceTree = "<group>";
+		};
+		656A2A58D274389CCC6A96B7318EEA67 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				22B9CED159052FF5360B68937742A9E8 /* MqttCocoaAsyncSocket.modulemap */,
+				4A3529AEB4E79F798CC0E3B3F1F3C627 /* MqttCocoaAsyncSocket-dummy.m */,
+				1973DBBCE68B857DC75B2BCE7BACEBD8 /* MqttCocoaAsyncSocket-Info.plist */,
+				C23768B59B846711F95EA7AA6228D000 /* MqttCocoaAsyncSocket-prefix.pch */,
+				BE04352715C32AD6A38684D66B1941B7 /* MqttCocoaAsyncSocket-umbrella.h */,
+				47CAF5040257A974DC9F248BF2E3E881 /* MqttCocoaAsyncSocket.debug.xcconfig */,
+				B045BB08A5B32A21671BB01C70A0F09E /* MqttCocoaAsyncSocket.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/MqttCocoaAsyncSocket";
+			sourceTree = "<group>";
+		};
+		67EEE68784939186BB9422ED3729FE81 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				83A5963BA2DB14A4F39EBA3EA2214D40 /* Pods-ExampleApp */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		7646492500C72D6D17838D48EEB41FA2 /* Development Pods */ = {
+			isa = PBXGroup;
+			children = (
+				4A94992754AA23D4FAAF5AA36F73DE87 /* SensorBioSDK */,
+			);
+			name = "Development Pods";
+			sourceTree = "<group>";
+		};
+		81D7804A32CE74EF001451EA743CD948 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E6A4E1627379D6540B81A470C575D716 /* CocoaMQTT */,
+				E8EE7F078656FABB8F6821D10FF994BB /* KeychainAccess */,
+				08DE826BB58AC8456D39338C267DB337 /* MqttCocoaAsyncSocket */,
+				0CE82B428D4A5BFF5A9CC4393918BB53 /* Pods-ExampleApp */,
+				5069D199AB328CCD047E61C632CD7C32 /* SwiftKeychainWrapper */,
+				943D347E61A2E181A4FA2CA894307B6E /* SwiftProtobuf */,
+				38DFD12C0DE83AD51C78858605BBA299 /* SwiftProtobuf-SwiftProtobuf */,
+				3D5C584197A9186B74DC130A2060BEEF /* SwiftQueue */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		83A5963BA2DB14A4F39EBA3EA2214D40 /* Pods-ExampleApp */ = {
+			isa = PBXGroup;
+			children = (
+				C5BBA8D6A190490CB9CD034D11DE183B /* Pods-ExampleApp.modulemap */,
+				916CC725169C98628674CAAF29998FA9 /* Pods-ExampleApp-acknowledgements.markdown */,
+				F943EB76D250FC4D638167B8E0303732 /* Pods-ExampleApp-acknowledgements.plist */,
+				2F2064B510F1867A88922C3518DCE1BF /* Pods-ExampleApp-dummy.m */,
+				B3A37EC1BDD14DFAE5B584E4FD3BCC60 /* Pods-ExampleApp-frameworks.sh */,
+				D71D954E401CCB44DF6F8D2C1FEE14FA /* Pods-ExampleApp-Info.plist */,
+				BD28FF55990A77EFD783B0C9B9A76E9B /* Pods-ExampleApp-umbrella.h */,
+				4D58B2BEAE2004F9B80FD340EC64A31E /* Pods-ExampleApp.debug.xcconfig */,
+				5548AFD34416A48D6C1492AD2DB7A482 /* Pods-ExampleApp.release.xcconfig */,
+			);
+			name = "Pods-ExampleApp";
+			path = "Target Support Files/Pods-ExampleApp";
+			sourceTree = "<group>";
+		};
+		93E1337DD94252CA28E091D951967194 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				229D79684684E3F3DEA5D9C857D52B68 /* KeychainAccess.modulemap */,
+				5CBF7F7AF72FCB9C3503DD1ED64F8D01 /* KeychainAccess-dummy.m */,
+				2CD1A6A14E2DFB7A517A1D64826E023E /* KeychainAccess-Info.plist */,
+				CCA213EB65D46FD62DC780F4C581DD6A /* KeychainAccess-prefix.pch */,
+				543F8EB4A95E454C97246292A16C0074 /* KeychainAccess-umbrella.h */,
+				C1168A43A29BD56F0F23C69B0A19206B /* KeychainAccess.debug.xcconfig */,
+				14542BE144A2EECF6A334702FCC8B4D4 /* KeychainAccess.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/KeychainAccess";
+			sourceTree = "<group>";
+		};
+		A43B7A773CEEA74A9A2BF39FB166FA8F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				847C7CC3B70F8D4298BFBE860E4E7314 /* LibFXC.xcframework */,
+				CD661860DB8EEF53BB809AC4B5EA3E5C /* SensorBioBTSDK.xcframework */,
+				2CB903D6B910B525FFE1A754E33C34C9 /* SensorBioSDK.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A93F496519E1C9D85DDD086D168B1ED7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				BA0E9D98E7D32995FE35687A0805F8BF /* CocoaMQTT */,
+				D33BD74C0BB283456EC91B4BACEB3F78 /* KeychainAccess */,
+				DCAD1489F9396BFBD848C9E687CBCD45 /* MqttCocoaAsyncSocket */,
+				FD9EA2C8F0923D4C14341965D9295387 /* SwiftKeychainWrapper */,
+				63CD6F7D4C4E12443239012E99B62972 /* SwiftProtobuf */,
+				5216780F08C35B4B172B2A839765A261 /* SwiftQueue */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		BA0E9D98E7D32995FE35687A0805F8BF /* CocoaMQTT */ = {
+			isa = PBXGroup;
+			children = (
+				EA93048F6D7DDFD185778E5BCF49C20D /* Core */,
+				541CFD93806E87C608719CA4E29874F4 /* Support Files */,
+			);
+			name = CocoaMQTT;
+			path = CocoaMQTT;
+			sourceTree = "<group>";
+		};
+		BA9C458257F9092BA9AE133CBC614DAC /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				D326EF5E0EBD3DA4F2B6DB4F0990F560 /* CFNetwork.framework */,
+				41ACAAC876EF7F0E867591D2662CCC04 /* Foundation.framework */,
+				74C5F737A1EBAC18257D3F8209A71C4A /* Security.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		C8B6828556F3DAA89BDFE2BA9557AD7C /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				D72CADBF59371FC5A3C177C1358F01F6 /* ResourceBundle-SwiftProtobuf-SwiftProtobuf-Info.plist */,
+				F59FE532F6C0416EFE1E0E1830D4D09C /* SwiftProtobuf.modulemap */,
+				0D864938EC4D6A532884E17A1B09230A /* SwiftProtobuf-dummy.m */,
+				00886A736711CB248C3186C621830E65 /* SwiftProtobuf-Info.plist */,
+				43339305291A59B57239FF5B4242DE49 /* SwiftProtobuf-prefix.pch */,
+				3CF463823FB48A0FD9C9B733F4A15568 /* SwiftProtobuf-umbrella.h */,
+				408417FC92BD257B0124FCDF0C3BF474 /* SwiftProtobuf.debug.xcconfig */,
+				C9F189C25798BF4A95A53090F2139D4E /* SwiftProtobuf.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/SwiftProtobuf";
+			sourceTree = "<group>";
+		};
+		CC54D3FEFA4E789DD14184EF87FCA6F2 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				13F3AB4CA1FF016901069514095CE449 /* SensorBioSDK-xcframeworks.sh */,
+				1F1B4722E8E63D44F46301393E191B1B /* SensorBioSDK.debug.xcconfig */,
+				48775F24FA5E1B26C1D6A91DA67A5EFD /* SensorBioSDK.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "ExampleApp/Pods/Target Support Files/SensorBioSDK";
+			sourceTree = "<group>";
+		};
+		CF1408CF629C7361332E53B88F7BD30C = {
+			isa = PBXGroup;
+			children = (
+				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
+				7646492500C72D6D17838D48EEB41FA2 /* Development Pods */,
+				03C5C200A0787E300053CFA8F53CA094 /* Frameworks */,
+				A93F496519E1C9D85DDD086D168B1ED7 /* Pods */,
+				81D7804A32CE74EF001451EA743CD948 /* Products */,
+				67EEE68784939186BB9422ED3729FE81 /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		D33BD74C0BB283456EC91B4BACEB3F78 /* KeychainAccess */ = {
+			isa = PBXGroup;
+			children = (
+				220D9E7D1F3D550B8E1247896B703ADC /* Keychain.swift */,
+				93E1337DD94252CA28E091D951967194 /* Support Files */,
+			);
+			name = KeychainAccess;
+			path = KeychainAccess;
+			sourceTree = "<group>";
+		};
+		DCAD1489F9396BFBD848C9E687CBCD45 /* MqttCocoaAsyncSocket */ = {
+			isa = PBXGroup;
+			children = (
+				EDCC29BAE813028017DB95BAB88DD27E /* MGCDAsyncSocket.h */,
+				787F60AFF503359B8D108516210881A9 /* MGCDAsyncSocket.m */,
+				D135740EF80DEB230399BD4BE6A3C7B2 /* MGCDAsyncUdpSocket.h */,
+				0CC23B73EF4D85ABDED61F0E2E4DE285 /* MGCDAsyncUdpSocket.m */,
+				656A2A58D274389CCC6A96B7318EEA67 /* Support Files */,
+			);
+			name = MqttCocoaAsyncSocket;
+			path = MqttCocoaAsyncSocket;
+			sourceTree = "<group>";
+		};
+		EA93048F6D7DDFD185778E5BCF49C20D /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				6F695526F4A56B22E492126C08FD652A /* CocoaMQTT.swift */,
+				D8F6125DCACA8DD8D8A34DE9F4C9FDB7 /* CocoaMQTT5.swift */,
+				BA38520260CB5628E808E72B612EE4FE /* CocoaMQTT5Message.swift */,
+				EAAB943879534C7E1C7FB7C4AC896941 /* CocoaMQTTDeliver.swift */,
+				B21BA751200F1AB9126B6BA384329259 /* CocoaMQTTLogger.swift */,
+				2554097520F68982E816E1964D9A7078 /* CocoaMQTTMessage.swift */,
+				275C4A5B6D6372E5C00BCAE8B2FB05B2 /* CocoaMQTTProperty.swift */,
+				542AC7757A3C750D70E85A5C6990C4A3 /* CocoaMQTTReader.swift */,
+				4367614D1531BAF9C5D700BF57A1A723 /* CocoaMQTTReasonCode.swift */,
+				78F5BFB03CDFDC4F69125DE524411A90 /* CocoaMQTTSocket.swift */,
+				5632DF9878021969926506B615BB8C89 /* CocoaMQTTStorage.swift */,
+				BF8B81E5E31DD2DDE7AE4B7210799E8F /* CocoaMQTTTimer.swift */,
+				95D6B4FF1721A6FEA976FE4FB4085C6A /* CocoaMQTTTypes.swift */,
+				C831F7963C2721B0A70D3EA3F9298D43 /* ConcurrentAtomic.swift */,
+				5B6068D4E443778F7BF54B6182458339 /* Frame.swift */,
+				EE7671E3ADF055F407239505979F5392 /* FrameAuth.swift */,
+				85575B5414DE1FAB2617D49218348062 /* FrameConnAck.swift */,
+				DFC543CC07086652CB526DE09732D246 /* FrameConnect.swift */,
+				93FC4036C72583E58F7EB38F764585DA /* FrameDisconnect.swift */,
+				B8F41B4D897FE3C6F3FC0C7E18405FE7 /* FramePingReq.swift */,
+				5DFE5B32CEB63725703F6C080B9C5772 /* FramePingResp.swift */,
+				F9C13CC3C8F5A1F55FEA652228AC9DF3 /* FramePubAck.swift */,
+				DED7B6968AC56376B570A531E4CD401E /* FramePubComp.swift */,
+				67D3EA8426BEEAE6407CA8BA106DB3F3 /* FramePublish.swift */,
+				6C0B306F7B0CB55EE88CA1AFB3FEA334 /* FramePubRec.swift */,
+				CD8BBB0716429D60F9C369609433C1B5 /* FramePubRel.swift */,
+				F938F05859F0B0277AA5AA6F3D3B59F7 /* FrameSubAck.swift */,
+				56A4F02C88BB5C0B250FE9C421E9B9BE /* FrameSubscribe.swift */,
+				39C4537B0320DCAC59B237FA87D07CC6 /* FrameUnsubAck.swift */,
+				EF21F0C75752E706A061D148AD6271E2 /* FrameUnsubscribe.swift */,
+				7B61DD36FB24891B9A98955ADD8392DB /* MqttAuthProperties.swift */,
+				F2E2AD9C072A9E5F16670013CD0A9752 /* MqttConnectProperties.swift */,
+				7B83EEB4FFBCE33355B06BC448B99348 /* MqttDecodeConnAck.swift */,
+				E22EDB4DBA5DC4248F130EEF7BA6A433 /* MqttDecodePubAck.swift */,
+				B966360A71C3D7F1E28D6CF3DD7DE3F9 /* MqttDecodePubComp.swift */,
+				0F5F82350341472291D5DA61890DB312 /* MqttDecodePublish.swift */,
+				485CF3916826424D4D4F2E1BBEE229E3 /* MqttDecodePubRec.swift */,
+				B1B1410DEEAE127BF7B99F9486E09A4A /* MqttDecodePubRel.swift */,
+				D1BE8CCBBCE9443233C1135F48DEE9E7 /* MqttDecodeSubAck.swift */,
+				A5463B4B8BBB382B9740FD8CC8FEFBFF /* MqttDecodeUnsubAck.swift */,
+				6F65D73CBC477CC9898E148CAC54046B /* MqttPublishProperties.swift */,
+				5D388A3D38C914AB9E06601E25EA3002 /* MqttSubscription.swift */,
+				4DCC643E16741A0FB2AA82827FCC662F /* ThreadSafeDictionary.swift */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		F6A278F5D58A080AF470055EDE54C994 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				68E6332E759E530412ECBB9EF99A0F82 /* PrivacyInfo.xcprivacy */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		FD9EA2C8F0923D4C14341965D9295387 /* SwiftKeychainWrapper */ = {
+			isa = PBXGroup;
+			children = (
+				97B2B6C0CDC347268A8D797821502F64 /* KeychainItemAccessibility.swift */,
+				63E5A482D5FB49611D82D3F2870D3918 /* KeychainWrapper.swift */,
+				1F3D5D1520B504B9333DE828154FCDF4 /* KeychainWrapperSubscript.swift */,
+				AB70CF8ECCCAC3755AC48CD9096EAAD5 /* SwiftKeychainWrapper.h */,
+				1F453D37949854CE08B38E3EFB4E50C7 /* Support Files */,
+			);
+			name = SwiftKeychainWrapper;
+			path = SwiftKeychainWrapper;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		10892642A012C1980F06E64C90045330 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20D8D2C1254B0DCF38CD4E3F0997E52A /* KeychainAccess-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		452582D790952356359DDA342078EEAD /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C974B6776CCE38B02D6FD883378FC0C7 /* MGCDAsyncSocket.h in Headers */,
+				5D3C273D086399E47CA9BF3B420AD4E9 /* MGCDAsyncUdpSocket.h in Headers */,
+				D1AD112DE63A8B9BB7CF2FC031A246D6 /* MqttCocoaAsyncSocket-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7616FC6578CA24071E16B8CF6556BB53 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B34F9A2254F41AF628FF3DF80F50FA47 /* SwiftKeychainWrapper.h in Headers */,
+				0D1DE2BA47B9CE1A86A905C656C4D522 /* SwiftKeychainWrapper-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88646E041622970C1B34D07F8406AFB5 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				972F587652763DD279137867DBF2B3BD /* SwiftQueue-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8BF60621C9D6E7D5BC7F5208FAFB1337 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				68CC450D8E75936097B39239DDCDC2F5 /* Pods-ExampleApp-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B3D1919457EF2DF61A96AD18357F182A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAE6FF53089736A031AE287085ED8A1B /* SwiftProtobuf-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5EAA3937121469A8724C96FCC88A075 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C9E4124129EBA01A46BC58D63017EC3 /* CocoaMQTT-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4EB168A830EFA6136FA93357D1F1511A /* CocoaMQTT */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 701421AC78CFCB06DED14D7A82780FB3 /* Build configuration list for PBXNativeTarget "CocoaMQTT" */;
+			buildPhases = (
+				B5EAA3937121469A8724C96FCC88A075 /* Headers */,
+				BB2714530DE387EE457ABD49CD4A5789 /* Sources */,
+				277FF12C2651061512FB3A26F0AD2308 /* Frameworks */,
+				A4A6D9B820D143969128BE3EA029773A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3C3652B2A2C5F3785CE77E83AFD3E142 /* PBXTargetDependency */,
+			);
+			name = CocoaMQTT;
+			productName = CocoaMQTT;
+			productReference = E6A4E1627379D6540B81A470C575D716 /* CocoaMQTT */;
+			productType = "com.apple.product-type.framework";
+		};
+		615C831BCE925ED486B225B87E44926D /* KeychainAccess */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A2567D919C3503794C3AC0A279285A8 /* Build configuration list for PBXNativeTarget "KeychainAccess" */;
+			buildPhases = (
+				10892642A012C1980F06E64C90045330 /* Headers */,
+				383A7258ACDC1E628E08F47AE17EB27D /* Sources */,
+				0FD546A70F9E3AB529847CBF744F37C1 /* Frameworks */,
+				724F39F37AFE67C307AD4EDA853B673E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KeychainAccess;
+			productName = KeychainAccess;
+			productReference = E8EE7F078656FABB8F6821D10FF994BB /* KeychainAccess */;
+			productType = "com.apple.product-type.framework";
+		};
+		A5F702E0DA383BC1479572581615A916 /* SwiftProtobuf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2CBA55AC795250BC3C3014571C82EB74 /* Build configuration list for PBXNativeTarget "SwiftProtobuf" */;
+			buildPhases = (
+				B3D1919457EF2DF61A96AD18357F182A /* Headers */,
+				26AAF90A74FAAB454214CD5F37DAB3D1 /* Sources */,
+				100BADD2EF3123955FB2716D4D075AC3 /* Frameworks */,
+				911517552A4965D8471D6C7B1500E4B5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				092B9DAB1E16F6933BF11FC0C1955503 /* PBXTargetDependency */,
+			);
+			name = SwiftProtobuf;
+			productName = SwiftProtobuf;
+			productReference = 943D347E61A2E181A4FA2CA894307B6E /* SwiftProtobuf */;
+			productType = "com.apple.product-type.framework";
+		};
+		B017CC75E2704C686AA0A2203247D9C7 /* MqttCocoaAsyncSocket */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0462A170768A7BE87B30B0BD49FC6C9F /* Build configuration list for PBXNativeTarget "MqttCocoaAsyncSocket" */;
+			buildPhases = (
+				452582D790952356359DDA342078EEAD /* Headers */,
+				61997EE2285BC4B38A68C169E293800B /* Sources */,
+				91CEC312717220B9ABF53B2C595C0DD6 /* Frameworks */,
+				FC9F2ACA4E4D4552409FD265C72CB10C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MqttCocoaAsyncSocket;
+			productName = MqttCocoaAsyncSocket;
+			productReference = 08DE826BB58AC8456D39338C267DB337 /* MqttCocoaAsyncSocket */;
+			productType = "com.apple.product-type.framework";
+		};
+		BDC2477AF0F463CB482A12E75891C9C1 /* Pods-ExampleApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 72EA9A6B209B6DD23EBE5D818705063E /* Build configuration list for PBXNativeTarget "Pods-ExampleApp" */;
+			buildPhases = (
+				8BF60621C9D6E7D5BC7F5208FAFB1337 /* Headers */,
+				EB0562D94B09C7E461FDCF38990D42E3 /* Sources */,
+				635C8A9CBE5D2B81B4C9E2D3CF8CBE39 /* Frameworks */,
+				7CC480B6EBAA1B70BFFBB7BA9689A80F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				91F7A4E38B4E1C6933F29E0615727DBC /* PBXTargetDependency */,
+				7D910C600102EA1BD44C5B070BF049AF /* PBXTargetDependency */,
+				B7DE96D3F2DB0864904092FB3E433A15 /* PBXTargetDependency */,
+				DCA1A2FDA73E2A923668FC8600D916A9 /* PBXTargetDependency */,
+				6724A23BE64C272FADCED7F12660CF7A /* PBXTargetDependency */,
+				12229F17245936BAC524BCA610DBAB31 /* PBXTargetDependency */,
+				C7CF94EC8FD01EFF15BBA9298BB1EA17 /* PBXTargetDependency */,
+			);
+			name = "Pods-ExampleApp";
+			productName = Pods_ExampleApp;
+			productReference = 0CE82B428D4A5BFF5A9CC4393918BB53 /* Pods-ExampleApp */;
+			productType = "com.apple.product-type.framework";
+		};
+		CF903DF43E111410ECA0C288D36FA21A /* SwiftKeychainWrapper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E2F17F64318722DC2E5C47CEEA02A006 /* Build configuration list for PBXNativeTarget "SwiftKeychainWrapper" */;
+			buildPhases = (
+				7616FC6578CA24071E16B8CF6556BB53 /* Headers */,
+				355839A2BD12601C8BFB89F076C3444B /* Sources */,
+				32051C672349D165B1E53D61AA064CD2 /* Frameworks */,
+				AA159C51244424BE284814C0A186B37C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SwiftKeychainWrapper;
+			productName = SwiftKeychainWrapper;
+			productReference = 5069D199AB328CCD047E61C632CD7C32 /* SwiftKeychainWrapper */;
+			productType = "com.apple.product-type.framework";
+		};
+		F3A62A44750BDEA87BFF69035A5373DB /* SwiftQueue */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE943207A656D1A818A27A1E09F3C4BE /* Build configuration list for PBXNativeTarget "SwiftQueue" */;
+			buildPhases = (
+				88646E041622970C1B34D07F8406AFB5 /* Headers */,
+				E80FDAAE704EAA18B9CF78A38A38B256 /* Sources */,
+				1E0B58E7CD01C7EAFF1CFEACD9C66917 /* Frameworks */,
+				633F9678324E583DC608897A906FEE1F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SwiftQueue;
+			productName = SwiftQueue;
+			productReference = 3D5C584197A9186B74DC130A2060BEEF /* SwiftQueue */;
+			productType = "com.apple.product-type.framework";
+		};
+		FA0CBCD9613A8E95F24D86AAD4A86E26 /* SwiftProtobuf-SwiftProtobuf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 999EC8DD0BC4CCF67094D6484CFAE2BF /* Build configuration list for PBXNativeTarget "SwiftProtobuf-SwiftProtobuf" */;
+			buildPhases = (
+				CA671A9E078D606F2EC0296A09ACD2C7 /* Sources */,
+				65D95D4EA402B68555838740CCC52A69 /* Frameworks */,
+				C69F2C55EE3FE230345D5398F80C1324 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SwiftProtobuf-SwiftProtobuf";
+			productName = SwiftProtobuf;
+			productReference = 38DFD12C0DE83AD51C78858605BBA299 /* SwiftProtobuf-SwiftProtobuf */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BFDFE7DC352907FC980B868725387E98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 16.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 81D7804A32CE74EF001451EA743CD948 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4EB168A830EFA6136FA93357D1F1511A /* CocoaMQTT */,
+				615C831BCE925ED486B225B87E44926D /* KeychainAccess */,
+				B017CC75E2704C686AA0A2203247D9C7 /* MqttCocoaAsyncSocket */,
+				BDC2477AF0F463CB482A12E75891C9C1 /* Pods-ExampleApp */,
+				F1F11D5408CC21BC2049E9E875E77BC5 /* SensorBioSDK */,
+				CF903DF43E111410ECA0C288D36FA21A /* SwiftKeychainWrapper */,
+				A5F702E0DA383BC1479572581615A916 /* SwiftProtobuf */,
+				FA0CBCD9613A8E95F24D86AAD4A86E26 /* SwiftProtobuf-SwiftProtobuf */,
+				F3A62A44750BDEA87BFF69035A5373DB /* SwiftQueue */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		633F9678324E583DC608897A906FEE1F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		724F39F37AFE67C307AD4EDA853B673E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7CC480B6EBAA1B70BFFBB7BA9689A80F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		911517552A4965D8471D6C7B1500E4B5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA12176C6EB3DCC5A643ACE2E917A46C /* SwiftProtobuf-SwiftProtobuf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A4A6D9B820D143969128BE3EA029773A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA159C51244424BE284814C0A186B37C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C69F2C55EE3FE230345D5398F80C1324 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				583E4573E2BD9C1F4EE47307C53A7C30 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC9F2ACA4E4D4552409FD265C72CB10C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D8A2A448F1748E9C924BE493D42C4A1D /* [CP] Copy XCFrameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/SensorBioSDK/SensorBioSDK-xcframeworks-input-files.xcfilelist",
+			);
+			name = "[CP] Copy XCFrameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/SensorBioSDK/SensorBioSDK-xcframeworks-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/SensorBioSDK/SensorBioSDK-xcframeworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		26AAF90A74FAAB454214CD5F37DAB3D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29770E50D4BF1A431370549F1113D083 /* any.pb.swift in Sources */,
+				3F5BA699ED641A4B6BF74B3031396337 /* AnyMessageStorage.swift in Sources */,
+				65366905185C307A62CD5D0B3155E33D /* AnyUnpackError.swift in Sources */,
+				E671A07A819A0DC2FB1F7CBEB91CC886 /* api.pb.swift in Sources */,
+				D2D7EECB20A6425FAE8A53E6A596E066 /* AsyncMessageSequence.swift in Sources */,
+				C95071E3409CD69DF52F4A241B6087D6 /* BinaryDecoder.swift in Sources */,
+				E64AB27F856603F2B46CA1D47601DA3C /* BinaryDecodingError.swift in Sources */,
+				2E4E045E7CC7D41B738ECF3E0006D998 /* BinaryDecodingOptions.swift in Sources */,
+				45851261F1201EBACA2DE7CA220A66CD /* BinaryDelimited.swift in Sources */,
+				516257D32981B163CE284AC65F9BDB9C /* BinaryEncoder.swift in Sources */,
+				F55EF159A495A5ACBE2FB37AD63EB496 /* BinaryEncodingError.swift in Sources */,
+				84DD0D2E255A14CA49FC8BECD960D4A1 /* BinaryEncodingOptions.swift in Sources */,
+				6B2841E82B48BE6268DB476EC61B3E42 /* BinaryEncodingSizeVisitor.swift in Sources */,
+				9AF2B7C409813C11DECFFE53E35E9389 /* BinaryEncodingVisitor.swift in Sources */,
+				42C239023D0E3E51179F8C8B39D95E48 /* BytecodeInterpreter.swift in Sources */,
+				2CB07140AD68E5DA0649E35A07BD1852 /* BytecodeReader.swift in Sources */,
+				4320FD6EB73871471158E49835DDE7FD /* CustomJSONCodable.swift in Sources */,
+				D709F79AA7CA7FCDABC685A8CCE7BE9B /* Decoder.swift in Sources */,
+				D057095C4E0D38C0EAC03EB93EBBE1FD /* descriptor.pb.swift in Sources */,
+				442DD6F7F04F79AFB55DA015C625CEA9 /* DoubleParser.swift in Sources */,
+				1F674A07F2A9090E99FED1DDA6AF0B2C /* duration.pb.swift in Sources */,
+				68E68A27B40B870FD813C31638042430 /* empty.pb.swift in Sources */,
+				3A09AD03DE7D57F8E929AFE11E492A66 /* Enum.swift in Sources */,
+				818F3E8FD0698973029B8AA3DBDAAEC4 /* ExtensibleMessage.swift in Sources */,
+				33AD49781D7A50856E8AA4DB07F6A14F /* ExtensionFields.swift in Sources */,
+				299F22B8F40B2E96DFC21D918AF91B00 /* ExtensionFieldValueSet.swift in Sources */,
+				BEE5BD469A22136FDB080579A06A50F0 /* ExtensionMap.swift in Sources */,
+				8C85165A16DE95F1580BAA6BCB4E9B3D /* field_mask.pb.swift in Sources */,
+				B85F46FC4689546E49553EA149956064 /* FieldTag.swift in Sources */,
+				00FB4CE14BF2424AE9B15DF8E1BB69E2 /* FieldTypes.swift in Sources */,
+				DBB57C107320712AED5E949B138697B8 /* Google_Protobuf_Any+Extensions.swift in Sources */,
+				29833ED9B730EDC53AB20C27436BE7A2 /* Google_Protobuf_Any+Registry.swift in Sources */,
+				387C67699D01993ED5481D35A565BA45 /* Google_Protobuf_Duration+Extensions.swift in Sources */,
+				1085DA54C32DA44E559963B4F22F60D0 /* Google_Protobuf_FieldMask+Extensions.swift in Sources */,
+				A96175A1AF13B36244B416A0DE6B0658 /* Google_Protobuf_ListValue+Extensions.swift in Sources */,
+				1B8B0B4CBE880754AE339A68E6F22506 /* Google_Protobuf_NullValue+Extensions.swift in Sources */,
+				6B941416EE670C58DF41E7EC5DF55206 /* Google_Protobuf_Struct+Extensions.swift in Sources */,
+				1C9A958EB890D014155D8AF589D692EC /* Google_Protobuf_Timestamp+Extensions.swift in Sources */,
+				E5BF2AB8656CA887F79D52992434A581 /* Google_Protobuf_Value+Extensions.swift in Sources */,
+				1891BF826CC39358C6A23CD76A394299 /* Google_Protobuf_Wrappers+Extensions.swift in Sources */,
+				A5D076CED6783EF4AF19633149C394A6 /* HashVisitor.swift in Sources */,
+				EF47D27845BE5CE35E23F734AA550E8C /* Internal.swift in Sources */,
+				AD26129949E8E8B29A5203FEFC45B63F /* JSONDecoder.swift in Sources */,
+				17FDB967C97398B13098ED55C4C07F0B /* JSONDecodingError.swift in Sources */,
+				DD464C3E0C9EB277E53E8DD6E67693CF /* JSONDecodingOptions.swift in Sources */,
+				4FF8783877577C434D39E6A0940A27B8 /* JSONEncoder.swift in Sources */,
+				404D80B53E9C980A387C1B242A9B7C4A /* JSONEncodingError.swift in Sources */,
+				EBE464FB498DF27B8B5F5CDD706C8B53 /* JSONEncodingOptions.swift in Sources */,
+				1751EF064A19294727AC1E55CCE8A475 /* JSONEncodingVisitor.swift in Sources */,
+				6DDB9996F3DC82516B026BD0AC2E8157 /* JSONMapEncodingVisitor.swift in Sources */,
+				5C7FEABF31C25B3E9E0909AD67CE0F2C /* JSONScanner.swift in Sources */,
+				09421AE71CA21669A0D30A374076B39A /* MathUtils.swift in Sources */,
+				D155C3E1639556B533D15A61A83F802F /* Message.swift in Sources */,
+				E4605FB0095E4192A16FF1D9DA917679 /* Message+AnyAdditions.swift in Sources */,
+				D846CC8B7F46E5963423432E17522B32 /* Message+BinaryAdditions.swift in Sources */,
+				2F9DEC097168A97EFAEA9D8AE5AE2123 /* Message+BinaryAdditions_Data.swift in Sources */,
+				B66ACDDE35BA701654C0019CCFDBB140 /* Message+FieldMask.swift in Sources */,
+				1AB8EBFA23F1F8B18A7FC060E57900AB /* Message+JSONAdditions.swift in Sources */,
+				F13EE7AF76B07EBEEA93EECFAE6B0A4D /* Message+JSONAdditions_Data.swift in Sources */,
+				2C853947B2C1CF4C1E74C9225F771934 /* Message+JSONArrayAdditions.swift in Sources */,
+				D406CEB0F4B6D456B2470747DBE795A1 /* Message+JSONArrayAdditions_Data.swift in Sources */,
+				804627DCD44D3DACAAFCFF136261069C /* Message+TextFormatAdditions.swift in Sources */,
+				B5499DD483895830868621217311D8FD /* MessageExtension.swift in Sources */,
+				C758B1B13C6DE72132FB1517F1D58E53 /* NameMap.swift in Sources */,
+				7E8564C6AB165875F3B5D8CF096F95B0 /* PathDecoder.swift in Sources */,
+				A409D2185F10148E0A052B4FD1510584 /* PathVisitor.swift in Sources */,
+				2FE4A0E82AB34733957D567F619B1B45 /* ProtobufAPIVersionCheck.swift in Sources */,
+				C8FC64A2B994CD3B42286A94E4741D9C /* ProtobufMap.swift in Sources */,
+				28EC8D62D53563664C296729A5C77F68 /* ProtoNameProviding.swift in Sources */,
+				A9C391F31B37D43F2E5C457A606CEF14 /* SelectiveVisitor.swift in Sources */,
+				66FFFE08A794C9D517C793FC44BA455A /* SimpleExtensionMap.swift in Sources */,
+				387049C63C4DFB44F959E84E4F39C15E /* source_context.pb.swift in Sources */,
+				57C14BE4B40760C361A3368DDC91BB4E /* StringUtils.swift in Sources */,
+				5F31979657943BBF33B324DC06F72E15 /* struct.pb.swift in Sources */,
+				D2E8021567CF14BF6FBCC59F59872361 /* SwiftProtobuf-dummy.m in Sources */,
+				1AE0CBEC2DABE5F380CA303672E4BE90 /* SwiftProtobufContiguousBytes.swift in Sources */,
+				B7977C02C32F6D8A01124B9540B46463 /* SwiftProtobufError.swift in Sources */,
+				54B23189603BB4747B3E00B2311A575D /* TextFormatDecoder.swift in Sources */,
+				C3240989A1025DE9F0A1DDB9B1C46441 /* TextFormatDecodingError.swift in Sources */,
+				5E9A46852D15D82DD13151FE7056B155 /* TextFormatDecodingOptions.swift in Sources */,
+				52AE90DCF99EC8AF4FFC1FE6BC40CB29 /* TextFormatEncoder.swift in Sources */,
+				C0321FC806BD1EF661237DCA8CFD8902 /* TextFormatEncodingOptions.swift in Sources */,
+				25E4CB060AC2320D18192C7880C798E1 /* TextFormatEncodingVisitor.swift in Sources */,
+				F25B4631466C4D70AE0DCE3D75D0DB44 /* TextFormatScanner.swift in Sources */,
+				58113BE15462E1B2ACBB1A6A483E802C /* timestamp.pb.swift in Sources */,
+				6C84F58C9F0E7A6D8B14E70E74138CDD /* TimeUtils.swift in Sources */,
+				72F6A25CE72ACCAEED2B4D8BF9D6C9DF /* type.pb.swift in Sources */,
+				3E60A4E27EAB17314064C7FB54A499D7 /* UnknownStorage.swift in Sources */,
+				35A239381A3CBFB1A778628BB23E95DB /* UnsafeRawPointer+Shims.swift in Sources */,
+				87633152F08A5387F74BF77C7454CD5C /* Varint.swift in Sources */,
+				A1C11C1B1EDE7A70358779E1B35A950D /* Version.swift in Sources */,
+				77653F391930F90A5C0B4DCF36DE978F /* Visitor.swift in Sources */,
+				4362AB5158ED823AC0E8EF16F2340355 /* WireFormat.swift in Sources */,
+				D8618126534C2A979792F8DAC08C65A9 /* wrappers.pb.swift in Sources */,
+				26549EB1F6459B3699ABD51AE930F58F /* ZigZag.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		355839A2BD12601C8BFB89F076C3444B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				039D6521A439844BD8713B8130BAD9C5 /* KeychainItemAccessibility.swift in Sources */,
+				9580426B3FAE1096400DEFC273FA6C1D /* KeychainWrapper.swift in Sources */,
+				0E00C7CEBDFB947AD68A75B1D59E0AAC /* KeychainWrapperSubscript.swift in Sources */,
+				3770DEFD9CEA23D6FE156E9C345BD415 /* SwiftKeychainWrapper-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		383A7258ACDC1E628E08F47AE17EB27D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				453CB5E8B81F432DBD99BD674E41F79F /* Keychain.swift in Sources */,
+				E4180B507E0C530F0D7CAEFA1FAEA06F /* KeychainAccess-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		61997EE2285BC4B38A68C169E293800B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				679001028A77318B46DA97BD4C5F5F50 /* MGCDAsyncSocket.m in Sources */,
+				2ECCBCEA46DA2ED4E32A97D73AC9B5CA /* MGCDAsyncUdpSocket.m in Sources */,
+				803ADB27319B16C7824F31A1D8CBB966 /* MqttCocoaAsyncSocket-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB2714530DE387EE457ABD49CD4A5789 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F05192CEB06CD70D1D3E8ED9E4B7C15F /* CocoaMQTT.swift in Sources */,
+				57AD313741969102750AB3CB3976BC97 /* CocoaMQTT-dummy.m in Sources */,
+				01461285DFE546C71E99B49A3BF32601 /* CocoaMQTT5.swift in Sources */,
+				3D80D0457EB3BF7D449CA995F30CF2CA /* CocoaMQTT5Message.swift in Sources */,
+				7E105C0F1C97F0A9E8482988E078FDA9 /* CocoaMQTTDeliver.swift in Sources */,
+				8690DEC4B00EC34DC177644594F02817 /* CocoaMQTTLogger.swift in Sources */,
+				30617D7947DF3FBD9154F1CA87D3DBEE /* CocoaMQTTMessage.swift in Sources */,
+				4501636244237C850616353EBD1C8189 /* CocoaMQTTProperty.swift in Sources */,
+				F5BCEAF07494B8EE4407A4048C70170B /* CocoaMQTTReader.swift in Sources */,
+				7A271B71FDDDC1BC3FF970EDAD5E98C4 /* CocoaMQTTReasonCode.swift in Sources */,
+				7CF2A972F2443BD1B774F8330E12FE50 /* CocoaMQTTSocket.swift in Sources */,
+				8B194760C4583AB3D5E17DB95679E3F6 /* CocoaMQTTStorage.swift in Sources */,
+				82DA7F3D5A287251DB25A4FC3F19FC93 /* CocoaMQTTTimer.swift in Sources */,
+				909C544B79175483251BC46FB225BEBA /* CocoaMQTTTypes.swift in Sources */,
+				F2E5A6404AB84C1417F31C076A0EA8F6 /* ConcurrentAtomic.swift in Sources */,
+				AFCA288AE0DE819FE6CE288067C9A82A /* Frame.swift in Sources */,
+				7D3F42BD41F124E613A70A09171C6DAF /* FrameAuth.swift in Sources */,
+				9542BC97F490CB6D4671C68776DC2B9A /* FrameConnAck.swift in Sources */,
+				43D84EBCE8220F637D8BE1C473BF9188 /* FrameConnect.swift in Sources */,
+				7EAA83C312561AB4317FD6C58187AEFB /* FrameDisconnect.swift in Sources */,
+				9A64AA527A1156361FEFF89E58AA8A43 /* FramePingReq.swift in Sources */,
+				82DDB13ECAAF4BC08A115696162BED6A /* FramePingResp.swift in Sources */,
+				F39AB662CDC4C299D4B1737519E106C7 /* FramePubAck.swift in Sources */,
+				BA76235961947F402695F8A346265B6C /* FramePubComp.swift in Sources */,
+				D0D8EAFBEAEE4B82131FD5FB9AE6D236 /* FramePublish.swift in Sources */,
+				0B0A3A1044D081A95821B26BF0C69B68 /* FramePubRec.swift in Sources */,
+				E2EA5D15C15D16580E4A7FCC41694567 /* FramePubRel.swift in Sources */,
+				F4A703B0312FA076FEFFA31444B8FEE6 /* FrameSubAck.swift in Sources */,
+				4431DB7D2739D4D1701F63BA42F1ECC5 /* FrameSubscribe.swift in Sources */,
+				E82B4F97BB52300AF382AC4E2E2A3A1E /* FrameUnsubAck.swift in Sources */,
+				5E558455B862C4CE21399D45C2CBC479 /* FrameUnsubscribe.swift in Sources */,
+				AF2ABE6FDD3F70320024969E414C97AD /* MqttAuthProperties.swift in Sources */,
+				50E0B8B52F6C012C647A877DE161AD0B /* MqttConnectProperties.swift in Sources */,
+				92F619B07D3D91F74CDA3CA4B000807C /* MqttDecodeConnAck.swift in Sources */,
+				47F8811B5427A0E93A230232C573B68C /* MqttDecodePubAck.swift in Sources */,
+				5E1CD661F9FC277B7E32DA348FE0DD1F /* MqttDecodePubComp.swift in Sources */,
+				4063405C03CCB96E39645F8F991E75FA /* MqttDecodePublish.swift in Sources */,
+				41EAB079E787B4FA6866FC48FC7D187B /* MqttDecodePubRec.swift in Sources */,
+				CF34C51C73AB57E0A296EB54D516C0E4 /* MqttDecodePubRel.swift in Sources */,
+				4B1C0A08511CD18328B7AD065B6447F8 /* MqttDecodeSubAck.swift in Sources */,
+				5C577E5C5D13313BF4E90DA27CCE1BFB /* MqttDecodeUnsubAck.swift in Sources */,
+				9162EF894ECC79E2524927E8EDD3A5F6 /* MqttPublishProperties.swift in Sources */,
+				8AE640439F0C94295E509ED320B648C0 /* MqttSubscription.swift in Sources */,
+				BB9663727F1154B67FE78531F9D27411 /* ThreadSafeDictionary.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA671A9E078D606F2EC0296A09ACD2C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E80FDAAE704EAA18B9CF78A38A38B256 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				10B684B36BCCAE650F0500E938E3FF45 /* Constraint.swift in Sources */,
+				F6D2E1C15179ECE27B0C2BCD00344996 /* Constraint+Charging.swift in Sources */,
+				9291818FA7B6073B5D9A332A96FF4FAA /* Constraint+Deadline.swift in Sources */,
+				412CB448778757D8D44D1D52B1B33545 /* Constraint+Delay.swift in Sources */,
+				2D2B8B61A967F4E944B9F7F4F882B5E0 /* Constraint+Network.swift in Sources */,
+				F84D9A2B0E8242BC96D9A1DE10001ABA /* Constraint+Persister.swift in Sources */,
+				1B9EE2974DF89028A02E2C0B6414B3F2 /* Constraint+Repeat.swift in Sources */,
+				776DEC60AF1576B5F99C9F3E1825EFFD /* Constraint+Retry.swift in Sources */,
+				A328E5154FF32B5EACB619BBD10B496F /* Constraint+Tag.swift in Sources */,
+				313DDDB8E698E4A295DABE966FBDD9FE /* Constraint+Timeout.swift in Sources */,
+				A8E511BB71265948156489427E7F786A /* Constraint+UniqueUUID.swift in Sources */,
+				950E476D03409A4455A089411ABD8CD4 /* ConstraintMaker.swift in Sources */,
+				1D7EFD1EF54E31C9F040682B6CE45E27 /* JobBuilder.swift in Sources */,
+				4F6B3206EAC33EDC484A5BA68FB70B2E /* JobInfo.swift in Sources */,
+				763C7F9349D4D88B6DF0E7E536A92041 /* JobInfoSerializer+Decodable.swift in Sources */,
+				FB1C9740D523C37C30A1511C6C8DC990 /* SqOperation.swift in Sources */,
+				8F794C768FC626530FA4EBC99F406603 /* SqOperationQueue.swift in Sources */,
+				F7E7C25D29373AB39CDDA3B17B131170 /* SwiftQueue.swift in Sources */,
+				4D9D64A44A47842BE7D49FC4816F981A /* SwiftQueue-dummy.m in Sources */,
+				A1C4A5BFC605FBBE2DC1EC33A4A69495 /* SwiftQueueLogger.swift in Sources */,
+				9BEF4902FF326622C07134E887423C4B /* SwiftQueueManager.swift in Sources */,
+				2766A0AB3369985D257881D7137D0FFD /* SwiftQueueManager+BackgroundTask.swift in Sources */,
+				9A9AC451F329D1F5125F46125725BF58 /* UserDefaultsPersister.swift in Sources */,
+				13F77DF21F42BFA21A5AA775A0D3C385 /* Utils.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB0562D94B09C7E461FDCF38990D42E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A0A2B1D84592EFE3E2C776EC27BF519 /* Pods-ExampleApp-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		092B9DAB1E16F6933BF11FC0C1955503 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SwiftProtobuf-SwiftProtobuf";
+			target = FA0CBCD9613A8E95F24D86AAD4A86E26 /* SwiftProtobuf-SwiftProtobuf */;
+			targetProxy = 93B0D92D3F3D88F319BB2D901618C1FB /* PBXContainerItemProxy */;
+		};
+		12229F17245936BAC524BCA610DBAB31 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftProtobuf;
+			target = A5F702E0DA383BC1479572581615A916 /* SwiftProtobuf */;
+			targetProxy = 5CA19824432915CBFA7F993F3FF72364 /* PBXContainerItemProxy */;
+		};
+		2BB0C614738C89C3AB46F6A738BB7454 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CocoaMQTT;
+			target = 4EB168A830EFA6136FA93357D1F1511A /* CocoaMQTT */;
+			targetProxy = EA092BB434950AD884587B350DE9E469 /* PBXContainerItemProxy */;
+		};
+		3C3652B2A2C5F3785CE77E83AFD3E142 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MqttCocoaAsyncSocket;
+			target = B017CC75E2704C686AA0A2203247D9C7 /* MqttCocoaAsyncSocket */;
+			targetProxy = FD641E057993C0F5DF8D3F6D30D63885 /* PBXContainerItemProxy */;
+		};
+		4E1B4A30ADA618B778B55FC3AF61C259 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftKeychainWrapper;
+			target = CF903DF43E111410ECA0C288D36FA21A /* SwiftKeychainWrapper */;
+			targetProxy = CF62F0883754D09F3D0A127B917D8C75 /* PBXContainerItemProxy */;
+		};
+		6724A23BE64C272FADCED7F12660CF7A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftKeychainWrapper;
+			target = CF903DF43E111410ECA0C288D36FA21A /* SwiftKeychainWrapper */;
+			targetProxy = C16FD1BDDF1D638EE5E530DCA06BE5DF /* PBXContainerItemProxy */;
+		};
+		7D910C600102EA1BD44C5B070BF049AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KeychainAccess;
+			target = 615C831BCE925ED486B225B87E44926D /* KeychainAccess */;
+			targetProxy = BE465A4AE75710F3E5B924BFC7796B50 /* PBXContainerItemProxy */;
+		};
+		91F7A4E38B4E1C6933F29E0615727DBC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CocoaMQTT;
+			target = 4EB168A830EFA6136FA93357D1F1511A /* CocoaMQTT */;
+			targetProxy = 1C1640170313E10EDB515FE40BFC3788 /* PBXContainerItemProxy */;
+		};
+		9617FF1142C8E58E191A031312AA9DC4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftQueue;
+			target = F3A62A44750BDEA87BFF69035A5373DB /* SwiftQueue */;
+			targetProxy = A52AB956FAB46FB5F17BF4D3BE4BAC4A /* PBXContainerItemProxy */;
+		};
+		9913EC04C59787FB4C75AA285CE3824F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KeychainAccess;
+			target = 615C831BCE925ED486B225B87E44926D /* KeychainAccess */;
+			targetProxy = CF1BF80C1515E7007212E364D6D017D7 /* PBXContainerItemProxy */;
+		};
+		B7DE96D3F2DB0864904092FB3E433A15 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MqttCocoaAsyncSocket;
+			target = B017CC75E2704C686AA0A2203247D9C7 /* MqttCocoaAsyncSocket */;
+			targetProxy = 80360930AD15B1D101FEE98E2EAEB402 /* PBXContainerItemProxy */;
+		};
+		C7CF94EC8FD01EFF15BBA9298BB1EA17 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftQueue;
+			target = F3A62A44750BDEA87BFF69035A5373DB /* SwiftQueue */;
+			targetProxy = 439C9EB353AFD93C31363E57FD6FAC57 /* PBXContainerItemProxy */;
+		};
+		DCA1A2FDA73E2A923668FC8600D916A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SensorBioSDK;
+			target = F1F11D5408CC21BC2049E9E875E77BC5 /* SensorBioSDK */;
+			targetProxy = F0833C0709E86EEC61376957E568CA39 /* PBXContainerItemProxy */;
+		};
+		E62B179F13685468BC43508453F4CD76 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SwiftProtobuf;
+			target = A5F702E0DA383BC1479572581615A916 /* SwiftProtobuf */;
+			targetProxy = A34E557E84F36D274F23E1AF92DDB1D0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		277E819F180CF09CC148EF9DF31DEE14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1F1B4722E8E63D44F46301393E191B1B /* SensorBioSDK.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2DB84F62F3CFB4D9AD1A1A1FEE84F218 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 408417FC92BD257B0124FCDF0C3BF474 /* SwiftProtobuf.debug.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/SwiftProtobuf";
+				IBSC_MODULE = SwiftProtobuf;
+				INFOPLIST_FILE = "Target Support Files/SwiftProtobuf/ResourceBundle-SwiftProtobuf-SwiftProtobuf-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_NAME = SwiftProtobuf;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		2DE1026FC4AFEFCE00D7A4D030B6968D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 408417FC92BD257B0124FCDF0C3BF474 /* SwiftProtobuf.debug.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/SwiftProtobuf/SwiftProtobuf-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/SwiftProtobuf/SwiftProtobuf-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SwiftProtobuf/SwiftProtobuf.modulemap";
+				PRODUCT_MODULE_NAME = SwiftProtobuf;
+				PRODUCT_NAME = SwiftProtobuf;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3321B8226DB23E63F3D21AA7E21C3FD3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 14542BE144A2EECF6A334702FCC8B4D4 /* KeychainAccess.release.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/KeychainAccess/KeychainAccess-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/KeychainAccess/KeychainAccess-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/KeychainAccess/KeychainAccess.modulemap";
+				PRODUCT_MODULE_NAME = KeychainAccess;
+				PRODUCT_NAME = KeychainAccess;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		40122AF89D66D2C986B44E4FE72AA7CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1168A43A29BD56F0F23C69B0A19206B /* KeychainAccess.debug.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/KeychainAccess/KeychainAccess-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/KeychainAccess/KeychainAccess-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/KeychainAccess/KeychainAccess.modulemap";
+				PRODUCT_MODULE_NAME = KeychainAccess;
+				PRODUCT_NAME = KeychainAccess;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		4F80A93C2808721D4A1A701E44EEAD8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C9F189C25798BF4A95A53090F2139D4E /* SwiftProtobuf.release.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/SwiftProtobuf/SwiftProtobuf-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/SwiftProtobuf/SwiftProtobuf-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SwiftProtobuf/SwiftProtobuf.modulemap";
+				PRODUCT_MODULE_NAME = SwiftProtobuf;
+				PRODUCT_NAME = SwiftProtobuf;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		59AA21B0BD8D6E03E33E429F4351A741 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 47CAF5040257A974DC9F248BF2E3E881 /* MqttCocoaAsyncSocket.debug.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/MqttCocoaAsyncSocket/MqttCocoaAsyncSocket-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/MqttCocoaAsyncSocket/MqttCocoaAsyncSocket-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/MqttCocoaAsyncSocket/MqttCocoaAsyncSocket.modulemap";
+				PRODUCT_MODULE_NAME = MqttCocoaAsyncSocket;
+				PRODUCT_NAME = MqttCocoaAsyncSocket;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		5A0F8F0796E3B83B4A2407828E09FD7D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A5B28DA6CB4862FDDF6B2EB9FCF758FF /* CocoaMQTT.debug.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/CocoaMQTT/CocoaMQTT-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/CocoaMQTT/CocoaMQTT-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/CocoaMQTT/CocoaMQTT.modulemap";
+				PRODUCT_MODULE_NAME = CocoaMQTT;
+				PRODUCT_NAME = CocoaMQTT;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		5F434D14946A2D4EC91CD5C9F5E6BA5F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5548AFD34416A48D6C1492AD2DB7A482 /* Pods-ExampleApp.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = "Target Support Files/Pods-ExampleApp/Pods-ExampleApp-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-ExampleApp/Pods-ExampleApp.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		67CD01161600085B5224E7C4D364BBD5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C9F189C25798BF4A95A53090F2139D4E /* SwiftProtobuf.release.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/SwiftProtobuf";
+				IBSC_MODULE = SwiftProtobuf;
+				INFOPLIST_FILE = "Target Support Files/SwiftProtobuf/ResourceBundle-SwiftProtobuf-SwiftProtobuf-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				PRODUCT_NAME = SwiftProtobuf;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
+		67F4DA65AF42580F36FDAF1DDB22F5E5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B045BB08A5B32A21671BB01C70A0F09E /* MqttCocoaAsyncSocket.release.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/MqttCocoaAsyncSocket/MqttCocoaAsyncSocket-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/MqttCocoaAsyncSocket/MqttCocoaAsyncSocket-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/MqttCocoaAsyncSocket/MqttCocoaAsyncSocket.modulemap";
+				PRODUCT_MODULE_NAME = MqttCocoaAsyncSocket;
+				PRODUCT_NAME = MqttCocoaAsyncSocket;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		6B944914203B5FCE9AECA206BE746A41 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 531F8FB4AB915D7C28A64426D1172502 /* SwiftKeychainWrapper.debug.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/SwiftKeychainWrapper/SwiftKeychainWrapper-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/SwiftKeychainWrapper/SwiftKeychainWrapper-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SwiftKeychainWrapper/SwiftKeychainWrapper.modulemap";
+				PRODUCT_MODULE_NAME = SwiftKeychainWrapper;
+				PRODUCT_NAME = SwiftKeychainWrapper;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		7959AB4060A3E2259C13D395C865E5E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 23D48E1EDBB156B7835C842C7BDCA71B /* SwiftQueue.release.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/SwiftQueue/SwiftQueue-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/SwiftQueue/SwiftQueue-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SwiftQueue/SwiftQueue.modulemap";
+				PRODUCT_MODULE_NAME = SwiftQueue;
+				PRODUCT_NAME = SwiftQueue;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.5.3;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		B86D71A5E7AB53EB2C08DEA39FBD2050 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Release;
+		};
+		B9F1B6D07F3D7EF14265761536DC2598 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F871921466A3281C4C2FE2C336DFD930 /* SwiftQueue.debug.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/SwiftQueue/SwiftQueue-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/SwiftQueue/SwiftQueue-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SwiftQueue/SwiftQueue.modulemap";
+				PRODUCT_MODULE_NAME = SwiftQueue;
+				PRODUCT_NAME = SwiftQueue;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.5.3;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		BD5E84F7B72D348654A4D58B6BA51118 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		CDBA339B49D23009EB3A76C727171FC0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 48775F24FA5E1B26C1D6A91DA67A5EFD /* SensorBioSDK.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DABBCABA18144BB77D1B3546EF358CA2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D58B2BEAE2004F9B80FD340EC64A31E /* Pods-ExampleApp.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = "Target Support Files/Pods-ExampleApp/Pods-ExampleApp-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-ExampleApp/Pods-ExampleApp.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		E925F4986BD74A8B798476AC66556313 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AF01A9D506C66EA242021EC1AFDCDE78 /* CocoaMQTT.release.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/CocoaMQTT/CocoaMQTT-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/CocoaMQTT/CocoaMQTT-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/CocoaMQTT/CocoaMQTT.modulemap";
+				PRODUCT_MODULE_NAME = CocoaMQTT;
+				PRODUCT_NAME = CocoaMQTT;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		F3D158FA3BE2CADCF12AAC93DA98CAEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C925D18072DCFE2789BE159D164DBA36 /* SwiftKeychainWrapper.release.xcconfig */;
+			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGNING_ALLOWED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/SwiftKeychainWrapper/SwiftKeychainWrapper-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/SwiftKeychainWrapper/SwiftKeychainWrapper-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SwiftKeychainWrapper/SwiftKeychainWrapper.modulemap";
+				PRODUCT_MODULE_NAME = SwiftKeychainWrapper;
+				PRODUCT_NAME = SwiftKeychainWrapper;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0462A170768A7BE87B30B0BD49FC6C9F /* Build configuration list for PBXNativeTarget "MqttCocoaAsyncSocket" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				59AA21B0BD8D6E03E33E429F4351A741 /* Debug */,
+				67F4DA65AF42580F36FDAF1DDB22F5E5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A2567D919C3503794C3AC0A279285A8 /* Build configuration list for PBXNativeTarget "KeychainAccess" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				40122AF89D66D2C986B44E4FE72AA7CC /* Debug */,
+				3321B8226DB23E63F3D21AA7E21C3FD3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2CBA55AC795250BC3C3014571C82EB74 /* Build configuration list for PBXNativeTarget "SwiftProtobuf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DE1026FC4AFEFCE00D7A4D030B6968D /* Debug */,
+				4F80A93C2808721D4A1A701E44EEAD8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD5E84F7B72D348654A4D58B6BA51118 /* Debug */,
+				B86D71A5E7AB53EB2C08DEA39FBD2050 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		701421AC78CFCB06DED14D7A82780FB3 /* Build configuration list for PBXNativeTarget "CocoaMQTT" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A0F8F0796E3B83B4A2407828E09FD7D /* Debug */,
+				E925F4986BD74A8B798476AC66556313 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		72EA9A6B209B6DD23EBE5D818705063E /* Build configuration list for PBXNativeTarget "Pods-ExampleApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DABBCABA18144BB77D1B3546EF358CA2 /* Debug */,
+				5F434D14946A2D4EC91CD5C9F5E6BA5F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		999EC8DD0BC4CCF67094D6484CFAE2BF /* Build configuration list for PBXNativeTarget "SwiftProtobuf-SwiftProtobuf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2DB84F62F3CFB4D9AD1A1A1FEE84F218 /* Debug */,
+				67CD01161600085B5224E7C4D364BBD5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9E68BEC86AD4A32918057E7175FBE1DD /* Build configuration list for PBXAggregateTarget "SensorBioSDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				277E819F180CF09CC148EF9DF31DEE14 /* Debug */,
+				CDBA339B49D23009EB3A76C727171FC0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CE943207A656D1A818A27A1E09F3C4BE /* Build configuration list for PBXNativeTarget "SwiftQueue" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9F1B6D07F3D7EF14265761536DC2598 /* Debug */,
+				7959AB4060A3E2259C13D395C865E5E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E2F17F64318722DC2E5C47CEEA02A006 /* Build configuration list for PBXNativeTarget "SwiftKeychainWrapper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B944914203B5FCE9AECA206BE746A41 /* Debug */,
+				F3D158FA3BE2CADCF12AAC93DA98CAEA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+}

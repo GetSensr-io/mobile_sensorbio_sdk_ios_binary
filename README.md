@@ -2,84 +2,81 @@
 
 Customer-facing binary distribution of the Sensr-Bio iOS SDK. This repository contains:
 
-- **`SensorBio/`** — the three `.xcframework` files + the binary podspec that wires them into your app
+- **`Package.swift`** — the Swift Package you add to your app
 - **`SDK_INTERFACE.md`** — the public API reference
-- **`ExampleApp/`** — a reference SwiftUI integration you can build + run
+- **`ExampleApp/`** — a reference SwiftUI integration you can build and run
 
 ## What ships
 
-| File | Size | Contents |
-|------|------|----------|
-| `SensorBio/SensorBioSDK.xcframework` | 120 MB | The customer-facing Swift API — auth, dashboard / sleep / activity / biometric reads, recording orchestration, upload pipeline. Bundles the on-device DSP (HRV / sleep / activity computation) and SwiftProtobuf-compiled wire types. |
-| `SensorBio/SensorBioBTSDK.xcframework` | 20 MB | The Sensr-Bio BLE pairing + sync pipeline. Talks to Sensr-Bio wearables over CoreBluetooth. Linked transitively — you don't call into it directly. |
-| `SensorBio/LibFXC.xcframework` | 400 KB | Philips proprietary FXC sleep-staging engine. Linked transitively from `SensorBioBTSDK`. |
-| `SensorBioSDK.podspec` (repo root) | — | Umbrella binary podspec — vendors the three xcframeworks above and declares the third-party CocoaPods that have to come from CocoaPods trunk. |
+The frameworks are **attached to each GitHub release**, not stored in this
+repository. Xcode downloads them on first resolve and verifies them against
+the checksums in `Package.swift`; you do not fetch them yourself.
 
-All three xcframeworks are iOS-only (device + arm64 simulator). They cannot run on macOS or Intel Mac simulators.
+| Artifact | Contents |
+|---|---|
+| `SensorBioSDK.xcframework` | The SDK. Auth, dashboard / sleep / activity / biometric reads, recording orchestration, the upload pipeline, the BLE pairing and sync engine, and the on-device DSP (HRV / sleep / activity computation). |
+| `LibFXC.xcframework` | Philips proprietary FXC sleep-staging engine. Linked transitively — you never call into it. |
+
+Both are iOS-only (device + arm64 simulator). They cannot run on macOS or on
+Intel Mac simulators.
+
+`import SensorBioSDK` is the only import your app needs.
 
 ## Requirements
 
 - **Xcode 16.3+** (Swift 6.1 toolchain)
 - **iOS 18+** deployment target
-- **CocoaPods 1.16+** — `sudo gem install cocoapods` or `brew install cocoapods`
+- **Bluetooth + Background Modes capabilities**, so the SDK can stay connected to the wearable and finish syncs while your app is backgrounded
 
 ## Integrating into your app
 
-### 1. Add SensorBioSDK to your `Podfile`
+### 1. Add the package
 
-If your `Podfile` doesn't exist yet, create one. The minimum looks like:
+In Xcode: **File → Add Package Dependencies…**, enter
 
-```ruby
-platform :ios, '18.0'
-
-target 'YourApp' do
-  use_frameworks!
-
-  pod 'SensorBioSDK',
-    :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v2.2.0'
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      # Required: SensorBioSDK is iOS 18+; transitive pods default lower
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']     = '18.0'
-      # Required: abseil (pulled in transitively by gRPC-Core) needs C++17
-      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD']    = 'c++17'
-      config.build_settings['CLANG_CXX_LIBRARY']              = 'libc++'
-      # Required: SensorBioSDK.xcframework was built with library-evolution
-      # mode, so its Job subclasses reference SwiftQueue's `Job.onRetry` via
-      # Swift method descriptors. The transitive pods (SwiftQueue, etc.) must
-      # also be built with library-evolution for those descriptors to exist.
-      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-    end
-  end
-end
+```
+https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-CocoaPods clones the binary repo at the pinned tag, finds the umbrella `SensorBioSDK.podspec` at the root, and links the three xcframeworks from `SensorBio/`. No source code is shipped; no manual file copy.
+choose **Exact Version** `3.0.0`, and add the `SensorBioSDK` library to your app target.
 
-The single `pod 'SensorBioSDK'` line transitively brings:
+Or, if your app is itself a Swift package:
 
-- The 3 SensorBio xcframeworks (via `vendored_frameworks` inside the podspec)
-- `gRPC-ProtoRPC` (which transitively brings gRPC-Core + abseil + BoringSSL-GRPC + the ObjC Protobuf runtime)
-- `SwiftProtobuf` (Swift wire-type runtime)
-- `SwiftKeychainWrapper` + `KeychainAccess` (keychain helpers)
-- `SwiftQueue` (persistent job-queue runtime)
-- `CocoaMQTT` (MQTT client for the license-key broker)
-
-### 2. Run `pod install`
-
-```bash
-pod install
+```swift
+dependencies: [
+    .package(
+        url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
+        exact: "3.0.0"
+    )
+],
+targets: [
+    .target(
+        name: "YourApp",
+        dependencies: [
+            .product(name: "SensorBioSDK", package: "mobile_sensorbio_sdk_ios_binary")
+        ]
+    )
+]
 ```
 
-Open `YourApp.xcworkspace` (not `.xcodeproj`) in Xcode going forward.
+That is the whole integration. There is no build-settings block to copy, no
+`post_install` hook, and nothing to add to a `Podfile`.
 
-### 3. Use the SDK
+### 2. There are no other dependencies to add
 
-The customer-facing entry point is a top-level `sensorBio` accessor (the singleton `SB_SDK.shared`). The framework module is `SensorBioSDK`; the singleton class inside it is `SB_SDK`.
+The SDK declares **no third-party packages**, and it does not need you to
+declare any either. Everything it uses is compiled inside
+`SensorBioSDK.xcframework`.
+
+This is worth stating plainly because it is the opposite of the usual advice:
+if a symbol appears to be missing, **do not add a package to satisfy it** — a
+second copy of a library the SDK already contains is far more likely to break
+your build than to fix it. Tell us instead: support@sensorbio.com.
+
+The SDK coexists with anything else in your app, including apps that use
+Firebase or Firestore.
+
+### 3. Configure it at launch
 
 ```swift
 import SwiftUI
@@ -89,67 +86,128 @@ import SensorBioSDK
 struct YourApp: App {
     init() {
         SB_SDK.environment = .production
-        SB_SDK.bootstrapKeychain()
-        SB_SDK.runDefaultsMigratorIfNeeded()
     }
+
     var body: some Scene {
         WindowGroup { ContentView() }
     }
 }
-
-// Anywhere in your app — `registerUser` is register-or-login for a user your
-// app has already authenticated by its own means:
-func startSensorBioSession(userId: String) async throws {
-    switch try await sensorBio.registerUser(userId: userId) {
-    case .success(let session):    routeToHome(session)
-    case .failure(let errorCode):  showError(errorCode)
-    }
-}
 ```
 
-There is no email/password sign-in in the shipped SDK — `signIn` and
-`createAccount` are first-party-only and compile-stripped from this binary.
-`registerUser` needs `SB_SDK.sdkKeyCredentials` set first (see
-[`SDK_INTERFACE.md`](./SDK_INTERFACE.md) § 4), or it fails with
-`sdkKeyCredentialsNotSet`.
+### 4. Register a user
+
+Registration needs one endpoint on **your own server**. Your organization's
+SDK Key (`sbsk_…`) is long-lived and org-wide — whoever holds it can mint
+tokens for any of your users — so your server keeps it and exchanges it for a
+single-use `sdk_token` (`sbst_…`) worth one register-or-login, for one user,
+for a few minutes.
+
+Your server calls `POST /sdk/v1/token` with `Authorization: SDKKey sbsk_…` and
+returns the `sdk_token` and `organization_id`. Your app passes both straight to
+the SDK and registers:
+
+```swift
+let minted = try await YourBackend.fetchSensorBioToken()
+
+SB_SDK.sdkCredentials = SB_SDKCredentials(
+    organizationId: minted.organizationId,
+    sdkToken: minted.sdkToken
+)
+
+let outcome = try await sensorBio.registerUser(userId: yourUserId)
+```
+
+That is the whole flow. **The SDK Key never reaches the device**, and there is
+nothing else to configure — no separate org credential, no build settings, and
+nothing to re-supply at launch. The organization id is remembered for you, so
+an app relaunching into a restored session sets nothing.
+
+`registerUser` also takes optional demographics and an activation code
+(`birthday:`, `sex:`, `heightCm:`, `weightKg:`, `imperialUnits:`,
+`activationCode:`). The first call for a given `userId` registers; later calls
+log the same user back in.
+
+Tokens are single use and expire in minutes. Get a fresh one per registration
+and never cache one — the SDK clears `sdkCredentials` as it spends the token,
+so a replay cannot happen by accident.
+
+**[`SDK_INTERFACE.md` §5](./SDK_INTERFACE.md)** is the guide for whoever builds
+that endpoint: the exchange contract, reference implementations, the error
+table, and key rotation.
+
+#### When a session ends
+
+If a session dies beyond recovery — its refresh token expired after 60 days of
+inactivity, or the SDK Key it was signed under was revoked — the SDK surfaces
+`SB_AuthError.refreshTokenExpired`. Treat it as a sign-out: fetch fresh
+credentials, set `sdkCredentials`, and call `registerUser` again with the same
+`userId`. It logs the same user back into the same data.
+
+The SDK deliberately does not do this behind your back. Rebuilding a session
+needs a freshly minted token, the SDK cannot mint one, and holding on to
+something that could is what used to put the organization key on devices.
+
+### 5. Use the SDK
+
+The entry point is the top-level `sensorBio` accessor (the singleton
+`SB_SDK.shared`):
+
+```swift
+let dashboard = try await sensorBio.fetchDashboardData(
+    date: Date(),
+    tzOffset: Int32(TimeZone.current.secondsFromGMT() / 60)
+)
+```
 
 See **[`SDK_INTERFACE.md`](./SDK_INTERFACE.md)** for the full public surface.
 
 ## Reference integration
 
-**[`ExampleApp/`](./ExampleApp)** is a minimal SwiftUI app demonstrating the integration pattern. From inside that directory: `pod install`, then open `ExampleApp.xcworkspace`. It hits a dev backend and pairs against any Sensr-Bio wearable.
+**[`ExampleApp/`](./ExampleApp)** is a minimal SwiftUI app demonstrating the
+whole pattern end to end. Open `ExampleApp.xcodeproj` and run it on a device.
+
+It stands in for your backend in one file,
+[`SDKTokenExchange.swift`](./ExampleApp/ExampleApp/SDKTokenExchange.swift),
+which performs the SDK-Key → SDK-token exchange in the app so the example can
+run without a server. **That file is the one part of the example you should
+not copy** — its header explains why, and it is deliberately isolated so the
+rest of the app shows the shape your app should actually have.
 
 ## Updating
 
-When a new SDK version drops:
+1. In Xcode, **File → Packages → Update to Latest Package Versions**, or raise
+   the pinned version in your `Package.swift`.
+2. Rebuild.
 
-1. Bump the `:tag` in your `Podfile` to the new version (`:tag => 'vX.Y.Z'`).
-2. `pod update SensorBioSDK`.
-3. Open the workspace, rebuild.
-
-There are no files to copy by hand — CocoaPods clones this repo at the tag and
-links the xcframeworks out of it.
-
-`SDK_INTERFACE.md` documents any breaking changes per release.
+`SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
 
-> **v2.3.0 was withdrawn on September 9, 2026 and its tag removed.** It shipped
-> a build in which gRPC is linked inside the framework, and that build cannot
-> resolve the API host — every RPC fails with `UNAVAILABLE ("empty address
-> list")`. Nothing pins it any more; if you cloned it, move back to `v2.2.0`.
-> **`v2.2.0` is the current release.** The gRPC-isolation work it was carrying
-> will return in a later version once the transport fault is fixed.
+### v3.0.0
 
-
-### v0.4.0 — May 22, 2026
-
-- SDK now owns biometric, meditation, and activity recording orchestration end-to-end — host app awaits one async call (`recordDetailedBiometrics`, `recordMeditation`, `recordActivity`) and the SDK manages BLE start/stop, the timer, post-stop sync, session build, and submission.
-- In-flight recordings persist across app kill and resume (or auto-finalize) on relaunch. New surface: `activeRecording`, `awaitActiveRecordingCompletion()`, `cancelCurrentRecording()`. See `SDK_INTERFACE.md` §5.3.
-- **Breaking:** public-surface rename `spotCheck*` → `biometricRecord*` (`recordSpotCheck` → `recordDetailedBiometrics`, `SB_SpotCheck*` types → `SB_BiometricRecord*`). Update call sites.
-- One-shot migration of legacy host-app UserDefaults + Keychain on first SDK launch — signed-in users and paired devices survive the upgrade from older host-app builds where these were app-side.
-- SensrV1 hardware now appears in pair-scan results alongside V2 / V2.5 / V3.
-- Stable cache keys for sleep-detail and dashboard endpoints (eliminates spurious cache misses).
+- **Integration moves from CocoaPods to Swift Package Manager.** This is the
+  breaking change in this release; the Swift API is unchanged. Remove the
+  `pod 'SensorBioSDK'` line and its `post_install` block, and add the package
+  as described above.
+- **The SDK no longer brings any third-party dependencies into your project.**
+  It previously required SwiftProtobuf, SwiftKeychainWrapper, KeychainAccess,
+  SwiftQueue and CocoaMQTT to be resolved alongside it. All of them are now
+  compiled inside the framework, along with its gRPC stack.
+- **Fixes a crash for apps that use Firebase or Firestore.** Two gRPC
+  implementations in one process could bind to each other's internals, and the
+  app would die within seconds of the first Firestore request. The SDK now
+  carries its own transport privately, so there is nothing left to collide.
+- **Two xcframeworks instead of three.** `SensorBioBTSDK.xcframework` is now
+  linked inside `SensorBioSDK.xcframework`; delete your copy of it.
+- **The organization SDK Key no longer goes on the device.** `registerUser`
+  authenticated with a single-use token, but every call *after* it presented
+  the raw key, so apps had to hold one — which defeated the token exchange.
+  Authenticated calls now use the session's own access token.
+  `SB_SDKKeyCredentials` and `SB_SDK.sdkKeyCredentials` are removed; set
+  `SB_SDK.sdkCredentials` with the `organization_id` and `sdk_token` your
+  exchange returns, and call `registerUser(userId:)`.
+- `sensorBio.sdkVersion` reports the real version. It previously returned
+  `"UNKNOWN"` in every customer app.
 
 ## Support
 

@@ -1,18 +1,6 @@
-.DS_Store
-
-# Xcode per-user state
-.swiftpm/xcode/xcuserdata/
-.swiftpm/xcode/package.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
-
-# CocoaPods — ExampleApp regenerates Pods/ on `pod install`; don't commit it.
-# Podfile.lock IS committed so customers run against the same resolution.
-ExampleApp/Pods/
-ExampleApp/*.xcworkspace/
-
-# Xcode DerivedData from the release verify build (scripts/publish-example-app.sh)
-ExampleApp/build/
-
-# Local agent worktrees / files
-.claude/
+# The xcframeworks are release assets, not repo contents — see Package.swift.
+# Each slice of the SDK framework is over GitHub's 100 MB per-file limit, and
+# committing them would add ~170 MB to this repo's history per release.
+SensorBio/
+*.xcframework
+*.xcframework.zip
