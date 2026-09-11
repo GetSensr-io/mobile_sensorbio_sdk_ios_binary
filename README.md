@@ -183,6 +183,28 @@ rest of the app shows the shape your app should actually have.
 
 ## Release notes
 
+### v3.0.1 — September 11, 2026
+
+- **Fixes duplicate-symbol link errors if your app also links SwiftProtobuf,
+  gRPC, SwiftNIO or BoringSSL.** 3.0.0 left every symbol of the libraries
+  compiled inside the framework visible to your linker, so it saw two copies of
+  each and refused to link — thousands of errors. Those symbols are now hidden;
+  the SDK still uses them internally. Nothing changes in your code or your
+  package declaration.
+- **`SensorBioSDK.xcframework` is a dynamic framework again** rather than a
+  static one, which is what makes hiding the symbols possible. Xcode embeds and
+  signs it for you; there is nothing to configure.
+- **The download is roughly a third of the size** — 69 MB unzipped, down from
+  215 MB.
+- If you worked around the 3.0.0 link errors by forcing the framework dynamic
+  yourself, remove that workaround. It caused
+  `JSONEncodingError.missingFieldNames` at runtime and is no longer needed.
+- You may still see `objc: Class _TtC13SwiftProtobuf… is implemented in both`
+  warnings in the console if your app links SwiftProtobuf too. They are
+  expected and harmless: Objective-C registers classes by name regardless of
+  symbol visibility, and no SDK API exposes those types, so the two copies
+  never exchange objects.
+
 ### v3.0.0
 
 - **Integration moves from CocoaPods to Swift Package Manager.** This is the

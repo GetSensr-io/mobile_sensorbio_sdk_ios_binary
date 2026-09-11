@@ -4,13 +4,22 @@
 //
 //  Add this package to your app and you are done. It declares NO third-party
 //  dependencies, and that is deliberate: grpc-swift, SwiftNIO, SwiftProtobuf
-//  and everything else the SDK uses are compiled inside the xcframework with
-//  their symbols hidden. Nothing here can collide with a library you already
-//  use — including Firebase, which brings its own gRPC.
+//  and everything else the SDK uses are compiled inside the xcframework, and
+//  since 3.0.1 their symbols are hidden from your linker as well as from your
+//  package graph. Nothing here can collide with a library you already use —
+//  including Firebase, which brings its own gRPC, or SwiftProtobuf, which you
+//  may well link yourself.
 //
 //  Do not add a grpc-swift (or any other) dependency here to "match" ours.
 //  A second copy of those symbols in the same app is the failure this
 //  packaging exists to prevent.
+//
+//  3.0.0 got only half of that right: the package graph was clean, but the
+//  xcframework was a static archive that exported all 131,046 of its symbols,
+//  so an app linking SwiftProtobuf got thousands of duplicate-symbol errors.
+//  3.0.1 ships it as a dynamic framework with an unexport list. That is why
+//  SensorBioSDK is a dylib and not a static archive — Xcode embeds and signs
+//  it for you, and there is nothing for you to configure.
 //
 //  ── Why the frameworks are URLs and not files in this repo ────────────────
 //
@@ -29,7 +38,7 @@
 //
 import PackageDescription
 
-let version = "3.0.0"
+let version = "3.0.1"
 let releaseBase = "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary/releases/download"
 
 let package = Package(
@@ -45,7 +54,7 @@ let package = Package(
         .binaryTarget(
             name: "SensorBioSDK",
             url: "\(releaseBase)/v\(version)/SensorBioSDK.xcframework.zip",
-            checksum: "ca94ed00c7755e15305463c96f7755701c2f79a455ca626ed28573203fdb0ad7"
+            checksum: "7b151bad0e186d2105a8aca7070765704a7240c53dc1600919174fc2209f8a90"
         ),
         // Philips signal-processing library. Ships separately because it is a
         // dynamic library and cannot be absorbed into the static SDK the way
@@ -53,7 +62,7 @@ let package = Package(
         .binaryTarget(
             name: "LibFXC",
             url: "\(releaseBase)/v\(version)/LibFXC.xcframework.zip",
-            checksum: "b777f7078ee9f1bd2bcae6e570422ff91c1a399fce1ff51bc7b3dc1cd049543c"
+            checksum: "a98fae08172b924e8b6a933002af7960365814cec1f874c698e261aaa5dccedc"
         ),
         // Link carrier. A `binaryTarget` cannot express dependencies or
         // linker settings on its own, so the product points at this instead
