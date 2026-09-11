@@ -20,9 +20,10 @@ import SensorBioSDK
 /// 2. `POST /sdk/v1/token` with `Authorization: SDKKey sbsk_…`;
 /// 3. return `sdk_token` + `organization_id` to the app.
 ///
-/// The app then hands both to the SDK (`registerUser(…, sdkToken:)`). Steps 2
-/// and 3 are what this file fakes, so the example app can demonstrate the
-/// token flow end to end without standing up a backend first.
+/// The app then hands both to the SDK as `SB_SDK.sdkCredentials` and calls
+/// `registerUser(userId:)`. Steps 2 and 3 are what this file fakes, so the
+/// example app can demonstrate the token flow end to end without standing up
+/// a backend first.
 ///
 /// `SDK_INTERFACE.md` § 5 is the guide to building the real thing: the
 /// contract, reference implementations, the errors, and key rotation.
@@ -120,33 +121,6 @@ enum SDKTokenExchange {
             sdkKeyId: decoded.sdkKeyId ?? "",
             expiresInSeconds: decoded.expiresInSeconds ?? 0
         )
-    }
-
-    /// The `SB_SDK.sdkTokenProvider` closure this app installs at launch — the
-    /// hook the SDK pulls when it needs a token and none was handed to it:
-    /// a `registerUser` called without one, or a session that died and has to
-    /// be rebuilt (a refresh token past its 60-day window, a revoked SDK key).
-    ///
-    /// In your app this closure calls **your backend**. Here it re-reads the
-    /// key the register form saved and mints locally, which is the same
-    /// stand-in the rest of this file is. It throws when no key has been
-    /// entered — the SDK treats a throw as the host declining to mint and
-    /// surfaces the auth error it already had, which is the right outcome:
-    /// there is nobody to ask.
-    static func makeProvider() -> SB_SDKTokenProvider {
-        return {
-            let key = UserDefaults.standard
-                .string(forKey: "register.sdkKey")?
-                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            guard !key.isEmpty else {
-                throw Failure.unreachable("no SDK Key saved on this device — register once first")
-            }
-            let minted = try await mintToken(sdkKey: key)
-            // Surface it in the Profile tab like any other mint, so a session
-            // the SDK rebuilt on its own is visible rather than mysterious.
-            await MainActor.run { SDKTokenRecord.shared.record(minted) }
-            return minted.sdkToken
-        }
     }
 
     /// The REST public API, which is a different host from the SDK's gRPC one

@@ -21,26 +21,14 @@ struct SDKExampleApp: App {
         let isDev = UserDefaults.standard.bool(forKey: "envIsDev")
         SB_SDK.environment = isDev ? .staging : .production
 
-        // SDK-key mode: the SDK holds the org credentials in memory only, so on
-        // a cold launch that hydrates a prior SDK-key session we must re-supply
-        // them before the first authenticated call (dashboard fetch). We read
-        // them from the same UserDefaults the register form persisted — the org
-        // id as the last token exchange resolved it, plus the SDK Key itself,
-        // which is what the authenticated RPCs after a register still carry.
-        // The single-use `sdk_token` is deliberately NOT persisted: it is spent
-        // by the register that used it and is accepted on no other call.
-        let orgId = UserDefaults.standard.string(forKey: "register.orgId") ?? ""
-        let sdkKey = UserDefaults.standard.string(forKey: "register.sdkKey") ?? ""
-        if !orgId.isEmpty && !sdkKey.isEmpty {
-            SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: orgId, sdk_token: sdkKey)
-        }
-
-        // How the SDK asks for a single-use token when it needs one and hasn't
-        // been handed one: a `registerUser(userId:)` with no token, or a
-        // session that has died past refreshing and has to be rebuilt. In a
-        // real app this closure calls your backend; set it once here and no
-        // call site ever plumbs a token again.
-        SB_SDK.sdkTokenProvider = SDKTokenExchange.makeProvider()
+        // Nothing else to configure. The SDK remembers which organization a
+        // session belongs to, so a cold launch into a restored session needs
+        // no credentials from the host — and the organization SDK Key is
+        // never on the device to re-supply in the first place (SB-2095).
+        //
+        // What used to be here: a restore of `SB_SDK.sdkKeyCredentials` read
+        // back out of UserDefaults, including the raw SDK Key, because every
+        // authenticated call presented it. That is gone.
     }
 
     var body: some Scene {

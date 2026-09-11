@@ -145,11 +145,14 @@ final class RegisterFormState {
         orgId = minted.organizationId
         UserDefaults.standard.set(minted.organizationId, forKey: Keys.orgId)
 
-        // Configure the org credentials once, then register with just the user
-        // identity. `sdkKeyCredentials` is what every authenticated call after
-        // the register carries; the single-use token is passed to the register
-        // call itself, below, and is the only credential that call presents.
-        SB_SDK.sdkKeyCredentials = SB_SDKKeyCredentials(org_id: minted.organizationId, sdk_token: trimmed(sdkKey))
+        // Hand the SDK exactly what the exchange returned. This is the only
+        // credential the SDK ever sees: the organization it belongs to, and a
+        // single-use token that `registerUser` below spends. The SDK Key that
+        // minted it stays on the "backend" side of this app's pretence.
+        SB_SDK.sdkCredentials = SB_SDKCredentials(
+            organizationId: minted.organizationId,
+            sdkToken: minted.sdkToken
+        )
 
         // Optional demographics — only sent when the profile section is on and
         // the field parses. Everything left nil is dummy-filled by the SDK.
@@ -185,8 +188,7 @@ final class RegisterFormState {
                 heightCm: heightCmValue,
                 weightKg: weightKgValue,
                 imperialUnits: imperialUnits,
-                activationCode: trimmed(activationCode).isEmpty ? nil : trimmed(activationCode),
-                sdkToken: minted.sdkToken
+                activationCode: trimmed(activationCode).isEmpty ? nil : trimmed(activationCode)
             )
             switch outcome {
             case .success(let session):

@@ -19,18 +19,63 @@ struct ProfileView: View {
     // than from a keychain hydrate. In-memory only — see `SDKTokenRecord`.
     @State private var tokenRecord = SDKTokenRecord.shared
 
+    // The signed-in user the SDK publishes. `registerUser` fills the demographics
+    // it was given (and substitutes neutral values for the ones it wasn't), so this
+    // is where a host sees what the platform actually holds for its user.
+    @State private var profile: SB_UserProfile? = sensorBio.userProfile
+    // Editable fields, prefilled from the profile once it arrives.
+    @State private var birthYear: String = ""
+    @State private var birthMonth: String = ""
+    @State private var birthDay: String = ""
+    @State private var heightCm: String = ""
+    @State private var weightKg: String = ""
+    @State private var prefilled: Bool = false
+    @State private var saving: Bool = false
+    @State private var saveMessage: String? = nil
+
     var body: some View {
         List {
             Section("Account") {
-                LabeledContent("Username", value: session.username)
+                LabeledContent("Signed in", value: session.username)
+                LabeledContent("Name", value: display(profile?.fullName))
+                LabeledContent("Email", value: display(profile?.email))
+                LabeledContent("Sex", value: profile.map { genderName($0.sex) } ?? "—")
+                LabeledContent("Age", value: profile?.age.map(String.init) ?? "—")
+                LabeledContent("Units", value: profile.map { $0.imperialUnits ? "IMPERIAL" : "METRIC" } ?? "—")
+                LabeledContent("SDK version", value: sensorBio.sdkVersion)
             }
 
-            Section {
-                LabeledContent("SensorBioSDK", value: sensorBio.sdkVersion)
-            } header: {
-                Text("SDK")
-            } footer: {
-                Text("Reported by `sensorBio.sdkVersion`. Compiled into the framework — if this ever reads UNKNOWN, the build is wrong.")
+            // Demographics are not decoration: the platform needs height/weight/sex/
+            // birthday to compute recovery, calories and sleep scoring, and
+            // `registerUser` substitutes neutral values for whatever it wasn't given.
+            // An integration that collects them later writes them back here.
+            Section("Edit Metrics") {
+                LabeledContent("Birthday") {
+                    HStack(spacing: 6) {
+                        numberField("Year", text: $birthYear, width: 56)
+                        numberField("Mo", text: $birthMonth, width: 40)
+                        numberField("Day", text: $birthDay, width: 40)
+                    }
+                }
+                LabeledContent("Height (cm)") {
+                    numberField("cm", text: $heightCm, width: 80, decimal: true)
+                }
+                LabeledContent("Weight (kg)") {
+                    numberField("kg", text: $weightKg, width: 80, decimal: true)
+                }
+                Button {
+                    Task { await saveMetrics() }
+                } label: {
+                    if saving {
+                        ProgressView()
+                    } else {
+                        Text("Save Changes")
+                    }
+                }
+                .disabled(profile == nil || saving)
+                if let saveMessage {
+                    Text(saveMessage).foregroundStyle(.secondary)
+                }
             }
 
             Section {
@@ -127,11 +172,92 @@ struct ProfileView: View {
         .onReceive(sensorBio.$lastSyncd) { lastSyncd = $0 }
         .onReceive(sensorBio.$deviceSyncing) { syncing = $0 }
         .onReceive(sensorBio.$percentSynced) { percentSynced = $0 }
+        .onReceive(sensorBio.$userProfile) { incoming in
+            profile = incoming
+            guard let incoming, !prefilled else { return }
+            // A nil birthday means the server holds none — leave the fields empty
+            // rather than showing a sentinel date the user never entered.
+            birthYear = incoming.birthday?.year.map(String.init) ?? ""
+            birthMonth = incoming.birthday?.month.map(String.init) ?? ""
+            birthDay = incoming.birthday?.day.map(String.init) ?? ""
+            heightCm = incoming.metricHeight > 0 ? String(format: "%.0f", incoming.metricHeight) : ""
+            weightKg = incoming.metricWeight > 0 ? String(format: "%.1f", incoming.metricWeight) : ""
+            prefilled = true
+        }
         .sheet(isPresented: $presentingPair) {
             PairDeviceView()
         }
         .sheet(isPresented: $presentingToken) {
             SDKTokenSheet(record: tokenRecord)
+        }
+    }
+
+    private func display(_ value: String?) -> String {
+        guard let value, !value.isEmpty else { return "—" }
+        return value
+    }
+
+    private func genderName(_ sex: SB_Gender) -> String {
+        switch sex {
+        case .male: return "MALE"
+        case .female: return "FEMALE"
+        case .undisclosed: return "UNDISCLOSED"
+        }
+    }
+
+    private func numberField(
+        _ prompt: String,
+        text: Binding<String>,
+        width: CGFloat,
+        decimal: Bool = false
+    ) -> some View {
+        TextField(prompt, text: text)
+            .keyboardType(decimal ? .decimalPad : .numberPad)
+            .multilineTextAlignment(.trailing)
+            .textFieldStyle(.roundedBorder)
+            .frame(width: width)
+    }
+
+    @MainActor
+    private func saveMetrics() async {
+        guard let current = profile else { return }
+        saving = true
+        saveMessage = nil
+        defer { saving = false }
+
+        // The update RPC always writes a birthday, so an edit has to state one:
+        // fall back to the profile's, then to the neutral date `registerUser`
+        // substitutes. Every other field is carried through unchanged — this is a
+        // whole-profile write, not a patch, so omitting one would erase it.
+        var birthday = DateComponents()
+        birthday.year = Int(birthYear) ?? current.birthday?.year ?? 1990
+        birthday.month = Int(birthMonth) ?? current.birthday?.month ?? 6
+        birthday.day = Int(birthDay) ?? current.birthday?.day ?? 15
+
+        let update = SB_UserProfileUpdate(
+            fullName: current.fullName,
+            birthday: birthday,
+            gender: current.sex,
+            heightCm: Float(heightCm) ?? current.metricHeight,
+            weightKg: Float(weightKg) ?? current.metricWeight,
+            walkingStrideLength: current.walkStride,
+            runningStrideLength: current.runStride,
+            location: current.location,
+            vo2Max: current.vo2Max,
+            maxHr: current.maxHr,
+            imperialUnits: current.imperialUnits
+        )
+
+        do {
+            switch try await sensorBio.updateUserProfile(update) {
+            case .ok:                       saveMessage = "Saved ✓"
+            case .invalidHeight:            saveMessage = "Invalid height"
+            case .invalidWeight:            saveMessage = "Invalid weight"
+            case .invalidBirthday:          saveMessage = "Invalid birthday"
+            case .other(let message):       saveMessage = message
+            }
+        } catch {
+            saveMessage = "Error: \(error.localizedDescription)"
         }
     }
 
