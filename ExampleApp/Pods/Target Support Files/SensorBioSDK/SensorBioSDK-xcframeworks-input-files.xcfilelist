@@ -1,4 +1,0 @@
-${PODS_ROOT}/Target Support Files/SensorBioSDK/SensorBioSDK-xcframeworks.sh
-${PODS_ROOT}/../../SensorBio/SensorBioSDK.xcframework
-${PODS_ROOT}/../../SensorBio/SensorBioBTSDK.xcframework
-${PODS_ROOT}/../../SensorBio/LibFXC.xcframework

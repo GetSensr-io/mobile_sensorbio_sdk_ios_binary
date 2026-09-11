@@ -4,3 +4,11 @@
 SensorBio/
 *.xcframework
 *.xcframework.zip
+
+# The ExampleApp is a Swift Package consumer (XCLocalSwiftPackageReference "..").
+# CocoaPods artefacts and build output are not repo contents; a committed
+# Pods/ also gave customers an ExampleApp.xcworkspace that opened the old
+# CocoaPods project instead of the SPM one.
+ExampleApp/Pods/
+ExampleApp/ExampleApp.xcworkspace/
+ExampleApp/build/
