@@ -38,7 +38,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `3.0.0`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `3.0.1`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -46,7 +46,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.0.0"
+        exact: "3.0.1"
     )
 ],
 targets: [
