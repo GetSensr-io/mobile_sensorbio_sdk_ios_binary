@@ -6,19 +6,28 @@ options:
     iOS: "18.0"
   generateEmptyDirectories: true
 
-# Reference SwiftUI integration of SensorBioSDK, consumed as a CocoaPod from
-# the podspec one level up. Demonstrates the init pattern + sign-in flow on a
-# real device.
+# Reference SwiftUI integration of SensorBioSDK, consumed as a Swift Package
+# from the repo one level up. Demonstrates the init pattern + sign-in flow on
+# a real device.
 #
-# This file is shared verbatim between the SDK source repo (where the app is
-# developed against SDK source) and the customer-facing binary repo (where it
-# is published built against the shipped xcframeworks) — the Podfile next to it
-# is what differs. Keep it free of repo-specific assumptions.
+# `path: ..` is correct in BOTH repos and needs no per-repo flavouring: in the
+# SDK source repo it resolves to the source package, and in the customer-facing
+# binary repo to the xcframework distribution. Both vend a `SensorBioSDK`
+# product, so this file is genuinely shared verbatim now — the two Podfiles it
+# used to need are gone.
+#
+# Note what is NOT here: no grpc-swift, no SwiftProtobuf, no keychain library.
+# A customer declares the SDK and nothing else; everything it uses is compiled
+# inside the xcframework with its symbols hidden. This app is the proof of that
+# claim, so do not add dependencies here to make something link.
 #
 # After cloning, run:
 #   xcodegen generate
-#   pod install
-#   open ExampleApp.xcworkspace
+#   open ExampleApp.xcodeproj
+
+packages:
+  SensorBioSDK:
+    path: ..
 
 settings:
   base:
@@ -29,14 +38,9 @@ settings:
     # — the SDK itself is Swift 6, customers can pick their own mode.
     SWIFT_VERSION: "5"
     IPHONEOS_DEPLOYMENT_TARGET: "18.0"
-    # Required for transitive abseil (pulled in by gRPC-Core) — static-asserts
-    # __cplusplus >= 201703L on every translation unit.
-    CLANG_CXX_LANGUAGE_STANDARD: "c++17"
-    CLANG_CXX_LIBRARY: "libc++"
     # FXCBridge's fx_datatypes.h (inside SensorBioSDK.xcframework's Headers/)
     # `#error`s without one of FX_PLATFORM_{WIN32, UNIX, ARM_M3, ARM_M4,
-    # MSP430}. The SensorBio podspec sets this via user_target_xcconfig too;
-    # we also set it here so xcodegen-generated configs match before pod install.
+    # MSP430}.
     GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) FX_PLATFORM_UNIX=1"
 
 targets:
@@ -45,6 +49,9 @@ targets:
     platform: iOS
     sources:
       - ExampleApp
+    dependencies:
+      - package: SensorBioSDK
+        product: SensorBioSDK
     info:
       path: ExampleApp/Info.plist
       properties:

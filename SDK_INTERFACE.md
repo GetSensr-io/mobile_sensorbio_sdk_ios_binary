@@ -1,6 +1,6 @@
 # SensorBioSDK — iOS Integration Guide
 
-This document describes the **public** customer-facing surface of `SensorBioSDK` as it exists today. The SDK ships as a set of `.xcframework`s consumed via CocoaPods (see [README.md](./README.md) for integration); `import SensorBioSDK` is the only line a customer app needs.
+This document describes the **public** customer-facing surface of `SensorBioSDK` as it exists today. The SDK ships as `.xcframework`s consumed as a Swift Package (see [README.md](./README.md) for integration); `import SensorBioSDK` is the only line a customer app needs.
 
 > **Source of truth.** This file lives on `mobile_sensorbio_sdk_ios` `main` and tracks the latest public surface. A copy is synced into [`mobile_sensorbio_sdk_ios_binary`](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary/blob/main/SDK_INTERFACE.md) at each tagged binary release; customers pinning to a binary tag should read the copy in the binary repo for the surface that matches their pin. The SDK-repo version may include symbols not yet present in the most recent binary release.
 
@@ -12,44 +12,54 @@ This document describes the **public** customer-facing surface of `SensorBioSDK`
 
 ## 1. Adding the SDK
 
-### 1.1 CocoaPods (binary distribution)
+### 1.1 Swift Package Manager (binary distribution)
 
-The SDK ships as three `.xcframework`s plus an umbrella binary podspec at the root of [the binary repo](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary). Pin a tagged release in your `Podfile`:
+The SDK ships as two `.xcframework`s behind a Swift Package at the root of
+[the binary repo](https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary).
 
-```ruby
-platform :ios, '18.0'
+In Xcode: **File → Add Package Dependencies…**, enter the repository URL,
+choose **Exact Version**, and add the `SensorBioSDK` library to your app
+target. From another package:
 
-target 'MyApp' do
-  use_frameworks!
-
-  pod 'SensorBioSDK',
-    :git => 'git@github.com:GetSensr-io/mobile_sensorbio_sdk_ios_binary.git',
-    :tag => 'v2.3.0'
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']     = '18.0'
-      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD']    = 'c++17'
-      config.build_settings['CLANG_CXX_LIBRARY']              = 'libc++'
-      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-    end
-  end
-end
+```swift
+dependencies: [
+    .package(
+        url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
+        exact: "3.0.0"
+    )
+],
+targets: [
+    .target(
+        name: "MyApp",
+        dependencies: [
+            .product(name: "SensorBioSDK", package: "mobile_sensorbio_sdk_ios_binary")
+        ]
+    )
+]
 ```
 
-Then `pod install`, open `MyApp.xcworkspace`, and `import SensorBioSDK`. The `post_install` block bumps the deployment target to iOS 18 (SDK requires), forces C++17 (gRPC-Core's transitive abseil dependency requires), and turns on library-evolution mode (the SDK's SwiftQueue `Job` subclasses reference method descriptors that only exist when all transitive pods are also built BLFD).
+Then `import SensorBioSDK`. There are no build settings to configure and no
+`post_install` step.
 
-The single `pod 'SensorBioSDK'` line vendors the three xcframeworks and transitively brings the third-party pods the SDK links against (gRPC-ProtoRPC → gRPC-Core + abseil + BoringSSL-GRPC + Protobuf; SwiftProtobuf; SwiftKeychainWrapper; KeychainAccess; SwiftQueue; CocoaMQTT). **Customers only import `SensorBioSDK`** — the BT SDK and LibFXC are linked transitively and have no user-callable surface.
+**The SDK declares no third-party packages, and you do not need to declare any
+for it.** Everything it links — its gRPC stack, SwiftProtobuf, the keychain
+libraries, the job-queue runtime, the MQTT client, and the BLE pairing/sync
+engine — is compiled inside `SensorBioSDK.xcframework` and is invisible to your
+dependency graph, so none of it can collide with a library you use yourself.
+If a symbol looks missing, do not add a package to satisfy it; contact
+support@sensorbio.com.
 
-Full integration walkthrough: see [README.md](./README.md).
+`LibFXC.xcframework` ships alongside and is linked transitively — it has no
+user-callable surface, and neither does the BLE engine. **Customers only
+import `SensorBioSDK`.**
+
+Full integration walkthrough, including the launch configuration and the
+registration flow: see [README.md](./README.md).
 
 ### 1.2 Platform requirements
 
 - **iOS 18+** — required minimum deployment target
 - **Xcode 16.3+** (Swift 6.1 toolchain)
-- **CocoaPods 1.16+**
 - **Bluetooth + Background Modes capabilities** — required so the SDK can stay connected to the wearable and finish syncs while the app is backgrounded
 
 ### 1.3 Importing
@@ -266,7 +276,7 @@ The following `@Published` properties are also observable:
 public var isAuthenticated: Bool         // session != nil
 public var hasStoredAuthToken: Bool      // keychain holds an auth token
 public var isDeviceConnected: Bool       // paired + connection up
-public var sdkVersion: String            // underlying BLE SDK version string
+public var sdkVersion: String            // this SDK's version, e.g. "2.3.0 (41)"
 public var isAirplaneModeActive: Bool    // device is in airplane mode
 public var isRawLoggingEnabled: Bool     // white-label raw-sensor-logging on
 public var haveUnuploadedPackets: AnyPublisher<Bool, Never>
@@ -287,7 +297,6 @@ public let deviceConnected:             PassthroughSubject<Void, Never>     // l
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
 public let deviceLinkFailed:            PassthroughSubject<SB_DeviceLinkFailure, Never>  // server rejected the device-link (serial-enforced subscription)
 public let subscriptionLost:            PassthroughSubject<Void, Never>     // server rejected an authenticated RPC for no active subscription — host should alert + force logout (see §3.4.1)
-public let reauthenticationRequired:    PassthroughSubject<Void, Never>     // the SDK has no stored credential for an authenticated RPC — host should route to sign-in (see §3.4.2)
 
 // Streaming biometrics — timestamp + value
 public let hr:    PassthroughSubject<(Int, Int),     Never>                 // bpm
@@ -404,43 +413,6 @@ Manually-logged sessions (`createActivitySession`) fire neither — there is no 
 
 `SB_MeditationGraph` gains `hrLinearFit` / `hrvLinearFit` (`SB_TimeValueStraightLine?`). The server has always sent them; the SDK simply never surfaced them. They are bridged from the proto as well as built locally, so a fetched graph and a local one carry the same fields — and they are the endpoints the HR and HRV penalties are computed from, which is why a fit that can't be made (fewer than 2 points, or more than 3600) is what produces the "regression not established" sentinel.
 
-
-#### 3.4.2 `reauthenticationRequired` — no credential to send
-
-Fires when the SDK is asked to make an **authenticated** RPC while no stored
-credential exists. The host should route the user to sign-in.
-
-This is a distinct failure from the two neighbouring ones, and the distinction
-is the point:
-
-| signal | what happened | who rejected |
-| -- | -- | -- |
-| `subscriptionLost` | live session, no active subscription | server |
-| `SB_AuthError.refreshTokenExpired` | refresh token rotated / revoked / expired | server |
-| `reauthenticationRequired` | no credential existed to send | the SDK, before the wire |
-
-The SDK now refuses to dispatch an authenticated RPC without a credential
-rather than sending a headerless request. The server's authentication
-gatekeeper rejects any request carrying neither `auth` nor `access_token`, so
-such a call can never succeed — and from the persistent upload queue it is
-retried indefinitely. In SB-2105 that produced ~78,000 rejected uploads per
-affected device with no user-visible symptom, because reads pre-check the
-credential and return early while uploads did not: nothing reached the wire to
-fail visibly, and the app rendered a normal dashboard for three days.
-
-Behaviour a host can rely on:
-
-* The blocked call throws `SB_AuthError.missingAuthToken`.
-* The event is sent **at most once per episode**, and re-arms after the next
-  authenticated RPC that succeeds — so a draining upload queue produces one
-  event, not one per job.
-* Queued uploads stop retrying (`SB_JobRetryPolicy` treats a missing credential
-  as terminal). Nothing that carries user data is discarded: the packet,
-  biometrics, temperature, engine-result, sleep and recording-submit paths all
-  mark their rows processed only on a successful upload, so the rows stay put
-  and the post-sync sweep re-queues them once the user has signed back in.
-* For an SDK-key host that supplied `sdkTokenProvider`, the SDK first tries to
-  rebuild the session itself and only signals if that fails.
 
 ### 3.5 Recording submissions (optimistic timeline)
 

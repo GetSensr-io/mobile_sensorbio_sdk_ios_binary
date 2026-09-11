@@ -26,6 +26,14 @@ struct ProfileView: View {
             }
 
             Section {
+                LabeledContent("SensorBioSDK", value: sensorBio.sdkVersion)
+            } header: {
+                Text("SDK")
+            } footer: {
+                Text("Reported by `sensorBio.sdkVersion`. Compiled into the framework — if this ever reads UNKNOWN, the build is wrong.")
+            }
+
+            Section {
                 if let token = tokenRecord.token {
                     Button {
                         presentingToken = true
