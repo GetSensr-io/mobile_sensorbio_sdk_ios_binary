@@ -38,7 +38,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `3.0.1`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `3.1.0`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -46,7 +46,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.0.1"
+        exact: "3.1.0"
     )
 ],
 targets: [
@@ -182,6 +182,30 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v3.1.0 — September 14, 2026
+
+- **Fixes account creation and password reset on a fresh install.** Checking
+  whether an e-mail is available, requesting a password reset and completing
+  one were all being sent down the authenticated path, so on a device with no
+  stored session they were refused before they left the app: an activation code
+  would verify and then the e-mail step failed immediately. Which calls need a
+  session is now taken from the server's own list, so a call cannot be
+  misclassified. If your app implements its own sign-up or forgot-password
+  screens, they work again with no change on your side.
+- **`reauthenticationRequired` is only sent when there was a session to lose.**
+  It previously fired on any authenticated call made without a credential,
+  including before the user had ever signed in — so a host that turns the event
+  into a sign-out could sign out an account that was never signed in, during
+  sign-up. The call itself still throws `SB_AuthError.missingAuthToken`
+  whenever a credential is missing; only the event narrowed.
+- **A data store that cannot be opened no longer deletes your user's history or
+  crashes at launch.** A relaunch before the device's first unlock after a
+  reboot cannot read the store files; the SDK used to delete and rebuild, then
+  trap when the rebuild failed too. Deleting is now limited to genuine schema
+  incompatibilities. Any other failure runs that one launch on an in-memory
+  store and reopens the real one next launch, and band data is not acknowledged
+  while the store is temporary, so nothing is lost.
 
 ### v3.0.1 — September 11, 2026
 

@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.0.1"
+        exact: "3.1.0"
     )
 ],
 targets: [
@@ -440,7 +440,15 @@ fail visibly, and the app rendered a normal dashboard for three days.
 
 Behaviour a host can rely on:
 
-* The blocked call throws `SB_AuthError.missingAuthToken`.
+* The blocked call throws `SB_AuthError.missingAuthToken`. That part is
+  unconditional — the call needs a credential, has none, and cannot succeed.
+* The **event** is narrower than the refusal (SB-2137): it is emitted only when
+  this install is expected to hold a session — it signed in and has not signed
+  out. An app that is merely signed out has no session to re-authenticate, and
+  hosts turn this event into a sign-out with an explanation, so firing it at a
+  signed-out user (or one part-way through creating an account) would log out an
+  account that was never signed in. Android has drawn the line here since
+  SB-2105; both platforms now agree.
 * The event is sent **at most once per episode**, and re-arms after the next
   authenticated RPC that succeeds — so a draining upload queue produces one
   event, not one per job.
@@ -449,8 +457,19 @@ Behaviour a host can rely on:
   biometrics, temperature, engine-result, sleep and recording-submit paths all
   mark their rows processed only on a successful upload, so the rows stay put
   and the post-sync sweep re-queues them once the user has signed back in.
-* For an SDK-key host that supplied `sdkTokenProvider`, the SDK first tries to
-  rebuild the session itself and only signals if that fails.
+* The RPCs the server itself treats as unauthenticated are **never** blocked by
+  this guard — they carry no auth header at all, by design, because they run
+  before a session exists: `login`, `createUser`, `validateAccountRequirements`
+  (activation code), `checkEmailAvailability`, and `requestPasswordReset`
+  (plus the internal code-based `requestPasswordResetCode` /
+  `resetPasswordWithCode`). Everything else on the surface requires a valid
+  session. SB-2135: four of those were still dispatching through the
+  authenticated path, so on a fresh install the guard refused them and
+  sign-up failed at the e-mail step.
+* An SDK-key host does **not** get an automatic session rebuild here (SB-2095):
+  only a freshly minted single-use token can rebuild an SDK-key session, the SDK
+  cannot mint one, and holding something that could is what used to force the
+  organization key onto the device. Getting fresh credentials is the host's call.
 
 ### 3.5 Recording submissions (optimistic timeline)
 
