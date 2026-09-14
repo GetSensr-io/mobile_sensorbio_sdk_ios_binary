@@ -391,6 +391,8 @@ public enum SB_SpotCheckReportEvent: Sendable, Equatable {
 
 `.deferred` and `.unscoreable` are both terminal for the in-session decision: neither will be followed by a `.ready` for that recording.
 
+**The HR graph is the band's own continuous-HR series, not a beat-to-beat derivation.** The RMSSD, stress index and PNS/SNS tiles come from bioedge over the window's intervals, but `hrGraphDatapoints` — and the `minHR` / `maxHR` / `avgHR` computed from it — read the same continuous-HR rows the live-measures upload sends, clamped to a plausible 20–220 bpm. That is what makes the local graph and the server's graph the same graph, and it matches Android. Earlier iOS builds synthesized a denser per-beat series from the intervals instead; it could disagree with both the server and the band, so a host that cached those points should not expect them to line up with a refetched report (SB-2134).
+
 #### `activityReport` and `meditationReport` — always a report
 
 Both fire exactly once per finalized recording and carry the report directly — `SB_WorkoutDetail` for an activity, `SB_MeditationGraph` for a meditation. These are the same types `fetchWorkoutDetail(workoutTime:)` and `fetchMeditationGraph(date:sessionTimestamp:)` return, so a host renders local and server data through one screen.
@@ -407,6 +409,11 @@ Spot check is the exception, and keeps its three-way `SB_SpotCheckReportEvent`: 
 
 * **Activity calories.** The server recomputes from its own copy of the HR series and its own 30-day resting-HR baseline, and chooses between two calorie formulas with a deployment flag the client can't see (`SB_WorkoutCalorieFormula` documents this). The computation is ported line-for-line, so the drift is small and confined to the calorie figure — but the number can settle when the server's entry lands.
 * **Meditation score.** Recomputed on every server read against 30-day baselines drawn from the whole account, where the SDK's come from local sleep history. Two further parity notes: the **movement penalty is always 0**, locally and on the server — the variable feeding it is declared and never assigned, so it has never contributed to any meditation ever scored, and "fixing" it locally would make every score read low. And a device holding less history than the account produces a lower baseline, or none, which fails the score honestly rather than scoring against a wrong number.
+
+
+**The HR series on both is the band's continuous-HR channel.** The band emits two independent HR signals — the per-second continuous-HR stream and the PPG algorithm's own `hr_result` — on different cadences. Activity and meditation graphs take the continuous stream as the series and admit an algorithm sample only where the continuous stream has nothing within 5 s, so the two are never interleaved. Continuous HR is primary because it is what the live-measures upload sends, which keeps the on-device graph and the server's graph the same graph. Earlier builds merged the two on exact timestamp equality; because their cadences differ the merge never collided and both survived, drawing two series as one (SB-2134). HRV and respiration still merge by equality — their two sources are the same `ppg_metrics` packet recorded twice at one timestamp, so every point collides by design.
+
+Note that this makes the graph *coherent*, not automatically *correct*: if the continuous-HR channel itself is wrong for a span, the graph shows that wrong value smoothly rather than fighting with the algorithm's.
 
 Refresh the on-screen report in place when the server's entry arrives, rather than re-navigating.
 

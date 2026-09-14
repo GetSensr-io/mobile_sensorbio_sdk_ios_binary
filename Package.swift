@@ -38,7 +38,7 @@
 //
 import PackageDescription
 
-let version = "3.1.0"
+let version = "3.1.1"
 let releaseBase = "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary/releases/download"
 
 let package = Package(
@@ -54,7 +54,7 @@ let package = Package(
         .binaryTarget(
             name: "SensorBioSDK",
             url: "\(releaseBase)/v\(version)/SensorBioSDK.xcframework.zip",
-            checksum: "9f7b04497544bdb6159081919e8bb75a24aadbdc41e69cb9a8c5ee4ba4fffacb"
+            checksum: "5e7b536afc4b88396a28baaf69b2880bafa20316714ca4c1f034205e621eb36e"
         ),
         // Philips signal-processing library. Ships separately because it is a
         // dynamic library and cannot be absorbed into the static SDK the way
@@ -62,7 +62,7 @@ let package = Package(
         .binaryTarget(
             name: "LibFXC",
             url: "\(releaseBase)/v\(version)/LibFXC.xcframework.zip",
-            checksum: "f989aac58e9ae66a4bac770a97994a808ca3d83ca068d3bc08c35d3f47c28718"
+            checksum: "e68c2cf412f9b772dddece6a4eda32e55e8cb8e7c92cb94dcdd3f49d74c5cb2e"
         ),
         // Link carrier. A `binaryTarget` cannot express dependencies or
         // linker settings on its own, so the product points at this instead
