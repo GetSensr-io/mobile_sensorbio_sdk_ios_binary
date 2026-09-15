@@ -54,7 +54,7 @@ let package = Package(
         .binaryTarget(
             name: "SensorBioSDK",
             url: "\(releaseBase)/v\(version)/SensorBioSDK.xcframework.zip",
-            checksum: "5e7b536afc4b88396a28baaf69b2880bafa20316714ca4c1f034205e621eb36e"
+            checksum: "bcc20b50455994d6c6a8904c0d3a1e82816486eeea46c9cf3aa5a69fef1b2593"
         ),
         // Philips signal-processing library. Ships separately because it is a
         // dynamic library and cannot be absorbed into the static SDK the way
@@ -62,7 +62,7 @@ let package = Package(
         .binaryTarget(
             name: "LibFXC",
             url: "\(releaseBase)/v\(version)/LibFXC.xcframework.zip",
-            checksum: "e68c2cf412f9b772dddece6a4eda32e55e8cb8e7c92cb94dcdd3f49d74c5cb2e"
+            checksum: "d6f88e0db105cbdc4ce85a2cbe6d20e46a2306c979e515efe0e03da4c036896d"
         ),
         // Link carrier. A `binaryTarget` cannot express dependencies or
         // linker settings on its own, so the product points at this instead
