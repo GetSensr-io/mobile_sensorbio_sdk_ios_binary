@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.1.0"
+        exact: "3.2.0"
     )
 ],
 targets: [
@@ -1826,19 +1826,58 @@ public func deleteRecordingMeta(id: String, name: String, type: SB_RecordingMeta
 
 Brief surveys are the real sleep / workout / meditation survey responses the device collects; they stay on the public surface.
 
+There are two ways to submit one. **Use the queued path.**
+
+```swift
+public func queueBriefSurvey(_ survey: SB_BriefSurvey)
+public func dismissBriefSurvey(type: SB_BriefSurveyType, timestampMillis: Int64)
+public func briefSurveyWasHandled(timestampMillis: Int64) -> Bool
+public func briefSurvey(forTimestampMillis timestampMillis: Int64) -> SB_BriefSurvey?
+```
+
+**`queueBriefSurvey` returns immediately, and that is the whole point.** The answers are written to the SDK's store synchronously, before any network, so your sheet can dismiss the moment it returns. Do not gate a spinner on it, and do not disable the way out of the screen — there is nothing to wait for. (iOS did exactly that until SB-2177, awaiting the RPC with Submit *and* Skip disabled; a 30s gRPC deadline, three transport attempts and a token refresh add up to minutes of a screen the user cannot leave.)
+
+**The SDK decides when to send it, and "now" is usually wrong.** A survey carries its recording's start timestamp — a sleep's end timestamp — as its only link to that record. Post-recording reports are built locally and appear the instant a recording finalizes, so a user can answer within seconds, while the recording itself is still behind the biometrics-upload gate (up to a 90s bailout). Sent then, the server has nothing to attach the survey to: it answers with an empty id, the survey is orphaned, and nothing on screen says so. `queueBriefSurvey` holds the survey until the recording is known to have landed, then sends it. Offline, the row waits; the SDK drains it when the network returns, and across relaunches.
+
+**The answers appear before they are sent.** Every read that produces a survey merges in what this device holds:
+
+| Read | Key it merges on |
+| --- | --- |
+| `fetchWorkoutDetail(workoutTime:)` | workout start ts |
+| `fetchMeditationGraph(date:sessionTimestamp:)` | session start ts |
+| `fetchSleepDetail(endDate:endTimestamp:)` / `sleepDetailUpdates(…)` | sleep end ts |
+| `localWorkoutDetail(startTsMillis:)` / `localMeditationGraph(startTsMillis:)` | recording start ts |
+
+So there is nothing to stamp onto your model, nothing to assign, and nothing to refetch — submit, dismiss, and the screen behind you is already right. A queued survey is deliberately indistinguishable from a landed one; the only exception is a screen still holding a report object it was handed at finalize, which by construction predates the survey. Re-read `briefSurvey(forTimestampMillis:)` there after the sheet closes (a local store read, not a round trip).
+
+Precedence: a survey that has not landed yet **wins** over the server's copy — the user just typed it. Once it lands, the server's copy wins, so a survey edited elsewhere (the web dashboard) is not shadowed by this device forever.
+
+**Editing is safe.** The row keeps the server's id, so a second answer updates rather than creating a duplicate — and it keeps it across a screen teardown and a relaunch, which view-model state never did.
+
+**`dismissBriefSurvey` is how you record "asked and skipped."** It writes a row that is never dispatched, so `briefSurveyWasHandled` can tell you not to offer that survey again. Keep this out of your own `UserDefaults`: rows are wiped on sign-out with everything else, which a defaults key is not.
+
+```swift
+public var pendingBriefSurveysPublisher: AnyPublisher<[SB_BriefSurveySubmissionInfo], Never>
+public func pendingBriefSurveys() -> [SB_BriefSurveySubmissionInfo]
+```
+
+Diagnostics — surveys with work still outstanding (`pending`, or `unlinked` awaiting a re-send). Nothing in a shipped UI needs these; they are for a developer readout while testing on a throttled link.
+
 ```swift
 public func submitBriefSurvey(_ survey: SB_BriefSurvey) async throws -> String
 ```
 
+**The direct path — prefer `queueBriefSurvey`.** It sends immediately, with no gate and no local record, so a survey submitted through it before its record reaches the server is orphaned exactly as described above. It remains for hosts already calling it, and for surveys with no recording to wait on.
+
 **Await it before refetching.** The submit suspends until the survey lands server-side. If your survey UI refetches anything on dismissal, do that *after* this returns — otherwise the refetch races the upload, goes out before the survey exists, and the dependent UI stays stale until some later fetch. This was fire-and-forget before SB-1835, and every caller had exactly that race.
 
-**A throw means "not landed yet", not "lost."** On failure the SDK persists the survey to its retry queue (waits for connectivity, survives relaunch) *before* rethrowing. So the survey will still land; treat the error as retry-in-progress rather than a discarded response, and gate your submit button while the call is in flight so a double-tap can't send twice.
+**A throw means "not landed yet", not "lost."** On failure the SDK records the survey in its own store *before* rethrowing and retries from there (waits for connectivity, survives relaunch). So the survey will still land; treat the error as retry-in-progress rather than a discarded response, and gate your submit button while the call is in flight so a double-tap can't send twice.
 
-**You usually don't need to refetch at all.** `UploadBriefSurvey` stores the answers and links the returned id onto the sleep record — it recomputes nothing, and the response carries only the id. So the survey you submitted, with `id` set to the returned value, *is* the new server state: assign it into your displayed model and skip the round-trip entirely. Whatever you have cached on disk still holds the pre-submit payload, so reconcile that in the background rather than making the user wait on it.
+**`SB_SurveyError.notLinked` is not a transport failure.** It means the server accepted the call and returned no id — it could not attach the survey to anything. The SDK keeps the answers and re-sends once the record is confirmed; do not treat it as a lost survey, and do not stamp the empty id onto your model.
 
 **Keep the returned id.** A submit whose `survey.id` is nil creates a *new* survey server-side instead of updating the existing one. If a user can edit the same survey twice in one session and your second submit reuses a copy that never had the id stamped on it, you silently duplicate rather than update.
 
-Android's equivalent is `suspend (SB_BriefSurvey) -> String` and iOS now matches it. Android's own caller currently discards the id and refetches on dismissal instead, so it still pays the round-trip iOS no longer needs — worth aligning.
+Android's equivalent is `suspend (SB_BriefSurvey) -> String` and iOS matches it. Android has neither the queue nor the gate yet, so it still has the race this closes, and its caller discards the id and refetches on dismissal — both worth aligning.
 
 ### 7.12 Devices, services & global state
 

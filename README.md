@@ -38,7 +38,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `3.1.1`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `3.2.0`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -46,7 +46,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.1.1"
+        exact: "3.2.0"
     )
 ],
 targets: [
@@ -182,6 +182,53 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v3.2.0 — September 20, 2026
+
+- **Brief surveys can now be submitted without waiting on the network, and without
+  being lost if the recording hasn't reached the server yet.** `queueBriefSurvey(_:)`
+  writes the answers to the SDK's own store and returns immediately, so your survey
+  sheet can dismiss the moment the user taps Submit — there is nothing to await and
+  no spinner to gate. The SDK then sends it once the recording it belongs to is known
+  to have landed. This closes a real hole: a survey sent before its recording arrives
+  has nothing to attach to, and the server accepts it, returns an empty id, and the
+  answers are orphaned with nothing on screen to say so.
+- **A queued survey shows up in your UI before it is sent.** Every read that returns
+  a survey — `fetchWorkoutDetail`, `fetchMeditationGraph`, `fetchSleepDetail`,
+  `sleepDetailUpdates`, `localWorkoutDetail`, `localMeditationGraph` — merges in what
+  this device holds, with a not-yet-sent answer taking precedence over the server's
+  copy until it lands. So there is nothing to stamp onto your model and nothing to
+  refetch after a submit.
+- **Editing a survey twice no longer risks a duplicate.** The stored row keeps the
+  server's id across a screen teardown and a relaunch, so a second answer updates the
+  existing survey instead of creating a new one.
+- **`dismissBriefSurvey(type:timestampMillis:)` and
+  `briefSurveyWasHandled(timestampMillis:)` record "asked and skipped"** so you don't
+  re-offer a survey the user declined. Keep this out of your own `UserDefaults` — these
+  rows are cleared on sign-out along with everything else, which a defaults key is not.
+- **New `SB_SurveyError.notLinked`** distinguishes "the server accepted the call but
+  attached the survey to nothing" from a transport failure. It is not a lost survey;
+  the SDK re-sends once the record is confirmed. Don't stamp the empty id onto your model.
+- **`submitBriefSurvey(_:)` is unchanged and still works**, but is now the discouraged
+  path — it sends immediately with no gate and no local record, so it has the orphaning
+  race described above. Prefer `queueBriefSurvey(_:)` unless the survey has no recording
+  to wait on.
+- **White-label settings survive a cold, offline launch.** The last fetched snapshot is
+  persisted and restored during SDK init, so a signed-in user's install publishes its
+  real settings from launch instead of falling back to the stock defaults. Settings are
+  `nil` only on a fresh install or after sign-out.
+- **A sleep the server has permanently rejected is no longer retried forever.** A
+  rejection that will never succeed is now recognised as final instead of being requeued
+  on every sync.
+- **Sleep processing no longer over-fetches.** The Philips/FXC fetch is bounded to the
+  sleep actually being processed rather than pulling an unbounded window.
+
+### v3.1.1 — September 14, 2026
+
+- **Heart rate is taken from the band's own heart-rate channel rather than derived from
+  beat-to-beat intervals.** The derived figure could disagree with what the band itself
+  reported; they now agree because there is only one source.
+- Repins the bundled BLE SDK to v9.1.115 and guards against a missing resource bundle.
 
 ### v3.1.0 — September 14, 2026
 
