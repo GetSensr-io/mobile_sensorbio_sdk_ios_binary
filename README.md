@@ -17,8 +17,14 @@ the checksums in `Package.swift`; you do not fetch them yourself.
 | `SensorBioSDK.xcframework` | The SDK. Auth, dashboard / sleep / activity / biometric reads, recording orchestration, the upload pipeline, the BLE pairing and sync engine, and the on-device DSP (HRV / sleep / activity computation). |
 | `LibFXC.xcframework` | Philips proprietary FXC sleep-staging engine. Linked transitively — you never call into it. |
 
-Both are iOS-only (device + arm64 simulator). They cannot run on macOS or on
-Intel Mac simulators.
+Both are iOS-only. Each ships a device slice (arm64) and a fat simulator
+slice (arm64 + x86_64), so they run on Apple-silicon and Intel simulators
+alike — including hosted simulator services such as Appetize. They cannot run
+on macOS.
+
+> Releases **3.0.0 through 3.2.0** shipped an arm64-only simulator slice.
+> Building those for an x86_64 simulator fails with `unsupported Swift
+> architecture`. Use 3.2.1 or later.
 
 `import SensorBioSDK` is the only import your app needs.
 
@@ -38,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `3.2.0`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `3.2.1`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -46,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.2.0"
+        exact: "3.2.1"
     )
 ],
 targets: [
@@ -182,6 +188,31 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v3.2.1 — September 21, 2026
+
+Packaging only. No API change and no behaviour change — if 3.2.0 builds and runs
+for you, 3.2.1 is a drop-in replacement. It fixes two defects present in every
+3.x release:
+
+- **App Store and TestFlight uploads are no longer rejected.**
+  `SensorBioSDK.framework` shipped without `CFBundleShortVersionString` in its
+  `Info.plist`, so App Store Connect refused the whole IPA with
+  **ITMS-90057 — "missing bundle version"**, naming our framework inside your
+  app's `Frameworks/` directory. This blocked App Store submission as well as
+  TestFlight, and there was no fix on your side short of repackaging our binary.
+  The framework now carries both `CFBundleShortVersionString` and
+  `CFBundleVersion`.
+- **The simulator slice is now fat (arm64 + x86_64).** It was arm64-only, so
+  building for an Intel simulator failed with
+  `unsupported Swift architecture` in `SensorBioSDK-Swift.h` while emitting the
+  module. This affected Intel Macs and, more commonly, hosted simulator services
+  such as **Appetize** used for demos and review builds. Sleep staging is fully
+  present on x86_64 — nothing is stubbed out — though a simulator still has no
+  Bluetooth, so it cannot sync a wearable.
+
+Both are now verified against the built artifact on every release, so neither can
+regress silently.
 
 ### v3.2.0 — September 20, 2026
 

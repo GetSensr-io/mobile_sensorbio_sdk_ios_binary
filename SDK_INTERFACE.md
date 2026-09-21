@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.2.0"
+        exact: "3.2.1"
     )
 ],
 targets: [
