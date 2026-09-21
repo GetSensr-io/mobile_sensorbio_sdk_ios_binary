@@ -44,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `3.2.1`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `3.2.2`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -52,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.2.1"
+        exact: "3.2.2"
     )
 ],
 targets: [
@@ -188,6 +188,27 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v3.2.2 — September 21, 2026
+
+A behaviour fix for hosts that pair a band **before** the user has a session. No
+API change — if 3.2.1 builds for you, 3.2.2 is a drop-in replacement.
+
+- **Pairing before sign-in no longer reports a broken session.** The SDK
+  persists a confirmed pair and then reports the device link to the server. With
+  no credential to send, that link call could not succeed, and the record the SDK
+  had just written was read back as evidence that a session existed — so
+  `reauthenticationRequired` fired at a user who had never signed in. Hosts turn
+  that event into a sign-out, which meant a user creating an account could be
+  signed out part-way through it. A band paired before authentication is no
+  longer treated as evidence of a session.
+- **The device link is deferred, not lost.** It is no longer sent when there is
+  no credential; instead `signIn`, `createAccount` and `registerUser` each
+  re-register whatever band is on record. Pair first or authenticate first —
+  either order now links the band, at the first moment it can.
+- **A later session loss is still reported.** `reauthenticationRequired` is sent
+  at most once per episode and now re-arms on sign-out, so a genuine credential
+  loss after signing back in is announced rather than silently swallowed.
 
 ### v3.2.1 — September 21, 2026
 

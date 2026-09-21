@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.2.1"
+        exact: "3.2.2"
     )
 ],
 targets: [
@@ -456,6 +456,20 @@ Behaviour a host can rely on:
   signed-out user (or one part-way through creating an account) would log out an
   account that was never signed in. Android has drawn the line here since
   SB-2105; both platforms now agree.
+* **Pairing before authenticating does not count as a session** (SB-2200). A
+  paired band used to be sufficient evidence on its own, on the reasoning that
+  only a signed-in user can have paired one. A host that pairs *before* it
+  registers or signs in breaks that: the SDK persists the band, and the pair's
+  own link event then reads it back as proof of a session and fires this
+  event — against bookkeeping the SDK had written a line earlier. Hosts are free
+  to pair in whatever order suits them, and the first-party app pairs several
+  onboarding steps ahead of account creation.
+* The pair-time **device link is deferred, not lost**, when no credential exists
+  (SB-2200). `UpdateUserDeviceInfo` cannot succeed without one, so it is not
+  dispatched; instead every path that establishes a session — `signIn`,
+  `createAccount` and `registerUser` alike — re-registers whatever band is on
+  record. A host that pairs first therefore gets its link on the first
+  authentication, and one that authenticates first is unaffected.
 * The event is sent **at most once per episode**, and re-arms after the next
   authenticated RPC that succeeds — so a draining upload queue produces one
   event, not one per job.
