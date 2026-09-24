@@ -44,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `3.2.2`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `3.3.0`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -52,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.2.2"
+        exact: "3.3.0"
     )
 ],
 targets: [
@@ -188,6 +188,41 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v3.3.0 — September 24, 2026
+
+No API is removed or renamed — if 3.2.2 builds for you, 3.3.0 builds unchanged.
+One behaviour change is worth reading before you upgrade: what a
+`modifyWorkout` result means.
+
+- **Editing a workout that is still uploading now works.** `modifyWorkout(action: .update, …)`
+  used to come back `.notFound` for a recording the server had not ingested
+  yet — including one the user was looking at on the timeline. The edit is now
+  held on the device and sent the moment the recording lands. It survives a
+  force-quit; signing out clears it.
+- **`modifyWorkout`'s result is a verdict on the values, not on the network.**
+  A retryable failure (no network, or the server not having the recording yet)
+  now returns `.ok`, because the edit is safely stored and will be delivered.
+  Only a rejection of the values themselves fails. If you show an error from
+  this call, word it as "check these values", not "try again later".
+- **Edited values show immediately.** `fetchWorkoutDetail(workoutTime:)`,
+  `localWorkoutDetail(startTsMillis:)` and `localRecordingEntries()` all reflect
+  a pending edit, offline and across a relaunch. Re-read after a successful save
+  and you will show what the user typed.
+- **Local rows can be edited and deleted.** Earlier guidance to disable delete
+  or modify on locally-rendered timeline rows is withdrawn; the SDK decides
+  whether each operation is a server call or a local one.
+- **Heart-rate zones can be computed on the device** for organizations that
+  enable the HR Zone algorithm, and drive the live-recording zone bands. The
+  zones on a stored workout are still always the server's.
+- **Auto-detected activities require the `auto_activity_detection` algorithm.**
+  For organizations without it enabled, detected-activity bookends from the
+  band are ignored and the detection publisher stays empty. User-started
+  recordings are unaffected, and detections already stored stay available.
+- **Countdown recordings end on their target** rather than on the next
+  (late) timer tick.
+- **A band in recovery mode can be paired and updated.** It can now pair and
+  take a firmware update instead of stalling in configuration.
 
 ### v3.2.2 — September 21, 2026
 

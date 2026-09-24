@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.2.2"
+        exact: "3.3.0"
     )
 ],
 targets: [
@@ -269,6 +269,12 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 The following `@Published` properties are also observable:
 
 `forceUserToUpdatePassword`, `forceUserToUpdateProfile`, `exerciseZoneAttributes`, `updateSuggested`, `updateRequired`, `deviceAirplaneModeOn`, `webAppCookie`, `lastSyncedTemp`.
+
+> **Where `exerciseZoneAttributes` comes from.** Normally the server's: `maxHr`, `rhr` and `zoneWeights` are whatever the last successful goals fetch returned. If your organization has the **HR Zone algorithm** enabled in the Algo Store, the SDK computes them on device instead, and this property publishes those values.
+>
+> The device-computed form follows the published *How Heart Rate Zones Work* methodology: `maxHr` is **always** estimated from the user's age and sex — a max stored on `SB_UserProfile` (`maxHr` / `computedMaxHr`) is deliberately **not** consulted, because estimating is what the algorithm is, and preferring the stored value makes it reproduce the server's own zones. `rhr` is the user's own resting heart rate — today's if last night was scored, otherwise the mean of the last 30 days, otherwise a nominal 65 bpm — and `zoneWeights` are `[0.5, 0.6, 0.7, 0.8, 0.9]`. Zone *n* therefore opens at `rhr + weight[n] x (maxHr - rhr)`.
+>
+> This drives the **live recording** HR-zone bands. It does not retro-score stored workouts — see *HR zones on a stored workout* in §4 for why. The shape of the value does not change, so no consumer needs updating; the numbers do. Zone boundaries become personal to the wearer and move as their resting heart rate does, which means they are **not** comparable between two users. Nothing is uploaded — this decides the boundaries only.
 
 ### 3.3 Computed read-only properties
 
@@ -565,6 +571,16 @@ fallback: it is addressed by a server-assigned id that doesn't exist until the
 submit lands, so there is no key to fall back *from* — use
 `localSpotCheckDetails(startTsMillis:)` while `entry.workoutId` is empty.
 
+**Delete and edit work on these rows — do not gate them (SB-2226).** A
+locally-rendered row is a full timeline row in every respect a host can act on:
+`modifyWorkout(action: .update, …)` and `modifyWorkout(action: .remove, …)` both
+accept one, and the SDK decides on its own whether the operation is a server
+call or a local one (see §7.9). Earlier guidance to disable delete or modify on
+these rows is **withdrawn**: which case applies is bookkeeping only the SDK can
+see, and asking a host to know it is what produced "I can't delete the activity
+I just recorded" while a manually-logged one beside it deleted fine. There is no
+flag on `SB_LocalRecordingEntry` to gate on, and there does not need to be.
+
 **`SB_RecordingSubmissionInfo` changes.** `autoPresentOnProcessed` and
 `presentedAt` are **removed**. They were added for an auto-present-on-`processed`
 flow that was designed, dropped in the 2026-07-06 scope revision, and never read;
@@ -656,13 +672,18 @@ it with no workout to attribute it to and cost the activity its HR graph.
 `activityName` decides whether steps and distance belong on the report, so
 prefer a name from your activity catalogue over free text.
 
-> Detection is a device-side behaviour: bookends only arrive when the
-> organisation has auto-detect of activities switched on — the active-mode
-> `auto_detect_enabled` setting in the advanced sensor configuration, off
-> unless an administrator turns it on. Where it is off, these calls are inert
-> and the publisher stays empty. A change reaches the band on the next connect
-> after the app picks the new configuration up, so expect the first detection
-> to follow a reconnect rather than the save.
+> **Only for organizations with the `auto_activity_detection` algorithm
+> enabled in the Algo Store (SB-2164).** For any other organization the SDK
+> drops detection bookends when they arrive, whatever the band's firmware
+> sends, and the publisher stays empty. The check happens when a bookend
+> arrives, so detections already stored stay answerable if the algorithm is
+> later disabled. User-started recordings are unaffected.
+>
+> The band also needs auto-detect switched on to produce detections at all —
+> the active-mode `auto_detect_enabled` setting in the advanced sensor
+> configuration, off unless an administrator turns it on. A change reaches the
+> band on the next connect after the app picks the new configuration up, so
+> expect the first detection to follow a reconnect rather than the save.
 
 ---
 
@@ -1127,6 +1148,8 @@ public func resumeRecording()               // restart the device stream + resum
 **Tick cadence vs. publish cadence (SB-1949).** The orchestration loop runs at 250ms, but `recordingState` is published **only when the whole second changes** — at most once per second — and the `elapsed` it carries is floored to that whole second. Hosts driving a `MM:SS` display or a `target - elapsed` countdown see no difference; hosts that were relying on sub-second `elapsed` resolution will now see integer seconds. The 250ms loop is retained because it is also the poll interval for `finishCurrentRecording()` and for countdown expiry, so End Recording latency and auto-stop precision are unchanged.
 
 **All three are `@MainActor`.** They drive `recordingState` / `canFinalize` from a 250ms tick, and those are `@Published`, so the loop has to run on the main actor or SwiftUI observers get "Publishing changes from background threads is not allowed". `SB_SDK` itself is not main-actor-isolated, so a non-isolated `async` method would have hopped straight off the main actor and published from the cooperative pool. Source-compatible for callers: `await`ing from any context still works, and callers already on the main actor (the usual case for a UI-driven recording) see no change.
+
+**Countdowns end on their target (SB-2243).** For a countdown (`target != nil`) the session is stored ending no later than the instant its pause-adjusted elapsed time reached `target`, however late the auto-stop tick ran — a locked phone suspends the app until a BLE event wakes it, so the tick can land seconds past the target. A countdown that ran out while the process was dead is finalized at that instant on restore instead of being resumed, and the `.recording(elapsed:, target:)` published at restore never reads past `target`.
 
 **Pause / resume** (`recordActivity` + `recordMeditation`). `pauseRecording()` freezes the elapsed clock (`recordingState` holds its last `.recording(elapsed:, target:)` value and `canFinalize` stops advancing) and stops the device's manual PPG stream, so the paused span carries no biometric data. `resumeRecording()` restarts the stream and continues the clock. Both are no-ops outside an active recording; the device stop/start is a fire-and-forget BLE round-trip so the timer freezes/thaws instantly. Each paused window is submitted as the complement `activeWorkoutSegments` on the finished session, so downstream sees only the active spans.
 
@@ -1816,9 +1839,80 @@ public func fetchWorkoutSummary(date: Date, granularity: SB_SummaryGranularity, 
 public func fetchWorkoutDetail(workoutTime: Date) async throws -> SB_WorkoutDetail?
 public func fetchWorkoutTimeline(date: Date, searchTerm: String = "", filterType: SB_WorkoutEntryType = .all) async throws -> SB_WorkoutTimelineResult
 public func workoutTimelineUpdates(for date: Date) -> AsyncThrowingStream<SB_WorkoutTimelineResult, Error>
-public func modifyWorkout(action: SB_ModifyAction, date: Date, workoutTime: Date, name: String?) async throws -> SB_ModifyOutcome
+public func modifyWorkout(action: SB_ModifyAction, date: Date, timestamp: Date, workoutName: String, params: [String: String] = [:]) async throws -> SB_ModifyOutcome
 public func fetchMeditationGraph(date: Date, sessionTimestamp: Int64) async throws -> SB_MeditationGraph
 ```
+
+#### Workout modifications (SB-2226)
+
+`modifyWorkout` keeps its signature and there is nothing to wire, but three
+things about it are now different.
+
+**The SDK decides when it goes on the wire.** `ModifyWorkoutRequest` addresses a
+workout by its start timestamp and nothing else, so an edit sent before the
+recording has been ingested had nothing to apply to and came back `.notFound` —
+for an activity the user was looking at, since the timeline and the
+post-recording report are both local-first (§3.5.1). An `.update` now goes
+through a durable on-device queue: for a workout the server already has it is the
+same synchronous call it always was, and for one still uploading the edit is
+recorded and dispatched the moment the recording lands. Nothing to poll and
+nothing to retry — the queue survives a force-quit, a sign-out is what clears it.
+
+**The outcome means something narrower.** It is a verdict on the **values**, not
+on whether the RPC has happened. A retryable failure — no network, or a
+`.notFound` after the recording was confirmed, which is read-replica lag —
+reports `.ok`, because the edit is durably on disk and the SDK will land it.
+Only a terminal rejection of the values themselves comes back as a failure. Word
+any error you show accordingly: it now means "check these values", not "try again
+later".
+
+**The new values are readable before they are sent.** Every path that produces an
+`SB_WorkoutDetail` — `fetchWorkoutDetail(workoutTime:)` and
+`localWorkoutDetail(startTsMillis:)` — and the rows from
+`localRecordingEntries()` all have the pending edit applied, so a host that
+simply re-reads after a successful save shows what the user typed, immediately,
+offline, and across a relaunch. A landed edit stands down in favour of the
+server, so an edit made later on the web dashboard wins rather than being
+shadowed by this device.
+
+#### HR zones on a stored workout (SB-2230)
+
+`SB_HRMData.exerciseZoneList` — the time-in-zone breakdown and the chart's zone
+lines — is **always the server's**, on every read path, including when the HR
+Zone algorithm is enabled.
+
+The server scores the zones at ingest and stores them, and
+`SubmitFinishedRecordingSession` has no field to send zones up, so the device
+has no say in the stored copy. That is deliberate rather than a gap: a report's
+zones are a fact about when the workout happened. Recomputing them at read time
+against the wearer's *current* resting heart rate would make a stored report
+change every time it was opened, and change differently after a birthday.
+
+So the algorithm affects the **live recording chart**, where "now" is the right
+anchor, and not a stored report. To move a stored report's zones, the
+algorithm's result has to be uploaded and stored — at which point the report
+shows them because the server holds them, not because the device recomputed
+them.
+
+**One exception, and only one:** the report built on device the instant a
+recording stops, before the server has ingested it. There is no server-scored
+list yet, and that screen has to continue the boundaries the user just spent the
+workout watching, so it uses the algorithm's. Once the recording is ingested the
+timeline serves the server's copy as usual.
+
+That means **the same workout reads differently in the two places** until the
+algorithm's result is uploaded: the just-finished report shows the device's
+zones, the timeline shows the server's. That is a known consequence of the
+device having no way to tell the server which zones it used, not a bug, and it
+closes when the upload lands.
+
+**`.remove` works on an un-uploaded workout.** Where there is no server row, the
+submission is discarded on the device instead and its timeline row goes with it —
+same intent, different mechanism, and the host does not choose between them. The
+recording's biometrics are deliberately **not** deleted: per-second HR, BBI and
+packets are day-scoped passive data, so those minutes stay in the user's history
+and simply stop being attributed to an activity, exactly as a server-side remove
+behaves. `.ignore` is unchanged.
 
 **Timeline first-page cache (SB-1958).** The workout reads are otherwise uncached — they're navigation-driven — with one exception: the timeline's **first page**. `workoutTimelineUpdates(for:)` is the stale→fresh stream for it, so the timeline paints the last-known page on cold launch instead of a skeleton, then swaps in the authoritative fetch.
 
