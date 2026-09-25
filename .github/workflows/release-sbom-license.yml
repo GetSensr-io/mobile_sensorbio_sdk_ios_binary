@@ -7,6 +7,10 @@
 name: SBOM + License
 
 on:
+  # SB-2204: the gate below has to run BEFORE a dependency lands, or it
+  # gates nothing. This workflow was the uncustomised template and never
+  # ran on a pull request at all.
+  pull_request:
   push:
     branches: [main, master, develop, development, production, sensr_develop, new_proto_structure]
     tags: ['v*', 'V*']
@@ -22,6 +26,11 @@ permissions:
 jobs:
   sbom:
     name: SBOM (CycloneDX)
+    # Not on pull requests. The SBOM is a release deliverable rather than a
+    # gate, and its artifact name interpolates github.ref_name, which is
+    # "<PR number>/merge" on a pull_request event: a slash is illegal in an
+    # artifact name and the upload would fail.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 10
     steps:
@@ -37,8 +46,108 @@ jobs:
           name: sbom-${{ github.event.release.tag_name || github.ref_name }}-${{ github.sha }}
           path: sbom.cyclonedx.json
           retention-days: 90
-      # Optional per-language forbidden-license GATE (fails the build on AGPL/SSPL/etc.):
-      #   Go     -> google/go-licenses check ./...
-      #   Node   -> license-checker --failOn 'AGPL-3.0;SSPL-1.0'
-      #   Python -> pip-licenses --fail-on 'AGPL-3.0'
-      # Left out by default to keep this universal; add per repo where you want to enforce.
+
+  # The GATE, in its own job so it reports its own check context.
+  #
+  # It used to be the last step of the sbom job above, which meant the only
+  # context this workflow reported was "SBOM (CycloneDX)". A required status
+  # check matches the context string exactly, so the gate could never be
+  # required without also requiring SBOM generation to succeed. SB-2204
+  # standardised every gated repo in the org on the context "license-gate";
+  # this is that job here.
+  #
+  # It builds its own SBOM rather than taking the artifact from the job above.
+  # A gate that depends on the deliverable job cannot report when that job
+  # fails for a reason with nothing to do with licensing, and syft on a repo
+  # this size costs seconds. Same reason the firmware repo keeps its copyleft
+  # gate independent of its sbom job.
+  license-gate:
+    name: license-gate
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Generate SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.17.7
+        with:
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+      # Forbidden-license GATE (SB-2053, MSA 6.6B). Enabled and widened from the
+      # original AGPL-only stub to GPL / AGPL / LGPL / SSPL and the other
+      # source-disclosure licenses.
+      #
+      # Driven off the syft SBOM above rather than a per-language tool, so it
+      # stays language-agnostic: whatever syft can enumerate, this gates. Today
+      # that is the Python analysis tooling, which is where a copyleft package
+      # would realistically slip in via a requirements.txt.
+      #
+      # The shipped library itself is in-house C with no package manifest; its
+      # attribution set is asserted in THIRD_PARTY_NOTICES, and the firmware
+      # repo's tools/sbom/check_build_copyleft.py gates what actually links.
+      - name: Forbidden-license gate
+        run: |
+          python - <<'PY'
+          import json, re, sys
+
+          FORBIDDEN = ("GPL", "AGPL", "LGPL", "SSPL", "CDDL", "EPL", "MPL", "OSL", "CPAL")
+
+          # Spelled-out licence names, checked alongside the acronyms above.
+          #
+          # The acronym check tokenises and looks for "AGPL" as a whole word, which never
+          # appears in "GNU Affero General Public License v3.0". syft emits license.name
+          # verbatim whenever a component carries no SPDX id, so the spelled-out form is
+          # routine rather than exotic, and before SB-2204 every copyleft licence written
+          # out in full passed this gate undetected.
+          #
+          # Order matters: "Affero General Public License" and "Lesser General Public
+          # License" both contain "General Public License", so the narrower phrase has to
+          # match first or everything collapses to GPL.
+          PHRASES = (
+              ("AFFERO GENERAL PUBLIC LICENSE", "AGPL"),
+              ("LESSER GENERAL PUBLIC LICENSE", "LGPL"),
+              ("GENERAL PUBLIC LICENSE", "GPL"),
+              ("MOZILLA PUBLIC LICENSE", "MPL"),
+              ("ECLIPSE PUBLIC LICENSE", "EPL"),
+              ("COMMON DEVELOPMENT AND DISTRIBUTION LICENSE", "CDDL"),
+              ("SERVER SIDE PUBLIC LICENSE", "SSPL"),
+              ("OPEN SOFTWARE LICENSE", "OSL"),
+              ("COMMON PUBLIC ATTRIBUTION LICENSE", "CPAL"),
+          )
+
+          # A linking exception (GCC RLE above all) means no obligation flows to
+          # the linked output -- not a finding.
+          EXEMPT_MARKERS = ("EXCEPTION", "CLASSPATH")
+
+          with open("sbom.cyclonedx.json") as fh:
+              bom = json.load(fh)
+
+          bad = []
+          for c in bom.get("components", []):
+              for entry in c.get("licenses", []):
+                  lic = entry.get("license", {})
+                  expr = lic.get("id") or lic.get("name") or entry.get("expression", "")
+                  if not expr:
+                      continue
+                  up = expr.upper()
+                  if any(m in up for m in EXEMPT_MARKERS):
+                      continue
+                  tokens = set(re.findall(r"[A-Za-z]+", up))
+                  hits = [f for f in FORBIDDEN if f in tokens]
+                  if not hits:
+                      for phrase, family in PHRASES:
+                          if phrase in up:
+                              hits = [family]
+                              break
+                  if hits:
+                      bad.append((c.get("name", "?"), c.get("version", "?"), expr, hits))
+
+          for name, ver, expr, hits in bad:
+              print(f"::error::forbidden license on {name} {ver}: {expr} "
+                    f"(matched {', '.join(hits)})", file=sys.stderr)
+          if bad:
+              print(f"\n{len(bad)} component(s) under a license that would impose "
+                    f"source-disclosure obligations downstream. This breaks the "
+                    f"MSA 6.6B warranty -- replace the dependency.", file=sys.stderr)
+              sys.exit(1)
+          print(f"gate ok: {len(bom.get('components', []))} components, no forbidden licenses")
+          PY
