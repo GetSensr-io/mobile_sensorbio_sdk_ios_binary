@@ -9,6 +9,7 @@ private let sdkLog = Logger(subsystem: "com.sensorbio.sdkexample", category: "SD
 struct SDKExampleApp: App {
     @State private var dateContext = AppDateContext()
     @State private var logSubscription: AnyCancellable? = SDKExampleApp.wireSDKLogging()
+    @State private var analyticsSubscription: AnyCancellable?
 
     init() {
         // Environment toggle (Staging / Prod) lives on the signed-out
@@ -20,6 +21,9 @@ struct SDKExampleApp: App {
         UserDefaults.standard.register(defaults: ["envIsDev": true])
         let isDev = UserDefaults.standard.bool(forKey: "envIsDev")
         SB_SDK.environment = isDev ? .staging : .production
+
+        // After the environment is set: subscribing touches `SB_SDK.shared`.
+        _analyticsSubscription = State(initialValue: SDKExampleApp.wireSDKAnalytics())
 
         // Nothing else to configure. The SDK remembers which organization a
         // session belongs to, so a cold launch into a restored session needs
@@ -60,6 +64,20 @@ struct SDKExampleApp: App {
             @unknown default:
                 sdkLog.debug("\(composed, privacy: .public)")
             }
+        }
+    }
+
+    /// The SDK's telemetry events (`analyticsEvents`, see SDK_INTERFACE.md
+    /// "Analytics events"). A real host adds its own metadata (user id, app
+    /// version, …) and forwards each event to its analytics provider; the
+    /// SDK Example just logs the name and properties.
+    private static func wireSDKAnalytics() -> AnyCancellable {
+        SB_SDK.shared.analyticsEvents.sink { event in
+            let properties = event.properties
+                .sorted { $0.key < $1.key }
+                .map { "\($0.key)=\($0.value)" }
+                .joined(separator: ", ")
+            sdkLog.info("analytics event: \(event.name, privacy: .public) [\(properties, privacy: .public)]")
         }
     }
 }

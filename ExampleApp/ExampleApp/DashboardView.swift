@@ -119,6 +119,7 @@ struct DashboardView: View {
         case .respRateDashMetric: return "Respiratory Rate"
         case .spo2DashMetric: return "SpO\u{2082}"
         case .temperatureDashMetric: return "Temperature"
+        case .stressIndexDashMetric: return "Stress Index"
         case .unknown: return "Metric"
             @unknown default:
                 return "?"
