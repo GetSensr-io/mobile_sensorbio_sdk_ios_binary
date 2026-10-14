@@ -44,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `3.3.0`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `4.0.0`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -52,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.3.0"
+        exact: "4.0.0"
     )
 ],
 targets: [
@@ -188,6 +188,91 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v4.0.0 — October 14, 2026
+
+4.0.0 is a major version because the detected-activities API changes in ways
+that break existing code. Read the first three bullets before you upgrade. It
+also covers everything from 3.4.0 and 3.4.1, which were not published as
+binaries.
+
+**Breaking changes**
+
+- **Detected activities have one read surface now.** `detectedActivitiesPublisher`
+  is renamed `detectedActivities`. The `detectedActivities()` snapshot call is
+  removed. Subscribe instead: the current list arrives as soon as you subscribe.
+- **`confirmDetectedActivity` and `dismissDetectedActivity` are now `async`.**
+  Call them with `await`, for example `Task { await sensorBio.confirmDetectedActivity(…) }`
+  from a button action. `confirmDetectedActivity` is no longer `@MainActor`.
+  Otherwise they behave as before.
+- **New enum cases.** `SB_PairingFailure.bluetoothOff` and
+  `SB_DashboardMetricType.stressIndexDashMetric` are new, so an exhaustive
+  `switch` over either type needs a case for them.
+- **`SDKGlobals.noOfDaysToSavePPGAndActivityPackets` is removed.** The SDK now
+  keeps local history on the device until sign-out.
+- **`modifySleepSession` now returns the server's status `String`**
+  (`@discardableResult`). It throws a specific `SB_SleepWriteError` for each
+  refusal (`.insufficientData`, `.invalidTimes`, `.sessionNotFound`), and
+  `.modifyFailed(message:)` is now only the fallback for a code the SDK doesn't
+  recognize. A `catch .modifyFailed` on its own no longer catches the known cases.
+
+**New**
+
+- **Continuous stress index.** For organizations running the
+  `continuous_stress_index` algorithm, the SDK computes a stress index on the
+  device and uploads it. Read a day with `getStressIndex(date:)` (on device) or
+  `fetchStressIndex(date:)` (server). The dashboard carries the day's latest
+  value as the new `.stressIndexDashMetric` tile.
+- **Offline mode.** An organization can turn on offline mode in its white-label
+  settings. Data then stays on the device: nothing is uploaded, and server reads
+  throw `SB_OfflineModeError.unavailable`. On-device reads keep working.
+- **Heart-rate zones are identified by `SB_HRZone`** (`.baseline`,
+  `.zone1`…`.zone5`), with no display text, so you can name and localize zones
+  yourself. Use `SB_HRMExerciseZone.zone` and `SB_Zone.zone`. `SB_HREffortZone`,
+  `SB_HRMExerciseZone.description` and `SB_Zone.name` are deprecated and will be
+  removed in the next major release.
+- **Analytics events match Android.** `analyticsEvents` adds `device synced`,
+  `device paired`, `device removed`, `device firmware update successful`,
+  `device firmware update failed` and `device epoch updated`, and every event
+  carries `phone_epoch`. `device sync failed due to missing sequence number` is
+  renamed `device sync failed`, and it carries a `reason`.
+- **Specific add-sleep errors.** `addSleepSession` now throws `.neverAsleep`,
+  `.timeInFuture`, `.wakeUpNotAfterOnset` or `.invalidTimes` where it used to
+  throw `.insufficientData` for every refusal. `.insufficientData` is still the
+  fallback, so existing catches keep compiling.
+- **`syncCompleted`, `hrSyncFinishedForActivity` and `sleepUploaded`** are now
+  documented publishers.
+
+**Behavior changes**
+
+- **Workout zone cards add up to the workout.** `exerciseZoneList` ends with a
+  `.baseline` row for time below zone 1, including time with no heart-rate
+  reading. Its `yAxisLimitChartValue` is `0`, so leave it out of chart limit
+  lines. `hexadecimalColor` is now the bar color that matches the HR chart, and
+  `progressValue` is scaled against the longest row.
+- **Pairing fails fast when Bluetooth is off.** `beginPairing()` publishes
+  `.failed(.bluetoothOff)` within about a second instead of scanning until
+  `.scanTimeout`.
+- **Live recordings can be re-attached and canceled.** `awaitActiveRecordingCompletion()`
+  and `cancelCurrentRecording()` now work on a recording started in this
+  session, not only on one restored after the app was killed.
+- **A night recorded in pieces is one sleep** in the on-device sleep reads, as
+  it is on the server.
+- **Yesterday's unanswered detected activities are retired at midnight**, so
+  they don't carry over to the new day.
+- `sleepStored` and `sleepDetected` fire once per sleep. Previously each fired
+  twice.
+
+**Fixes**
+
+- Sensr V1 bands can take firmware updates again ("No firmware image").
+- A band paired to a new account no longer brings over data the band recorded
+  before that account was created.
+- The on-device store recovers by itself if it can't be opened. Syncs no longer
+  get stuck until a reinstall.
+- Long sync backlogs are written off the main thread, and large upload backlogs
+  are sent in bounded batches.
+- The on-device database stays small: SwiftData history is purged after each sync.
 
 ### v3.3.0 — September 24, 2026
 

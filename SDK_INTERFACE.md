@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "3.3.0"
+        exact: "4.0.0"
     )
 ],
 targets: [
@@ -238,7 +238,7 @@ Subscribe via `sensorBio.$propertyName` or read directly. All are read-only from
 | `deviceSyncing` | `Bool` | Active sync in progress |
 | `percentSynced` | `Int` | Sync progress (0–100) |
 | `lastSyncd` | `Date` | Wall-clock of last successful sync |
-| `latestDeviceEpochInMillis` | `Int64` | Epoch (ms) of the newest sensor packet synced from the device; advanced only from real packet timestamps (never wall-clock). Diagnostic (Developer Tools); recording finalize gates on the device bookend, not this |
+| `latestDeviceEpochInMillis` | `Int64` | Epoch (ms) of the newest sensor packet synced from the device; advanced only from real packet timestamps (never wall-clock). Monotonic within a launch; resets to 0 on relaunch. Recording finalize reads it too: a value past a recording's stop time is one of the two ways finalize concludes the band has handed over that recording's data (the other is a matching activity bookend) |
 
 **Device telemetry**
 
@@ -284,10 +284,11 @@ public var hasStoredAuthToken: Bool      // keychain holds an auth token
 public var isDeviceConnected: Bool       // paired + connection up
 public var sdkVersion: String            // underlying BLE SDK version string
 public var isAirplaneModeActive: Bool    // device is in airplane mode
-public var isRawLoggingEnabled: Bool     // white-label raw-sensor-logging on
+public var isRawLoggingEnabled: Bool     // white-label raw-sensor-logging on (always false under offline mode)
 public var haveUnuploadedPackets: AnyPublisher<Bool, Never>
 public var developmentLogStats: (storeURL: URL, enginePacketCount: Int)
 ```
+
 
 ### 3.4 Event streams (Combine subjects)
 
@@ -298,12 +299,19 @@ Subscribe via `sensorBio.<subject>.sink { … }`.
 // (Pairing is not here — it is one transaction reported on the
 //  `$pairingState` @Published property. See §6.1.)
 public let signOutComplete:             PassthroughSubject<Void, Never>
-public let deviceDisconnected:          PassthroughSubject<String, Never>   // payload: macAddress
+public let deviceDisconnected:          PassthroughSubject<String, Never>   // payload: the device's BLE `id` (same value as `pairedDevice.macAddress`)
 public let deviceConnected:             PassthroughSubject<Void, Never>     // low-level BLE connect
 public let deviceFullyConfigured:       PassthroughSubject<Void, Never>     // post-configure
 public let deviceLinkFailed:            PassthroughSubject<SB_DeviceLinkFailure, Never>  // server rejected the device-link (serial-enforced subscription)
 public let subscriptionLost:            PassthroughSubject<Void, Never>     // server rejected an authenticated RPC for no active subscription — host should alert + force logout (see §3.4.1)
 public let reauthenticationRequired:    PassthroughSubject<Void, Never>     // the SDK has no stored credential for an authenticated RPC — host should route to sign-in (see §3.4.2)
+
+// Sync
+public let syncCompleted:               PassthroughSubject<SB_SyncResult?, Never>  // a sync drained (see §3.4.3)
+public let hrSyncFinishedForActivity:   PassthroughSubject<Void, Never>     // the stopped recording's data has synced (see §3.4.3)
+
+// Telemetry for your analytics provider
+public let analyticsEvents:             PassthroughSubject<SB_AnalyticsEvent, Never>  // see §3.4.4
 
 // Streaming biometrics — timestamp + value
 public let hr:    PassthroughSubject<(Int, Int),     Never>                 // bpm
@@ -322,9 +330,16 @@ public let spotCheckReport:             PassthroughSubject<SB_SpotCheckReportEve
 public let activityReport:              PassthroughSubject<SB_WorkoutDetail, Never>          // local report, at finalize
 public let meditationReport:            PassthroughSubject<SB_MeditationGraph, Never>        // local report, at finalize
 public let biometricRecordProcessed:    PassthroughSubject<Void, Never>
-public let sleepStored:                 PassthroughSubject<Void, Never>
-public let sleepDetected:               PassthroughSubject<SB_DetectedSleep, Never>  // valid on-device sleep finalized (start/end epoch ms)
+public let sleepStored:                 PassthroughSubject<Void, Never>              // once per newly decoded, non-overlapping sleep (before upload)
+public let sleepDetected:               PassthroughSubject<SB_DetectedSleep, Never>  // once per valid, non-overlapping on-device sleep stored (start/end epoch ms)
+public let sleepUploaded:               PassthroughSubject<Void, Never>              // a stored sleep reached the server (pairs with sleepStored)
 ```
+
+`sleepStored` and `sleepDetected` each fire **exactly once per sleep** (SB-2440).
+Before, a non-overlapping sleep sent both twice: `sleepStored` from two sites in
+the decode pass, and `sleepDetected` once at decode (for every session, overlapping
+or not) and again when the session was stored. A sleep that overlaps one already on
+record sends neither.
 
 #### 3.4.1 `subscriptionLost` and the subscription block
 
@@ -498,6 +513,78 @@ Behaviour a host can rely on:
   cannot mint one, and holding something that could is what used to force the
   organization key onto the device. Getting fresh credentials is the host's call.
 
+#### 3.4.3 Sync, recording and sign-out results
+
+| Subject | Payload | When it fires |
+|---|---|---|
+| `syncCompleted` | `SB_SyncResult?` | A sync drained. `nil` on the short-circuit path: the band had too few packets to be worth fetching, so nothing was fetched. Non-nil when the final batch of a fetch was acknowledged — `acknowledge` (always `true`), `logCount` (packets the band reported for this sync) and `syncDuration` (seconds since the fetch started). A NAK'd sync does not fire; it is reported as the "device sync failed" analytics event instead (§3.4.4). |
+| `hrSyncFinishedForActivity` | `Void` | After the user stopped a recording, once the band's data for it has synced and the recording's engine results are uploaded (or there were none). Recording finalize follows. |
+| `signOutComplete` | `Void` | At the end of `signOut()`, after the SDK's local teardown. |
+| `sleepUploaded` | `Void` | A stored sleep was accepted by the server (including one the server flags as spurious). Pairs with `sleepStored` for a two-stage "got it → uploaded" UI. |
+
+```swift
+public struct SB_SyncResult {
+    public let acknowledge: Bool
+    public let logCount: Int
+    public let syncDuration: TimeInterval   // seconds
+}
+```
+
+#### 3.4.4 Analytics events
+
+`analyticsEvents` is the SDK's telemetry for your analytics provider. Each `SB_AnalyticsEvent` carries a `name` and a `properties: [String: String]` bag. The SDK adds no user or app metadata — subscribe, merge in your own (user id, app version, environment, …), and forward. Events are always delivered on the main queue:
+
+```swift
+public struct SB_AnalyticsEvent: Sendable {
+    public let name: String
+    public let properties: [String: String]
+}
+
+sensorBio.analyticsEvents
+    .sink { event in myAnalytics.track(event.name, properties: event.properties) }
+    .store(in: &cancellables)
+```
+
+iOS and Android emit the same set with the same names, keys and value formats (SB-2440). Every value is a `String`; numbers use a `.` decimal separator with no grouping, whatever the device locale.
+
+**Every event carries `phone_epoch`** — phone wall-clock time, epoch seconds. It is the moment the event was sent unless the table gives it a more specific meaning (the time a pairing completed, a removal, a failure); it isn't repeated in the rows below except where it has that meaning.
+
+| Event | Property | Value |
+|---|---|---|
+| `device epoch updated` — configure found the band clock ≥ 5 s off the phone and rewrote it | `device_epoch` | Band epoch before the correction, seconds |
+| | `phone_epoch` | Phone epoch, seconds |
+| | `delta_seconds` | `phone_epoch − device_epoch`, signed integer |
+| `device errored` — at most once per synced chunk that carries diagnostic error packets | `error_type` | Space-separated tokens, in this order, no leading or trailing space: `ble` `watchdog` `ppg` `imu_overflow` `algorithm_nan_in_accel_buffer` |
+| | `packet_bytes` | The error packets as uppercase space-separated hex bytes, packets joined by `", "` — e.g. `87 0B 07 0C 01, 87 0B 07 07 02` |
+| | `epoch` | Band timestamp of the latest packet in the chunk, seconds |
+| `device sync failed` — the SDK NAK'd a sync batch, intermediate or final | `reason` | Always present; see below |
+| | `intermediate` | `true` / `false` |
+| | `number_of_packets_recorded` | Packets the band reported for this sync |
+| | `number_of_packets_synced` | Packets received so far |
+| | `expected_sequence_number` | Only when `reason` is `out_of_sequence` |
+| | `received_wrong_sequence_number` | Only when `reason` is `out_of_sequence` |
+| `device synced` — successful syncs, throttled (see below) | `packet_count` | Packets synced since the last `device synced` |
+| | `number_of_syncs` | Acknowledged batches since the last `device synced` |
+| | `sync_duration` | Their summed duration in seconds, exactly two decimals (e.g. `12.34`) |
+| `device removed` — the host unpaired the band with `removeDeviceFromPairedDevices(_:)`; captured before any teardown | `serial_number` | The removed band's serial number; `""` if it was never read |
+| | `phone_epoch` | Time of the removal, seconds |
+| `device paired` — a band was newly paired through `beginPairing()` / `selectDevice(_:)` (never on a reconnect of an already-paired band); sent once per pairing, as soon as the serial number and firmware version are both known — usually right away, otherwise after the first configuration that reads them | `serial_number` | The band's serial number |
+| | `firmware_version` | The band's firmware version as `firmwareVersion` publishes it |
+| | `phone_epoch` | Time the pairing completed, seconds |
+| `device firmware update failed` — an `updateFirmware(_:)` call threw; once per call, and the error still reaches the caller unchanged | `reason` | See below |
+| | `current_version` | `firmwareVersion` when the update started; `""` if unknown |
+| | `attempted_version` | `latestFirmwareVersion` when the update started — the target the SDK offered; `""` when it had none |
+| | `phone_epoch` | Time of the failure, seconds |
+| `device firmware update successful` — an `updateFirmware(_:)` call completed; once per call | `old_version` | `firmwareVersion` when the update started; `""` if unknown |
+| | `new_version` | The version the band reports after rebooting onto the new image and reconnecting. If it doesn't report one within 5 minutes — or the band is removed, or another update starts, first — the attempted version (`latestFirmwareVersion` at the start) |
+| `sleep recording uploaded to server successful` — the sleep upload RPC returned OK | `sleep_end_epoch` | Sleep end, milliseconds |
+
+**`device sync failed` reasons.** `out_of_sequence` — a batch's sequence number wasn't the previous one + 1 (skipped, duplicated or replayed); the band re-sends from its last ack. `store_in_memory` — the on-device store fell back to memory, so acking would lose the data; repeats every sync until the real store opens. `unknown` — a NAK with no recorded cause. Android also reports `store_write_failed` (persisting the batch failed); iOS never sends it, because its batch saves do not report a write failure to the ack decision. This event was named `device sync failed due to missing sequence number` before SB-2440.
+
+**`device firmware update failed` reasons.** When the band or the Bluetooth layer reported an OTA status, `reason` is that status's lowercase name — the same list on both platforms: `crc_error` · `invalid_header_info` · `invalid_packet_length` · `insufficient_buffer` · `unknown_error` · `status_max` · `app_cancel` · `app_not_enough_data` · `app_missing_objects` · `app_missing_file` · `app_missing_device` · `app_existing_ota`. Otherwise it is an SDK-level code: `not_connected` (no band when the update started) · `not_configured` · `unknown`. The Bluetooth layer reports every flash failure as a status — a lost link and its OTA watchdog both arrive as `app_cancel`, an unreadable image as `app_missing_file` — so the SDK-level codes cover only failures outside the flash. A flash whose completing reboot drops the link before the BLE layer reports success is reported as failed (typically `app_cancel`), even though the band may come back on the new firmware.
+
+**`device synced` throttle.** Every acknowledged batch, intermediate or final, is counted. The event is sent only when more than 5 minutes have passed since the anchor, and the counters reset after each send. The anchor moves only when a final (non-intermediate) batch sends the event. The state is in memory, so the first acknowledged batch after a launch always sends.
+
 ### 3.5 Recording submissions (optimistic timeline)
 
 In-flight finished-recording submissions the SDK is still uploading /
@@ -591,7 +678,7 @@ report exists. Submissions where it is `false` — a manually-logged session, an
 `.unscoreable` / `.deferred` recording, a row predating this version — are the
 only ones with nothing to render but a status.
 
-### 3.6 Detected activities (confirm-or-dismiss)
+### 3.6 Detected activities (confirm-or-dismiss) ⚠️ interface change
 
 The band's firmware can decide by itself that an activity has started — from
 accelerometer motion, from cadence, or from both agreeing — switch the PPG into
@@ -604,24 +691,36 @@ confirms it (which submits it as a real activity) or dismisses it. Values cross
 the boundary as the `SB_DetectedActivityInfo` value type (no SwiftData leak).
 
 ```swift
-// Detections that are ready to be confirmed, oldest first;
-// CurrentValueSubject-backed, so new subscribers get the state immediately.
-public var detectedActivitiesPublisher: AnyPublisher<[SB_DetectedActivityInfo], Never> { get }
-
-// One-shot snapshot of the same set (e.g. on .onAppear).
-public func detectedActivities() -> [SB_DetectedActivityInfo]
+// Detections that are ready to be confirmed, oldest first. CurrentValueSubject-
+// backed: a new subscriber receives the present state synchronously on
+// subscribe, then every change (from SDK queues — hop to main for UI).
+// The single surface, like Android's `detectedActivities` StateFlow.
+public var detectedActivities: AnyPublisher<[SB_DetectedActivityInfo], Never> { get }
 
 // Confirm a detection under `activityName`: submits it as a real general-cardio
 // session and retires the detection. Returns false when the detection is unknown
 // or already answered, so a second call for the same detection is a no-op.
-@discardableResult @MainActor
-public func confirmDetectedActivity(startTsMillis: Int64, activityName: String) -> Bool
+@discardableResult
+public func confirmDetectedActivity(startTsMillis: Int64, activityName: String) async -> Bool
 
 // Dismiss a detection. Marked ignored on-device and never published again,
 // including when its bookend re-syncs (which it will). Nothing is uploaded.
 @discardableResult
-public func dismissDetectedActivity(startTsMillis: Int64) -> Bool
+public func dismissDetectedActivity(startTsMillis: Int64) async -> Bool
 ```
+
+> ⚠️ **Interface change:** the two read surfaces are now one, matching
+> Android's single `detectedActivities` `StateFlow`. `detectedActivitiesPublisher`
+> is renamed `detectedActivities`, and the `detectedActivities()` snapshot call
+> is removed — subscribe instead; the current set arrives immediately.
+> Confirm and dismiss are now `async` (previously synchronous,
+> and `confirmDetectedActivity` was `@MainActor`), matching Android's `suspend`
+> functions of the same names. Call them from any context with `await`, e.g.
+> `Task { await sensorBio.confirmDetectedActivity(…) }` from a button
+> action. The store work runs on the SDK's SwiftData queue and the caller
+> suspends instead of blocking; only the final submit step hops to the main
+> actor. Behaviour is otherwise unchanged — idempotent, `false` for an unknown
+> or already-answered detection, same submission path.
 
 `SB_DetectedActivityInfo` carries `startTsMillis` (its identity — pass it back
 to either call), `endTsMillis`, `durationMillis`, the `tzOffsetMinutes` in force
@@ -645,8 +744,10 @@ a detection is only published once:
   arrive twice, and the user's own recording wins.
 
 A detection that fails any of those is simply absent. Ones from an earlier day
-are retired automatically (there is nowhere left to answer them), as are ones
-already answered.
+are retired automatically (there is nowhere left to answer them) the moment the
+calendar day changes, and the publisher re-emits without them — a host showing
+the card on "today" needs no date filter of its own. Ones already answered are
+retired too.
 
 Both of the first two conditions matter, and the first is not redundant: every
 "is it all uploaded?" predicate is vacuously true for a window holding no rows,
@@ -1031,7 +1132,7 @@ public enum SB_PairingState: Equatable, Sendable {
 }
 
 public enum SB_PairingFailure: Equatable, Sendable {
-    case scanTimeout, connectTimeout, connectionLost,
+    case bluetoothOff, scanTimeout, connectTimeout, connectionLost,
          notConfirmed, deviceUnavailable
 }
 ```
@@ -1058,6 +1159,8 @@ sensorBio.beginPairing()
 
 **What the SDK does inside the transaction**, so the host doesn't: scanning and discovery de-duplication; re-issuing the scan when Bluetooth authorization is granted mid-scan (CoreBluetooth silently drops a scan issued before the central reaches `poweredOn`); connecting; the on-band confirmation choreography (blink + buzz, listening for the button, acknowledging the press, and refusing a late press once the window closes); persistence; server registration; configuring the band over the link that is already up; and every timeout.
 
+**Bluetooth switched off.** If Bluetooth is authorized but switched off, `beginPairing()` publishes `.failed(.bluetoothOff)` within about a second, instead of scanning until `.scanTimeout`. The SDK shows no UI for this; the host decides what to say. iOS gives apps no way to turn Bluetooth on, so tell the user to switch it on in Control Center or Settings, then call `endPairing()` and `beginPairing()` again. A first-run pair, where the Bluetooth permission prompt has not been answered yet, is unaffected: it scans as before.
+
 > **Nothing is persisted, registered, or reported to the server until the user confirms on the band.** A transaction that ends any way other than `.paired` — cancelled, timed out, dropped — leaves **no trace**: no persisted device, no BLE registration, no server-side link event. There is nothing for the host to undo, which is why no un-pair or reset call is needed on the failure paths.
 
 `.paired` means the band is fully ready: persisted, registered, reported, and **configured** — no reconnect is required. The two terminal states persist until `endPairing()`, so a host showing an "all set" or "can't reach the band" screen keeps the transaction open until that screen is dismissed. The SDK suppresses the forced-firmware prompt (`updateRequired`) and BLE auto-reconnect for the life of the transaction.
@@ -1067,7 +1170,7 @@ sensorBio.beginPairing()
 ```swift
 public func connect(_ id: String)                          // manual reconnect; not needed for pairing
 public func disconnect(_ id: String? = nil)
-public func removeDeviceFromPairedDevices(_ id: String)    // unpair: also clears the persisted store
+public func removeDeviceFromPairedDevices(_ id: String)    // unpair: also clears the persisted store; sends the "device removed" analytics event (§3.4.4)
 public func clearPairedDevice()                            // wipe the paired snapshot (e.g. fresh-onboarding reset)
 public func reclassifyPairedDevice(macAddress: String, name: String, type: SB_BluetoothDeviceType)
 public internal(set) var isSigningOut: Bool                // true from signOut() until the next registerUser
@@ -1094,6 +1197,10 @@ public func airplaneMode() async throws
 public func reset()
 public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) async throws
 ```
+
+`reset()` sends the band its reset command. It is a plain reset, **not a factory reset**. It returns immediately and sends the command in the background. If no band is paired, or the command fails, the failure is only logged.
+
+`updateFirmware` (both the `URL` and the `Data` overload) reports each call once on `analyticsEvents` as `device firmware update failed` or `device firmware update successful` (§3.4.4); the error a failed call throws is unchanged.
 
 These are raw device commands. **Pairing does not require any of them** — `beginPairing()` runs the LED/haptic confirmation and the button listening itself (§6.1). Reach for `userLED` / `hapticMotor` / `setAskForDeviceResponse` only for your own device interactions outside a pair.
 
@@ -1228,9 +1335,10 @@ public func awaitActiveRecordingCompletion() async throws
 public func cancelCurrentRecording()
 ```
 
-- `activeRecording` is non-nil whenever `recordingState != .idle`. Read on launch to decide whether to route the user to the matching recording view.
-- `awaitActiveRecordingCompletion()` no-ops when no restore is in flight, so host VMs can call it unconditionally. Cancellation forwards to the underlying SDK-owned task — the existing "cancel my local Task on End-Recording" pattern keeps working unchanged.
-- `cancelCurrentRecording()` is the explicit cancel for restored recordings (no host-side `Task` to cancel). Fresh recordings still cancel by cancelling the caller's `Task` directly.
+- `activeRecording` is non-nil whenever `recordingState != .idle`. Its `kind` (and `activityName` / `sessionName`) say which recording view to show — on launch, and equally whenever a live screen needs to re-attach.
+- **Fresh and restored recordings are the same thing to a host (SB-2447).** Every recording runs as one SDK-owned task, whether a `record*(...)` call started it in this process or it was restored after a kill. `record*(...)` itself still returns / throws exactly as before, and cancelling the caller's `Task` still cancels the recording.
+- `awaitActiveRecordingCompletion()` waits on the recording in flight, live or restored, and throws what the `record*(...)` call would. It is how a host attaches a screen to a recording it doesn't hold the `Task` for; any number of callers may await the same recording. Returns immediately when nothing is in flight, so host VMs can call it unconditionally. Cancellation forwards to the recording. *Behaviour change:* before SB-2447 it returned immediately for a live (non-restored) recording, which a host could only read as "finished".
+- `cancelCurrentRecording()` cancels the recording in flight without submission, live or restored — the stop for a host that no longer holds the `Task`. *Behaviour change:* before SB-2447 it reached only restored recordings and was a no-op on a live one.
 
 The persisted envelope:
 
@@ -1276,6 +1384,9 @@ Sync runs automatically once a paired device connects. No customer-side method c
 
 **Upload is automatic too.** Every data type the device produces — biometrics, activity, steps, temperature, and **sleep** — is uploaded to the server by the SDK with no customer-side trigger. Uploads are driven off sync completion and a persistent, retrying job queue that survives app relaunches and waits for connectivity, so there is nothing to call and nothing to schedule. (Sleep upload previously exposed `SB_OnDeviceSleepDecoder.launchSleepUploadThread()`; that is removed — sleep is now handled internally like every other type.)
 
+**On-device storage recovers by itself.** The SDK keeps synced data on the device until the server has it. If that store can't be opened (for example, a background launch before the first unlock after a reboot, or a damaged file), the SDK holds the data on the band instead of acknowledging it, retries the store, and after repeated failures sets the old store aside and starts a fresh one. The set-aside copy is deleted after 14 days or at sign-out. Signing out while the store is unavailable still clears the user's local data before anything can read it. Nothing is required from the host app.
+
+
 ---
 
 ## 7. Server APIs (async/await)
@@ -1294,6 +1405,21 @@ Every method below is `async throws` on the `SB_SDK` facade. All return typed `S
 
 > **`forceRemote` (pull-to-refresh).** Every cache-backed `fetch…` read takes a trailing `forceRemote: Bool = false`. When `true`, every cache shortcut is bypassed and the read always hits the network (still writing the fresh result to the cache, and still falling back to the cached payload on a network failure). Pass `forceRemote: true` from a user-initiated refresh. This is the escape hatch for data that changes after the fact — a device synced days later, or sleep/recovery **scores** the server finishes processing asynchronously after upload — on top of the automatic provisional-cache refetch described above.
 
+#### Offline mode (SB-2421)
+
+An organization can turn on **offline mode** in its white-label settings when it does not want Sensor Bio holding its users' data. The SDK picks the setting up on its own, as it does every white-label setting, and while it is on:
+
+- **Nothing is uploaded.** Metrics from the band are still decoded and stored on the device, exactly as before, but nothing is sent: no biometrics, activity, steps, temperature or sleep uploads, no recording submissions, surveys, workout edits or algorithm results, and no battery telemetry. If the organization turns offline mode off, everything held is uploaded then.
+- **Raw device data packets are not stored**, and the band is told not to log raw sensor data. Those bytes exist only to be uploaded. `isRawLoggingEnabled` reads `false`.
+- **Server reads fail.** Every `fetch…` method and every `…Updates` stream throws `SB_OfflineModeError.unavailable`, even when a cached copy exists — except the configuration reads listed under *still allowed* below (`fetchGoals`, `fetchLockedDevices`). The on-device `get…` reads (`getHRPoints`, `getSleepDetail`, `getSkinTemperature`, …) keep working, and so do the local-first paths (`fetchDailyActivityDetail` / `fetchDailyRecovery` with `preferLocal: true`) for as long as they don't fall back to the server. Writes that go to the server (`addSleepSession`, `updateGoals`, profile updates, …) throw the same error.
+- **Still allowed:** sign-in and sign-up, token refresh, sign-out, account deletion, password change, agreements, the white-label settings fetch itself, reading goals (`fetchGoals` — the on-device sleep score needs the sleep goal), the enabled-algorithm list, and pairing / device linking (`fetchLockedDevices`).
+
+```swift
+public enum SB_OfflineModeError: Error {
+    case unavailable   // the data lives on the server, and offline mode allows no server reads
+}
+```
+
 ### 7.1 Dashboard
 
 ```swift
@@ -1311,6 +1437,24 @@ public struct SB_DashboardCircularItem: Codable, Equatable, Sendable {
 
 > **`value` vs `processing` — read both.** `value` is **not** guaranteed to be `0…100`. The server sends `-100` for a sleep it has recorded but never scored, and negative recovery values are a documented sentinel meaning "no real score for the day" (pair with `SB_DashboardItemRecoveryStage.stageNotAvailable`). Treat **any non-positive `value` as "no score"**, and read **`processing`** for progress — the two are independent. Inferring progress from a missing or non-positive `value` is wrong: it cannot distinguish "recorded but unscoreable" from "still being worked on", and will leave a ring showing *Processing* forever.
 >
+#### The stress index tile (SB-2228) ⚠️ interface change
+
+`SB_DashboardMetricType` has a new case, `.stressIndexDashMetric` (raw value 7). It is SDK-only: the server's dashboard has no stress value, so the SDK appends this tile to `metrics` itself, from its own [continuous stress index](#continuous-stress-index-sb-2228--interface-change) day read. `valueFloat` is the day's latest reading (`SB_StressIndexDay.latest.value`), `value` is that rounded, `title` is `"STRESS INDEX"`, `valueUnit` is `""` and there is no footer. It is always the last tile. **The tile is absent when the organization does not run the `continuous_stress_index` algorithm on the mobile SDK, and when the day has no readings** — render your row's empty state then. A switch over `SB_DashboardMetricType` needs the new case.
+
+Where the reading comes from:
+
+| Read | Stress source |
+|---|---|
+| `fetchDashboardData`, today | `fetchStressIndex(date:)`; falls back to `getStressIndex(date:)` when it throws or returns `nil` (the server only has a point once the phone uploaded it) |
+| `fetchDashboardData`, any other day | `getStressIndex(date:)` — on device, no extra RPC |
+| `dashboardUpdates` cached first value | `getStressIndex(date:)` — on device, so the first paint never waits on the network |
+| `dashboardUpdates` fresh value | as `fetchDashboardData` |
+| `getDashboardData` (offline mode) | `getStressIndex(date:)` |
+
+A stress failure never fails the dashboard read; the tile is simply left out. The stress read runs alongside the server's dashboard request, not after it.
+
+**Caching.** The tile is never written into the dashboard's response cache. It is added on every call after the cached or fresh payload is resolved, so a past day served from its final cache, or today's bad-internet fallback, still carries the stress the device has now — never a stale tile from when the payload was cached, and never a missing one on the cached first paint.
+
 > `data.sleep` is now populated whenever the server sends a sleep goal item, **including when its `value` is non-positive** (it was previously dropped to `nil` by a `value > 0` gate). `data.sleep != nil` therefore no longer implies "there is a score" — check `value > 0` for that, and use `data.sleeps` (the session list) to tell whether the server knows about any sleep session at all.
 
 ### 7.2 Activity reads
@@ -1718,6 +1862,34 @@ public struct SB_CaloriesHourBucket: Codable, Equatable, Sendable {
 
 `throws` only on the server-backfill path (e.g. `SB_AuthError.missingAuthToken` when signed out); the pure-local path never touches the network.
 
+#### Continuous stress index (SB-2228) ⚠️ interface change
+
+Now public in the binary (it was internal-only). The SDK computes one stress index per PPG block on device when the organization runs the `continuous_stress_index` algorithm, uploads it, and reads it back by day.
+
+```swift
+public func getStressIndex(date: Date) async -> SB_StressIndexDay?              // the day's points + values, read on device; nil when none
+public func fetchStressIndex(date: Date) async throws -> SB_StressIndexDay?     // the server's day (GetStressIndex), stored locally; nil when none
+
+public struct SB_StressIndexDay: Equatable, Sendable {
+    public let latest: Point             // the newest point — the dashboard's .stressIndexDashMetric value
+    public let min: Double
+    public let max: Double
+    public let sleepAverage: Double?     // mean of the .asleep points; nil when none
+    public let daytimeAverage: Double?   // mean of the .awake points; nil when none
+    public let points: [Point]           // oldest first, never empty
+
+    public struct Point: Equatable, Sendable {
+        public let epoch: Int64          // the PPG block start, unix ms
+        public let value: Double
+        public let type: SB_HRPointType  // .asleep inside one of the day's sleeps, else .awake
+    }
+}
+```
+
+`SB_StressIndexDay` is a day's continuous stress index: `points`, oldest first, each tagged `.asleep` / `.awake` against the same day window and sleeps as `getHRPoints(date:)`, and five values the SDK calculates from those non-zero points (SB-2417). A day with no points has no `SB_StressIndexDay` at all (`nil`); zeros never count. `getStressIndex(date:)` never touches the network. `fetchStressIndex(date:)` reads the day's points from the server instead; the five values are still calculated by the SDK from them (the server's own stats are not used), and its day is the calendar day in each point's offset (so it leaves out last night's pre-midnight points, which `getStressIndex` includes). Every fetched point is written to the local store as `uploaded`, so it is never sent back up and a later `getStressIndex` of that day has it on device; a point already stored keeps its value. It throws `SB_AuthError.missingAuthToken` when signed out, `SB_OfflineModeError.unavailable` in offline mode, or the transport error.
+
+For the dashboard's latest value you don't need these: the dashboard read already carries it as the `.stressIndexDashMetric` tile (see [7.1](#71-dashboard)). Use them for a stress detail screen.
+
 ### 7.4 Sleep reads
 
 ```swift
@@ -1735,6 +1907,8 @@ public func fetchSleepAggregation(date: Date, granularity: SB_ViewGranularity, f
 `nil` when neither the device nor the server has sleep for the day.
 
 A session is attributed to the day it **wakes up** — it may start the previous evening (or be a nap fully inside the day), but a session that starts in the day and wakes the next belongs to the next day, so an overnight sleep isn't double-counted on both days. Without `sessionEndTimestamp` the day's **longest** session (most time asleep) is surfaced.
+
+**A night the band recorded in pieces is one session (SB-2436).** The band often ends a sleep on a wake and starts another when the user settles again; the server joins those into one sleep, and so do the local reads, with the server's rules: sleeps that overlap or sit **less than 60 minutes apart** are merged when they end on the same date, and when a date's first sleep starts before 01:00 the previous date's last sleep can join it too (so a night split across midnight is one night, filed under the morning). The merged night keeps the first piece's start and onset and the last piece's wake-up; its `SB_SleepItem.end` is the last piece's end + 1 s, as on the server. Each gap between pieces counts as **awake** — in Total Awake, Awakenings, the score and the stage timeline — but, as on the server, not in the stage percentages. The resting HR / HRV, graphs and arm disturbances are read over the whole night, gaps included. This applies to every on-device sleep read — `getSleepDetail`, `getSleepSessions`, the graph and disturbance reads, the dashboard, the local recovery score and the daily resting HR / HRV — and matters most in offline mode, where nothing reaches the server to be merged there. The stored sleep rows are not changed: each piece is still uploaded on its own and the server does its own merge. A `sessionEndTimestamp` that is one piece's wake-up resolves to the night containing it.
 
 The returned `SB_SleepDetailDay` is populated with what the device stores, **recomputed to match server-first exactly** (the server re-derives its stage metrics after upload, and the iOS row never even stores its own per-stage totals — those columns are always `0` and the server fills them in from the timestamped stages):
 
@@ -1825,10 +1999,40 @@ Both cache the **sleep** target locally as a side effect (SB-1678), so the local
 ```swift
 public func fetchSleepSessions(date: Date) async throws -> [SB_SleepItem]
 public func addSleepSession(onset: Date, wakeUp: Date) async throws
-public func modifySleepSession(onset: Date, wakeUp: Date, endTimestamp: Int64, date: Date) async throws
+@discardableResult
+public func modifySleepSession(onset: Date, wakeUp: Date, endTimestamp: Int64, date: Date) async throws -> String
 public func deleteSleepSession(endTimestamp: Int64, date: Date) async throws
 public func reprocessSleep(endDate: Int32, endTimestamp: Int64) async throws
 ```
+
+`addSleepSession` and `modifySleepSession` throw `SB_SleepWriteError`:
+
+```swift
+public enum SB_SleepWriteError: Error {
+    case insufficientData       // not enough band data in the window
+    case neverAsleep            // band data, but none of it scored as sleep
+    case timeInFuture           // onset or wake-up is in the future
+    case wakeUpNotAfterOnset    // wake-up is not after onset
+    case invalidTimes           // onset or wake-up is missing (modify: or not ordered)
+    case sessionNotFound        // modify: no session at the given end coordinates
+    case modifyFailed(message: String) // modify: unrecognized refusal code
+}
+```
+
+`addSleepSession` names each refusal separately (SB-2423). Before that it threw
+`.insufficientData` for all of them, and it still does for a refusal code the
+SDK doesn't recognize, so an existing `catch SB_SleepWriteError.insufficientData`
+keeps working.
+
+`modifySleepSession` maps the server's refusal codes the same way (SB-2426):
+not enough data → `.insufficientData`, invalid times → `.invalidTimes`, no
+such session → `.sessionNotFound`. `.modifyFailed(message:)` is now only the
+fallback for a code the SDK doesn't recognize; before SB-2426 it was thrown for
+every refusal, so a `catch .modifyFailed` alone no longer sees the known codes.
+`message` is the server's unlocalized text — log it, don't show it. The
+returned `String` on success is the server's unlocalized status text too; show
+your own copy. None of the cases carry user-facing text: map each to your own
+localized string.
 
 ### 7.9 Workouts & activities
 
@@ -1905,6 +2109,72 @@ algorithm's result is uploaded: the just-finished report shows the device's
 zones, the timeline shows the server's. That is a known consequence of the
 device having no way to tell the server which zones it used, not a bug, and it
 closes when the upload lands.
+
+#### Which zone a row is: `SB_HRZone` (SB-2355) ⚠️ interface change
+
+The SDK identifies a heart-rate zone with an enum and **no display text**. What a
+zone is called, and its localization, is the host's job.
+
+```swift
+public enum SB_HRZone: Int, CaseIterable, Codable, Comparable, Sendable {
+    case baseline = 0   // under zone 1's floor
+    case zone1, zone2, zone3, zone4, zone5
+    public static let scored: [SB_HRZone]   // .zone1 ... .zone5
+}
+```
+
+- **Reports:** `SB_HRMExerciseZone.zone: SB_HRZone?` says which zone a
+  time-in-zone row is. The below-zone-1 row is `.baseline`. `zone` is nil only
+  when the server sent a zone name this SDK doesn't recognize. That row is kept
+  so the times still add up, but it isn't any zone and shouldn't be labelled
+  or colored as one.
+- **Live recording:** `SB_Zone.zone: SB_HRZone?` says which zone a floor starts.
+  Build one with `SB_Zone(zone:minValue:hexStringColor:)`.
+- **Deprecated, kept for one release:** `SB_HREffortZone`,
+  `SB_HRMExerciseZone.description`, `SB_HRMExerciseZone.init(description:…)`,
+  `SB_Zone.name` and `SB_Zone.init(name:…)`. These carry the server's English
+  names ("Warm up", "Fat Burn", …). Don't display them. Switch to `zone` and
+  your own strings.
+- **Cached reports** written by an earlier SDK carry only the name. It is
+  mapped to `zone` when the report is read, so no migration is needed.
+
+The server still sends the zone as an English name (`HRMExerciseZone.description`
+in `data.proto`). The SDK maps it to `SB_HRZone` when it decodes the response,
+and nothing after that reads the string.
+
+#### Below-warm-up time and the bar colours (SB-2356) ⚠️ behaviour change
+
+Every workout detail the SDK hands out — `fetchWorkoutDetail`,
+`localWorkoutDetail` and `activityReport`, whichever source built it — has its
+`exerciseZoneList` finished for display the same way. This only affects a list
+that has zones in it: an empty list stays empty.
+
+- **A last row, `zone == .baseline`** (named `"Below warm up"` before SB-2355), holds the time spent under the first
+  zone's floor, so the card adds up to the whole workout. It is worked out from
+  `SB_HRMData.dataPoints` against the list's own lowest floor, using the same
+  gap-to-previous rule the zones use. It also holds the workout time with no HR
+  reading at all, before the first sample and after the last one (SB-2404), so
+  the rows add up to `endTimestamp - timestamp`, the Session figure. That
+  matters most for an auto-detected activity, where HR can start minutes after
+  the activity does. Its **`yAxisLimitChartValue` is `0`**
+  because it has no floor of its own. That is also how to tell it apart from a
+  zone: **skip it when you draw chart limit lines or work out the y-axis
+  range**, or you get a line at 0 bpm.
+- **`hexadecimalColor` is the bar colour, not the zone's floor colour.** The HR
+  chart pins each zone's colour to that zone's floor and blends upward, so each
+  band looks like the next zone up. The bars now use that same colour:
+  `.baseline` `#979797`, `.zone1` `#00a7dc`, `.zone2` `#00ad67`, `.zone3`
+  `#fd8635`, and `.zone4` and `.zone5` both `#ee3e41`. A host that colours a
+  chart gradient from this field should switch to its own floor colours
+  (`#979797` / `#00a7dc` / `#00ad67` / `#fd8635` / `#ee3e41` from `.zone1`
+  upward). Otherwise every band moves up one colour.
+- **`progressValue` is rescaled against the longest row, including Below warm
+  up.** On an easy walk that row is full length and the zones are short. The
+  zone rows' `displayValue` and boundaries keep their scored values; only the
+  bar length and colour change.
+
+The zone *boundaries* and the five times the HR Zone algorithm uploads are
+unchanged.
 
 **`.remove` works on an un-uploaded workout.** Where there is no server row, the
 submission is discarded on the device instead and its timeline row goes with it —
@@ -2048,7 +2318,7 @@ public enum SDKConstants {
 
 `DefaultUserMetrics.Sex` is in the SDK's **storage** convention — `0` male, `1`
 female, `2` undisclosed — the same numbering `SB_UserProfile.sex` persists. Note
-this is *not* the bioedge C numbering (`USER_SEX_MALE = 1`, `GENDER_MALE = 1`),
+this is *not* the bioedge C numbering (`GENDER_MALE = 1`),
 which counts the same three cases from one; conflating the two silently shifts
 every user by one case (SB-1735).
 
@@ -2057,7 +2327,6 @@ every user by one case (SB-1735).
 ```swift
 public enum SDKGlobals {
     public static let defaultPPGDuration: Int
-    public static let noOfDaysToSavePPGAndActivityPackets: Int
     public static func getUserAge(birthday: DateComponents) -> Int?
     public static func calcBMR(male: Bool, weight: Double, height: Double, age: Int) -> Double
     public static func calcCFF(age: Int, rhr: Int) -> Double
