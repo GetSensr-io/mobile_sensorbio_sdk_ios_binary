@@ -59,6 +59,8 @@ extension SB_PairingFailure {
     /// decides how to say it.
     var message: String {
         switch self {
+        case .bluetoothOff:
+            return "Bluetooth is off. Turn it on in Control Center or Settings, then tap Retry."
         case .scanTimeout:
             return "No device found. Tap Retry to scan again."
         case .connectTimeout:
