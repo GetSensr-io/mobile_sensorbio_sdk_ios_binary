@@ -105,6 +105,8 @@ struct DashboardView: View {
             NavigationLink { HRVDetailView() } label: { metricLabel(metric) }
         case .respRateDashMetric:
             NavigationLink { RRDetailView() } label: { metricLabel(metric) }
+        case .temperatureDashMetric:
+            NavigationLink { TemperatureDetailView() } label: { metricLabel(metric) }
         default:
             metricLabel(metric)
         }

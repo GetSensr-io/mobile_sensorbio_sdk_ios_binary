@@ -10,6 +10,7 @@ enum Metric: Hashable {
     case hr
     case hrv
     case rr
+    case temperature
 
     var title: String {
         switch self {
@@ -20,6 +21,7 @@ enum Metric: Hashable {
         case .hr:       return "Resting Heart Rate"
         case .hrv:      return "Heart Rate Variability"
         case .rr:       return "Respiratory Rate"
+        case .temperature: return "Skin Temperature"
             @unknown default:
                 return "?"
         }

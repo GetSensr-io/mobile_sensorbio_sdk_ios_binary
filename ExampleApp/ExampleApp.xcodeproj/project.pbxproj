@@ -31,10 +31,12 @@
 		E55AC0CC9231BD45E970A5E6 /* HRDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B3A01B084D14088BB918BA9 /* HRDetailView.swift */; };
 		E9FC757AD240A56836EC1BD7 /* StepsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5754A3DAAB8E8B8F86F14A79 /* StepsDetailView.swift */; };
 		ECA8C15365EA939A6CBDA93B /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF47AD9DAA58A61B2B9F3112 /* ProfileView.swift */; };
+		F4347F10C324681E98C25896 /* TemperatureDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 217BDDFD0006A8BD2BD2EE34 /* TemperatureDetailView.swift */; };
 		FAAFE7F2007A8F292A9960EF /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77C5F277CF2B17528EAE151B /* DashboardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		217BDDFD0006A8BD2BD2EE34 /* TemperatureDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureDetailView.swift; sourceTree = "<group>"; };
 		333D760799A4EDCC10A11C65 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		34D7D8B831057487AB86F81F /* RecoveryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryDetailView.swift; sourceTree = "<group>"; };
 		3B3A01B084D14088BB918BA9 /* HRDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRDetailView.swift; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 				57CE3A6CD34B6C438905A8FB /* SDKTokenSheet.swift */,
 				55FD910ACB453F265C8E01FD /* SleepDetailView.swift */,
 				5754A3DAAB8E8B8F86F14A79 /* StepsDetailView.swift */,
+				217BDDFD0006A8BD2BD2EE34 /* TemperatureDetailView.swift */,
 			);
 			path = ExampleApp;
 			sourceTree = "<group>";
@@ -232,6 +235,7 @@
 				9706723A7C081A4F36E43DAB /* SDKTokenSheet.swift in Sources */,
 				891608A7E0C71E7F2BAD4AC3 /* SleepDetailView.swift in Sources */,
 				E9FC757AD240A56836EC1BD7 /* StepsDetailView.swift in Sources */,
+				F4347F10C324681E98C25896 /* TemperatureDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
