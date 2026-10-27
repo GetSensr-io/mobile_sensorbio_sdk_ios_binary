@@ -44,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `4.0.0`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `4.1.0`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -52,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "4.0.0"
+        exact: "4.1.0"
     )
 ],
 targets: [
@@ -188,6 +188,43 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v4.1.0 — October 27, 2026
+
+**Breaking change**
+
+- **The meditation score is removed.** `SB_MeditationGraph` no longer has
+  `score`, `scoreFactors` or `scorePenalty`, and the `SB_MeditationScore`,
+  `SB_MeditationScoreFactor`, `SB_MeditationScorePenalty` and
+  `SB_MeditationScoreProcessState` types are gone. Delete any code that reads
+  them. `hrLinearFit` / `hrvLinearFit` and the rest of the graph are unchanged.
+
+**New**
+
+- **Temperature trending.** `fetchDailyTemperature(date:)` returns a day's
+  temperature from the server, and `fetchRangeTemperature(date:granularity:)`
+  returns the week, month or year as nightly sleep and whole-day series.
+- **`getSkinTemperature(date:)` fills in missing days.** When the device has
+  no temperature for a day, it now fetches that day from the server, stores it
+  and returns it. The signature is unchanged and it still returns `nil` on
+  failure.
+
+**Fixes**
+
+- A recording the server rejects is now marked failed, with the reason,
+  instead of showing as processing. A rejected spot check arrives as an error
+  on the spot-check result.
+- A spot check with no beat-to-beat data is refused before it is submitted,
+  so it no longer leaves an "Insufficient Data" entry on the timeline.
+- A finished recording is submitted once, so the user gets one
+  "processing complete" notification instead of several.
+- Stress index for past days now loads from the server and is tagged against
+  that day's sleep.
+- Editing a synced activity's calories or duration now updates its detail
+  report, not just the timeline.
+- Packet uploads keep their pending flag after a failed upload, and a batch
+  that crosses midnight is filed under the right days.
+- Heart-rate zones are ordered by the server's zone number.
 
 ### v4.0.0 — October 14, 2026
 
