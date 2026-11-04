@@ -15,7 +15,7 @@ the checksums in `Package.swift`; you do not fetch them yourself.
 | Artifact | Contents |
 |---|---|
 | `SensorBioSDK.xcframework` | The SDK. Auth, dashboard / sleep / activity / biometric reads, recording orchestration, the upload pipeline, the BLE pairing and sync engine, and the on-device DSP (HRV / sleep / activity computation). |
-| `LibFXC.xcframework` | Philips proprietary FXC sleep-staging engine. Linked transitively — you never call into it. |
+| `PSP.xcframework` | Philips proprietary sleep library (PSP). Linked transitively — you never call into it. Replaced `LibFXC.xcframework` in 4.2.0. |
 
 Both are iOS-only. Each ships a device slice (arm64) and a fat simulator
 slice (arm64 + x86_64), so they run on Apple-silicon and Intel simulators
@@ -44,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `4.1.0`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `4.2.0`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -52,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "4.1.0"
+        exact: "4.2.0"
     )
 ],
 targets: [
@@ -188,6 +188,47 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v4.2.0 — November 4, 2026
+
+**Packaging change**
+
+- **`PSP.xcframework` replaces `LibFXC.xcframework`.** The Philips sleep
+  library that ships alongside the SDK is now PSP. Swift Package Manager picks
+  it up automatically; if you link the frameworks by hand, swap LibFXC for PSP.
+
+**Behavior changes**
+
+- **`dashboardUpdates(for:tzOffset:)` is the one read a dashboard needs.**
+  Every value it yields is the whole day, including a new skin temperature tile
+  (`.temperatureDashMetric`). The stress tile is present whenever the
+  continuous stress index is on, with 0 for a day without readings. A past day
+  it has already assembled is served from the device without a network call.
+- **Offline mode:** `fetchDashboardData` and `dashboardUpdates` return the day
+  assembled on the device instead of throwing `SB_OfflineModeError.unavailable`.
+  Raw device data is kept on the phone instead of being discarded, and
+  `isRawLoggingEnabled` follows the organization's setting.
+
+**New**
+
+- **`getDevicePackets(_:)`** exports the band's raw device data as CSV, a page
+  at a time, in offline mode. A page is deleted only after your handler
+  returns without throwing.
+- **`getBiometricBaselines(date:)`** returns a day's resting HR, HRV,
+  respiratory rate and SpO2 against their 30-day baselines, computed on the
+  device. `getDashboardData(date:)` now shows them in its tile footers.
+- **`SB_PopulationInsightsHistogram`** adds `insightValue`, `insightUnit` and
+  `insightPercentage`, so you can build and localize the insight message.
+  `insightText` is deprecated but still filled in.
+
+**Improvements**
+
+- On-device scores for past days are kept across launches, so revisiting a day
+  no longer recomputes it.
+- `fetchDailySpO2(date:)` now stores the day's points on the device, like the
+  HR, HRV and respiratory-rate reads.
+- Resting respiratory rate now matches the server: the median of the sleep's
+  readings with heart-rate and HRV outliers removed, instead of a plain mean.
 
 ### v4.1.0 — October 27, 2026
 

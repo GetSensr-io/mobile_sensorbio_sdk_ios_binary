@@ -38,7 +38,7 @@
 //
 import PackageDescription
 
-let version = "4.1.0"
+let version = "4.2.0"
 let releaseBase = "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary/releases/download"
 
 let package = Package(
@@ -54,22 +54,22 @@ let package = Package(
         .binaryTarget(
             name: "SensorBioSDK",
             url: "\(releaseBase)/v\(version)/SensorBioSDK.xcframework.zip",
-            checksum: "a886af4ad130bfc2a2f81e36580ff2a2b1e6dbce8db88d657190c63911b01133"
+            checksum: "46218fc31661b911666b68bead9f7a342bcd490d74f409b5ca6082f43149a296"
         ),
-        // Philips signal-processing library. Ships separately because it is a
+        // Philips sleep library (PSP). Ships separately because it is a
         // dynamic library and cannot be absorbed into the static SDK the way
         // every other dependency is.
         .binaryTarget(
-            name: "LibFXC",
-            url: "\(releaseBase)/v\(version)/LibFXC.xcframework.zip",
-            checksum: "8c7345fad4473cfa9c2e88b708f6fa27981ac88619b7e87616eeb0c510c4e35f"
+            name: "PSP",
+            url: "\(releaseBase)/v\(version)/PSP.xcframework.zip",
+            checksum: "98019636c8e4f0debe2c14e5a68206e1d393d2325d6bc586596ef528fa440f8f"
         ),
         // Link carrier. A `binaryTarget` cannot express dependencies or
         // linker settings on its own, so the product points at this instead
         // and it pulls both binaries in.
         .target(
             name: "SensorBioSDKLink",
-            dependencies: ["SensorBioSDK", "LibFXC"],
+            dependencies: ["SensorBioSDK", "PSP"],
             path: "Sources/SensorBioSDKLink"
         )
     ]
