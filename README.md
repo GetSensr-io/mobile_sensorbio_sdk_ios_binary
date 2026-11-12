@@ -44,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `4.2.0`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `4.3.1`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -52,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "4.2.0"
+        exact: "4.3.1"
     )
 ],
 targets: [
@@ -188,6 +188,23 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v4.3.1 — November 12, 2026
+
+**Behavior changes**
+
+- **Workouts with missing or sparse heart rate now report calories.** A minute
+  with no usable HR is costed from the activity's MET value, and a workout whose
+  HR covers less than half its minutes is costed from MET throughout, so an
+  activity recorded without HR no longer reports 0 calories. This applies to
+  the activity report and to `getCaloriesPoints(date:)`.
+- A workout's first and last minutes are now charged by the share of the
+  minute the session actually covers.
+- Workout calorie totals no longer vary slightly from run to run. Step and
+  workout calories are otherwise unchanged.
+
+No API changes. This release also includes 4.3.0, which was not published
+separately.
 
 ### v4.2.0 — November 4, 2026
 

@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "4.2.0"
+        exact: "4.3.1"
     )
 ],
 targets: [
@@ -431,7 +431,7 @@ Spot check is the exception, and keeps its three-way `SB_SpotCheckReportEvent`: 
 
 **Neither is guaranteed to match the server, and that is worth knowing before building on it.** A spot check's report agrees by construction — the phone computes it, the submit ships it, the server stores it verbatim. These two do not:
 
-* **Activity calories.** The server recomputes from its own copy of the HR series and its own 30-day resting-HR baseline, and chooses between two calorie formulas with a deployment flag the client can't see (`SB_WorkoutCalorieFormula` documents this). The computation is ported line-for-line, so the drift is small and confined to the calorie figure — but the number can settle when the server's entry lands.
+* **Activity calories.** The server recomputes from its own copy of the HR series and its own 30-day resting-HR baseline, and chooses between two calorie formulas with a deployment flag the client can't see (`SB_WorkoutCalorieFormula` documents this). The computation is ported line-for-line, so the drift is small and confined to the calorie figure — but the number can settle when the server's entry lands. A workout with missing, sparse or implausibly low HR is not under-counted: the model's MET fallback (SB-2735) costs a minute with no HR from the activity's MET, floors an implausibly low or half-rate HR minute at it, and costs the whole workout from MET when HR covers under half its minutes — so an activity with no HR reports calories rather than `0`. The server ships the same fallback behind a deployment flag, off until it is turned on; until then the server's entry can settle a sparse-HR workout lower.
 * **Meditation trend lines.** `hrLinearFit` / `hrvLinearFit` carry a colour encoding improvement against a 30-day baseline. The server draws that baseline from the whole account; the SDK's comes from local sleep history, so a device holding less history than the account produces a lower baseline — or none, in which case the fit is returned uncoloured rather than coloured against a wrong number.
 
 
@@ -1888,7 +1888,7 @@ public struct SB_StepsHourBucket: Codable, Equatable, Sendable {
 
 #### Local-first Calories points
 
-`getCaloriesPoints(date:)` is the calories sibling of `getStepsPoints(date:)`: it returns a day's calorie intervals **local-first**, reading them from the same on-device `EnginePacket` rows as steps (so there is **no** awake/asleep tag). It faithfully recreates the server's per-`PhysicalStats`-row calorie model — each interval's `totalStepCalories` is the **active** calories the band measured, split into a **step** and a **workout** part (`active = step + workout`). The band never reports the split on device, so it is reconstructed: on a locally-synced day from the day's **activities**, with each activity minute's calories **recomputed from HR** using the server's own per-minute model, and on a backfilled day from the server calories graph's authoritative per-hour split. Only when the day predates local sync does it fall back to the API — **one shared steps + calories backfill** (server rows marked already-uploaded) — then rebuild, so a subsequent call for the same day is served entirely from the device.
+`getCaloriesPoints(date:)` is the calories sibling of `getStepsPoints(date:)`: it returns a day's calorie intervals **local-first**, reading them from the same on-device `EnginePacket` rows as steps (so there is **no** awake/asleep tag). It faithfully recreates the server's per-`PhysicalStats`-row calorie model — each interval's `totalStepCalories` is the **active** calories the band measured, split into a **step** and a **workout** part (`active = step + workout`). The band never reports the split on device, so it is reconstructed: on a locally-synced day from the day's **activities**, with each activity minute's calories **recomputed from HR** using the server's own per-minute model (a minute without usable HR takes the model's MET fallback, SB-2735, rather than going unscored), and on a backfilled day from the server calories graph's authoritative per-hour split. Only when the day predates local sync does it fall back to the API — **one shared steps + calories backfill** (server rows marked already-uploaded) — then rebuild, so a subsequent call for the same day is served entirely from the device.
 
 The calculation always runs **on device**. The SDK reaches the network only for *inputs* it does not hold, never for a server-computed calorie figure — which is why the number is reproducible offline once the inputs are cached. Two inputs are fetched and cached on demand (SB-2016):
 
