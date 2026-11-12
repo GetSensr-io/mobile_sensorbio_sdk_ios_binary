@@ -40,6 +40,11 @@ jobs:
         with:
           format: cyclonedx-json
           output-file: sbom.cyclonedx.json
+          # The action attaches the SBOM to the GitHub release on tag/release
+          # events by default. This workflow is contents: read, so that attach
+          # failed every release (v4.1.0, v4.2.0, v4.3.1) after the SBOM was
+          # already built. The SBOM ships as the workflow artifact below instead.
+          upload-release-assets: false
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -72,6 +77,8 @@ jobs:
         with:
           format: cyclonedx-json
           output-file: sbom.cyclonedx.json
+          # Same as the sbom job: no release attach. The gate only reads the file.
+          upload-release-assets: false
       # Forbidden-license GATE (SB-2053, MSA 6.6B). Enabled and widened from the
       # original AGPL-only stub to GPL / AGPL / LGPL / SSPL and the other
       # source-disclosure licenses.
