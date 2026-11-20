@@ -25,7 +25,7 @@ target. From another package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "4.3.1"
+        exact: "5.0.0"
     )
 ],
 targets: [
@@ -271,6 +271,8 @@ The following `@Published` properties are also observable:
 
 `forceUserToUpdatePassword`, `forceUserToUpdateProfile`, `exerciseZoneAttributes`, `updateSuggested`, `updateRequired`, `deviceAirplaneModeOn`, `webAppCookie`, `lastSyncedTemp`.
 
+`updateRequired` is raised when the band's firmware is outside the organization's min/max window. Firmware **above** the max raises it only when the server allows the downgrade to the max: until the SDK has asked, and when the server refuses, it stays `false`, and `latestFirmwareVersion` is the band's current version.
+
 `updateSuggested` and `updateRequired` are never raised for a device emulator (serial number starting `EMULATR`) that reports firmware `99.99.99`: that version is always treated as current, and `latestFirmwareVersion` stays `nil`.
 
 > **Where `exerciseZoneAttributes` comes from.** Normally the server's: `maxHr`, `rhr` and `zoneWeights` are whatever the last successful goals fetch returned. If your organization has the **HR Zone algorithm** enabled in the Algo Store, the SDK computes them on device instead, and this property publishes those values.
@@ -325,7 +327,9 @@ public let snr:   PassthroughSubject<(Int, Float),   Never>                 // d
 public let bbi:   PassthroughSubject<(Int64, Int),   Never>                 // ms
 public let ppg:   PassthroughSubject<(Int64, Float), Never>                 // raw
 public let ecg:   PassthroughSubject<(Int64, Float), Never>                 // raw
-public let firmwareProgress:            PassthroughSubject<Float, Never>
+public let coherence: PassthroughSubject<SB_CoherenceReading, Never>        // main queue; see §6.3.1
+public let firmwareProgress:            PassthroughSubject<Float, Never>   // 0.0–1.0 flash progress
+public var firmwareDownloadProgress:    PassthroughSubject<Float, Never>   // 0.0–1.0 image download, before the flash; see §6.2
 
 // Biometric-record & sleep-store results
 public let biometricRecordResult:       PassthroughSubject<SB_BiometricRecordResult, Never>
@@ -559,8 +563,8 @@ iOS and Android emit the same set with the same names, keys and value formats (S
 | `device epoch updated` — configure found the band clock ≥ 5 s off the phone and rewrote it | `device_epoch` | Band epoch before the correction, seconds |
 | | `phone_epoch` | Phone epoch, seconds |
 | | `delta_seconds` | `phone_epoch − device_epoch`, signed integer |
-| `device errored` — at most once per synced chunk that carries diagnostic error packets | `error_type` | Space-separated tokens, in this order, no leading or trailing space: `ble` `watchdog` `ppg` `imu_overflow` `algorithm_nan_in_accel_buffer` |
-| | `packet_bytes` | The error packets as uppercase space-separated hex bytes, packets joined by `", "` — e.g. `87 0B 07 0C 01, 87 0B 07 07 02` |
+| `device errored` — one event per error type found in a synced chunk's diagnostic packets, so at most one per `reason` per chunk | `reason` | The error: `BLE Error` · `Watchdog Timer Error` · `PPG Error` · `IMU Overflow Error` · `Algorithm NaN in Accel Buffer Error` |
+| | `packet_bytes` | That type's error packets as uppercase space-separated hex bytes, packets joined by `", "` — e.g. `87 0B 07 0C 01, 87 0B 07 0C 02` |
 | | `epoch` | Band timestamp of the latest packet in the chunk, seconds |
 | `device sync failed` — the SDK NAK'd a sync batch, intermediate or final | `reason` | Always present; see below |
 | | `intermediate` | `true` / `false` |
@@ -576,11 +580,11 @@ iOS and Android emit the same set with the same names, keys and value formats (S
 | `device paired` — a band was newly paired through `beginPairing()` / `selectDevice(_:)` (never on a reconnect of an already-paired band); sent once per pairing, as soon as the serial number and firmware version are both known — usually right away, otherwise after the first configuration that reads them | `serial_number` | The band's serial number |
 | | `firmware_version` | The band's firmware version as `firmwareVersion` publishes it |
 | | `phone_epoch` | Time the pairing completed, seconds |
-| `device firmware update failed` — an `updateFirmware(_:)` call threw; once per call, and the error still reaches the caller unchanged | `reason` | See below |
+| `device firmware update failed` — an `updateFirmware()` call threw, in the download or the flash; once per call, just before the call throws `SB_FirmwareUpdateError` | `reason` | See below |
 | | `current_version` | `firmwareVersion` when the update started; `""` if unknown |
 | | `attempted_version` | `latestFirmwareVersion` when the update started — the target the SDK offered; `""` when it had none |
 | | `phone_epoch` | Time of the failure, seconds |
-| `device firmware update successful` — an `updateFirmware(_:)` call completed; once per call | `old_version` | `firmwareVersion` when the update started; `""` if unknown |
+| `device firmware update successful` — an `updateFirmware()` call completed; once per call | `old_version` | `firmwareVersion` when the update started; `""` if unknown |
 | | `new_version` | The version the band reports after rebooting onto the new image and reconnecting. If it doesn't report one within 5 minutes — or the band is removed, or another update starts, first — the attempted version (`latestFirmwareVersion` at the start) |
 | `sleep recording uploaded to server successful` — the sleep upload RPC returned OK | `sleep_end_epoch` | Sleep end, milliseconds |
 | `sleep recording upload failed` — the server permanently rejected a sleep upload, so the SDK dropped the sleep and will not retry it; once per sleep. Transient failures (no internet, timeouts, server errors) send nothing — the upload stays queued and retries | `reason` | See below |
@@ -588,7 +592,7 @@ iOS and Android emit the same set with the same names, keys and value formats (S
 
 **`device sync failed` reasons.** `out_of_sequence` — a batch's sequence number wasn't the previous one + 1 (skipped, duplicated or replayed); the band re-sends from its last ack. `store_in_memory` — the on-device store fell back to memory, so acking would lose the data; repeats every sync until the real store opens. `store_write_failed` — saving the batch's raw sync bytes failed, so acking would lose them; the band re-sends the batch (SB-2526). `unknown` — a NAK with no recorded cause. This event was named `device sync failed due to missing sequence number` before SB-2440.
 
-**`device firmware update failed` reasons.** When the band or the Bluetooth layer reported an OTA status, `reason` is that status's lowercase name — the same list on both platforms: `crc_error` · `invalid_header_info` · `invalid_packet_length` · `insufficient_buffer` · `unknown_error` · `status_max` · `app_cancel` · `app_not_enough_data` · `app_missing_objects` · `app_missing_file` · `app_missing_device` · `app_existing_ota`. Otherwise it is an SDK-level code: `not_connected` (no band when the update started) · `not_configured` · `unknown`. The Bluetooth layer reports every flash failure as a status — a lost link and its OTA watchdog both arrive as `app_cancel`, an unreadable image as `app_missing_file` — so the SDK-level codes cover only failures outside the flash. A flash whose completing reboot drops the link before the BLE layer reports success is reported as failed (typically `app_cancel`), even though the band may come back on the new firmware.
+**`device firmware update failed` reasons.** When the band or the Bluetooth layer reported an OTA status, `reason` is that status's lowercase name — the same list on both platforms: `crc_error` · `invalid_header_info` · `invalid_packet_length` · `insufficient_buffer` · `unknown_error` · `status_max` · `app_cancel` · `app_not_enough_data` · `app_missing_objects` · `app_missing_file` · `app_missing_device` · `app_existing_ota`. Otherwise it is an SDK-level code: `not_connected` (no band when the update started) · `not_configured` · `no_update_available` (neither `updateRequired` nor `updateSuggested` was set) · `firmware_not_available` (the server won't serve `latestFirmwareVersion` for this band or organization, or the package isn't one `updateFirmware` can install) · `download_failed` (the version list, link or image download failed in transit) · `unknown`. The Bluetooth layer reports every flash failure as a status — a lost link and its OTA watchdog both arrive as `app_cancel`, an unreadable image as `app_missing_file` — so the SDK-level codes cover only failures outside the flash. A flash whose completing reboot drops the link before the BLE layer reports success is reported as failed (typically `app_cancel`), even though the band may come back on the new firmware.
 
 **`sleep recording upload failed` reasons** — the same on both platforms. From the upload response's status code: `invalid` · `bad_sleep_request` · `sleep_stages_timeseries_data_issue` · `unrecognized_status` (a code the SDK doesn't recognise). `invalid_argument` — the RPC itself failed with gRPC `invalidArgument`: the server validated the payload and refused it.
 
@@ -752,9 +756,7 @@ the wall-clock time it happened.
 is no status on the type and no state machine for a host to reproduce, because
 a detection is only published once:
 
-* the band has synced past the activity's end, **and**
-* the passive uploads covering its window have all landed (PPG-metrics results,
-  raw activity packets, engine/step packets), **and**
+* the band has synced past the activity's end (its data is on the phone), **and**
 * it is still today's, **and**
 * it does not overlap a recording the user made themselves — the detection
   algorithm keeps running during a manual recording, so the same minutes can
@@ -766,15 +768,15 @@ calendar day changes, and the publisher re-emits without them — a host showing
 the card on "today" needs no date filter of its own. Ones already answered are
 retired too.
 
-Both of the first two conditions matter, and the first is not redundant: every
-"is it all uploaded?" predicate is vacuously true for a window holding no rows,
-and a window the band has not sent yet holds none — so without the sync-frontier
-check a detection would be published the instant its bookend arrived, which is
-when its data is *least* likely to have reached the server.
+The sync check is needed because the bookend can arrive before the data it
+bookends. A detection does **not** wait for that data to reach the server: like
+a recording the user started, confirming builds the report locally and queues
+the submission, which waits for the window's uploads on its own. So a detection
+is published straight off a background sync — a host's "workout detected"
+notification can fire while the app is in the background, rather than only once
+the app is opened and its uploads run (SB-2781 / SB-2782).
 
-That gate is what makes `confirmDetectedActivity` a submit-now rather than a
-submit-eventually, and it is why the confirmed activity is indistinguishable
-from one the user recorded: same `SB_RecordingSubmission` row, same job queue,
+The confirmed activity is indistinguishable from one the user recorded: same `SB_RecordingSubmission` row, same job queue,
 same locally-built report, same `pendingSubmissionsPublisher` /
 `localRecordingEntries()` surfaces described in §3.5. A host that already
 renders those needs no extra work for the tail of this flow — only the card that
@@ -783,9 +785,9 @@ asks the question.
 The session is stamped `used_hrm`, because unlike a manually-logged session
 there genuinely are biometrics behind the window: the band turned the PPG on for
 it. The per-second continuous HR it captured uploads as **part of that submit**,
-attributed to the workout — which is exactly why it is not one of the uploads
-the readiness gate waits on. Uploading it early to satisfy the gate would send
-it with no workout to attribute it to and cost the activity its HR graph.
+attributed to the workout — which is why it is never uploaded before
+confirmation: sent early, it would have no workout to attribute it to and the
+activity would lose its HR graph.
 
 `activityName` decides whether steps and distance belong on the report, so
 prefer a name from your activity catalogue over free text.
@@ -1212,12 +1214,39 @@ public func hapticMotor(pulse: Bool = false, intensity: Int, for seconds: Int) a
 public func setAskForDeviceResponse(_ enable: Bool)
 public func airplaneMode() async throws
 public func reset()
-public func updateFirmware(_ url: URL, delay: Int? = nil, size: Int? = nil) async throws
+public func updateFirmware(delay: Int? = nil, size: Int? = nil) async throws
+
+public struct SB_FirmwareUpdateError: Error, LocalizedError {
+    public enum Code: Sendable {
+        case noDevice, noUpdateAvailable, notAvailable, downloadFailed,
+             flashFailed, retriesExhausted, deviceResetRequired, factoryResetRequired
+    }
+    public let code: Code
+    public let message: String
+    public var canRetry: Bool { get }   // true for .downloadFailed and .flashFailed
+}
 ```
 
 `reset()` sends the band its reset command. It is a plain reset, **not a factory reset**. It returns immediately and sends the command in the background. If no band is paired, or the command fails, the failure is only logged.
 
-`updateFirmware` (both the `URL` and the `Data` overload) reports each call once on `analyticsEvents` as `device firmware update failed` or `device firmware update successful` (§3.4.4); the error a failed call throws is unchanged.
+`updateFirmware` installs the update the SDK is offering. You don't pass an image. The SDK takes `latestFirmwareVersion` as the target, downloads its image from the Sensor Bio API with the signed-in user's session, and flashes it onto the connected band. Download progress streams on `firmwareDownloadProgress`, then flash progress on `firmwareProgress`. `delay` and `size` only tune the Bluetooth frames of the flash; leave them `nil` for the defaults.
+
+Every failure, in the download or the flash, throws `SB_FirmwareUpdateError`. Its `code` says what the user can do about it, so pick your message from the code alone; `message` is diagnostic text for your logs. You never need to look at the band's firmware version to decide what to say.
+
+| `code` | When | `canRetry` | Tell the user |
+|---|---|---|---|
+| `.noDevice` | no band is paired and connected | `false` | connect the band |
+| `.noUpdateAvailable` | neither `updateRequired` nor `updateSuggested` is set | `false` | nothing to do |
+| `.notAvailable` | the server won't provide `latestFirmwareVersion` for this band: it isn't published, or your organization's firmware settings don't allow it | `false` | try again later |
+| `.downloadFailed` | the version list, link or download failed in transit | `true` | try again |
+| `.flashFailed` | the flash failed | `true` | try again |
+| `.retriesExhausted` | the flash failed at every frame size. Android only: on iOS you run the frame-size backoff through `delay` / `size` | `false` | contact support |
+| `.deviceResetRequired` | the band holds a partial image from an earlier, interrupted flash | `false` | call `reset()`, then update again |
+| `.factoryResetRequired` | the band was in recovery mode (firmware `0.x.x`) and the flash failed. Recovery firmware refuses the reset command | `false` | factory reset the band with its side button, then update again |
+
+A failed download in recovery mode is still `.downloadFailed`: the band wasn't touched, so retrying can work. Any other failed flash outside recovery mode can also leave a partial image on the band: call `reset()` before the next attempt. Cancelling the calling task throws `CancellationError`, not `SB_FirmwareUpdateError`.
+
+`updateFirmware` reports each call once on `analyticsEvents` as `device firmware update failed` or `device firmware update successful` (§3.4.4); the event's `reason` keeps the Bluetooth layer's own OTA status even though the caller gets the `code`.
 
 These are raw device commands. **Pairing does not require any of them** — `beginPairing()` runs the LED/haptic confirmation and the button listening itself (§6.1). Reach for `userLED` / `hapticMotor` / `setAskForDeviceResponse` only for your own device interactions outside a pair.
 
@@ -1230,9 +1259,30 @@ public var debugFailFirmwareUpdate: Bool                   // drop the link ~20%
 
 Both exist to rehearse the firmware failure → band reset → retry path on demand, which is otherwise hard to provoke deliberately and easy to regress silently.
 
-`debugOfferFirmwareUpdate` forces `updateSuggested` and points `latestFirmwareVersion` at the device's current firmware, so an update can be triggered without a newer release existing. It takes effect immediately — the update decision re-runs on assignment rather than waiting for a reconnect — and deliberately overrides the white-label firmware gate and the Alter/UART-migration special cases, since it means "let me trigger an update now". The one thing it does not override is a device emulator on firmware `99.99.99`, which never offers an update.
+`debugOfferFirmwareUpdate` forces `updateSuggested` and points `latestFirmwareVersion` at the device's current firmware, so an update can be triggered without a newer release existing. It takes effect immediately — the update decision re-runs on assignment rather than waiting for a reconnect — and deliberately overrides the white-label firmware gate and the Alter/UART-migration special cases, since it means "let me trigger an update now". The one thing it does not override is a device emulator on firmware `99.99.99`, which never offers an update. The server never lists the version a band is already running, so for this offer the SDK asks for the version list as if the band were one version lower, then downloads and reflashes the current version.
 
 `debugFailFirmwareUpdate` fails the next flash about 20% in by dropping the BLE link. Dropping the link rather than throwing is what makes it faithful to a real interrupted update: the band is left holding a partial image, the host takes its disconnect-during-update path, and the band reset that clears the partial image cannot be delivered until the band returns — so the host's deferral of that reset is exercised too. Leave it on to watch the failure, turn it off and retry to watch the recovery.
+
+**Bluetooth fault injection.** Gated behind `SENSORBIO_INTERNAL`; absent from the binary.
+
+```swift
+public enum SB_DebugBLEFault: String, CaseIterable, Sendable {
+    case none, stallSetup, silentMidBatch, loseAckReply, random
+    public var title: String        // short label for a picker
+}
+public var debugBLEFault: SB_DebugBLEFault   // which BLE failure to fake; in-memory, host re-applies at launch
+```
+
+Fakes the band or iOS going quiet at the wrong moment, so the SB-2778 connect and sync recovery paths can be exercised on a real band. The faults are applied in the SDK's own event handlers; the band and the BLE library are untouched. Every injection logs a line starting `QA fault injection:`, so a log pull can pair each one with its recovery.
+
+| Mode | What it fakes | Expected recovery |
+|---|---|---|
+| `stallSetup` | Every other connect, the band's "connected" event is ignored, so setup never finishes. | After 30 s: `connect did not complete in 30s — tearing it down and retrying`, then a normal connect. |
+| `silentMidBatch` | Every other sync batch, everything after the first 2 data chunks is dropped, including the end-of-batch message. | After 30 s: `Sync went silent for 30s while receiving data chunks`, a disconnect, and the next batch syncing the re-sent data. |
+| `loseAckReply` | Every other sync batch, the ack is never sent and the ack step never finishes. | After 60 s: `Sync went silent for 60s while saving and acking the batch`, a disconnect, and the next batch syncing the re-sent data. |
+| `random` | `silentMidBatch` or `loseAckReply` on about one batch in five. | As above; meant for an unattended overnight soak. |
+
+The SDK holds the setting in memory only. A host that wants it to survive a relaunch (a soak does) persists it and assigns it again at launch.
 
 ### 6.3 Recording
 
@@ -1396,6 +1446,117 @@ public struct SB_PersistedRecording: Codable, Sendable, Equatable {
 - `pausedAtEpochMs` is the open half of the same pair: a window only joins `pauseSegments` on resume, so an app killed while the user sat paused used to lose that pause entirely — the recording restored as **running**, back-filled the span onto the chart, and submitted it as active. It is now what lets restore bring the recording back paused (see below); the window stays open, and closes on the user's own resume.
 - `isAbandoned` bounds an envelope's lifetime. `.activity` is open-ended, so `endDate` (and therefore `isExpired`) is structurally `nil`/`false` for it and nothing else caps how long one may sit in flight.
 
+
+#### 6.3.1 Cardiac coherence (SB-2671) ⚠️ interface change
+
+A coherence session is an **activity recording** with the coherence library running on its live beat-to-beat intervals. It runs like `recordActivity`: same band stream, `canFinalize` gate, pause/resume, post-stop sync, `activityReport` and submit. Unlike `recordActivity`, it has a fixed length (five minutes by default). `recordingState` counts down as `.recording(elapsed:, target: duration)`, and the session finalizes itself when time runs out, the way `recordMeditation` does. It is stored as a general-cardio activity under the name you pass. On top of that it publishes a live reading on `coherence`, and when it finishes it uploads a session package.
+
+```swift
+@MainActor
+public func startCoherence(
+    activityName: String,                          // localized, e.g. "Cardiac Coherence"
+    settings: SB_CoherenceSettings = .default,
+    duration: TimeInterval = SB_CoherenceSettings.defaultDuration,   // 5 min
+    minDuration: TimeInterval
+) async throws                                     // returns once finalized: at the target, or after endCoherence()
+
+public func endCoherence()                         // end early; same as finishCurrentRecording()
+
+public let coherence: PassthroughSubject<SB_CoherenceReading, Never>
+@Published public internal(set) var coherenceHistory: [Double?]   // one alignment per second since the start; nil = no reading
+
+@Published public private(set) var isCoherenceAvailable: Bool
+```
+
+**Only offer it when it's available.** Show a coherence entry point only while `isCoherenceAvailable` is `true`. That means your org has `cardiac_coherence` enabled with `execution_location = mobile_sdk`. The flag follows the Algo Store list, including the copy restored at launch, so it is correct offline too. `startCoherence` does not check this flag: a session started without the algorithm still runs and publishes readings, but it uploads no package.
+
+`startCoherence` throws `SB_RecordingError.alreadyRecording` if a recording or another coherence session is already running. Otherwise it throws whatever `recordActivity` throws. Cancelling the calling `Task` cancels the session: nothing is submitted and no package is built.
+
+**Readings.** `coherence` emits on the main queue whenever a beat arrives, and also once a second. The per-second emission matters because the library only notices that beats have stopped when it is asked.
+
+```swift
+public struct SB_CoherenceReading: Sendable, Equatable {
+    public let elapsedSeconds: TimeInterval
+    public let isReady: Bool
+    public let stage: SB_CoherenceStage            // .collecting / .provisional / .established
+    public let reason: SB_CoherenceReason          // .learning / .rebuilding / .waitingFresh / .holdSteady / .lowVariation / .early / .active
+    public let alignment: Double?                  // 0...1, 18 s window; nil unless isReady
+    public let referenceAlignment: Double?         // 0...1, whole 60 s history; nil until .established
+    public let breathsPerMinute: Double?           // the wave the rhythm follows; nil if none found
+    public let progress: Double                    // 0...1 toward the first reading
+    public let maturityProgress: Double            // 0...1 toward the 60 s reference
+    public let variationMs: Double
+    public let artifactRatio: Double               // 0...1 share of beats outside 300–2000 ms
+    public let acceptedBeats: Int
+    public let historySeconds: Double
+    public let lastBeatAgeMs: Int?                 // ms since the newest beat; nil before the first
+}
+```
+
+- **The first reading** needs 18 s and 14 beats. The 60 s reference needs 58 s and 35 beats.
+- **Until then**, `alignment` is `nil`. The library's 0.5 placeholder is never passed through.
+- **Gaps:** a gap of more than 2.5 s between beats starts the history again (`.rebuilding`).
+- **Stale readings:** when beats stop, a ready reading keeps its last value for up to 8 s before going to `.waitingFresh`. Use `lastBeatAgeMs` to tell when a ready reading is going stale.
+- **Display is the app's job:** score scale, bands, smoothing, and wording for each `reason`. The library's own wording was written for a fingertip sensor; `.holdSteady` in particular needs wording that suits a wrist band.
+
+```swift
+public struct SB_CoherenceSettings: Sendable, Equatable, Codable {
+    public var inhaleSeconds: Double               // default 5
+    public var exhaleSeconds: Double               // default 5
+    public var highMin: Double                     // default 0.6 (placeholder)
+    public var mediumMin: Double                   // default 0.35 (placeholder)
+    public var displayFullScale: Double            // default 0.9
+    public static let `default`: SB_CoherenceSettings
+    public static let defaultDuration: TimeInterval   // 300
+}
+```
+
+The settings never change the readings. They are recorded in the package so a report can show what the user saw, and `highMin` / `mediumMin` set the summary's time-in-band figures.
+
+**Upload.** At finalize, the session package is queued for the `cardiac_coherence` algorithm, ahead of the activity's own submit, the same way the HR Zone result travels with a workout:
+- **Contents:** one reading per second, every beat, events, and a summary (`coherenceSession` schema 1.0.0).
+- **Delivery:** it retries while offline. Nothing is needed from the host.
+- **When it is skipped:** if your org doesn't have `cardiac_coherence` enabled with `execution_location = mobile_sdk`, nothing is uploaded and the activity submits as normal.
+
+**Results.** At finalize, after the package is queued and before the activity is submitted, the SDK publishes the session's results once on `coherenceReport` (main actor). It also keeps them on the phone, so you can open the same results from your timeline later:
+
+```swift
+public let coherenceReport: PassthroughSubject<SB_CoherenceReport, Never>
+public func coherenceReport(startTsMillis: Int64) -> SB_CoherenceReport?   // nil: not a coherence session from this phone
+
+public struct SB_CoherenceReport: Sendable, Equatable, Codable {
+    public let startTsMillis: Int64                // the activity's start, as the timeline files it
+    public let startDate: Date
+    public let endDate: Date
+    public let durationSeconds: Int
+    public let settings: SB_CoherenceSettings
+    public let alignments: [Double?]               // one per second of the whole session; nil = no reading
+    public let meanAlignment: Double?              // over the seconds with a reading
+    public let breathsPerMinute: Double?           // mean
+    public let timeInHighSeconds: Int              // alignment ≥ settings.highMin
+    public let percentInHigh: Double               // 0...100, from the first reading on (start-up excluded)
+    public let finalReferenceAlignment: Double?
+}
+```
+
+Results are kept whether or not `cardiac_coherence` is enabled, because the report belongs to the user and the upload belongs to the org. They are deleted on `signOut()`. The server has no way to read a session back, so the lookup only works for sessions recorded on this phone.
+
+**Session chart.** `coherenceHistory` is the running session's per-second alignment. Bind your chart to it rather than accumulating `coherence` yourself. It is replaced in full when the SDK back-fills (see below), and it is cleared when a new session starts.
+
+**After an app kill.** The recording envelope says whether a recording is a coherence session:
+
+```swift
+public struct SB_PersistedRecording {
+    // …
+    public let coherenceSettings: SB_CoherenceSettings?   // nil for every other recording
+    public var isCoherence: Bool { get }
+}
+```
+
+On relaunch, check `activeRecording?.isCoherence`. If it is `true`, bring the user back to your coherence screen rather than the activity screen, and await `awaitActiveRecordingCompletion()` as you would for any restored recording.
+- **Live readings:** the SDK starts a new library instance on the session's original clock, so `coherence` resumes and `t` keeps counting from the real start.
+- **The gap:** the band keeps recording to flash through the kill. Each `syncCompleted` while the session runs replays the synced beats, and `coherenceHistory` fills in the stretch the app missed.
+- **At finalize:** the post-stop sync has brought in the whole window, so the package and report are rebuilt from the stored beats in full.
 
 ### 6.4 Sync — automatic
 

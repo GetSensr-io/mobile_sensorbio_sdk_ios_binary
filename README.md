@@ -44,7 +44,7 @@ In Xcode: **File → Add Package Dependencies…**, enter
 https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git
 ```
 
-choose **Exact Version** `4.3.1`, and add the `SensorBioSDK` library to your app target.
+choose **Exact Version** `5.0.0`, and add the `SensorBioSDK` library to your app target.
 
 Or, if your app is itself a Swift package:
 
@@ -52,7 +52,7 @@ Or, if your app is itself a Swift package:
 dependencies: [
     .package(
         url: "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary.git",
-        exact: "4.3.1"
+        exact: "5.0.0"
     )
 ],
 targets: [
@@ -188,6 +188,45 @@ rest of the app shows the shape your app should actually have.
 `SDK_INTERFACE.md` documents breaking changes per release.
 
 ## Release notes
+
+### v5.0.0 — November 20, 2026
+
+**Breaking changes**
+
+- **`updateFirmware` no longer takes an image URL.** Call `updateFirmware()`
+  (optionally with `delay:` / `size:`). The SDK downloads the image for
+  `latestFirmwareVersion` from the Sensor Bio API with the signed-in user's
+  session, then flashes it. Download progress streams on the new
+  `firmwareDownloadProgress`, then flash progress on `firmwareProgress`.
+- **Firmware update failures throw `SB_FirmwareUpdateError`.** Its `code`
+  (`.noDevice`, `.noUpdateAvailable`, `.notAvailable`, `.downloadFailed`,
+  `.flashFailed`, `.deviceResetRequired`, `.factoryResetRequired`, …) says what
+  to tell the user, and `canRetry` says whether a retry can work. See the
+  interface reference for the full table.
+- **Analytics: `device errored` now sends one event per error type,** with a
+  `reason` property in place of `error_type`. `device firmware update failed`
+  gains the reasons `no_update_available`, `firmware_not_available` and
+  `download_failed`.
+
+**New**
+
+- **Cardiac coherence sessions:** `startCoherence(activityName:settings:duration:minDuration:)`
+  / `endCoherence()`, live readings on `coherence`, the running chart on
+  `coherenceHistory`, and end-of-session results on `coherenceReport` (also
+  readable later with `coherenceReport(startTsMillis:)`). Offer it only while
+  `isCoherenceAvailable` is `true`.
+
+**Behavior changes**
+
+- Firmware above your organization's maximum raises `updateRequired` only when
+  the server allows the downgrade.
+- Detected workouts appear as soon as the band has synced them, without
+  waiting for their uploads, so a "workout detected" notification can fire
+  while the app is in the background.
+- A stalled Bluetooth connect or sync now recovers on its own instead of
+  needing an app restart.
+- Dashboard "vs baseline" footers no longer briefly disappear when new data
+  arrives.
 
 ### v4.3.1 — November 12, 2026
 
