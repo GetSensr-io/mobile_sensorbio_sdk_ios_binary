@@ -38,7 +38,7 @@
 //
 import PackageDescription
 
-let version = "4.3.1"
+let version = "5.0.0"
 let releaseBase = "https://github.com/GetSensr-io/mobile_sensorbio_sdk_ios_binary/releases/download"
 
 let package = Package(
@@ -54,7 +54,7 @@ let package = Package(
         .binaryTarget(
             name: "SensorBioSDK",
             url: "\(releaseBase)/v\(version)/SensorBioSDK.xcframework.zip",
-            checksum: "aba9d6e5bf795f9be1cc1781754d2019f719727edc863067eec4a85ea622f7d7"
+            checksum: "1b2bbf640cb45259b0782d7724160bc13767d1c900cc8bc5c93df6794032f242"
         ),
         // Philips sleep library (PSP). Ships separately because it is a
         // dynamic library and cannot be absorbed into the static SDK the way
@@ -62,7 +62,7 @@ let package = Package(
         .binaryTarget(
             name: "PSP",
             url: "\(releaseBase)/v\(version)/PSP.xcframework.zip",
-            checksum: "27d6e9b7bff28cf7c2027f232c375bc616ad213046d8b317c0b12f776daf0f9d"
+            checksum: "153eea7c34114da9ab690e222a8c3a932c969abbc91fbbd9eaead346a117ca46"
         ),
         // Link carrier. A `binaryTarget` cannot express dependencies or
         // linker settings on its own, so the product points at this instead
